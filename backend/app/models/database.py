@@ -31,6 +31,7 @@ class Organisation(Base):
     transactions: Mapped[list["Transaction"]] = relationship("Transaction", back_populates="organisation")
     bank_statements: Mapped[list["BankStatement"]] = relationship("BankStatement", back_populates="organisation")
     audit_logs: Mapped[list["AuditLog"]] = relationship("AuditLog", back_populates="organisation")
+    generated_documents: Mapped[list["GeneratedDocument"]] = relationship("GeneratedDocument", back_populates="organisation")
 
 
 class Account(Base):
@@ -123,4 +124,23 @@ class AuditLog(Base):
 
     __table_args__ = (
         Index("ix_audit_logs_entity", "entity_type", "entity_id"),
+    )
+
+
+class GeneratedDocument(Base):
+    __tablename__ = "generated_documents"
+
+    id: Mapped[uuid.UUID] = mapped_column(SA_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    organisation_id: Mapped[uuid.UUID] = mapped_column(SA_UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    template: Mapped[str] = mapped_column(String(100), nullable=False)
+    period_start: Mapped[date] = mapped_column(Date, nullable=False)
+    period_end: Mapped[date] = mapped_column(Date, nullable=False)
+    ai_model: Mapped[str] = mapped_column(String(100), nullable=False)
+    figures: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    organisation: Mapped["Organisation"] = relationship("Organisation", back_populates="generated_documents")
+
+    __table_args__ = (
+        Index("ix_generated_documents_org_id", "organisation_id"),
     )
