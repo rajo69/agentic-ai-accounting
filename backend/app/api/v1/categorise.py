@@ -25,7 +25,7 @@ router = APIRouter(prefix="/api/v1", tags=["categorise"])
 
 
 async def _get_org(db: AsyncSession) -> Organisation:
-    result = await db.execute(select(Organisation).limit(1))
+    result = await db.execute(select(Organisation).where(Organisation.xero_access_token.isnot(None)).limit(1))
     org = result.scalar_one_or_none()
     if not org:
         raise HTTPException(status_code=404, detail="No organisation connected. Connect Xero first.")
