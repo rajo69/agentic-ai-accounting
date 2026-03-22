@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     xero_client_id: str = ""
     xero_client_secret: str = ""
     xero_redirect_uri: str = "http://localhost:8000/auth/xero/callback"
-    openai_api_key: str = ""
+    anthropic_api_key: str = ""
 
 
 settings = Settings()
