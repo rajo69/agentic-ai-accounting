@@ -67,7 +67,7 @@ After completing each phase, update the `## PHASE STATUS` section below by chang
 - [x] Phase 2: Xero OAuth2 and data sync
 - [x] Phase 3: Transaction categorisation agent (LangGraph)
 - [x] Phase 4: Bank reconciliation agent
-- [ ] Phase 5: Frontend — dashboard + transaction review UI
+- [x] Phase 5: Frontend — dashboard + transaction review UI
 - [ ] Phase 6: Document generation (RAG + PDF)
 - [ ] Phase 7: XAI explanations (SHAP + fuzzy logic)
 - [ ] Phase 8: Landing page + auth + deploy
