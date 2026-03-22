@@ -11,8 +11,12 @@ router = APIRouter(prefix="/api/v1", tags=["sync"])
 
 
 async def _get_first_org(db: AsyncSession) -> Organisation:
-    """Return the first connected organisation or raise 404."""
-    result = await db.execute(select(Organisation).limit(1))
+    """Return the connected organisation (has a token) or raise 404."""
+    result = await db.execute(
+        select(Organisation)
+        .where(Organisation.xero_access_token.isnot(None))
+        .limit(1)
+    )
     org = result.scalar_one_or_none()
     if org is None:
         raise HTTPException(

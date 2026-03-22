@@ -22,11 +22,14 @@ XERO_TOKEN_URL = "https://identity.xero.com/connect/token"
 XERO_CONNECTIONS_URL = "https://api.xero.com/connections"
 XERO_API_BASE = "https://api.xero.com/api.xro/2.0"
 XERO_SCOPES = (
-    "openid profile email "
-    "accounting.transactions.read "
+    "openid profile email offline_access "
+    "accounting.banktransactions.read "
+    "accounting.banktransactions "
+    "accounting.invoices.read "
+    "accounting.invoices "
     "accounting.contacts.read "
-    "accounting.settings.read "
-    "offline_access"
+    "accounting.contacts "
+    "accounting.settings.read"
 )
 
 
@@ -300,6 +303,61 @@ class XeroAdapter:
                         tx.amount = amount
                         tx.description = description
                         tx.reference = item.get("Reference")
+                    count += 1
+
+                await db.commit()
+
+                if len(items) < 100:
+                    break
+                page += 1
+
+        # Also pull paid invoices and bills as transactions
+        page = 1
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            while True:
+                data = await self._get_with_retry(
+                    client,
+                    f"{XERO_API_BASE}/Invoices",
+                    headers,
+                    params={"page": page, "Statuses": "PAID,AUTHORISED"},
+                )
+                items = data.get("Invoices", [])
+                if not items:
+                    break
+
+                for item in items:
+                    xero_id = "inv-" + item["InvoiceID"]
+                    tx_date = _parse_xero_date(item.get("Date") or item.get("DateString"))
+                    if tx_date is None:
+                        continue
+
+                    contact_name = item.get("Contact", {}).get("Name", "Unknown")
+                    invoice_number = item.get("InvoiceNumber", "")
+                    description = f"{contact_name} — {invoice_number}" if invoice_number else contact_name
+
+                    # ACCPAY = bill (money out), ACCREC = invoice (money in)
+                    amount = Decimal(str(item.get("Total", 0)))
+                    if item.get("Type") == "ACCPAY":
+                        amount = -abs(amount)
+
+                    result = await db.execute(
+                        select(Transaction).where(Transaction.xero_id == xero_id)
+                    )
+                    tx = result.scalar_one_or_none()
+                    if tx is None:
+                        tx = Transaction(
+                            organisation_id=self.organisation.id,
+                            xero_id=xero_id,
+                            date=tx_date,
+                            amount=amount,
+                            description=description,
+                            reference=invoice_number or None,
+                        )
+                        db.add(tx)
+                    else:
+                        tx.date = tx_date
+                        tx.amount = amount
+                        tx.description = description
                     count += 1
 
                 await db.commit()

@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/v1", tags=["dashboard"])
 @router.get("/dashboard/summary", response_model=DashboardSummary)
 async def dashboard_summary(db: AsyncSession = Depends(get_db)):
     """Return high-level counts for the dashboard."""
-    result = await db.execute(select(Organisation).limit(1))
+    result = await db.execute(select(Organisation).where(Organisation.xero_access_token.isnot(None)).limit(1))
     org = result.scalar_one_or_none()
     if org is None:
         raise HTTPException(
