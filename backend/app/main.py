@@ -9,6 +9,7 @@ from app.api.v1.auth import router as auth_router
 from app.api.v1.sync import router as sync_router
 from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.categorise import router as categorise_router
+from app.api.v1.reconcile import router as reconcile_router
 import app.models.database  # noqa: F401 — ensure models are registered
 
 
@@ -34,3 +35,4 @@ app.include_router(auth_router)
 app.include_router(sync_router)
 app.include_router(dashboard_router)
 app.include_router(categorise_router)
+app.include_router(reconcile_router)

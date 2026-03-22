@@ -175,3 +175,52 @@ class TransactionDetail(BaseModel):
 class TransactionCorrectRequest(BaseModel):
     category: str
     category_code: Optional[str] = None
+
+
+class MatchCandidate(BaseModel):
+    transaction_id: uuid.UUID
+    description: str
+    date: date
+    amount: Decimal
+    amount_score: float
+    date_score: float
+    description_score: float
+    combined_score: float
+
+
+class BankStatementDetail(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    organisation_id: uuid.UUID
+    xero_id: str
+    date: date
+    amount: Decimal
+    description: str
+    reference: Optional[str] = None
+    matched_transaction_id: Optional[uuid.UUID] = None
+    match_confidence: Optional[Decimal] = None
+    match_status: str
+    created_at: datetime
+    updated_at: datetime
+    candidates: list[MatchCandidate] = []
+    audit_history: list[AuditLogRead] = []
+
+
+class BankStatementListResponse(BaseModel):
+    items: list[BankStatementRead]
+    total: int
+    page: int
+    page_size: int
+
+
+class ReconcileBatchResponse(BaseModel):
+    auto_matched: int = 0
+    suggested: int = 0
+    needs_review: int = 0
+    errors: int = 0
+    total_processed: int = 0
+
+
+class ManualMatchRequest(BaseModel):
+    transaction_id: uuid.UUID
