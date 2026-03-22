@@ -13,6 +13,7 @@ class OrganisationRead(BaseModel):
     name: str
     xero_tenant_id: str
     xero_token_expires_at: Optional[datetime] = None
+    last_sync_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
@@ -113,6 +114,22 @@ class ReconcileResponse(BaseModel):
     confidence: Optional[Decimal] = None
     status: str
     explanation: Optional[str] = None
+
+
+class DashboardSummary(BaseModel):
+    total_accounts: int
+    total_transactions: int
+    uncategorised_count: int
+    unreconciled_count: int
+    last_sync_at: Optional[datetime] = None
+    organisation_name: Optional[str] = None
+
+
+class SyncStatus(BaseModel):
+    last_sync_at: Optional[datetime] = None
+    synced_accounts: int = 0
+    synced_transactions: int = 0
+    synced_bank_statements: int = 0
 
 
 class HealthResponse(BaseModel):

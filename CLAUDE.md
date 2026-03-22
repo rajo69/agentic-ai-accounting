@@ -63,8 +63,8 @@ After completing each phase, update the `## PHASE STATUS` section below by chang
 
 ### PHASE STATUS
 
-- [ ] Phase 1: Project scaffolding (FastAPI + Docker + DB models + migrations)
-- [ ] Phase 2: Xero OAuth2 and data sync
+- [x] Phase 1: Project scaffolding (FastAPI + Docker + DB models + migrations)
+- [x] Phase 2: Xero OAuth2 and data sync
 - [ ] Phase 3: Transaction categorisation agent (LangGraph)
 - [ ] Phase 4: Bank reconciliation agent
 - [ ] Phase 5: Frontend — dashboard + transaction review UI
@@ -75,7 +75,9 @@ After completing each phase, update the `## PHASE STATUS` section below by chang
 
 ### DECISIONS LOG
 
-*(Append decisions here as they're made during development)*
+- 2026-03-22: Use Anthropic Claude API instead of OpenAI (user preference). Replaced `openai_api_key` with `anthropic_api_key` in config. Updated `pyproject.toml` ai extras to use `anthropic`, `langchain-anthropic`, `instructor[anthropic]`.
+- 2026-03-22: Xero adapter implemented with raw httpx (not the xero-python SDK) for OAuth2 and all API calls. Cleaner and more controllable. xero-python still installed as optional dep.
+- 2026-03-22: Added `last_sync_at` column to `organisations` table (migration: a1b2c3d4e5f6). Required for dashboard summary.
 
 ### KNOWN ISSUES
 
