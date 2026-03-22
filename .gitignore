@@ -29,6 +29,10 @@ htmlcov/
 # Alembic
 # (keep versions tracked)
 
+# Evals — cache and results are local only
+backend/evals/.cache/
+backend/evals/results/
+
 # OS
 .DS_Store
 Thumbs.db
