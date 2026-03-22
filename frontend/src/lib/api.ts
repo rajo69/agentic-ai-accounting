@@ -222,3 +222,37 @@ export const manualMatch = (id: string, transaction_id: string) =>
     method: "POST",
     body: JSON.stringify({ transaction_id }),
   });
+
+// ── Documents ─────────────────────────────────────────────────────────────────
+
+export interface GeneratedDocument {
+  id: string;
+  organisation_id: string;
+  template: string;
+  period_start: string;
+  period_end: string;
+  ai_model: string;
+  figures: {
+    total_income: number;
+    total_expenses_abs: number;
+    net: number;
+    transaction_count: number;
+    top_expense_categories: { name: string; total_abs: number; pct: number }[];
+    largest_transactions: { date: string; description: string; amount: number }[];
+  };
+  generated_at: string;
+}
+
+export const listDocuments = () =>
+  apiFetch<GeneratedDocument[]>("/api/v1/documents");
+
+export const generateDocument = (body: {
+  template: string;
+  period_start: string;
+  period_end: string;
+}) =>
+  fetch(`${API_BASE}/api/v1/documents/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });

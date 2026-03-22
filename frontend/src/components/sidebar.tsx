@@ -8,7 +8,7 @@ const navItems = [
   { href: "/", label: "Dashboard" },
   { href: "/transactions", label: "Transactions" },
   { href: "/reconciliation", label: "Reconciliation" },
-  { href: "/documents", label: "Documents", soon: true },
+  { href: "/documents", label: "Documents" },
   { href: "/settings", label: "Settings", soon: true },
 ];
 

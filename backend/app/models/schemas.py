@@ -224,3 +224,31 @@ class ReconcileBatchResponse(BaseModel):
 
 class ManualMatchRequest(BaseModel):
     transaction_id: uuid.UUID
+
+
+class GeneratedDocumentRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    organisation_id: uuid.UUID
+    template: str
+    period_start: date
+    period_end: date
+    ai_model: str
+    figures: dict
+    generated_at: datetime
+
+
+class DocumentGenerateRequest(BaseModel):
+    template: str
+    period_start: date
+    period_end: date
+
+
+class DocumentGenerateResponse(BaseModel):
+    document_id: uuid.UUID
+    template: str
+    period_start: date
+    period_end: date
+    transaction_count: int
+    generated_at: str
