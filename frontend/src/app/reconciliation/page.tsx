@@ -28,6 +28,7 @@ import {
   type BankStatementDetail,
   type Transaction,
 } from "@/lib/api";
+import { ExplanationPanel } from "@/components/explanation-panel";
 
 const MATCH_COLOURS: Record<string, string> = {
   confirmed: "bg-green-100 text-green-800",
@@ -330,23 +331,17 @@ export default function ReconciliationPage() {
                 )}
               </div>
 
-              {/* Audit history */}
-              {selected.audit_history.length > 0 && (
-                <details>
-                  <summary className="cursor-pointer text-xs text-gray-400 font-medium">
-                    Audit history ({selected.audit_history.length})
-                  </summary>
-                  <ol className="mt-2 space-y-1 border-l border-gray-100 pl-3">
-                    {selected.audit_history.map((log) => (
-                      <li key={log.id} className="text-xs text-gray-500">
-                        <span className="font-medium">{log.action}</span>
-                        <p className="text-gray-400">
-                          {new Date(log.created_at).toLocaleString("en-GB")}
-                        </p>
-                      </li>
-                    ))}
-                  </ol>
-                </details>
+              {/* Matched transaction XAI explanation */}
+              {selected.matched_transaction_id && (
+                <div>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">
+                    Matched transaction — AI explanation
+                  </p>
+                  <ExplanationPanel
+                    transactionId={selected.matched_transaction_id}
+                    inline
+                  />
+                </div>
               )}
             </div>
           ) : (
