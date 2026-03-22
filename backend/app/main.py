@@ -11,6 +11,7 @@ from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.categorise import router as categorise_router
 from app.api.v1.reconcile import router as reconcile_router
 from app.api.v1.documents import router as documents_router
+from app.api.v1.explanations import router as explanations_router
 import app.models.database  # noqa: F401 — ensure models are registered
 
 
@@ -38,3 +39,4 @@ app.include_router(dashboard_router)
 app.include_router(categorise_router)
 app.include_router(reconcile_router)
 app.include_router(documents_router)
+app.include_router(explanations_router)

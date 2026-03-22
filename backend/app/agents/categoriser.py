@@ -19,6 +19,8 @@ from app.core.config import settings
 from app.models.database import Account, AuditLog, Transaction
 from app.models.schemas import BatchCategoriseResponse
 from app.services.embedding_service import embed_transaction, find_similar_transactions
+from app.xai.explainer import explain_categorisation
+from app.xai.fuzzy_engine import compute_fuzzy_inputs, compute_risk_score
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ class CategoriserState(TypedDict):
     similar_examples: list[dict]
     prediction: Optional[dict]
     status: str
+    audit_log_id: Optional[str]
 
 
 class CategoryPrediction(BaseModel):
@@ -195,21 +198,71 @@ def build_categoriser_graph(db: AsyncSession):
             },
         )
         db.add(audit)
+        await db.flush()  # get audit.id without closing the session
+        audit_log_id = str(audit.id)
         await db.commit()
 
-        return {"status": final_status}
+        return {"status": final_status, "audit_log_id": audit_log_id}
+
+    async def explain(state: CategoriserState) -> dict:
+        """Generate XAI explanation and append it to the AuditLog ai_decision_data."""
+        prediction = state.get("prediction")
+        audit_log_id = state.get("audit_log_id")
+        if not prediction or not audit_log_id:
+            return {}
+
+        tx_data = state["transaction_data"]
+        org_id = UUID(tx_data["organisation_id"])
+
+        try:
+            xai_result = await explain_categorisation(
+                transaction=tx_data,
+                prediction=prediction,
+                similar_examples=state.get("similar_examples", []),
+                org_id=org_id,
+                db=db,
+            )
+        except Exception:
+            logger.exception("XAI explain_categorisation failed")
+            xai_result = {"top_features": [], "explanation_text": prediction.get("reasoning", ""), "model_type": "llm"}
+
+        try:
+            fuzzy_inputs = await compute_fuzzy_inputs(tx_data, prediction, org_id, db)
+            risk_result = compute_risk_score(**fuzzy_inputs)
+        except Exception:
+            logger.exception("Fuzzy risk scoring failed")
+            risk_result = {"risk_score": 0.5, "risk_label": "medium", "fired_rules": [], "input_values": {}}
+
+        # Update the AuditLog with XAI data
+        try:
+            res = await db.execute(
+                select(AuditLog).where(AuditLog.id == UUID(audit_log_id))
+            )
+            audit = res.scalar_one_or_none()
+            if audit:
+                existing = dict(audit.ai_decision_data or {})
+                existing["xai"] = xai_result
+                existing["risk"] = risk_result
+                audit.ai_decision_data = existing
+                await db.commit()
+        except Exception:
+            logger.exception("Failed to update AuditLog with XAI data")
+
+        return {}
 
     workflow = StateGraph(CategoriserState)
     workflow.add_node("fetch_context", fetch_context)
     workflow.add_node("classify", classify)
     workflow.add_node("validate", validate)
     workflow.add_node("decide", decide)
+    workflow.add_node("explain", explain)
 
     workflow.set_entry_point("fetch_context")
     workflow.add_edge("fetch_context", "classify")
     workflow.add_edge("classify", "validate")
     workflow.add_edge("validate", "decide")
-    workflow.add_edge("decide", END)
+    workflow.add_edge("decide", "explain")
+    workflow.add_edge("explain", END)
 
     return workflow.compile()
 
@@ -249,6 +302,7 @@ async def categorise_batch(org_id: UUID, db: AsyncSession) -> BatchCategoriseRes
                     "similar_examples": [],
                     "prediction": None,
                     "status": "pending",
+                    "audit_log_id": None,
                 }
                 final = await graph.ainvoke(initial_state)
                 status = final.get("status", "errors")

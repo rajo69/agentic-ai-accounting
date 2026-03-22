@@ -223,6 +223,59 @@ export const manualMatch = (id: string, transaction_id: string) =>
     body: JSON.stringify({ transaction_id }),
   });
 
+// ── Explanations ─────────────────────────────────────────────────────────────
+
+export interface FeatureContribution {
+  name: string;
+  value: number;
+  contribution: number;
+}
+
+export interface XaiData {
+  top_features: FeatureContribution[];
+  explanation_text: string | null;
+  model_type: "ebm" | "llm";
+}
+
+export interface RiskData {
+  risk_score: number | null;
+  risk_label: "low" | "medium" | "high" | null;
+  fired_rules: string[];
+  input_values: Record<string, number>;
+}
+
+export interface PredictionInfo {
+  category: string | null;
+  confidence: number | null;
+  reasoning: string | null;
+  model: string | null;
+  category_code: string | null;
+}
+
+export interface ExplanationAuditEntry {
+  id: string;
+  action: string;
+  ai_model: string | null;
+  ai_confidence: number | null;
+  ai_explanation: string | null;
+  new_value: Record<string, unknown> | null;
+  created_at: string | null;
+}
+
+export interface ExplanationResponse {
+  transaction_id: string;
+  category: string | null;
+  category_confidence: number | null;
+  categorisation_status: string;
+  prediction: PredictionInfo | null;
+  xai: XaiData;
+  risk: RiskData;
+  audit_history: ExplanationAuditEntry[];
+}
+
+export const getExplanation = (transactionId: string) =>
+  apiFetch<ExplanationResponse>(`/api/v1/transactions/${transactionId}/explanation`);
+
 // ── Documents ─────────────────────────────────────────────────────────────────
 
 export interface GeneratedDocument {

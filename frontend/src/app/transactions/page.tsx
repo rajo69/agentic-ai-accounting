@@ -34,6 +34,7 @@ import {
   type Transaction,
   type TransactionDetail,
 } from "@/lib/api";
+import { ExplanationPanel } from "@/components/explanation-panel";
 
 const STATUS_COLOURS: Record<string, string> = {
   confirmed: "bg-green-100 text-green-800",
@@ -325,25 +326,14 @@ export default function TransactionsPage() {
                 <span>{fmtConfidence(selected.category_confidence)}</span>
               </div>
 
-              {selected.audit_history.length > 0 && (
-                <details className="mt-2">
-                  <summary className="cursor-pointer text-gray-500 text-xs font-medium">
-                    Audit history ({selected.audit_history.length})
-                  </summary>
-                  <ol className="mt-2 space-y-1 border-l border-gray-200 pl-4">
-                    {selected.audit_history.map((log) => (
-                      <li key={log.id} className="text-xs text-gray-600">
-                        <span className="font-medium">{log.action}</span>
-                        {log.ai_explanation && (
-                          <p className="text-gray-400 mt-0.5">{log.ai_explanation}</p>
-                        )}
-                        <p className="text-gray-400">
-                          {new Date(log.created_at).toLocaleString("en-GB")}
-                        </p>
-                      </li>
-                    ))}
-                  </ol>
-                </details>
+              {/* XAI explanation panel — only for AI-categorised transactions */}
+              {selected.categorisation_status !== "uncategorised" && (
+                <div className="mt-2">
+                  <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">
+                    AI Explanation
+                  </p>
+                  <ExplanationPanel transactionId={selected.id} inline />
+                </div>
               )}
 
               <div className="flex gap-2 pt-2">
