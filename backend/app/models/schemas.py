@@ -135,3 +135,43 @@ class SyncStatus(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     version: str
+
+
+class BatchCategoriseResponse(BaseModel):
+    auto_categorised: int = 0
+    suggested: int = 0
+    needs_review: int = 0
+    errors: int = 0
+    total_processed: int = 0
+
+
+class TransactionListResponse(BaseModel):
+    items: list[TransactionRead]
+    total: int
+    page: int
+    page_size: int
+
+
+class TransactionDetail(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    organisation_id: uuid.UUID
+    account_id: Optional[uuid.UUID] = None
+    xero_id: str
+    date: date
+    amount: Decimal
+    description: str
+    reference: Optional[str] = None
+    category: Optional[str] = None
+    category_confidence: Optional[Decimal] = None
+    categorisation_status: str
+    is_reconciled: bool
+    created_at: datetime
+    updated_at: datetime
+    audit_history: list[AuditLogRead] = []
+
+
+class TransactionCorrectRequest(BaseModel):
+    category: str
+    category_code: Optional[str] = None

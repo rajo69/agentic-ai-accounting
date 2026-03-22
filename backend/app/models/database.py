@@ -65,7 +65,7 @@ class Transaction(Base):
     category_confidence: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 4), nullable=True)
     categorisation_status: Mapped[str] = mapped_column(String(50), default="uncategorised", nullable=False)
     is_reconciled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    embedding: Mapped[Optional[list]] = mapped_column(Vector(1536), nullable=True)
+    embedding: Mapped[Optional[list]] = mapped_column(Vector(384), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
