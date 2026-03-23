@@ -68,7 +68,7 @@ function DocumentRow({ doc }: { doc: GeneratedDocument }) {
         <div>
           <p className="font-semibold text-slate-900 text-sm">Management Letter</p>
           <p className="text-xs text-slate-500 mt-0.5">
-            {fmtDate(doc.period_start)} — {fmtDate(doc.period_end)}
+            {fmtDate(doc.period_start)} to {fmtDate(doc.period_end)}
             &nbsp;·&nbsp;{doc.figures.transaction_count} transactions
           </p>
           <div className="flex items-center gap-1 mt-1.5">
