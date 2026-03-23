@@ -28,11 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="flex h-screen overflow-hidden">
+        <div className="flex h-screen overflow-hidden bg-slate-50">
           <Sidebar />
-          <main className="flex-1 overflow-y-auto p-6 bg-gray-50">{children}</main>
+          <main className="flex-1 overflow-y-auto">
+            <div className="min-h-full p-8">{children}</div>
+          </main>
         </div>
-        <Toaster richColors />
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

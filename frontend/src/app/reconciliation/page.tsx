@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,6 +19,14 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  XCircle,
+  Search,
+  Link2,
+} from "lucide-react";
+import {
   getBankStatements,
   getBankStatement,
   confirmMatch,
@@ -30,39 +39,58 @@ import {
 } from "@/lib/api";
 import { ExplanationPanel } from "@/components/explanation-panel";
 
-const MATCH_COLOURS: Record<string, string> = {
-  confirmed: "bg-green-100 text-green-800",
-  auto_matched: "bg-blue-100 text-blue-800",
-  suggested: "bg-yellow-100 text-yellow-800",
-  unmatched: "bg-gray-100 text-gray-600",
+// ── Match badge ───────────────────────────────────────────────────────────────
+
+const MATCH_CONFIG: Record<string, { label: string; className: string }> = {
+  confirmed:    { label: "Confirmed",    className: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" },
+  auto_matched: { label: "Auto-matched", className: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100" },
+  suggested:    { label: "Suggested",    className: "bg-amber-50 text-amber-700 ring-1 ring-amber-100" },
+  unmatched:    { label: "Unmatched",    className: "bg-slate-100 text-slate-500 ring-1 ring-slate-200" },
 };
 
 function MatchBadge({ status }: { status: string }) {
+  const cfg = MATCH_CONFIG[status] ?? { label: status, className: "bg-slate-100 text-slate-500" };
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-        MATCH_COLOURS[status] ?? "bg-gray-100 text-gray-600"
-      }`}
-    >
-      {status.replace(/_/g, " ")}
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${cfg.className}`}>
+      {cfg.label}
     </span>
   );
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
 function fmtAmount(amount: string) {
-  return new Intl.NumberFormat("en-GB", {
-    style: "currency",
-    currency: "GBP",
-  }).format(parseFloat(amount));
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(parseFloat(amount));
 }
-
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("en-GB");
+  return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
-
 function fmtPct(n: number) {
   return `${(n * 100).toFixed(0)}%`;
 }
+
+// ── Score bar ─────────────────────────────────────────────────────────────────
+
+function ScoreBar({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="space-y-0.5">
+      <div className="flex justify-between text-[10px] text-slate-500">
+        <span>{label}</span>
+        <span className="font-mono">{fmtPct(value)}</span>
+      </div>
+      <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-indigo-400 rounded-full"
+          initial={{ width: 0 }}
+          animate={{ width: `${value * 100}%` }}
+          transition={{ duration: 0.5}}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function ReconciliationPage() {
   const [statements, setStatements] = useState<BankStatement[]>([]);
@@ -84,31 +112,19 @@ export default function ReconciliationPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getBankStatements({
-        page,
-        page_size: PAGE_SIZE,
-        match_status: matchStatus || undefined,
-      });
+      const res = await getBankStatements({ page, page_size: PAGE_SIZE, match_status: matchStatus || undefined });
       setStatements(res.items);
       setTotal(res.total);
-    } catch (e) {
-      toast.error(String(e));
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { toast.error(String(e)); } finally { setLoading(false); }
   }, [page, matchStatus]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useEffect(() => { load(); }, [load]);
 
   const openStatement = async (id: string) => {
     try {
       const detail = await getBankStatement(id);
       setSelected(detail);
-    } catch (e) {
-      toast.error(String(e));
-    }
+    } catch (e) { toast.error(String(e)); }
   };
 
   const handleConfirm = async () => {
@@ -117,13 +133,8 @@ export default function ReconciliationPage() {
     try {
       await confirmMatch(selected.id);
       toast.success("Match confirmed");
-      load();
-      setSelected(null);
-    } catch (e) {
-      toast.error(String(e));
-    } finally {
-      setActionLoading(false);
-    }
+      load(); setSelected(null);
+    } catch (e) { toast.error(String(e)); } finally { setActionLoading(false); }
   };
 
   const handleUnmatch = async () => {
@@ -132,13 +143,8 @@ export default function ReconciliationPage() {
     try {
       await unmatch(selected.id);
       toast.success("Match removed");
-      load();
-      setSelected(null);
-    } catch (e) {
-      toast.error(String(e));
-    } finally {
-      setActionLoading(false);
-    }
+      load(); setSelected(null);
+    } catch (e) { toast.error(String(e)); } finally { setActionLoading(false); }
   };
 
   const handleManualMatch = async (txId: string) => {
@@ -147,14 +153,8 @@ export default function ReconciliationPage() {
     try {
       await manualMatch(selected.id, txId);
       toast.success("Manually matched");
-      load();
-      setSearchOpen(false);
-      setSelected(null);
-    } catch (e) {
-      toast.error(String(e));
-    } finally {
-      setActionLoading(false);
-    }
+      load(); setSearchOpen(false); setSelected(null);
+    } catch (e) { toast.error(String(e)); } finally { setActionLoading(false); }
   };
 
   const searchTransactions = async () => {
@@ -163,192 +163,216 @@ export default function ReconciliationPage() {
     try {
       const res = await getTransactions({ search: txSearch, page_size: 10 });
       setTxResults(res.items);
-    } catch (e) {
-      toast.error(String(e));
-    } finally {
-      setTxSearching(false);
-    }
+    } catch (e) { toast.error(String(e)); } finally { setTxSearching(false); }
   };
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className="max-w-6xl">
-      <h1 className="text-xl font-semibold text-gray-900 mb-4">Reconciliation</h1>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3}}
+      className="max-w-6xl"
+    >
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-900">Reconciliation</h1>
+        <p className="text-sm text-slate-500 mt-0.5">Match bank statement lines to your Xero transactions</p>
+      </div>
 
-      <div className="flex gap-4">
-        {/* Left panel — statements list */}
-        <div className="flex-1 space-y-3">
-          <Select value={matchStatus} onValueChange={(v) => { setMatchStatus(v === "all" ? "" : v ?? ""); setPage(1); }}>
-            <SelectTrigger className="w-44">
+      <div className="flex gap-5">
+        {/* ── Left panel — statements list ─────────────────────── */}
+        <div className="flex-1 min-w-0 space-y-3">
+          <Select
+            value={matchStatus}
+            onValueChange={(v) => { setMatchStatus(v === "all" ? "" : v ?? ""); setPage(1); }}
+          >
+            <SelectTrigger className="w-48 bg-white border-slate-200 text-sm">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="unmatched">Unmatched</SelectItem>
               <SelectItem value="suggested">Suggested</SelectItem>
-              <SelectItem value="auto_matched">Auto matched</SelectItem>
+              <SelectItem value="auto_matched">Auto-matched</SelectItem>
               <SelectItem value="confirmed">Confirmed</SelectItem>
             </SelectContent>
           </Select>
 
-          <div className="rounded-md border bg-white divide-y divide-gray-100 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 overflow-hidden">
             {loading ? (
-              <p className="text-sm text-gray-400 text-center py-8">Loading…</p>
+              <div className="divide-y divide-slate-50">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="flex items-center justify-between px-4 py-3.5 gap-4">
+                    <div className="space-y-1.5 flex-1">
+                      <div className="h-3.5 bg-slate-100 rounded animate-pulse w-3/4" />
+                      <div className="h-3 bg-slate-100 rounded animate-pulse w-1/3" />
+                    </div>
+                    <div className="h-5 w-16 bg-slate-100 rounded-full animate-pulse" />
+                  </div>
+                ))}
+              </div>
             ) : statements.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-8">
-                No bank statements found
-              </p>
+              <p className="text-sm text-slate-400 text-center py-12">No bank statements found</p>
             ) : (
-              statements.map((s) => (
-                <div
-                  key={s.id}
-                  onClick={() => openStatement(s.id)}
-                  className={`flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 text-sm ${
-                    selected?.id === s.id ? "bg-blue-50" : ""
-                  }`}
-                >
-                  <div className="space-y-0.5">
-                    <p className="font-medium truncate max-w-xs">{s.description}</p>
-                    <p className="text-gray-400">{fmtDate(s.date)}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="font-mono font-medium">{fmtAmount(s.amount)}</span>
-                    <MatchBadge status={s.match_status} />
-                  </div>
-                </div>
-              ))
+              <motion.div
+                className="divide-y divide-slate-50"
+                initial="hidden"
+                animate="show"
+                variants={{ hidden: {}, show: { transition: { staggerChildren: 0.03 } } }}
+              >
+                {statements.map((s) => (
+                  <motion.div
+                    key={s.id}
+                    variants={{ hidden: { opacity: 0, x: -8 }, show: { opacity: 1, x: 0, transition: { duration: 0.2 } } }}
+                    onClick={() => openStatement(s.id)}
+                    className={`flex items-center justify-between px-4 py-3.5 cursor-pointer transition-colors text-sm ${
+                      selected?.id === s.id
+                        ? "bg-indigo-50/60 border-l-2 border-indigo-500"
+                        : "hover:bg-slate-50/80"
+                    }`}
+                  >
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="font-medium text-slate-900 truncate">{s.description}</p>
+                      <p className="text-slate-400 text-xs">{fmtDate(s.date)}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5 shrink-0 ml-4">
+                      <span className={`font-mono font-medium ${parseFloat(s.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}`}>
+                        {fmtAmount(s.amount)}
+                      </span>
+                      <MatchBadge status={s.match_status} />
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
             )}
           </div>
 
           {totalPages > 1 && (
-            <div className="flex items-center gap-3 text-sm text-gray-500">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                Previous
+            <div className="flex items-center gap-3 text-sm text-slate-500">
+              <Button variant="outline" size="sm" className="bg-white gap-1" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+                <ChevronLeft className="w-3.5 h-3.5" /> Previous
               </Button>
-              <span>
-                {page}/{totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Next
+              <span className="text-xs">{page} / {totalPages}</span>
+              <Button variant="outline" size="sm" className="bg-white gap-1" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+                Next <ChevronRight className="w-3.5 h-3.5" />
               </Button>
             </div>
           )}
         </div>
 
-        {/* Right panel — detail */}
-        <div className="w-80 flex-shrink-0">
-          {selected ? (
-            <div className="rounded-md border bg-white p-4 space-y-4 text-sm">
-              <div>
-                <p className="font-semibold text-gray-900 text-base">{selected.description}</p>
-                <p className="text-gray-400 text-xs mt-0.5">{fmtDate(selected.date)}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-y-1.5">
-                <span className="text-gray-500">Amount</span>
-                <span className="font-mono">{fmtAmount(selected.amount)}</span>
-                <span className="text-gray-500">Status</span>
-                <MatchBadge status={selected.match_status} />
-                {selected.match_confidence && (
-                  <>
-                    <span className="text-gray-500">Confidence</span>
-                    <span>{fmtPct(parseFloat(selected.match_confidence))}</span>
-                  </>
-                )}
-              </div>
-
-              {/* Match candidates */}
-              {selected.candidates.length > 0 && (
+        {/* ── Right panel — detail ─────────────────────────────── */}
+        <div className="w-80 shrink-0">
+          <AnimatePresence mode="wait">
+            {selected ? (
+              <motion.div
+                key={selected.id}
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 12 }}
+                transition={{ duration: 0.2}}
+                className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 p-5 space-y-5 text-sm"
+              >
+                {/* Statement info */}
                 <div>
-                  <p className="font-medium text-gray-700 mb-2">Match candidates</p>
-                  <div className="space-y-2">
-                    {selected.candidates.map((c) => (
-                      <div
-                        key={c.transaction_id}
-                        className="rounded border border-gray-100 p-2 space-y-1"
-                      >
-                        <p className="font-medium text-xs truncate">{c.description}</p>
-                        <div className="flex justify-between text-xs text-gray-500">
-                          <span>{fmtDate(c.date)}</span>
-                          <span className="font-mono">{fmtAmount(c.amount)}</span>
-                        </div>
-                        <div className="flex gap-2 text-[10px] text-gray-400">
-                          <span>Amt {fmtPct(c.amount_score)}</span>
-                          <span>Date {fmtPct(c.date_score)}</span>
-                          <span>Desc {fmtPct(c.description_score)}</span>
-                          <span className="font-semibold text-gray-600">
-                            Overall {fmtPct(c.combined_score)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                  <p className="font-semibold text-slate-900 text-base leading-snug">{selected.description}</p>
+                  <p className="text-slate-400 text-xs mt-1">{fmtDate(selected.date)}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-y-2.5 bg-slate-50 rounded-lg p-3">
+                  <span className="text-slate-400 text-xs uppercase tracking-wide font-medium self-center">Amount</span>
+                  <span className={`font-mono font-semibold ${parseFloat(selected.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}`}>
+                    {fmtAmount(selected.amount)}
+                  </span>
+                  <span className="text-slate-400 text-xs uppercase tracking-wide font-medium self-center">Status</span>
+                  <MatchBadge status={selected.match_status} />
+                  {selected.match_confidence && (
+                    <>
+                      <span className="text-slate-400 text-xs uppercase tracking-wide font-medium">Confidence</span>
+                      <span className="font-mono text-indigo-600 font-semibold">{fmtPct(parseFloat(selected.match_confidence))}</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Match candidates */}
+                {selected.candidates.length > 0 && (
+                  <div>
+                    <p className="font-semibold text-slate-700 text-xs uppercase tracking-wide mb-2">Match candidates</p>
+                    <div className="space-y-3">
+                      {selected.candidates.map((c, i) => (
+                        <motion.div
+                          key={c.transaction_id}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.05 }}
+                          className="rounded-lg border border-slate-100 p-3 space-y-2"
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <p className="font-medium text-xs text-slate-900 leading-snug truncate">{c.description}</p>
+                            <span className={`font-mono text-xs shrink-0 ${parseFloat(c.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}`}>
+                              {fmtAmount(c.amount)}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-400">{fmtDate(c.date)}</p>
+                          <div className="space-y-1">
+                            <ScoreBar label="Amount" value={c.amount_score} />
+                            <ScoreBar label="Date" value={c.date_score} />
+                            <ScoreBar label="Description" value={c.description_score} />
+                          </div>
+                          <div className="flex justify-between items-center pt-1">
+                            <span className="text-xs text-slate-400">Overall</span>
+                            <span className="text-sm font-bold text-indigo-600">{fmtPct(c.combined_score)}</span>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Actions */}
-              <div className="flex flex-wrap gap-2">
-                {(selected.match_status === "suggested" ||
-                  selected.match_status === "auto_matched") && (
-                  <Button size="sm" onClick={handleConfirm} disabled={actionLoading}>
-                    Confirm
-                  </Button>
+                {/* Matched transaction AI explanation */}
+                {selected.matched_transaction_id && (
+                  <div>
+                    <p className="font-semibold text-slate-700 text-xs uppercase tracking-wide mb-2">
+                      Matched transaction — AI explanation
+                    </p>
+                    <ExplanationPanel transactionId={selected.matched_transaction_id} inline />
+                  </div>
                 )}
-                {selected.match_status !== "unmatched" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-red-600"
-                    onClick={handleUnmatch}
-                    disabled={actionLoading}
-                  >
-                    Unmatch
-                  </Button>
-                )}
-                {selected.match_status === "unmatched" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setTxSearch("");
-                      setTxResults([]);
-                      setSearchOpen(true);
-                    }}
-                  >
-                    Find &amp; Match
-                  </Button>
-                )}
-              </div>
 
-              {/* Matched transaction XAI explanation */}
-              {selected.matched_transaction_id && (
-                <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">
-                    Matched transaction — AI explanation
-                  </p>
-                  <ExplanationPanel
-                    transactionId={selected.matched_transaction_id}
-                    inline
-                  />
+                {/* Actions */}
+                <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-100">
+                  {(selected.match_status === "suggested" || selected.match_status === "auto_matched") && (
+                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 gap-1.5" onClick={handleConfirm} disabled={actionLoading}>
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Confirm
+                    </Button>
+                  )}
+                  {selected.match_status !== "unmatched" && (
+                    <Button size="sm" variant="outline" className="text-rose-600 hover:text-rose-700 gap-1.5" onClick={handleUnmatch} disabled={actionLoading}>
+                      <XCircle className="w-3.5 h-3.5" /> Unmatch
+                    </Button>
+                  )}
+                  {selected.match_status === "unmatched" && (
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setTxSearch(""); setTxResults([]); setSearchOpen(true); }}>
+                      <Link2 className="w-3.5 h-3.5" /> Find &amp; Match
+                    </Button>
+                  )}
                 </div>
-              )}
-            </div>
-          ) : (
-            <div className="rounded-md border bg-white p-6 text-center text-sm text-gray-400">
-              Select a statement to see details
-            </div>
-          )}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 p-8 text-center"
+              >
+                <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center mx-auto mb-3">
+                  <GitCompareIcon className="w-5 h-5 text-slate-300" />
+                </div>
+                <p className="text-sm text-slate-400">Select a statement to see details and match candidates</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -360,29 +384,35 @@ export default function ReconciliationPage() {
           </DialogHeader>
           <div className="space-y-3">
             <div className="flex gap-2">
-              <Input
-                placeholder="Search by description…"
-                value={txSearch}
-                onChange={(e) => setTxSearch(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && searchTransactions()}
-              />
-              <Button onClick={searchTransactions} disabled={txSearching}>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                <Input
+                  placeholder="Search by description…"
+                  className="pl-9 bg-white border-slate-200"
+                  value={txSearch}
+                  onChange={(e) => setTxSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && searchTransactions()}
+                />
+              </div>
+              <Button onClick={searchTransactions} disabled={txSearching} className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
                 {txSearching ? "…" : "Search"}
               </Button>
             </div>
             {txResults.length > 0 && (
-              <div className="divide-y divide-gray-100 border rounded-md overflow-hidden max-h-64 overflow-y-auto">
+              <div className="divide-y divide-slate-50 border border-slate-100 rounded-xl overflow-hidden max-h-64 overflow-y-auto">
                 {txResults.map((tx) => (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                    className="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 cursor-pointer text-sm transition-colors"
                     onClick={() => handleManualMatch(tx.id)}
                   >
                     <div>
-                      <p className="font-medium truncate max-w-48">{tx.description}</p>
-                      <p className="text-gray-400 text-xs">{fmtDate(tx.date)}</p>
+                      <p className="font-medium text-slate-900 truncate max-w-52">{tx.description}</p>
+                      <p className="text-slate-400 text-xs">{fmtDate(tx.date)}</p>
                     </div>
-                    <span className="font-mono text-xs">{fmtAmount(tx.amount)}</span>
+                    <span className={`font-mono text-xs shrink-0 ml-3 ${parseFloat(tx.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}`}>
+                      {fmtAmount(tx.amount)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -390,6 +420,15 @@ export default function ReconciliationPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
+  );
+}
+
+function GitCompareIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+      <circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 8.5v2a5 5 0 005 5H14M18 15.5v-2a5 5 0 00-5-5H10" />
+    </svg>
   );
 }
