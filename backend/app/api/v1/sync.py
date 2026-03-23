@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.core.database import get_db
+from app.core.session import get_current_org
 from app.integrations.xero_adapter import XeroAdapter
 from app.models.database import Organisation, Account, Transaction, BankStatement
 from app.models.schemas import SyncResponse, SyncStatus
@@ -10,26 +11,12 @@ from app.models.schemas import SyncResponse, SyncStatus
 router = APIRouter(prefix="/api/v1", tags=["sync"])
 
 
-async def _get_first_org(db: AsyncSession) -> Organisation:
-    """Return the connected organisation (has a token) or raise 404."""
-    result = await db.execute(
-        select(Organisation)
-        .where(Organisation.xero_access_token.isnot(None))
-        .limit(1)
-    )
-    org = result.scalar_one_or_none()
-    if org is None:
-        raise HTTPException(
-            status_code=404,
-            detail="No Xero organisation connected. Visit /auth/xero/connect first.",
-        )
-    return org
-
-
 @router.post("/sync", response_model=SyncResponse)
-async def trigger_sync(db: AsyncSession = Depends(get_db)):
+async def trigger_sync(
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Trigger a full Xero sync (accounts + transactions + bank statements)."""
-    org = await _get_first_org(db)
     adapter = XeroAdapter(org)
     try:
         result = await adapter.full_sync(db)
@@ -39,10 +26,11 @@ async def trigger_sync(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/sync/status", response_model=SyncStatus)
-async def sync_status(db: AsyncSession = Depends(get_db)):
+async def sync_status(
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Return last sync time and current record counts."""
-    org = await _get_first_org(db)
-
     accounts_count = await db.scalar(
         select(func.count()).select_from(Account).where(Account.organisation_id == org.id)
     )

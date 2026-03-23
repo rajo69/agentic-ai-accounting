@@ -6,7 +6,8 @@ from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.models.database import AuditLog, Transaction
+from app.core.session import get_current_org
+from app.models.database import AuditLog, Organisation, Transaction
 
 router = APIRouter(prefix="/api/v1", tags=["explanations"])
 
@@ -14,6 +15,7 @@ router = APIRouter(prefix="/api/v1", tags=["explanations"])
 @router.get("/transactions/{transaction_id}/explanation")
 async def get_explanation(
     transaction_id: UUID,
+    org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
     """Return the full XAI explanation package for a transaction.
@@ -21,9 +23,12 @@ async def get_explanation(
     Includes: prediction, confidence, top features, risk score, risk label,
     fired fuzzy rules, explanation text, and audit history.
     """
-    # Fetch transaction
+    # Fetch transaction (scoped to org)
     tx_result = await db.execute(
-        select(Transaction).where(Transaction.id == transaction_id)
+        select(Transaction).where(
+            Transaction.id == transaction_id,
+            Transaction.organisation_id == org.id,
+        )
     )
     tx = tx_result.scalar_one_or_none()
     if not tx:

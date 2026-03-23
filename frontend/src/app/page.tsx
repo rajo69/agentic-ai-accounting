@@ -1,297 +1,185 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import {
-  RefreshCw,
-  Tag,
-  GitCompare,
-  Layers,
-  AlertCircle,
-  Unlink2,
-  Clock,
-  Sparkles,
-} from "lucide-react";
-import {
-  getDashboardSummary,
-  triggerSync,
-  triggerCategorise,
-  triggerReconcile,
-  type DashboardSummary,
-} from "@/lib/api";
+import { Sparkles, Tag, GitCompare, FileText, ArrowRight, CheckCircle2 } from "lucide-react";
 
-// ── Count-up hook ─────────────────────────────────────────────────────────────
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-function useCountUp(target: number, duration = 800) {
-  const [value, setValue] = useState(0);
-  const rafRef = useRef<number | null>(null);
+const features = [
+  {
+    icon: Tag,
+    title: "Smart Categorisation",
+    description:
+      "AI reads your Xero transactions and assigns the correct account code — automatically, with full confidence scoring.",
+    color: "bg-indigo-50 text-indigo-600",
+  },
+  {
+    icon: GitCompare,
+    title: "Bank Reconciliation",
+    description:
+      "Fuzzy-matching pairs bank statement lines to transactions so reconciliation takes minutes, not hours.",
+    color: "bg-violet-50 text-violet-600",
+  },
+  {
+    icon: FileText,
+    title: "Management Letters",
+    description:
+      "Generate professional PDF management accounts with AI-written narrative — ready to send to clients.",
+    color: "bg-sky-50 text-sky-600",
+  },
+];
 
-  useEffect(() => {
-    if (typeof target !== "number") return;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      setValue(Math.round(target * ease));
-      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-  }, [target, duration]);
-
-  return value;
-}
-
-// ── Animation variants ────────────────────────────────────────────────────────
+const steps = [
+  "Connect your Xero account in one click",
+  "AI processes your transactions",
+  "Review, approve, or correct suggestions",
+  "Download polished management reports",
+];
 
 const container = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
+  show: { transition: { staggerChildren: 0.1 } },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3} },
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
-// ── Stat card ─────────────────────────────────────────────────────────────────
-
-interface StatCardProps {
-  label: string;
-  value: number | string;
-  icon: React.ElementType;
-  iconColor: string;
-  iconBg: string;
-  isNumeric?: boolean;
-}
-
-function StatCard({ label, value, icon: Icon, iconColor, iconBg, isNumeric = true }: StatCardProps) {
-  const counted = useCountUp(isNumeric ? (value as number) : 0);
-
+export default function LandingPage() {
   return (
-    <motion.div
-      variants={item}
-      whileHover={{ y: -2, transition: { duration: 0.15 } }}
-      className="bg-white rounded-xl p-5 shadow-sm ring-1 ring-slate-100 flex items-start justify-between gap-4"
-    >
-      <div>
-        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</p>
-        <p className="mt-2 text-3xl font-bold text-slate-900 tabular-nums">
-          {isNumeric ? counted.toLocaleString() : value}
-        </p>
-      </div>
-      <div className={`${iconBg} w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5`}>
-        <Icon className={`w-5 h-5 ${iconColor}`} />
-      </div>
-    </motion.div>
-  );
-}
-
-// ── Action button ─────────────────────────────────────────────────────────────
-
-interface ActionBtnProps {
-  label: string;
-  loadingLabel: string;
-  icon: React.ElementType;
-  loading: boolean;
-  onClick: () => void;
-  variant?: "primary" | "secondary";
-}
-
-function ActionBtn({ label, loadingLabel, icon: Icon, loading, onClick, variant = "secondary" }: ActionBtnProps) {
-  return (
-    <motion.div whileTap={{ scale: 0.97 }}>
-      <Button
-        onClick={onClick}
-        disabled={loading}
-        variant={variant === "primary" ? "default" : "outline"}
-        className={`gap-2 ${variant === "primary" ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-200" : "bg-white hover:bg-slate-50 border-slate-200 text-slate-700"}`}
-      >
-        <Icon className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-        {loading ? loadingLabel : label}
-      </Button>
-    </motion.div>
-  );
-}
-
-// ── Page ──────────────────────────────────────────────────────────────────────
-
-export default function DashboardPage() {
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
-  const [categorising, setCategorising] = useState(false);
-  const [reconciling, setReconciling] = useState(false);
-  const [notConnected, setNotConnected] = useState(false);
-
-  const fetchSummary = useCallback(async () => {
-    try {
-      const data = await getDashboardSummary();
-      setSummary(data);
-      setNotConnected(false);
-    } catch {
-      setNotConnected(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchSummary(); }, [fetchSummary]);
-
-  const handleSync = async () => {
-    setSyncing(true);
-    try {
-      const res = await triggerSync();
-      toast.success(`Sync complete — ${res.synced_transactions} transactions, ${res.synced_accounts} accounts`);
-      await fetchSummary();
-    } catch (e) { toast.error(String(e)); } finally { setSyncing(false); }
-  };
-
-  const handleCategorise = async () => {
-    setCategorising(true);
-    try {
-      const res = await triggerCategorise();
-      toast.success(`Categorised ${res.total_processed} — ${res.auto_categorised} auto, ${res.suggested} suggested`);
-      await fetchSummary();
-    } catch (e) { toast.error(String(e)); } finally { setCategorising(false); }
-  };
-
-  const handleReconcile = async () => {
-    setReconciling(true);
-    try {
-      const res = await triggerReconcile();
-      toast.success(`Reconciled ${res.total_processed} — ${res.auto_matched} auto, ${res.suggested} suggested`);
-      await fetchSummary();
-    } catch (e) { toast.error(String(e)); } finally { setReconciling(false); }
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-6 max-w-5xl">
-        <div className="h-8 w-48 bg-slate-200 rounded-lg animate-pulse" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-28 bg-slate-200 rounded-xl animate-pulse" />
-          ))}
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white">
+      {/* Nav */}
+      <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/40">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-semibold text-[15px] tracking-tight">AI Accountant</span>
         </div>
-      </div>
-    );
-  }
-
-  if (notConnected) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center h-[60vh] gap-6"
-      >
-        <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center">
-          <Unlink2 className="w-8 h-8 text-indigo-400" />
-        </div>
-        <div className="text-center">
-          <h2 className="text-lg font-semibold text-slate-900">Connect your Xero account</h2>
-          <p className="text-sm text-slate-500 mt-1">Link your Xero account to start categorising and reconciling transactions.</p>
-        </div>
-        <a href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/auth/xero/connect`}>
-          <motion.div whileTap={{ scale: 0.97 }}>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 gap-2 px-6">
-              <Sparkles className="w-4 h-4" />
-              Connect with Xero
-            </Button>
-          </motion.div>
+        <a href={`${API_BASE}/auth/xero/connect`}>
+          <Button size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2 shadow-lg shadow-indigo-600/30">
+            Connect Xero
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Button>
         </a>
-      </motion.div>
-    );
-  }
+      </nav>
 
-  const lastSync = summary?.last_sync_at
-    ? new Date(summary.last_sync_at).toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" })
-    : "Never";
+      {/* Hero */}
+      <motion.section
+        initial="hidden"
+        animate="show"
+        variants={container}
+        className="max-w-4xl mx-auto px-6 pt-24 pb-20 text-center"
+      >
+        <motion.div variants={item} className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-1.5 text-sm text-indigo-300 mb-8">
+          <Sparkles className="w-3.5 h-3.5" />
+          Built for UK accountants using Xero
+        </motion.div>
+        <motion.h1 variants={item} className="text-5xl sm:text-6xl font-bold leading-tight mb-6 bg-gradient-to-br from-white to-slate-300 bg-clip-text text-transparent">
+          Your AI-powered<br />accounting assistant
+        </motion.h1>
+        <motion.p variants={item} className="text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Categorise transactions, reconcile bank statements, and generate management letters — with explainable AI that shows exactly how it reached every decision.
+        </motion.p>
+        <motion.div variants={item} className="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href={`${API_BASE}/auth/xero/connect`}>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button size="lg" className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2.5 px-8 shadow-xl shadow-indigo-600/30 text-base">
+                <Sparkles className="w-5 h-5" />
+                Connect with Xero — it&apos;s free
+              </Button>
+            </motion.div>
+          </a>
+        </motion.div>
+      </motion.section>
 
-  const stats: StatCardProps[] = [
-    {
-      label: "Total Transactions",
-      value: summary?.total_transactions ?? 0,
-      icon: Layers,
-      iconColor: "text-indigo-600",
-      iconBg: "bg-indigo-50",
-    },
-    {
-      label: "Uncategorised",
-      value: summary?.uncategorised_count ?? 0,
-      icon: AlertCircle,
-      iconColor: (summary?.uncategorised_count ?? 0) > 0 ? "text-amber-500" : "text-emerald-500",
-      iconBg: (summary?.uncategorised_count ?? 0) > 0 ? "bg-amber-50" : "bg-emerald-50",
-    },
-    {
-      label: "Unreconciled",
-      value: summary?.unreconciled_count ?? 0,
-      icon: GitCompare,
-      iconColor: (summary?.unreconciled_count ?? 0) > 0 ? "text-rose-500" : "text-emerald-500",
-      iconBg: (summary?.unreconciled_count ?? 0) > 0 ? "bg-rose-50" : "bg-emerald-50",
-    },
-    {
-      label: "Last Sync",
-      value: lastSync,
-      icon: Clock,
-      iconColor: "text-slate-500",
-      iconBg: "bg-slate-100",
-      isNumeric: false,
-    },
-  ];
+      {/* Features */}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          variants={container}
+          className="grid sm:grid-cols-3 gap-6"
+        >
+          {features.map((f) => (
+            <motion.div
+              key={f.title}
+              variants={item}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 backdrop-blur-sm"
+            >
+              <div className={`w-10 h-10 rounded-xl ${f.color} flex items-center justify-center mb-4`}>
+                <f.icon className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-white mb-2">{f.title}</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">{f.description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
 
-  return (
-    <motion.div
-      initial="hidden"
-      animate="show"
-      variants={container}
-      className="space-y-8 max-w-5xl"
-    >
-      {/* Header */}
-      <motion.div variants={item}>
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-        {summary?.organisation_name && (
-          <p className="text-sm text-slate-500 mt-1">{summary.organisation_name}</p>
-        )}
-      </motion.div>
+      {/* How it works */}
+      <section className="max-w-3xl mx-auto px-6 py-16 text-center">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          variants={container}
+        >
+          <motion.h2 variants={item} className="text-2xl font-bold text-white mb-10">How it works</motion.h2>
+          <div className="space-y-4">
+            {steps.map((step, i) => (
+              <motion.div
+                key={i}
+                variants={item}
+                className="flex items-center gap-4 bg-white/[0.03] border border-white/[0.06] rounded-xl px-5 py-4 text-left"
+              >
+                <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 text-xs font-bold">
+                  {i + 1}
+                </div>
+                <span className="text-slate-300 text-sm">{step}</span>
+                {i === steps.length - 1 && <CheckCircle2 className="w-4 h-4 text-emerald-400 ml-auto shrink-0" />}
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <StatCard key={s.label} {...s} />
-        ))}
-      </div>
+      {/* CTA */}
+      <section className="max-w-2xl mx-auto px-6 py-20 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="bg-gradient-to-br from-indigo-600/20 to-violet-600/10 border border-indigo-500/20 rounded-3xl p-10"
+        >
+          <h2 className="text-2xl font-bold text-white mb-3">Ready to save hours every week?</h2>
+          <p className="text-slate-400 text-sm mb-8">Connect your Xero account in 30 seconds. No credit card required.</p>
+          <a href={`${API_BASE}/auth/xero/connect`}>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="inline-block">
+              <Button size="lg" className="bg-indigo-600 hover:bg-indigo-500 gap-2.5 px-10 shadow-xl shadow-indigo-600/30">
+                <Sparkles className="w-5 h-5" />
+                Get started free
+              </Button>
+            </motion.div>
+          </a>
+        </motion.div>
+      </section>
 
-      {/* Actions */}
-      <motion.div variants={item} className="bg-white rounded-xl p-5 shadow-sm ring-1 ring-slate-100">
-        <p className="text-sm font-medium text-slate-700 mb-3">Run AI pipeline</p>
-        <div className="flex flex-wrap gap-3">
-          <ActionBtn
-            label="Sync with Xero"
-            loadingLabel="Syncing…"
-            icon={syncing ? RefreshCw : RefreshCw}
-            loading={syncing}
-            onClick={handleSync}
-            variant="primary"
-          />
-          <ActionBtn
-            label="Categorise All"
-            loadingLabel="Categorising…"
-            icon={Tag}
-            loading={categorising}
-            onClick={handleCategorise}
-          />
-          <ActionBtn
-            label="Reconcile All"
-            loadingLabel="Reconciling…"
-            icon={GitCompare}
-            loading={reconciling}
-            onClick={handleReconcile}
-          />
+      {/* Footer */}
+      <footer className="border-t border-white/[0.06] py-8">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <span>© 2026 AI Accountant · Built for UK accounting firms</span>
+          <div className="flex gap-6">
+            <a href="/privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
+            <a href="mailto:hello@aiaccountant.app" className="hover:text-slate-300 transition-colors">Contact</a>
+          </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </footer>
+    </div>
   );
 }

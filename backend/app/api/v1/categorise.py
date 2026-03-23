@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.categoriser import categorise_batch
 from app.core.database import get_db
+from app.core.session import get_current_org
 from app.models.database import Account, AuditLog, Organisation, Transaction
 from app.models.schemas import (
     AuditLogRead,
@@ -24,18 +25,12 @@ from app.services.embedding_service import embed_transaction
 router = APIRouter(prefix="/api/v1", tags=["categorise"])
 
 
-async def _get_org(db: AsyncSession) -> Organisation:
-    result = await db.execute(select(Organisation).where(Organisation.xero_access_token.isnot(None)).limit(1))
-    org = result.scalar_one_or_none()
-    if not org:
-        raise HTTPException(status_code=404, detail="No organisation connected. Connect Xero first.")
-    return org
-
-
 @router.post("/categorise", response_model=BatchCategoriseResponse)
-async def trigger_categorise(db: AsyncSession = Depends(get_db)):
+async def trigger_categorise(
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Run AI categorisation on all uncategorised transactions."""
-    org = await _get_org(db)
     return await categorise_batch(org.id, db)
 
 
@@ -47,10 +42,10 @@ async def list_transactions(
     search: Optional[str] = None,
     page: int = 1,
     page_size: int = 20,
+    org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
     """List transactions with optional filters and pagination."""
-    org = await _get_org(db)
 
     query = select(Transaction).where(Transaction.organisation_id == org.id)
 
@@ -81,9 +76,12 @@ async def list_transactions(
 
 
 @router.get("/transactions/{transaction_id}", response_model=TransactionDetail)
-async def get_transaction(transaction_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_transaction(
+    transaction_id: UUID,
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Get a single transaction with its full audit history."""
-    org = await _get_org(db)
     result = await db.execute(
         select(Transaction).where(
             Transaction.id == transaction_id,
@@ -110,9 +108,12 @@ async def get_transaction(transaction_id: UUID, db: AsyncSession = Depends(get_d
 
 
 @router.post("/transactions/{transaction_id}/approve", response_model=TransactionRead)
-async def approve_transaction(transaction_id: UUID, db: AsyncSession = Depends(get_db)):
+async def approve_transaction(
+    transaction_id: UUID,
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Confirm a suggested category."""
-    org = await _get_org(db)
     result = await db.execute(
         select(Transaction).where(
             Transaction.id == transaction_id,
@@ -146,10 +147,10 @@ async def approve_transaction(transaction_id: UUID, db: AsyncSession = Depends(g
 async def correct_transaction(
     transaction_id: UUID,
     body: TransactionCorrectRequest,
+    org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
     """Apply a human-corrected category and re-embed for future few-shot learning."""
-    org = await _get_org(db)
     result = await db.execute(
         select(Transaction).where(
             Transaction.id == transaction_id,
@@ -194,9 +195,12 @@ async def correct_transaction(
 
 
 @router.post("/transactions/{transaction_id}/reject", response_model=TransactionRead)
-async def reject_transaction(transaction_id: UUID, db: AsyncSession = Depends(get_db)):
+async def reject_transaction(
+    transaction_id: UUID,
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Reject a suggested category and reset to uncategorised."""
-    org = await _get_org(db)
     result = await db.execute(
         select(Transaction).where(
             Transaction.id == transaction_id,
