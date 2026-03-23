@@ -97,7 +97,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
           <LogOut className="w-4 h-4 shrink-0" />
           Disconnect Xero
         </button>
-        <p className="text-[11px] text-slate-600 text-center pt-1">v0.1.0 · Phase 8</p>
+        <p className="text-[11px] text-slate-600 text-center pt-1">v0.1.0 · Beta</p>
       </div>
     </aside>
   );

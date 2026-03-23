@@ -43,3 +43,13 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
 }
+
+/* Animated background blobs (landing page) */
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33%  { transform: translate(28px, -22px) scale(1.05); }
+  66%  { transform: translate(-18px, 14px) scale(0.96); }
+}
+.animate-blob { animation: blob-drift 22s ease-in-out infinite; }
+.animation-delay-3000 { animation-delay: 3s; }
+.animation-delay-6000 { animation-delay: 6s; }

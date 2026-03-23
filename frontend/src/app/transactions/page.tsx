@@ -42,7 +42,7 @@ import { ExplanationPanel } from "@/components/explanation-panel";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   confirmed:        { label: "Confirmed",        className: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" },
-  auto_categorised: { label: "Auto-categorised", className: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100" },
+  auto_categorised: { label: "Auto-categorised", className: "bg-sky-50 text-sky-700 ring-1 ring-sky-100" },
   suggested:        { label: "Suggested",        className: "bg-amber-50 text-amber-700 ring-1 ring-amber-100" },
   needs_review:     { label: "Needs review",     className: "bg-rose-50 text-rose-700 ring-1 ring-rose-100" },
   uncategorised:    { label: "Uncategorised",    className: "bg-slate-100 text-slate-500 ring-1 ring-slate-200" },
@@ -66,9 +66,11 @@ function fmtAmount(amount: string) {
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
-function fmtConf(c: string | null) {
-  if (!c) return null;
-  return `${(parseFloat(c) * 100).toFixed(0)}%`;
+function ConfidencePill({ confidence }: { confidence: string | null }) {
+  if (!confidence) return <span className="text-slate-300">—</span>;
+  const pct = parseFloat(confidence) * 100;
+  const cls = pct >= 85 ? "text-emerald-600" : pct >= 50 ? "text-amber-600" : "text-rose-500";
+  return <span className={`font-mono text-xs font-medium ${cls}`}>{pct.toFixed(0)}%</span>;
 }
 
 // ── Animations ────────────────────────────────────────────────────────────────
@@ -270,8 +272,8 @@ export default function TransactionsPage() {
                       </TableCell>
                       <TableCell className="text-sm text-slate-600 py-3">{tx.category ?? <span className="text-slate-300">—</span>}</TableCell>
                       <TableCell className="py-3"><StatusBadge status={tx.categorisation_status} /></TableCell>
-                      <TableCell className="text-sm text-slate-400 font-mono py-3">
-                        {fmtConf(tx.category_confidence) ?? <span className="text-slate-200">—</span>}
+                      <TableCell className="py-3">
+                        <ConfidencePill confidence={tx.category_confidence} />
                       </TableCell>
                       <TableCell className="py-3" onClick={(e) => e.stopPropagation()}>
                         {tx.categorisation_status === "suggested" && (

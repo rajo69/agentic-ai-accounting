@@ -12,7 +12,7 @@ const features = [
     title: "Smart Categorisation",
     description:
       "AI reads your Xero transactions and assigns the correct account code — automatically, with full confidence scoring.",
-    color: "bg-indigo-50 text-indigo-600",
+    color: "bg-emerald-50 text-emerald-600",
   },
   {
     icon: GitCompare,
@@ -49,9 +49,16 @@ const item = {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white">
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white overflow-hidden">
+      {/* Animated background orbs */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="animate-blob absolute -top-48 -left-24 w-[520px] h-[520px] rounded-full bg-indigo-600/20 blur-3xl" />
+        <div className="animate-blob animation-delay-3000 absolute top-1/2 -right-40 w-[420px] h-[420px] rounded-full bg-violet-600/15 blur-3xl" />
+        <div className="animate-blob animation-delay-6000 absolute bottom-16 left-1/4 w-[340px] h-[340px] rounded-full bg-sky-600/10 blur-3xl" />
+      </div>
+
       {/* Nav */}
-      <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <nav className="relative z-10 max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/40">
             <Sparkles className="w-4 h-4 text-white" />
@@ -71,10 +78,10 @@ export default function LandingPage() {
         initial="hidden"
         animate="show"
         variants={container}
-        className="max-w-4xl mx-auto px-6 pt-24 pb-20 text-center"
+        className="relative z-10 max-w-4xl mx-auto px-6 pt-24 pb-20 text-center"
       >
-        <motion.div variants={item} className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-1.5 text-sm text-indigo-300 mb-8">
-          <Sparkles className="w-3.5 h-3.5" />
+        <motion.div variants={item} className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/[0.12] rounded-full px-4 py-1.5 text-sm text-slate-300 mb-8">
+          <Sparkles className="w-3.5 h-3.5 text-slate-400" />
           Built for UK accountants using Xero
         </motion.div>
         <motion.h1 variants={item} className="text-5xl sm:text-6xl font-bold leading-tight mb-6 bg-gradient-to-br from-white to-slate-300 bg-clip-text text-transparent">
@@ -96,7 +103,7 @@ export default function LandingPage() {
       </motion.section>
 
       {/* Features */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
+      <section className="relative z-10 max-w-6xl mx-auto px-6 py-16">
         <motion.div
           initial="hidden"
           whileInView="show"
@@ -122,7 +129,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="max-w-3xl mx-auto px-6 py-16 text-center">
+      <section className="relative z-10 max-w-3xl mx-auto px-6 py-16 text-center">
         <motion.div
           initial="hidden"
           whileInView="show"
@@ -137,7 +144,7 @@ export default function LandingPage() {
                 variants={item}
                 className="flex items-center gap-4 bg-white/[0.03] border border-white/[0.06] rounded-xl px-5 py-4 text-left"
               >
-                <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center shrink-0 text-xs font-bold">
+                <div className="w-7 h-7 rounded-full bg-white/[0.1] border border-white/[0.15] flex items-center justify-center shrink-0 text-xs font-semibold text-slate-300">
                   {i + 1}
                 </div>
                 <span className="text-slate-300 text-sm">{step}</span>
@@ -149,7 +156,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-2xl mx-auto px-6 py-20 text-center">
+      <section className="relative z-10 max-w-2xl mx-auto px-6 py-20 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -171,7 +178,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.06] py-8">
+      <footer className="relative z-10 border-t border-white/[0.06] py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <span>© 2026 AI Accountant · Built for UK accounting firms</span>
           <div className="flex gap-6">

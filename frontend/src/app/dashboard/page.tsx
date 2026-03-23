@@ -220,8 +220,8 @@ export default function DashboardPage() {
       label: "Total Transactions",
       value: summary?.total_transactions ?? 0,
       icon: Layers,
-      iconColor: "text-indigo-600",
-      iconBg: "bg-indigo-50",
+      iconColor: "text-slate-600",
+      iconBg: "bg-slate-100",
     },
     {
       label: "Uncategorised",
