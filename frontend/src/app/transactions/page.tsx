@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Table,
   TableBody,
@@ -25,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Search, ChevronLeft, ChevronRight, CheckCircle2, XCircle, Pencil } from "lucide-react";
 import {
   getTransactions,
   getTransaction,
@@ -36,43 +38,51 @@ import {
 } from "@/lib/api";
 import { ExplanationPanel } from "@/components/explanation-panel";
 
-const STATUS_COLOURS: Record<string, string> = {
-  confirmed: "bg-green-100 text-green-800",
-  auto_categorised: "bg-blue-100 text-blue-800",
-  suggested: "bg-yellow-100 text-yellow-800",
-  needs_review: "bg-red-100 text-red-800",
-  uncategorised: "bg-gray-100 text-gray-600",
-  rejected: "bg-gray-100 text-gray-600",
+// ── Status badge ──────────────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  confirmed:        { label: "Confirmed",        className: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" },
+  auto_categorised: { label: "Auto-categorised", className: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100" },
+  suggested:        { label: "Suggested",        className: "bg-amber-50 text-amber-700 ring-1 ring-amber-100" },
+  needs_review:     { label: "Needs review",     className: "bg-rose-50 text-rose-700 ring-1 ring-rose-100" },
+  uncategorised:    { label: "Uncategorised",    className: "bg-slate-100 text-slate-500 ring-1 ring-slate-200" },
+  rejected:         { label: "Rejected",         className: "bg-slate-100 text-slate-400 ring-1 ring-slate-200" },
 };
 
 function StatusBadge({ status }: { status: string }) {
+  const cfg = STATUS_CONFIG[status] ?? { label: status, className: "bg-slate-100 text-slate-500" };
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-        STATUS_COLOURS[status] ?? "bg-gray-100 text-gray-600"
-      }`}
-    >
-      {status.replace(/_/g, " ")}
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${cfg.className}`}>
+      {cfg.label}
     </span>
   );
 }
 
+// ── Formatters ────────────────────────────────────────────────────────────────
+
 function fmtAmount(amount: string) {
-  const n = parseFloat(amount);
-  return new Intl.NumberFormat("en-GB", {
-    style: "currency",
-    currency: "GBP",
-  }).format(n);
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(parseFloat(amount));
 }
-
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("en-GB");
+  return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
-
-function fmtConfidence(c: string | null) {
-  if (!c) return "—";
+function fmtConf(c: string | null) {
+  if (!c) return null;
   return `${(parseFloat(c) * 100).toFixed(0)}%`;
 }
+
+// ── Animations ────────────────────────────────────────────────────────────────
+
+const tableVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.03 } },
+};
+const rowVariants = {
+  hidden: { opacity: 0, x: -8 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.2} },
+};
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function TransactionsPage() {
   const [items, setItems] = useState<Transaction[]>([]);
@@ -108,18 +118,14 @@ export default function TransactionsPage() {
     }
   }, [page, search, status]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useEffect(() => { load(); }, [load]);
 
   const openDetail = async (id: string) => {
     try {
       const detail = await getTransaction(id);
       setSelected(detail);
       setDetailOpen(true);
-    } catch (e) {
-      toast.error(String(e));
-    }
+    } catch (e) { toast.error(String(e)); }
   };
 
   const handleApprove = async (id: string) => {
@@ -129,11 +135,7 @@ export default function TransactionsPage() {
       toast.success("Category confirmed");
       load();
       setDetailOpen(false);
-    } catch (e) {
-      toast.error(String(e));
-    } finally {
-      setActionLoading(false);
-    }
+    } catch (e) { toast.error(String(e)); } finally { setActionLoading(false); }
   };
 
   const handleReject = async (id: string) => {
@@ -143,11 +145,7 @@ export default function TransactionsPage() {
       toast.success("Rejected — transaction is uncategorised again");
       load();
       setDetailOpen(false);
-    } catch (e) {
-      toast.error(String(e));
-    } finally {
-      setActionLoading(false);
-    }
+    } catch (e) { toast.error(String(e)); } finally { setActionLoading(false); }
   };
 
   const handleCorrect = async () => {
@@ -159,114 +157,140 @@ export default function TransactionsPage() {
       load();
       setCorrectOpen(false);
       setDetailOpen(false);
-    } catch (e) {
-      toast.error(String(e));
-    } finally {
-      setActionLoading(false);
-    }
+    } catch (e) { toast.error(String(e)); } finally { setActionLoading(false); }
   };
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className="space-y-4 max-w-6xl">
-      <h1 className="text-xl font-semibold text-gray-900">Transactions</h1>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3}}
+      className="space-y-5 max-w-6xl"
+    >
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">Transactions</h1>
+        <p className="text-sm text-slate-500 mt-0.5">Review, approve and correct AI categorisations</p>
+      </div>
 
       {/* Filters */}
-      <div className="flex gap-3 flex-wrap">
-        <Input
-          placeholder="Search description…"
-          className="w-64"
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-        />
-        <Select value={status} onValueChange={(v) => { setStatus(v === "all" ? "" : v ?? ""); setPage(1); }}>
-          <SelectTrigger className="w-44">
+      <div className="flex gap-3 flex-wrap items-center">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+          <Input
+            placeholder="Search description…"
+            className="pl-9 w-64 bg-white border-slate-200 text-sm"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
+        </div>
+        <Select
+          value={status}
+          onValueChange={(v) => { setStatus(v === "all" ? "" : v ?? ""); setPage(1); }}
+        >
+          <SelectTrigger className="w-48 bg-white border-slate-200 text-sm">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="uncategorised">Uncategorised</SelectItem>
             <SelectItem value="suggested">Suggested</SelectItem>
-            <SelectItem value="auto_categorised">Auto categorised</SelectItem>
+            <SelectItem value="auto_categorised">Auto-categorised</SelectItem>
             <SelectItem value="confirmed">Confirmed</SelectItem>
             <SelectItem value="needs_review">Needs review</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
           </SelectContent>
         </Select>
+        {total > 0 && (
+          <span className="text-xs text-slate-400 ml-1">{total.toLocaleString()} transactions</span>
+        )}
       </div>
 
       {/* Table */}
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Confidence</TableHead>
-              <TableHead />
+            <TableRow className="bg-slate-50 hover:bg-slate-50 border-b border-slate-100">
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3">Date</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3">Description</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3 text-right">Amount</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3">Category</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3">Status</TableHead>
+              <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wide py-3">Conf.</TableHead>
+              <TableHead className="py-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-sm text-gray-400 py-8">
-                  Loading…
-                </TableCell>
-              </TableRow>
+              [...Array(6)].map((_, i) => (
+                <TableRow key={i} className="border-b border-slate-50">
+                  {[...Array(7)].map((_, j) => (
+                    <TableCell key={j}>
+                      <div className="h-4 bg-slate-100 rounded animate-pulse" style={{ width: `${60 + Math.random() * 40}%` }} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-sm text-gray-400 py-8">
+                <TableCell colSpan={7} className="text-center text-sm text-slate-400 py-16">
                   No transactions found
                 </TableCell>
               </TableRow>
             ) : (
-              items.map((tx) => (
-                <TableRow key={tx.id} className="cursor-pointer hover:bg-gray-50">
-                  <TableCell className="text-sm">{fmtDate(tx.date)}</TableCell>
-                  <TableCell
-                    className="text-sm max-w-xs truncate"
-                    onClick={() => openDetail(tx.id)}
-                  >
-                    {tx.description}
-                  </TableCell>
-                  <TableCell className="text-sm text-right font-mono">
-                    {fmtAmount(tx.amount)}
-                  </TableCell>
-                  <TableCell className="text-sm">{tx.category ?? "—"}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={tx.categorisation_status} />
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-500">
-                    {fmtConfidence(tx.category_confidence)}
-                  </TableCell>
-                  <TableCell>
-                    {tx.categorisation_status === "suggested" && (
-                      <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 text-xs"
-                          onClick={() => handleApprove(tx.id)}
-                        >
-                          Accept
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 text-xs text-red-600"
-                          onClick={() => handleReject(tx.id)}
-                        >
-                          Reject
-                        </Button>
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
+              <AnimatePresence>
+                <motion.tbody variants={tableVariants} initial="hidden" animate="show">
+                  {items.map((tx) => (
+                    <motion.tr
+                      key={tx.id}
+                      variants={rowVariants}
+                      className="border-b border-slate-50 hover:bg-slate-50/70 cursor-pointer transition-colors"
+                      onClick={() => openDetail(tx.id)}
+                    >
+                      <TableCell className="text-sm text-slate-600 py-3">{fmtDate(tx.date)}</TableCell>
+                      <TableCell className="text-sm text-slate-900 font-medium max-w-xs truncate py-3">
+                        {tx.description}
+                      </TableCell>
+                      <TableCell className="text-sm text-right font-mono py-3">
+                        <span className={parseFloat(tx.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}>
+                          {fmtAmount(tx.amount)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-600 py-3">{tx.category ?? <span className="text-slate-300">—</span>}</TableCell>
+                      <TableCell className="py-3"><StatusBadge status={tx.categorisation_status} /></TableCell>
+                      <TableCell className="text-sm text-slate-400 font-mono py-3">
+                        {fmtConf(tx.category_confidence) ?? <span className="text-slate-200">—</span>}
+                      </TableCell>
+                      <TableCell className="py-3" onClick={(e) => e.stopPropagation()}>
+                        {tx.categorisation_status === "suggested" && (
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-emerald-600 hover:bg-emerald-50"
+                              onClick={() => handleApprove(tx.id)}
+                              title="Accept"
+                            >
+                              <CheckCircle2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-rose-500 hover:bg-rose-50"
+                              onClick={() => handleReject(tx.id)}
+                              title="Reject"
+                            >
+                              <XCircle className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </motion.tbody>
+              </AnimatePresence>
             )}
           </TableBody>
         </Table>
@@ -274,99 +298,100 @@ export default function TransactionsPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center gap-3 text-sm text-gray-500">
+        <div className="flex items-center gap-3 text-sm text-slate-500">
           <Button
             variant="outline"
             size="sm"
+            className="bg-white gap-1"
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
           >
-            Previous
+            <ChevronLeft className="w-3.5 h-3.5" /> Previous
           </Button>
-          <span>
-            Page {page} of {totalPages} ({total} total)
-          </span>
+          <span className="text-xs">Page {page} of {totalPages}</span>
           <Button
             variant="outline"
             size="sm"
+            className="bg-white gap-1"
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
-            Next
+            Next <ChevronRight className="w-3.5 h-3.5" />
           </Button>
         </div>
       )}
 
       {/* Detail dialog */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base">Transaction Detail</DialogTitle>
           </DialogHeader>
           {selected && (
-            <div className="space-y-3 text-sm">
-              <div className="grid grid-cols-2 gap-y-2">
-                <span className="text-gray-500">Date</span>
-                <span>{fmtDate(selected.date)}</span>
-                <span className="text-gray-500">Amount</span>
-                <span className="font-mono">{fmtAmount(selected.amount)}</span>
-                <span className="text-gray-500">Description</span>
-                <span>{selected.description}</span>
+            <div className="space-y-4 text-sm">
+              {/* Fields */}
+              <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2.5 bg-slate-50 rounded-lg p-4">
+                <span className="text-slate-400 text-xs uppercase tracking-wide font-medium self-center">Date</span>
+                <span className="text-slate-900">{fmtDate(selected.date)}</span>
+                <span className="text-slate-400 text-xs uppercase tracking-wide font-medium self-center">Amount</span>
+                <span className={`font-mono font-semibold ${parseFloat(selected.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}`}>
+                  {fmtAmount(selected.amount)}
+                </span>
+                <span className="text-slate-400 text-xs uppercase tracking-wide font-medium">Description</span>
+                <span className="text-slate-900 leading-snug">{selected.description}</span>
                 {selected.reference && (
                   <>
-                    <span className="text-gray-500">Reference</span>
-                    <span>{selected.reference}</span>
+                    <span className="text-slate-400 text-xs uppercase tracking-wide font-medium">Ref</span>
+                    <span className="text-slate-600">{selected.reference}</span>
                   </>
                 )}
-                <span className="text-gray-500">Category</span>
-                <span>{selected.category ?? "—"}</span>
-                <span className="text-gray-500">Status</span>
+                <span className="text-slate-400 text-xs uppercase tracking-wide font-medium self-center">Category</span>
+                <span className="text-slate-900">{selected.category ?? <span className="text-slate-300">—</span>}</span>
+                <span className="text-slate-400 text-xs uppercase tracking-wide font-medium self-center">Status</span>
                 <StatusBadge status={selected.categorisation_status} />
-                <span className="text-gray-500">Confidence</span>
-                <span>{fmtConfidence(selected.category_confidence)}</span>
               </div>
 
-              {/* XAI explanation panel — only for AI-categorised transactions */}
+              {/* XAI explanation panel */}
               {selected.categorisation_status !== "uncategorised" && (
-                <div className="mt-2">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">
-                    AI Explanation
-                  </p>
+                <div>
                   <ExplanationPanel transactionId={selected.id} inline />
                 </div>
               )}
 
-              <div className="flex gap-2 pt-2">
+              {/* Actions */}
+              <div className="flex gap-2 pt-1 border-t border-slate-100">
                 {(selected.categorisation_status === "suggested" ||
                   selected.categorisation_status === "auto_categorised") && (
                   <Button
                     size="sm"
+                    className="bg-indigo-600 hover:bg-indigo-700 gap-1.5"
                     onClick={() => handleApprove(selected.id)}
                     disabled={actionLoading}
                   >
-                    Accept
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Accept
                   </Button>
                 )}
                 {selected.categorisation_status === "suggested" && (
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-red-600"
+                    className="text-rose-600 hover:text-rose-700 gap-1.5"
                     onClick={() => handleReject(selected.id)}
                     disabled={actionLoading}
                   >
-                    Reject
+                    <XCircle className="w-3.5 h-3.5" /> Reject
                   </Button>
                 )}
                 <Button
                   size="sm"
                   variant="outline"
+                  className="gap-1.5 ml-auto"
                   onClick={() => {
                     setCorrectCategory(selected.category ?? "");
                     setCorrectOpen(true);
                   }}
                 >
-                  Edit Category
+                  <Pencil className="w-3.5 h-3.5" /> Edit Category
                 </Button>
               </div>
             </div>
@@ -383,23 +408,24 @@ export default function TransactionsPage() {
           <div className="space-y-3">
             <Input
               placeholder="Enter correct category name"
+              className="bg-white border-slate-200"
               value={correctCategory}
               onChange={(e) => setCorrectCategory(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleCorrect()}
             />
             <div className="flex gap-2">
               <Button
+                className="bg-indigo-600 hover:bg-indigo-700"
                 onClick={handleCorrect}
                 disabled={actionLoading || !correctCategory.trim()}
               >
                 Save
               </Button>
-              <Button variant="outline" onClick={() => setCorrectOpen(false)}>
-                Cancel
-              </Button>
+              <Button variant="outline" onClick={() => setCorrectOpen(false)}>Cancel</Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }
