@@ -115,7 +115,7 @@ export default function Aurora({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (gl.canvas as any).style.backgroundColor = "transparent";
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, prefer-const
     let program: any;
 
     const toStops = (stops: string[]) =>
