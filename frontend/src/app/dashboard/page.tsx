@@ -75,11 +75,11 @@ function StatCard({ label, value, icon: Icon, iconColor, iconBg, isNumeric = tru
     <motion.div
       variants={item}
       whileHover={{ y: -2, transition: { duration: 0.15 } }}
-      className="bg-zinc-900/60 backdrop-blur-sm rounded-xl p-5 border border-white/[0.07] hover:border-white/[0.12] flex items-start justify-between gap-4 transition-colors duration-200"
+      className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md flex items-start justify-between gap-4 transition-all duration-200"
     >
       <div>
-        <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">{label}</p>
-        <p className="mt-2 text-3xl font-bold text-white tabular-nums">
+        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</p>
+        <p className="mt-2 text-3xl font-bold text-slate-900 tabular-nums">
           {isNumeric ? counted.toLocaleString() : value}
         </p>
       </div>
@@ -102,16 +102,29 @@ interface ActionBtnProps {
 }
 
 function ActionBtn({ label, loadingLabel, icon: Icon, loading, onClick, variant = "secondary" }: ActionBtnProps) {
+  if (variant === "primary") {
+    return (
+      <FluidGlassButton
+        onClick={onClick}
+        disabled={loading}
+        variant="primary"
+        className="shadow-md shadow-indigo-600/20"
+      >
+        <Icon className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+        {loading ? loadingLabel : label}
+      </FluidGlassButton>
+    );
+  }
   return (
-    <FluidGlassButton
+    <Button
+      variant="outline"
       onClick={onClick}
       disabled={loading}
-      variant={variant === "primary" ? "primary" : "glass"}
-      className={variant === "primary" ? "shadow-lg shadow-indigo-600/25" : ""}
+      className="gap-2 text-sm"
     >
       <Icon className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
       {loading ? loadingLabel : label}
-    </FluidGlassButton>
+    </Button>
   );
 }
 
@@ -172,10 +185,10 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="space-y-6 max-w-5xl">
-        <div className="h-7 w-36 bg-zinc-800 rounded-lg animate-pulse" />
+        <div className="h-7 w-36 bg-slate-200 rounded-lg animate-pulse" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-28 bg-zinc-900 rounded-xl animate-pulse border border-white/[0.04]" />
+            <div key={i} className="h-28 bg-white rounded-xl animate-pulse border border-slate-200" />
           ))}
         </div>
       </div>
@@ -189,12 +202,12 @@ export default function DashboardPage() {
         animate={{ opacity: 1, scale: 1 }}
         className="flex flex-col items-center justify-center h-[60vh] gap-6"
       >
-        <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center">
-          <Unlink2 className="w-8 h-8 text-indigo-400" />
+        <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center">
+          <Unlink2 className="w-8 h-8 text-indigo-500" />
         </div>
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-white">Xero not connected</h2>
-          <p className="text-sm text-zinc-500 mt-1">Connect your Xero account to start using the AI pipeline.</p>
+          <h2 className="text-lg font-semibold text-slate-900">Xero not connected</h2>
+          <p className="text-sm text-slate-500 mt-1">Connect your Xero account to start using the AI pipeline.</p>
         </div>
         <a href={`${API_BASE}/auth/xero/connect`}>
           <motion.div whileTap={{ scale: 0.97 }}>
@@ -219,29 +232,29 @@ export default function DashboardPage() {
       label: "Total Transactions",
       value: summary?.total_transactions ?? 0,
       icon: Layers,
-      iconColor: "text-zinc-400",
-      iconBg: "bg-zinc-800",
+      iconColor: "text-slate-500",
+      iconBg: "bg-slate-100",
     },
     {
       label: "Uncategorised",
       value: summary?.uncategorised_count ?? 0,
       icon: AlertCircle,
-      iconColor: (summary?.uncategorised_count ?? 0) > 0 ? "text-amber-400" : "text-emerald-400",
-      iconBg:    (summary?.uncategorised_count ?? 0) > 0 ? "bg-amber-500/10" : "bg-emerald-500/10",
+      iconColor: (summary?.uncategorised_count ?? 0) > 0 ? "text-amber-500" : "text-emerald-500",
+      iconBg:    (summary?.uncategorised_count ?? 0) > 0 ? "bg-amber-50" : "bg-emerald-50",
     },
     {
       label: "Unreconciled",
       value: summary?.unreconciled_count ?? 0,
       icon: GitCompare,
-      iconColor: (summary?.unreconciled_count ?? 0) > 0 ? "text-rose-400" : "text-emerald-400",
-      iconBg:    (summary?.unreconciled_count ?? 0) > 0 ? "bg-rose-500/10" : "bg-emerald-500/10",
+      iconColor: (summary?.unreconciled_count ?? 0) > 0 ? "text-rose-500" : "text-emerald-500",
+      iconBg:    (summary?.unreconciled_count ?? 0) > 0 ? "bg-rose-50" : "bg-emerald-50",
     },
     {
       label: "Last Sync",
       value: lastSync,
       icon: Clock,
-      iconColor: "text-zinc-500",
-      iconBg: "bg-zinc-800",
+      iconColor: "text-slate-400",
+      iconBg: "bg-slate-100",
       isNumeric: false,
     },
   ];
@@ -255,9 +268,9 @@ export default function DashboardPage() {
     >
       {/* Header */}
       <motion.div variants={item}>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
         {summary?.organisation_name && (
-          <p className="text-sm text-zinc-500 mt-1">{summary.organisation_name}</p>
+          <p className="text-sm text-slate-500 mt-1">{summary.organisation_name}</p>
         )}
       </motion.div>
 
@@ -265,14 +278,14 @@ export default function DashboardPage() {
       {isFirstRun && (
         <motion.div
           variants={item}
-          className="bg-indigo-500/[0.07] border border-indigo-500/20 rounded-xl p-5 flex items-start gap-4"
+          className="bg-indigo-50 border border-indigo-100 rounded-xl p-5 flex items-start gap-4"
         >
           <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-indigo-300 text-sm">You&apos;re connected! Run your first sync</p>
-            <p className="text-indigo-400/70 text-xs mt-1">
+            <p className="font-semibold text-indigo-900 text-sm">You&apos;re connected! Run your first sync</p>
+            <p className="text-indigo-600/70 text-xs mt-1">
               Click &ldquo;Sync with Xero&rdquo; below to import your transactions, then run the AI pipeline.
             </p>
           </div>
@@ -287,8 +300,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Actions */}
-      <motion.div variants={item} className="bg-zinc-900/60 backdrop-blur-sm rounded-xl p-5 border border-white/[0.07]">
-        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-4">AI Pipeline</p>
+      <motion.div variants={item} className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">AI Pipeline</p>
         <div className="flex flex-wrap gap-3 sm:flex-row flex-col sm:items-center">
           <ActionBtn
             label="Sync with Xero"

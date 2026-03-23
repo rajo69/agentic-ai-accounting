@@ -16,7 +16,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (!showSidebar) return <>{children}</>;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-zinc-950">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       {/* Desktop sidebar */}
       <div className="hidden md:flex">
         <Sidebar onNavigate={() => {}} />
@@ -24,10 +24,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile hamburger */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 w-9 h-9 bg-[#0C0E14] rounded-lg flex items-center justify-center shadow-lg"
+        className="md:hidden fixed top-4 left-4 z-50 w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow-sm border border-slate-200"
         onClick={() => setMobileOpen(true)}
       >
-        <Menu className="w-4 h-4 text-white" />
+        <Menu className="w-4 h-4 text-slate-600" />
       </button>
 
       {/* Mobile sidebar drawer */}
@@ -37,13 +37,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </SheetContent>
       </Sheet>
 
-      <main
-        className="flex-1 overflow-y-auto"
-        style={{
-          backgroundImage: "radial-gradient(rgba(255,255,255,0.018) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      >
+      <main className="flex-1 overflow-y-auto bg-slate-50">
         <div className="min-h-full p-4 md:p-8 pt-16 md:pt-8">{children}</div>
       </main>
     </div>
