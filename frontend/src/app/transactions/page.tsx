@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Search, ChevronLeft, ChevronRight, CheckCircle2, XCircle, Pencil } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, CheckCircle2, XCircle, Pencil, Layers } from "lucide-react";
 import {
   getTransactions,
   getTransaction,
@@ -209,7 +209,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 overflow-hidden overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 hover:bg-slate-50 border-b border-slate-100">
@@ -235,8 +235,18 @@ export default function TransactionsPage() {
               ))
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-sm text-slate-400 py-16">
-                  No transactions found
+                <TableCell colSpan={7} className="py-20">
+                  <div className="flex flex-col items-center gap-3 text-center">
+                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center">
+                      <Layers className="w-6 h-6 text-slate-300" />
+                    </div>
+                    <p className="text-sm font-medium text-slate-600">No transactions found</p>
+                    <p className="text-xs text-slate-400 max-w-xs">
+                      {search || status
+                        ? "Try adjusting your filters"
+                        : "Sync with Xero first, then run Categorise All from the dashboard"}
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (

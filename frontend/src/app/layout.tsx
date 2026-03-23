@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Sidebar from "@/components/sidebar";
+import AppShell from "@/components/app-shell";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
@@ -28,12 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="flex h-screen overflow-hidden bg-slate-50">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto">
-            <div className="min-h-full p-8">{children}</div>
-          </main>
-        </div>
+        <AppShell>{children}</AppShell>
         <Toaster richColors position="top-right" />
       </body>
     </html>

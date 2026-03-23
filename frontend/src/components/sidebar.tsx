@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
@@ -11,21 +11,33 @@ import {
   FileText,
   Settings,
   Sparkles,
+  LogOut,
 } from "lucide-react";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/reconciliation", label: "Reconciliation", icon: GitCompare },
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/settings", label: "Settings", icon: Settings, soon: true },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export default function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  function handleLogout() {
+    localStorage.removeItem("session_token");
+    document.cookie = "has_session=; Max-Age=0; path=/";
+    router.push("/");
+  }
 
   return (
-    <aside className="w-60 flex-shrink-0 bg-[#0C0E14] flex flex-col border-r border-white/[0.06]">
+    <aside className="w-60 flex-shrink-0 bg-[#0C0E14] flex flex-col border-r border-white/[0.06] h-screen">
       {/* Logo */}
       <div className="h-16 flex items-center px-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-2.5">
@@ -41,11 +53,12 @@ export default function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 py-4 px-3 space-y-0.5">
         {navItems.map(({ href, label, icon: Icon, soon }) => {
-          const active = pathname === href;
+          const active = href === "/dashboard" ? pathname.startsWith("/dashboard") : pathname === href;
           return (
             <Link
               key={href}
               href={soon ? "#" : href}
+              onClick={soon ? undefined : onNavigate}
               className={cn(
                 "group relative flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                 active
@@ -76,8 +89,15 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="p-4 border-t border-white/[0.06]">
-        <p className="text-[11px] text-slate-600 text-center">v0.1.0 · Phase 7</p>
+      <div className="p-3 border-t border-white/[0.06] space-y-1">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/[0.05] transition-all duration-150"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          Disconnect Xero
+        </button>
+        <p className="text-[11px] text-slate-600 text-center pt-1">v0.1.0 · Phase 8</p>
       </div>
     </aside>
   );

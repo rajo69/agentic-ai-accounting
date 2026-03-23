@@ -16,6 +16,7 @@ from app.agents.reconciler import (
     reconcile_batch,
 )
 from app.core.database import get_db
+from app.core.session import get_current_org
 from app.models.database import AuditLog, BankStatement, Organisation, Transaction
 from app.models.schemas import (
     AuditLogRead,
@@ -33,20 +34,12 @@ _DATE_WINDOW_DAYS = 7
 _AMOUNT_TOLERANCE = Decimal("0.01")
 
 
-async def _get_org(db: AsyncSession) -> Organisation:
-    result = await db.execute(select(Organisation).where(Organisation.xero_access_token.isnot(None)).limit(1))
-    org = result.scalar_one_or_none()
-    if not org:
-        raise HTTPException(
-            status_code=404, detail="No organisation connected. Connect Xero first."
-        )
-    return org
-
-
 @router.post("/reconcile", response_model=ReconcileBatchResponse)
-async def trigger_reconcile(db: AsyncSession = Depends(get_db)):
+async def trigger_reconcile(
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Run AI reconciliation on all unmatched bank statements."""
-    org = await _get_org(db)
     return await reconcile_batch(org.id, db)
 
 
@@ -57,10 +50,10 @@ async def list_bank_statements(
     date_to: Optional[date] = None,
     page: int = 1,
     page_size: int = 20,
+    org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
     """List bank statements with optional filters and pagination."""
-    org = await _get_org(db)
 
     query = select(BankStatement).where(BankStatement.organisation_id == org.id)
 
@@ -94,10 +87,11 @@ async def list_bank_statements(
 
 @router.get("/bank-statements/{statement_id}", response_model=BankStatementDetail)
 async def get_bank_statement(
-    statement_id: UUID, db: AsyncSession = Depends(get_db)
+    statement_id: UUID,
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
 ):
     """Get a single bank statement with scored match candidates and audit history."""
-    org = await _get_org(db)
 
     result = await db.execute(
         select(BankStatement).where(
@@ -165,9 +159,12 @@ async def get_bank_statement(
 
 
 @router.post("/bank-statements/{statement_id}/confirm", response_model=BankStatementRead)
-async def confirm_match(statement_id: UUID, db: AsyncSession = Depends(get_db)):
+async def confirm_match(
+    statement_id: UUID,
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Confirm a suggested match, marking it as reconciled."""
-    org = await _get_org(db)
 
     result = await db.execute(
         select(BankStatement).where(
@@ -212,9 +209,12 @@ async def confirm_match(statement_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/bank-statements/{statement_id}/unmatch", response_model=BankStatementRead)
-async def unmatch_statement(statement_id: UUID, db: AsyncSession = Depends(get_db)):
+async def unmatch_statement(
+    statement_id: UUID,
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Remove a match and reset the bank statement to unmatched."""
-    org = await _get_org(db)
 
     result = await db.execute(
         select(BankStatement).where(
@@ -265,10 +265,10 @@ async def unmatch_statement(statement_id: UUID, db: AsyncSession = Depends(get_d
 async def manual_match(
     statement_id: UUID,
     body: ManualMatchRequest,
+    org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
     """Manually match a bank statement to a specific transaction."""
-    org = await _get_org(db)
 
     result = await db.execute(
         select(BankStatement).where(

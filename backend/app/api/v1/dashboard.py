@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.core.database import get_db
+from app.core.session import get_current_org
 from app.models.database import Organisation, Account, Transaction, BankStatement
 from app.models.schemas import DashboardSummary
 
@@ -10,16 +11,11 @@ router = APIRouter(prefix="/api/v1", tags=["dashboard"])
 
 
 @router.get("/dashboard/summary", response_model=DashboardSummary)
-async def dashboard_summary(db: AsyncSession = Depends(get_db)):
+async def dashboard_summary(
+    org: Organisation = Depends(get_current_org),
+    db: AsyncSession = Depends(get_db),
+):
     """Return high-level counts for the dashboard."""
-    result = await db.execute(select(Organisation).where(Organisation.xero_access_token.isnot(None)).limit(1))
-    org = result.scalar_one_or_none()
-    if org is None:
-        raise HTTPException(
-            status_code=404,
-            detail="No Xero organisation connected. Visit /auth/xero/connect first.",
-        )
-
     total_accounts = await db.scalar(
         select(func.count()).select_from(Account).where(Account.organisation_id == org.id)
     )

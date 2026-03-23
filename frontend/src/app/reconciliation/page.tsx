@@ -181,7 +181,7 @@ export default function ReconciliationPage() {
         <p className="text-sm text-slate-500 mt-0.5">Match bank statement lines to your Xero transactions</p>
       </div>
 
-      <div className="flex gap-5">
+      <div className="flex flex-col lg:flex-row gap-5">
         {/* ── Left panel — statements list ─────────────────────── */}
         <div className="flex-1 min-w-0 space-y-3">
           <Select
@@ -214,7 +214,17 @@ export default function ReconciliationPage() {
                 ))}
               </div>
             ) : statements.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-12">No bank statements found</p>
+              <div className="py-16 text-center space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto">
+                  <GitCompareIcon className="w-6 h-6 text-slate-300" />
+                </div>
+                <p className="text-sm font-medium text-slate-600">No bank statements</p>
+                <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                  {matchStatus
+                    ? "Try a different filter"
+                    : "Sync with Xero to import bank statement lines, then run Reconcile All"}
+                </p>
+              </div>
             ) : (
               <motion.div
                 className="divide-y divide-slate-50"
@@ -263,7 +273,7 @@ export default function ReconciliationPage() {
         </div>
 
         {/* ── Right panel — detail ─────────────────────────────── */}
-        <div className="w-80 shrink-0">
+        <div className="lg:w-80 shrink-0">
           <AnimatePresence mode="wait">
             {selected ? (
               <motion.div
