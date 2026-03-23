@@ -161,7 +161,7 @@ export default function DocumentsPage() {
       </div>
 
       {/* Generate card */}
-      <div className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="bg-gradient-to-r from-indigo-600 to-indigo-500 px-6 py-5">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">

@@ -42,10 +42,10 @@ import { ExplanationPanel } from "@/components/explanation-panel";
 // ── Match badge ───────────────────────────────────────────────────────────────
 
 const MATCH_CONFIG: Record<string, { label: string; className: string }> = {
-  confirmed:    { label: "Confirmed",    className: "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" },
-  auto_matched: { label: "Auto-matched", className: "bg-sky-500/10 text-sky-400 ring-1 ring-sky-500/20" },
-  suggested:    { label: "Suggested",    className: "bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20" },
-  unmatched:    { label: "Unmatched",    className: "bg-zinc-800 text-zinc-500 ring-1 ring-zinc-700" },
+  confirmed:    { label: "Confirmed",    className: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" },
+  auto_matched: { label: "Auto-matched", className: "bg-sky-50 text-sky-700 ring-1 ring-sky-200" },
+  suggested:    { label: "Suggested",    className: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" },
+  unmatched:    { label: "Unmatched",    className: "bg-slate-100 text-slate-500 ring-1 ring-slate-200" },
 };
 
 function MatchBadge({ status }: { status: string }) {
