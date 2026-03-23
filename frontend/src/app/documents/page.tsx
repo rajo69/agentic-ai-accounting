@@ -177,7 +177,7 @@ export default function DocumentsPage() {
           <p className="text-sm text-slate-500 leading-relaxed">
             Calculates income, expenses and net profit for the selected period, then uses AI to write an executive summary,
             income &amp; expense analysis, cash flow observations and recommendations.
-            The output is a professional PDF with an "AI-Assisted Draft" watermark.
+            The output is a professional PDF with an &ldquo;AI-Assisted Draft&rdquo; watermark.
           </p>
 
           <div className="flex flex-wrap gap-4 items-end">
