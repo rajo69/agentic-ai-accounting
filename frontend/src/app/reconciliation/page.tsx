@@ -42,10 +42,10 @@ import { ExplanationPanel } from "@/components/explanation-panel";
 // ── Match badge ───────────────────────────────────────────────────────────────
 
 const MATCH_CONFIG: Record<string, { label: string; className: string }> = {
-  confirmed:    { label: "Confirmed",    className: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" },
-  auto_matched: { label: "Auto-matched", className: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100" },
-  suggested:    { label: "Suggested",    className: "bg-amber-50 text-amber-700 ring-1 ring-amber-100" },
-  unmatched:    { label: "Unmatched",    className: "bg-slate-100 text-slate-500 ring-1 ring-slate-200" },
+  confirmed:    { label: "Confirmed",    className: "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" },
+  auto_matched: { label: "Auto-matched", className: "bg-sky-500/10 text-sky-400 ring-1 ring-sky-500/20" },
+  suggested:    { label: "Suggested",    className: "bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20" },
+  unmatched:    { label: "Unmatched",    className: "bg-zinc-800 text-zinc-500 ring-1 ring-zinc-700" },
 };
 
 function MatchBadge({ status }: { status: string }) {
@@ -182,7 +182,7 @@ export default function ReconciliationPage() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-5">
-        {/* ── Left panel — statements list ─────────────────────── */}
+        {/* Left panel: statements list */}
         <div className="flex-1 min-w-0 space-y-3">
           <Select
             value={matchStatus}
@@ -272,7 +272,7 @@ export default function ReconciliationPage() {
           )}
         </div>
 
-        {/* ── Right panel — detail ─────────────────────────────── */}
+        {/* Right panel: detail */}
         <div className="lg:w-80 shrink-0">
           <AnimatePresence mode="wait">
             {selected ? (
@@ -344,7 +344,7 @@ export default function ReconciliationPage() {
                 {selected.matched_transaction_id && (
                   <div>
                     <p className="font-semibold text-slate-700 text-xs uppercase tracking-wide mb-2">
-                      Matched transaction — AI explanation
+                      Matched transaction: AI explanation
                     </p>
                     <ExplanationPanel transactionId={selected.matched_transaction_id} inline />
                   </div>
