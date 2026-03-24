@@ -161,20 +161,18 @@ async def test_approve_transaction_updates_status():
     tx = _make_transaction(org_id=org.id, status="suggested", category="Office Supplies")
 
     mock_db = AsyncMock()
-    org_result = MagicMock()
-    org_result.scalar_one_or_none.return_value = org
 
     tx_result = MagicMock()
     tx_result.scalar_one_or_none.return_value = tx
 
-    mock_db.execute = AsyncMock(side_effect=[org_result, tx_result])
+    mock_db.execute = AsyncMock(return_value=tx_result)
     mock_db.add = MagicMock()
     mock_db.commit = AsyncMock()
     mock_db.refresh = AsyncMock()
 
     from app.api.v1.categorise import approve_transaction
 
-    result = await approve_transaction(transaction_id=tx.id, db=mock_db)
+    result = await approve_transaction(transaction_id=tx.id, org=org, db=mock_db)
     assert tx.categorisation_status == "confirmed"
     mock_db.commit.assert_called_once()
 
@@ -186,20 +184,18 @@ async def test_reject_transaction_resets_to_uncategorised():
     tx = _make_transaction(org_id=org.id, status="suggested", category="Office Supplies")
 
     mock_db = AsyncMock()
-    org_result = MagicMock()
-    org_result.scalar_one_or_none.return_value = org
 
     tx_result = MagicMock()
     tx_result.scalar_one_or_none.return_value = tx
 
-    mock_db.execute = AsyncMock(side_effect=[org_result, tx_result])
+    mock_db.execute = AsyncMock(return_value=tx_result)
     mock_db.add = MagicMock()
     mock_db.commit = AsyncMock()
     mock_db.refresh = AsyncMock()
 
     from app.api.v1.categorise import reject_transaction
 
-    await reject_transaction(transaction_id=tx.id, db=mock_db)
+    await reject_transaction(transaction_id=tx.id, org=org, db=mock_db)
     assert tx.categorisation_status == "uncategorised"
     assert tx.category is None
     assert tx.category_confidence is None
