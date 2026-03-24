@@ -13,7 +13,6 @@ from app.api.v1.reconcile import router as reconcile_router
 from app.api.v1.documents import router as documents_router
 from app.api.v1.explanations import router as explanations_router
 from app.api.v1.gdpr import router as gdpr_router
-from app.core.config import settings
 import app.models.database  # noqa: F401 — ensure models are registered
 
 
@@ -26,12 +25,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="AI Accountant", version="0.1.0", lifespan=lifespan)
 
-# Allow the configured frontend origin.  Defaults to http://localhost:3000
-# in development; set FRONTEND_URL in production to the deployed domain.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
