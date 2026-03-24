@@ -1,3 +1,9 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
 # AI ACCOUNTANT — MASTER BUILD PLAN
 
 > **This file is both the CLAUDE.md and the execution plan.**
@@ -20,13 +26,14 @@
 ## TECH STACK
 
 - Backend: Python 3.12, FastAPI, SQLAlchemy 2.0 (async), Alembic, Pydantic v2
-- AI/Agents: LangGraph, LangChain, OpenAI API (GPT-4o), Instructor
+- AI/Agents: LangGraph, LangChain, **Anthropic Claude API** (not OpenAI), Instructor (`instructor[anthropic]`)
+- Embeddings: `sentence-transformers/all-MiniLM-L6-v2` (384-dim, local, no API key needed)
 - XAI: SHAP, InterpretML (EBM), Simpful (fuzzy logic)
-- Database: PostgreSQL 16 + pgvector extension (Docker locally, Railway for prod)
+- Database: PostgreSQL 16 + pgvector extension (Docker locally, Railway for prod); Vector columns are **384-dim**
 - Cache: Redis
-- Frontend: Next.js 14, TypeScript, Tailwind CSS, shadcn/ui
-- Hosting: Railway (backend + DB), Vercel (frontend)
-- PDF: WeasyPrint
+- Frontend: Next.js 14, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion
+- Hosting: Railway (backend + DB + Redis), Vercel (frontend)
+- PDF: WeasyPrint + Jinja2
 - String matching: RapidFuzz
 
 ---
@@ -35,7 +42,7 @@
 
 1. **Decimal for ALL money.** Never use float for financial amounts. Use `Decimal` in Python, `NUMERIC(12,2)` in PostgreSQL.
 2. **Audit every AI decision.** Every prediction/classification/match logs: input data, output, confidence, explanation text, model version, timestamp.
-3. **LLM calls only in services/.** API routes never call OpenAI/LLM directly. Always go through a service layer.
+3. **LLM calls only in services/ or agents/.** API routes never call Anthropic/LLM directly. Always go through a service layer.
 4. **Xero calls only through the adapter.** All Xero API interactions go through `integrations/xero_adapter.py`.
 5. **Tests before commit.** At minimum, one happy-path test per new endpoint or service method.
 6. **Structured LLM output.** Use Instructor + Pydantic models to force structured responses from LLMs. Never parse free text.
@@ -47,13 +54,67 @@
 
 ```
 Start database:       docker-compose up -d db
+Start all services:   docker-compose up -d
 Start backend:        cd backend && uvicorn app.main:app --reload --port 8000
 Run tests:            cd backend && pytest -x -v
 Run single test:      cd backend && pytest tests/test_specific.py -v
+Run evals (mock):     cd backend && python -m evals.run --mock
+Run evals (live):     cd backend && python -m evals.run --cache
+Run lint:             cd backend && ruff check .
 Start frontend:       cd frontend && npm run dev
+Lint frontend:        cd frontend && npm run lint
+Type-check frontend:  cd frontend && npx tsc --noEmit
 Run migrations:       cd backend && alembic upgrade head
 Create migration:     cd backend && alembic revision --autogenerate -m "description"
 ```
+
+---
+
+## ARCHITECTURE
+
+All phases are complete. Here is the current state of the system.
+
+### Data flow
+
+```
+Xero API
+  └─► XeroAdapter (integrations/xero_adapter.py)
+        └─► sync_accounts / sync_transactions / sync_bank_statements
+              └─► PostgreSQL (Organisation, Account, Transaction, BankStatement)
+
+Uncategorised transactions
+  └─► CategoriserAgent (agents/categoriser.py) — LangGraph graph
+        ├─ fetch_context: chart of accounts + pgvector similar examples
+        ├─ classify: Anthropic Claude via Instructor → CategoryPrediction
+        ├─ validate: category_code exists, confidence 0–1
+        ├─ decide: >0.85 auto_categorised | 0.5–0.85 suggested | <0.5 needs_review
+        └─ explain: EmbeddingService + XAI explainer + fuzzy risk engine
+              └─► AuditLog (every decision, with ai_decision_data JSONB)
+
+Unmatched bank statements
+  └─► ReconcilerAgent (agents/reconciler.py) — LangGraph graph, no LLM
+        ├─ find_candidates: amount ±£0.01, date ±5 business days
+        ├─ score_candidates: (amount×0.5) + (date×0.2) + (description×0.3)
+        ├─ decide: >0.9 auto_match | 0.6–0.9 suggest | <0.6 human review
+        ├─ explain: natural language match explanation
+        └─► AuditLog
+
+Documents
+  └─► DocumentService (services/document_service.py)
+        ├─ calculate figures (pure Python, no LLM)
+        ├─ pgvector context retrieval
+        ├─ Anthropic Claude via Instructor → narrative sections
+        └─► WeasyPrint PDF
+```
+
+### Key structural patterns
+
+- **Session scoping**: all DB queries filter by `organisation_id` derived from the JWT session
+- **Confidence thresholds**: categoriser uses 0.85/0.5; reconciler uses 0.9/0.6 — don't change without updating tests
+- **Embeddings**: `EmbeddingService` uses sentence-transformers (384-dim). The `Transaction.embedding` column is `Vector(384)`. The `backfill_embeddings()` method re-embeds when a user corrects a category, so corrections become training examples for future predictions.
+- **XAI layers**: (1) LLM reasoning text always present, (2) InterpretML EBM when ≥50 labelled samples, (3) Simpful fuzzy risk score always present. All three stored in `AuditLog.ai_decision_data`.
+- **Evals**: `backend/evals/` has a 50-transaction fixture set (24 easy / 16 medium / 10 hard). Acceptance criteria: 80% overall, 95% easy, 90% auto-accept rate. Run before any change to the categoriser.
+- **Xero OAuth tokens**: stored in plaintext for MVP. Phase 8 notes plan for encryption. Don't add complexity until needed.
 
 ---
 
@@ -79,10 +140,17 @@ After completing each phase, update the `## PHASE STATUS` section below by chang
 - 2026-03-22: Xero adapter implemented with raw httpx (not the xero-python SDK) for OAuth2 and all API calls. Cleaner and more controllable. xero-python still installed as optional dep.
 - 2026-03-22: Added `last_sync_at` column to `organisations` table (migration: a1b2c3d4e5f6). Required for dashboard summary.
 - 2026-03-22: Switched embedding model to sentence-transformers `all-MiniLM-L6-v2` (384 dims, no extra API key). Updated Vector dimension from 1536→384 (migration: b2c3d4e5f6a7). Anthropic Claude is used for LLM classification via instructor[anthropic].
+- 2026-03-24: Added GitHub Actions CI (`.github/workflows/ci.yml`). Two jobs: `backend` runs pytest with a `pgvector/pgvector:pg16` PostgreSQL service container; `frontend` runs `tsc --noEmit` + `eslint`. Installs WeasyPrint system deps, runs `alembic upgrade head` before tests.
+- 2026-03-24: Added GDPR endpoints: `GET /api/v1/gdpr/export` (Art.15/20 data export as JSON) and `DELETE /api/v1/gdpr/erase` (Art.17 right to erasure, deletes rows in FK-safe order). Located in `backend/app/api/v1/gdpr.py`.
+- 2026-03-24: Removed `simpful>=2.12.0` from pyproject.toml. `xai/fuzzy_engine.py` is a hand-rolled Mamdani fuzzy inference engine, never used Simpful. README and ARCHITECTURE.md updated to say "custom Mamdani fuzzy inference".
+- 2026-03-24: CORS reverted to `allow_origins=["*"]` with `allow_credentials=False`. Previous explicit-origin approach (`settings.frontend_url`) broke production because the Vercel frontend's origin didn't match the Railway default of `http://localhost:3000`. Bearer-token auth does not need `allow_credentials=True`.
+- 2026-03-24: Fixed 3 rounds of CI test failures. (1) `test_categorise.py` passed `Depends(...)` objects as values; fixed by passing `org=org` explicitly. (2) `test_documents.py` patched a non-existent `_get_org` helper; fixed with `app.dependency_overrides[get_current_org]`. (3) `test_reconcile.py` expected 404 for unauthenticated routes; `get_current_org` always raises 401, never 404.
 
 ### KNOWN ISSUES
 
-*(Append bugs and tech debt here)*
+- **Test pattern for auth**: All routes use `Depends(get_current_org)`. In tests always use `app.dependency_overrides[get_current_org] = lambda: fake_org`. Never patch a `_get_org` helper (it doesn't exist). `get_current_org` raises **401** for all auth failures (no token / bad token / org not found in DB) — never 404.
+- **CORS**: Currently `allow_origins=["*"]`. Tighten to the production Vercel domain once it is stable. Set `FRONTEND_URL` env var on Railway and change `main.py` to `allow_origins=[settings.frontend_url]` with `allow_credentials=False`.
+- **OAuth tokens**: Stored in plaintext in the DB. Encrypt before any public beta with real client data.
 
 ---
 ---
