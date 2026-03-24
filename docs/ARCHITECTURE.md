@@ -450,11 +450,17 @@ Our XAI stack provides three layers of explanation:
 |-------|-----------|------------------|
 | LLM reasoning | Claude (via Instructor) | Natural language: "This looks like a software subscription based on the ADOBE description and £47.99 amount" |
 | Feature importance | SHAP / InterpretML EBM | Which transaction features (amount, vendor frequency, day of week) drove the prediction |
-| Risk scoring | Simpful fuzzy logic | Whether the transaction is anomalous (unusual amount for this category, rare vendor) |
+| Risk scoring | Custom Mamdani fuzzy inference | Whether the transaction is anomalous (unusual amount for this category, rare vendor) |
 
 ### 7.2 Fuzzy logic risk scoring
 
-We use Simpful to implement a Mamdani fuzzy inference system with human-readable rules:
+The fuzzy risk engine (`xai/fuzzy_engine.py`) is a hand-rolled Mamdani inference
+system using triangular membership functions and centroid defuzzification.
+It does not use an external fuzzy library; the implementation is self-contained
+so the inference logic can be read, audited, and modified without understanding
+a third-party API.
+
+Rule base (8 rules, human-readable):
 
 ```
 IF amount_deviation IS high AND vendor_frequency IS rare THEN risk IS high

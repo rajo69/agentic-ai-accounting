@@ -1,5 +1,7 @@
 # AI Accountant: Agentic AI for Accounting Workflows
 
+![CI](https://github.com/rajo69/agentic-ai-accounting/actions/workflows/ci.yml/badge.svg)
+
 A production-grade AI assistant for UK accountants built on top of **Xero**. It automates the three most time-consuming manual tasks in a small accounting practice: transaction categorisation, bank reconciliation, and management letter drafting. Every AI decision is transparent, auditable, and correctable by the human in the loop.
 
 ---
@@ -58,7 +60,7 @@ flowchart TD
 
             subgraph XAILayer["XAI Engine"]
                 EBM["EBM Explainer"]
-                Fuzzy["Simpful Fuzzy Risk Scorer"]
+                Fuzzy["Mamdani Fuzzy Risk Scorer"]
             end
         end
 
@@ -288,9 +290,9 @@ EBM was chosen over a standard boosted tree because its predictions are additive
 
 Below 50 samples, the fallback is Layer 1 (the LLM's own reasoning text).
 
-#### Layer 3: Simpful fuzzy risk score (always present)
+#### Layer 3: Mamdani fuzzy risk score (always present)
 
-A Mamdani-style fuzzy inference system with triangular membership functions and centroid defuzzification, implemented directly in `fuzzy_engine.py`.
+A custom Mamdani-style fuzzy inference system with triangular membership functions and centroid defuzzification, implemented from scratch in `fuzzy_engine.py` without an external fuzzy library. The implementation is self-contained so the inference logic can be audited and modified directly.
 
 **Three input variables** (all normalised to the range [0, 1]):
 
@@ -372,7 +374,7 @@ A Jinja2 HTML template is populated with figures and narrative, then rendered to
 | LLM | Anthropic Claude | Strong instruction-following for structured output; Haiku is extremely cost-efficient for high-volume categorisation |
 | Structured output | Instructor + Pydantic v2 | Guarantees typed LLM output via Anthropic tool-use; never parses free text |
 | Embeddings | sentence-transformers/all-MiniLM-L6-v2 | 384-dim, runs locally, zero API cost; sufficient for semantic similarity on short transaction descriptions |
-| XAI | InterpretML (EBM), Simpful (fuzzy) | Glass-box models; outputs are directly interpretable without post-hoc approximation |
+| XAI | InterpretML (EBM), custom Mamdani fuzzy inference | Glass-box models; outputs are directly interpretable without post-hoc approximation |
 | String matching | RapidFuzz | C-extension reimplementation of fuzzywuzzy; 10 to 100x faster, no GPL licence issues |
 | PDF | WeasyPrint + Jinja2 | HTML/CSS authoring is natural for structured documents; pure Python, no Chromium dependency |
 | HTTP client | httpx (async) | Async-native with identical sync API; HTTP/2 support; standard for modern async Python |
@@ -504,6 +506,15 @@ POST /api/v1/bank-statements/{id}/match       Manually match to a specific trans
 POST /api/v1/documents/generate               Generate PDF (body: template, period_start, period_end)
 GET  /api/v1/documents                        List previously generated documents
 ```
+
+### GDPR
+
+```
+GET    /api/v1/gdpr/export   Export all organisation data as JSON (Articles 15 and 20)
+DELETE /api/v1/gdpr/erase    Permanently delete all organisation data  (Article 17)
+```
+
+Both endpoints require a valid JWT. The export excludes Xero OAuth tokens (credentials, not personal data) and raw embedding vectors (binary, not human-readable). The erase endpoint deletes rows in FK-safe order and the caller's session becomes invalid immediately.
 
 ### Explanations
 
@@ -712,6 +723,59 @@ After deploying, update `XERO_REDIRECT_URI` in Railway and in the Xero Developer
 ### Migrations in production
 
 Alembic runs as part of the startup command; the server will not start if there are pending migrations, which prevents schema drift between deployments.
+
+---
+
+## GDPR compliance
+
+The product handles financial data on behalf of UK accounting firms. The following table maps each relevant GDPR data-subject right to the code that fulfils it.
+
+| Right | GDPR Article | How it is implemented |
+|---|---|---|
+| Right of access | Article 15 | `GET /api/v1/gdpr/export` returns all stored data as structured JSON |
+| Right to data portability | Article 20 | Same endpoint; response is machine-readable JSON suitable for import into another system |
+| Right to erasure | Article 17 | `DELETE /api/v1/gdpr/erase` deletes all org rows in FK-safe order; session invalidated immediately |
+| Right to explanation | Article 22 | Every AI decision stores its full reasoning in `AuditLog.ai_decision_data`; surfaced via `GET /api/v1/transactions/{id}/explanation` |
+| Data minimisation | Article 5(1)(c) | Xero OAuth tokens are excluded from exports; embedding vectors are excluded as derived, non-personal data |
+| Security of processing | Article 32 | CORS locked to configured `FRONTEND_URL`; all data routes require Bearer JWT scoped to `organisation_id` |
+
+**Known gaps before production use**: OAuth tokens are currently stored in plaintext (acceptable for beta; must be AES-encrypted before handling regulated client data). There is no automated data retention policy; old audit logs are retained indefinitely.
+
+---
+
+## Research foundations
+
+The AI and XAI components in this project are grounded in established research. The following references document the academic basis for the key techniques.
+
+**Fuzzy logic inference (XAI risk scoring)**
+
+Mamdani, E.H. and Assilian, S. (1975). An experiment in linguistic synthesis with a fuzzy logic controller. *International Journal of Man-Machine Studies*, 7(1), pp.1-13.
+
+The fuzzy risk engine in `xai/fuzzy_engine.py` implements Mamdani-style min-AND inference with centroid defuzzification, as described in this paper. The rule base is intentionally human-readable so domain experts can challenge and revise it without ML expertise.
+
+**Explainability in AI systems**
+
+Hagras, H. (2018). Toward human-understandable, explainable AI. *Computer*, 51(9), pp.28-36.
+
+Provides the theoretical framing for why interpretability must be designed in from the start rather than approximated after the fact. This informed the decision to use glass-box models (EBM, fuzzy logic) rather than post-hoc explanation of black-box models.
+
+**Explainable Boosting Machine (feature importances)**
+
+Lou, Y., Caruana, R. and Gehrke, J. (2012). Intelligible models for classification and regression. *Proceedings of the 18th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, pp.150-158.
+
+EBM is the model class used in `xai/explainer.py` for feature importance once 50 or more labelled transactions are available. Its additive structure means each feature's contribution to the final prediction is directly readable without approximation.
+
+**SHAP unified feature attribution**
+
+Lundberg, S.M. and Lee, S.I. (2017). A unified approach to interpreting model predictions. *Advances in Neural Information Processing Systems*, 30.
+
+Provides the theoretical basis for SHAP values used alongside EBM in the explainer. SHAP guarantees consistency and local accuracy properties that simpler attribution methods do not.
+
+**Retrieval-augmented generation (document generation)**
+
+Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., Kuttler, H., Lewis, M., Yih, W., Rocktaschel, T., Riedel, S. and Kiela, D. (2020). Retrieval-augmented generation for knowledge-intensive NLP tasks. *Advances in Neural Information Processing Systems*, 33.
+
+The management letter pipeline (`services/document_service.py`) follows the RAG pattern: retrieve relevant transaction context via pgvector similarity search, then condition the generative model on that retrieved context rather than relying on parametric memory alone.
 
 ---
 
