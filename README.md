@@ -715,6 +715,92 @@ Alembic runs as part of the startup command; the server will not start if there 
 
 ---
 
+## Engineering challenges encountered during the build
+
+This section documents non-obvious technical problems that arose during construction and how they were resolved. These are real issues that required investigation, not anticipated design decisions.
+
+---
+
+### Anthropic has no embeddings endpoint
+
+**Problem**: The original design used OpenAI for both LLM classification and embeddings (`text-embedding-3-small`, 1536 dimensions). Midway through Phase 3, the decision was made to switch to Anthropic Claude as the LLM. Anthropic does not provide an embeddings API.
+
+**Resolution**: Decoupled the two concerns entirely. Embeddings are now handled by `sentence-transformers/all-MiniLM-L6-v2` running locally in-process, producing 384-dimensional vectors at zero API cost. The pgvector column was resized from 1536 to 384 via an Alembic migration. `asyncio.to_thread()` offloads the CPU-bound embedding work from the async event loop. The LLM and embedding concerns are now fully independent and can be swapped separately.
+
+---
+
+### LangGraph nodes need database access without polluting graph state
+
+**Problem**: LangGraph nodes are standalone functions that transform a state dict. Each node in the categorisation agent needs an async SQLAlchemy session for database queries. Passing the session through the state dict would pollute it (sessions are not serialisable) and break any future state persistence.
+
+**Resolution**: Used a factory/closure pattern. `build_categoriser_graph(db: AsyncSession)` captures the session in a closure and returns the compiled graph. Each node is a nested function that closes over `db` without it ever appearing in the state dict. The same pattern is used in the reconciliation agent.
+
+---
+
+### Structured LLM output fails silently without Instructor
+
+**Problem**: The first implementation called Claude and parsed the response with string splitting. This worked on simple cases but failed whenever Claude added preamble text ("Sure, here is the classification..."), changed field ordering, or used slightly different key names. The failures were silent: the parser returned a wrong category rather than raising an error.
+
+**Resolution**: Replaced all free-text parsing with `instructor[anthropic]`. Instructor uses Anthropic's tool-use feature to force the model to return data conforming to a Pydantic model schema. If the output fails validation, Instructor retries automatically. The `CategoryPrediction` model is now the contract between the agent and Claude; any deviation raises a validation error rather than silently producing a bad prediction.
+
+---
+
+### Xero OAuth2 scope names changed as a breaking change in March 2026
+
+**Problem**: Xero introduced granular OAuth2 scopes for applications created after 2 March 2026. The original scope list used broad format strings (`accounting.transactions.read`). The application was created on 22 March 2026, so all authorisation attempts returned `unauthorized_client: Invalid scope`.
+
+**Resolution**: Iteratively tested scope name formats against Xero's token endpoint. The colon format (`accounting.transactions:read`) was also incorrect. The working format uses dot notation with specific resource names: `accounting.banktransactions.read`, `accounting.invoices.read`, `accounting.contacts.read`, `accounting.settings.read`. Updated the adapter and documented the breaking change in the decisions log.
+
+---
+
+### Python bytecode cache masking live code changes
+
+**Problem**: After updating the OAuth2 scope names in `xero_adapter.py`, the running server continued serving the old (invalid) scopes despite uvicorn's `--reload` flag being active. The behaviour was reproducible: the corrected scope strings were in the source file, but the authorisation URL still contained the old ones.
+
+**Resolution**: Python's `.pyc` bytecode cache files in `__pycache__/` directories preserved the compiled version of the old source. Uvicorn's file watcher detected the modification but the import system served the cached bytecode. Clearing all `__pycache__` directories and restarting the process resolved it. The lesson: `--reload` watches for file changes to trigger restart, but does not invalidate the bytecode cache independently.
+
+---
+
+### Naive `LIMIT 1` query returns the wrong organisation in a multi-tenant setup
+
+**Problem**: During local testing with both a seed "Demo Company Ltd" organisation and a real connected "Agentic AI Demo" organisation in the database, the `_get_org()` helper used `SELECT ... LIMIT 1` without ordering or filtering. PostgreSQL's heap scan order is non-deterministic; the query returned the seed org (which had no Xero token) roughly half the time, causing every Xero API call to fail with a 400 error.
+
+**Resolution**: Added `WHERE xero_access_token IS NOT NULL` to all `_get_org()` calls across route files. This ensures the query always returns the live connected organisation regardless of row storage order. A longer-term fix (scoping by JWT-derived organisation_id) is part of the Phase 8 auth work.
+
+---
+
+### Xero Demo Company bank statement data is not accessible via the Accounting API
+
+**Problem**: The Xero UK Demo Company shows 29 bank statement lines in the reconciliation UI. The expectation was that `GET /BankTransactions` would return these. It returns zero results, as do `GET /Invoices` and `GET /Payments`.
+
+**Resolution**: The Demo Company's bank statement lines are loaded via Xero's internal bank feed layer, which is separate from the Accounting API layer that third-party apps can access. They are visible in the UI but cannot be retrieved programmatically. The resolution was to create actual `BankTransactions` via the Xero UI (Spend Money entries) and use local seed data for AI pipeline validation rather than expecting the bank feed to be API-accessible.
+
+---
+
+### shadcn v4 installs Tailwind v4 CSS-first config into a Tailwind v3 project
+
+**Problem**: `npx shadcn@latest init` installed shadcn v4, which assumes Tailwind CSS v4's CSS-first configuration (no `tailwind.config.ts`, all configuration in `globals.css` via `@import "tw-animate-css"` and `@import "shadcn/tailwind.css"`). The project was scaffolded with `create-next-app@14`, which generates a Tailwind v3 setup. The two approaches are incompatible and the build failed immediately.
+
+**Resolution**: Rewrote `globals.css` to use standard Tailwind v3 directives (`@tailwind base`, `@tailwind components`, `@tailwind utilities`) with HSL CSS custom properties for all colour tokens. Rewrote `tailwind.config.ts` to map all shadcn colour tokens (`background`, `primary`, `border`, `ring`, etc.) to `hsl(var(--token-name))`. All shadcn components then work as expected against the v3 config.
+
+---
+
+### Next.js frontend initialised its own git repository inside the monorepo
+
+**Problem**: `create-next-app` ran `git init` inside `frontend/`, creating a nested repository. When staged to the outer repo, Git treated `frontend/` as a submodule reference (mode `160000`) rather than tracking its files. The commit showed `frontend` as a single line with no contents; all frontend source was invisible in the repository.
+
+**Resolution**: Removed `frontend/.git`, ran `git rm --cached frontend` to deregister the gitlink entry from the outer index, then re-added all frontend files as regular tracked files with `git add frontend/`. The outer repository now owns all frontend source directly with no submodule relationship.
+
+---
+
+### Decimal and float type mixing in reconciliation scoring
+
+**Problem**: The reconciliation scoring pipeline mixes two numeric types: financial amounts from the database are `Decimal` (required for financial accuracy), while RapidFuzz returns similarity ratios as `float` in the range 0 to 100. Naive combination causes either a `TypeError` or silent precision loss depending on Python's coercion rules.
+
+**Resolution**: Maintained a strict type boundary. All amount comparisons use `Decimal` arithmetic exclusively. The scoring formula converts amounts to `float` only for the final weighted sum (which is a statistical score, not a financial amount and carries no monetary meaning). The rule: financial data stays `Decimal`, ML scores stay `float`, and the two never mix in a financial calculation.
+
+---
+
 ## Limitations
 
 These are genuine current limitations, not caveats to dismiss:
