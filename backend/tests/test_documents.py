@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+from app.core.session import get_current_org
 from app.main import app
 from app.services.document_service import (
     ManagementLetterNarrative,
@@ -99,14 +100,19 @@ def test_render_html_produces_html():
 
 @pytest.mark.asyncio
 async def test_list_documents_no_org():
-    """Without a connected org, GET /api/v1/documents should return 404."""
-    with patch(
-        "app.api.v1.documents._get_org",
-        new=AsyncMock(return_value=None),
-    ):
+    """Without a connected org, GET /api/v1/documents should return 401."""
+    from fastapi import HTTPException
+
+    def raise_401():
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    app.dependency_overrides[get_current_org] = raise_401
+    try:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             response = await client.get("/api/v1/documents")
-    assert response.status_code == 404
+    finally:
+        app.dependency_overrides.pop(get_current_org, None)
+    assert response.status_code == 401
 
 
 @pytest.mark.asyncio
@@ -116,12 +122,15 @@ async def test_generate_document_unsupported_template():
     fake_org.id = uuid.uuid4()
     fake_org.name = "Test Org"
 
-    with patch("app.api.v1.documents._get_org", new=AsyncMock(return_value=fake_org)):
+    app.dependency_overrides[get_current_org] = lambda: fake_org
+    try:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             response = await client.post(
                 "/api/v1/documents/generate",
                 json={"template": "unknown_template", "period_start": "2026-01-01", "period_end": "2026-03-31"},
             )
+    finally:
+        app.dependency_overrides.pop(get_current_org, None)
     assert response.status_code == 400
 
 
@@ -131,12 +140,15 @@ async def test_generate_document_invalid_period():
     fake_org = MagicMock()
     fake_org.id = uuid.uuid4()
 
-    with patch("app.api.v1.documents._get_org", new=AsyncMock(return_value=fake_org)):
+    app.dependency_overrides[get_current_org] = lambda: fake_org
+    try:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             response = await client.post(
                 "/api/v1/documents/generate",
                 json={"template": "management_letter", "period_start": "2026-03-31", "period_end": "2026-01-01"},
             )
+    finally:
+        app.dependency_overrides.pop(get_current_org, None)
     assert response.status_code == 400
 
 
@@ -149,9 +161,9 @@ async def test_generate_document_happy_path():
 
     fake_pdf = b"%PDF-1.4 fake pdf content"
 
-    with (
-        patch("app.api.v1.documents._get_org", new=AsyncMock(return_value=fake_org)),
-        patch(
+    app.dependency_overrides[get_current_org] = lambda: fake_org
+    try:
+        with patch(
             "app.api.v1.documents.generate_management_letter",
             new=AsyncMock(
                 return_value=(
@@ -166,13 +178,14 @@ async def test_generate_document_happy_path():
                     },
                 )
             ),
-        ),
-    ):
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-            response = await client.post(
-                "/api/v1/documents/generate",
-                json={"template": "management_letter", "period_start": "2026-01-01", "period_end": "2026-03-31"},
-            )
+        ):
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                response = await client.post(
+                    "/api/v1/documents/generate",
+                    json={"template": "management_letter", "period_start": "2026-01-01", "period_end": "2026-03-31"},
+                )
+    finally:
+        app.dependency_overrides.pop(get_current_org, None)
 
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/pdf"
