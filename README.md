@@ -751,7 +751,7 @@ The AI and XAI components in this project are grounded in established research. 
 
 Mamdani, E.H. and Assilian, S. (1975). An experiment in linguistic synthesis with a fuzzy logic controller. *International Journal of Man-Machine Studies*, 7(1), pp.1-13.
 
-The fuzzy risk engine in `xai/fuzzy_engine.py` implements Mamdani-style min-AND inference with centroid defuzzification, as described in this paper. The rule base is intentionally human-readable so domain experts can challenge and revise it without ML expertise.
+The fuzzy risk engine in `xai/fuzzy_engine.py` implements Mamdani-style min-AND inference with centroid defuzzification, as described in this paper. The rule base is intentionally human-readable so domain experts can challenge and revise it without ML expertise. The membership function shapes and rule weights were chosen heuristically based on domain knowledge; formally deriving and empirically validating them against labelled risk outcomes is an open research question that a structured academic collaboration would address.
 
 **Explainability in AI systems**
 
@@ -765,17 +765,106 @@ Lou, Y., Caruana, R. and Gehrke, J. (2012). Intelligible models for classificati
 
 EBM is the model class used in `xai/explainer.py` for feature importance once 50 or more labelled transactions are available. Its additive structure means each feature's contribution to the final prediction is directly readable without approximation.
 
-**SHAP unified feature attribution**
+**Shapley value theory (feature attribution)**
 
 Lundberg, S.M. and Lee, S.I. (2017). A unified approach to interpreting model predictions. *Advances in Neural Information Processing Systems*, 30.
 
-Provides the theoretical basis for SHAP values used alongside EBM in the explainer. SHAP guarantees consistency and local accuracy properties that simpler attribution methods do not.
+Provides the theoretical basis for the feature attribution design. EBM was chosen in part because its additive structure gives each feature a directly interpretable contribution that shares the consistency and local accuracy guarantees of Shapley values, without requiring a separate post-hoc attribution step. SHAP is not called directly; the choice of EBM as the glass-box model is informed by this work.
 
 **Retrieval-augmented generation (document generation)**
 
 Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., Kuttler, H., Lewis, M., Yih, W., Rocktaschel, T., Riedel, S. and Kiela, D. (2020). Retrieval-augmented generation for knowledge-intensive NLP tasks. *Advances in Neural Information Processing Systems*, 33.
 
 The management letter pipeline (`services/document_service.py`) follows the RAG pattern: retrieve relevant transaction context via pgvector similarity search, then condition the generative model on that retrieved context rather than relying on parametric memory alone.
+
+---
+
+## Evaluation framework
+
+A structured evaluation harness lives in `backend/evals/` and must pass before any change to the categorisation agent is deployed. It is separate from the pytest unit tests, which mock the LLM; the eval harness calls the real agent against a labelled fixture set.
+
+### Fixture set
+
+`evals/fixtures/transactions.json` contains 50 labelled UK SME bank transactions across three difficulty tiers:
+
+| Tier | Count | Description |
+|---|---|---|
+| Easy | 24 | Unambiguous: HMRC payments, well-known SaaS subscriptions, payroll |
+| Medium | 16 | Require context: professional memberships, dual-category spends |
+| Hard | 10 | Industry-specific, balance sheet vs P&L edge cases |
+
+`evals/fixtures/accounts.json` contains 20 standard UK chart of accounts codes covering the most common SME categories.
+
+### Acceptance criteria
+
+Before deploying any change to the categorisation agent:
+
+| Metric | Minimum | Target |
+|---|---|---|
+| Overall accuracy | 80% | 90%+ |
+| Easy tier accuracy | 95% | 100% |
+| Auto-accept accuracy (confidence > 0.85) | 90% | 95% |
+| Cost per transaction | < $0.01 | < $0.005 |
+| F1 on core categories (HMRC, payroll, software) | 0.90 | 0.95+ |
+
+### Example report output
+
+```
+Overall accuracy: 88.0% (44/50)
+
+By difficulty:
+  easy   : 95.8% (23/24)
+  medium : 81.3% (13/16)
+  hard   : 80.0%  (8/10)
+
+Confidence calibration:
+  high   (>0.85) : acc=95.0%  (40 transactions)  ← auto-accept threshold
+  medium (0.5–0.85): acc=71.4%  (7 transactions)  ← surfaced for review
+  low    (<0.5)  : acc=33.3%  (3 transactions)  ← flagged for human decision
+
+Per-category F1 (sample):
+  820 Tax & Statutory Payments : F1=1.00
+  404 Computer Equipment       : F1=0.95
+  461 Bank Charges             : F1=0.88
+```
+
+### Running the evals
+
+```bash
+# Free mock run — tests the harness itself, no API calls
+python -m evals.eval_runner --mode mock
+
+# Live run against real API (responses cached to disk; reruns are free)
+python -m evals.eval_runner --mode live --budget 0.05
+
+# Compare models
+python -m evals.eval_runner --mode live --model claude-haiku-4-5-20251001 --budget 0.05
+python -m evals.eval_runner --mode live --model claude-sonnet-4-6 --budget 0.50
+```
+
+All API responses are cached by SHA-256(model + prompt), so the second run always costs $0. Results are written to `evals/results/` as CSV for longitudinal tracking.
+
+---
+
+## Research agenda
+
+This project is designed to be a working research platform, not only a product. The following questions are genuinely open — they have no published answers in the accounting AI literature — and each is tractable via the data and infrastructure built here.
+
+**1. Per-organisation confidence calibration**
+
+The agent uses fixed confidence thresholds (0.85 for auto-accept, 0.50 for suggest). These were chosen from the evaluation fixture set, which represents a generalised UK SME. In practice, different accounting firms have different transaction patterns: a construction firm with irregular project-based payments will have a different confidence distribution from a retail business with high-frequency card transactions. The open question is whether thresholds should be calibrated per organisation, and if so, what method (Platt scaling, isotonic regression, conformal prediction) produces the best-calibrated scores across firm types with limited labelled data.
+
+**2. Explanation utility: do explanations change human decisions?**
+
+The system generates three layers of explanation for every AI decision: LLM reasoning text, EBM feature contributions, and a fuzzy risk score. Whether these explanations actually improve accountant decision quality has not been measured. A controlled evaluation comparing review time, correction rate, and confidence of human decisions with and without the explanation panel would establish whether the added complexity is worthwhile, and which layer (text, feature bars, risk badge) carries the most decision-relevant information.
+
+**3. EBM vs LLM fallback: the crossover point**
+
+Below 50 labelled transactions, the system falls back to the LLM's reasoning text for feature attribution. Above 50, it trains an EBM. The threshold of 50 was chosen conservatively; the actual crossover point at which EBM outperforms the LLM fallback in this domain is unknown. A learning curve analysis varying labelled set size from 10 to 500 samples would identify this crossover and inform the cold-start strategy for new client onboarding.
+
+**4. Active learning for human-in-the-loop efficiency**
+
+Currently, human review is triggered passively: transactions below the confidence threshold are surfaced in arrival order. An active learning strategy would instead select transactions for review that would maximally reduce model uncertainty — for example, those in sparse regions of the embedding space or near the decision boundary. The question is whether intelligent selection reduces the number of human corrections required to reach a target accuracy, and by how much, compared to passive threshold-based review.
 
 ---
 
