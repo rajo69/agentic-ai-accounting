@@ -4,6 +4,8 @@
 
 A production-grade AI assistant for UK accountants built on top of **Xero**. It automates the three most time-consuming manual tasks in a small accounting practice: transaction categorisation, bank reconciliation, and management letter drafting. Every AI decision is transparent, auditable, and correctable by the human in the loop.
 
+Connect your Xero Account and use it : ![lick HereI](https://agentic-ai-accounting.vercel.app)
+
 ---
 
 ## The problem
