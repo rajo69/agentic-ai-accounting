@@ -27,7 +27,7 @@ This project is a full-stack implementation of a solution to that problem: an ag
 | **Transaction categorisation** | LangGraph agent classifies Xero transactions against the chart of accounts using Claude and pgvector few-shot examples drawn from the firm's own history. High-confidence results are applied automatically; uncertain results are surfaced for human review. |
 | **Bank reconciliation** | Algorithmic LangGraph agent matches bank statement lines to transactions by scoring amount, date, and description similarity. Matching is deterministic (no LLM); Claude only writes the human-readable explanation after a match is found. |
 | **Management letter generation** | RAG pipeline computes financial figures in pure Python (no LLM), retrieves relevant transaction context via pgvector, then uses Claude and Instructor to write structured narrative sections. WeasyPrint renders the result as a professional A4 PDF. |
-| **Explainable AI** | Every AI decision stores feature importances (InterpretML EBM), a fuzzy logic risk score (Simpful), and the LLM's own reasoning; all in an immutable audit log. |
+| **Explainable AI** | Every AI decision stores feature importances (InterpretML EBM), a custom Mamdani fuzzy logic risk score, and the LLM's own reasoning; all in an immutable audit log. |
 | **Xero integration** | Full OAuth2 flow, automatic token refresh, rate-limit backoff, and incremental sync of accounts, transactions, and bank statements. |
 | **Few-shot learning from corrections** | When an accountant corrects a categorisation, the transaction is re-embedded and becomes a training example for future predictions. No fine-tuning required. |
 
@@ -737,7 +737,7 @@ The product handles financial data on behalf of UK accounting firms. The followi
 | Right to erasure | Article 17 | `DELETE /api/v1/gdpr/erase` deletes all org rows in FK-safe order; session invalidated immediately |
 | Right to explanation | Article 22 | Every AI decision stores its full reasoning in `AuditLog.ai_decision_data`; surfaced via `GET /api/v1/transactions/{id}/explanation` |
 | Data minimisation | Article 5(1)(c) | Xero OAuth tokens are excluded from exports; embedding vectors are excluded as derived, non-personal data |
-| Security of processing | Article 32 | CORS locked to configured `FRONTEND_URL`; all data routes require Bearer JWT scoped to `organisation_id` |
+| Security of processing | Article 32 | All data routes require Bearer JWT scoped to `organisation_id`; CORS restricts allowed HTTP methods and headers |
 
 **Known gaps before production use**: OAuth tokens are currently stored in plaintext (acceptable for beta; must be AES-encrypted before handling regulated client data). There is no automated data retention policy; old audit logs are retained indefinitely.
 
@@ -865,6 +865,30 @@ This section documents non-obvious technical problems that arose during construc
 
 ---
 
+### GitHub Actions CI requires a pgvector-enabled PostgreSQL and native WeasyPrint dependencies
+
+**Problem**: Standard GitHub Actions PostgreSQL service images do not include the pgvector extension. WeasyPrint requires system-level C libraries (Cairo, Pango, GLib, font packages) that are not present in a default Ubuntu runner. Both blockers produced CI failures that were not reproducible locally (where Docker and system libraries were already in place).
+
+**Resolution**: Replaced the default `postgres` service image with `pgvector/pgvector:pg16`, which ships with the extension pre-installed. Added an `apt-get install` step to the CI job for WeasyPrint's system dependencies before installing Python packages. Ran `alembic upgrade head` inside the CI job to apply schema migrations before pytest executes. These three steps together make the CI environment match the local development environment structurally.
+
+---
+
+### FastAPI `dependency_overrides` is the correct test mechanism; `unittest.mock.patch` is not
+
+**Problem**: Integration tests were using `patch("app.api.v1.documents._get_org", ...)` to mock authentication. The routes use `Depends(get_current_org)` from a shared session module; there is no `_get_org` attribute on the route module. The tests raised `AttributeError` in CI. A secondary problem: tests expected HTTP 404 for unauthenticated requests, but `get_current_org` raises `401` for all auth failures (no token, bad token, org not in database) before any database lookup that could produce a 404.
+
+**Resolution**: Replaced all `patch(...)` calls with `app.dependency_overrides[get_current_org] = lambda: fake_org`, using `try/finally` to clean up overrides after each test. For "no auth" tests, the correct assertion is `status_code == 401`; no mock_db setup is needed because the 401 fires before the database is touched. For "resource not found" tests (where auth succeeds but the record does not exist), both `get_current_org` and `get_db` must be overridden separately.
+
+---
+
+### Tightening CORS to an explicit origin silently broke all API calls in production
+
+**Problem**: CORS was changed from `allow_origins=["*"]` to `allow_origins=[settings.frontend_url]` as a security improvement. `settings.frontend_url` defaults to `"http://localhost:3000"` when the environment variable is not set. In production the Vercel frontend has a different origin, so the browser's preflight check rejected every API call before it left the browser. The `fetch()` call threw a `TypeError` (no HTTP response, no status code), the dashboard's `catch` block set `error=true`, and the "Xero not connected" screen appeared. OAuth still worked because OAuth uses browser navigation (server-side redirect), not `fetch`, so CORS does not apply. This created a loop: connect Xero, get redirected back to the dashboard, see "not connected", connect again.
+
+**Resolution**: Reverted to `allow_origins=["*"]` with `allow_credentials=False`. Bearer-token authentication does not use cookies, so `allow_credentials=False` is both correct and required when using a wildcard origin. The key diagnostic insight was distinguishing between a CORS failure (a browser-level `TypeError`, no HTTP status visible to application code) and an authentication failure (HTTP 401, handled by the app).
+
+---
+
 ## Limitations
 
 These are genuine current limitations, not caveats to dismiss:
@@ -902,7 +926,7 @@ Items scoped out of the current build, ordered by likely priority:
 | Stripe billing integration | Post-beta; add when users confirm willingness to pay |
 | Multi-user within an organisation | Post-beta; user table + RBAC middleware |
 | Background PDF rendering | Needed at scale; move WeasyPrint to Celery worker |
-| GDPR formal compliance | Planned after sufficient revenue; privacy policy in place |
+| GDPR formal compliance audit | Basic data export and erasure endpoints are implemented; formal ICO registration and DPA review are post-revenue |
 | Additional document templates | Tax letters, VAT returns; build based on user requests |
 | Fine-tuning on categorisation corrections | Potential accuracy improvement; expensive; evaluate after sufficient data |
 
@@ -944,7 +968,7 @@ Rules that must survive refactoring and new contributors:
         ├── integrations/            xero_adapter.py
         ├── services/                embedding_service.py, document_service.py
         ├── agents/                  categoriser.py, reconciler.py (LangGraph)
-        ├── xai/                     explainer.py (EBM), fuzzy_engine.py (Simpful)
+        ├── xai/                     explainer.py (EBM), fuzzy_engine.py (custom Mamdani)
         ├── api/v1/                  health, auth, sync, dashboard, categorise,
         │                            reconcile, documents, explanations
         ├── templates/               management_letter.html (Jinja2 + WeasyPrint)
