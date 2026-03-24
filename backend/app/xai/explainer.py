@@ -208,7 +208,14 @@ async def _ebm_explain(
 
 
 def _llm_fallback(transaction: dict, prediction: dict) -> dict:
-    """Return a basic explanation derived from the LLM's reasoning text."""
+    """Return a basic explanation derived from the LLM's reasoning text.
+
+    Used when fewer than MIN_TRAINING_SIZE labelled transactions exist and EBM
+    cannot be trained.  The contribution values below (0.6, 0.3, 0.1) are
+    heuristic placeholders that preserve a consistent UI shape; they are NOT
+    computed feature importances.  The explanation_text field, drawn from the
+    LLM's own reasoning, is the only substantive signal here.
+    """
     try:
         amount = abs(float(transaction.get("amount", 0)))
     except (TypeError, ValueError):
@@ -217,7 +224,7 @@ def _llm_fallback(transaction: dict, prediction: dict) -> dict:
     description = str(transaction.get("description", ""))
     reasoning = prediction.get("reasoning", "No reasoning available.")
 
-    # Create representative pseudo-features so the UI still shows bars
+    # Heuristic placeholders — not computed importances.
     top_features = [
         {"name": "description", "value": float(len(description)), "contribution": 0.6},
         {"name": "amount", "value": amount, "contribution": 0.3},

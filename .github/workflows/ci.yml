@@ -66,7 +66,14 @@ jobs:
       - name: Run tests
         run: |
           cd backend
-          pytest -x -v
+          pytest -x -v --cov=app --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: backend/coverage.xml
 
   frontend:
     name: Frontend checks

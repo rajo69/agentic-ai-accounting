@@ -36,7 +36,6 @@ ai = [
     "instructor[anthropic]>=1.4.0",
     "anthropic>=0.40.0",
     "sentence-transformers>=3.0.0",
-    "shap>=0.45.0",
     "interpret>=0.6.0",
     "rapidfuzz>=3.9.0",
 ]
