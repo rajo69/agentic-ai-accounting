@@ -15,6 +15,7 @@ from app.agents.reconciler import (
 )
 from app.main import app
 from app.core.database import get_db
+from app.core.session import get_current_org
 
 
 # ---------------------------------------------------------------------------
@@ -155,31 +156,13 @@ def client():
 
 class TestReconcileEndpoints:
     def test_trigger_reconcile_no_org(self, client):
-        mock_db = make_mock_db()
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = None
-        mock_db.execute.return_value = mock_result
-
-        app.dependency_overrides[get_db] = lambda: mock_db
-        try:
-            response = client.post("/api/v1/reconcile")
-            assert response.status_code == 404
-            assert "No organisation" in response.json()["detail"]
-        finally:
-            app.dependency_overrides.clear()
+        # No bearer token → get_current_org raises 401 before any DB call
+        response = client.post("/api/v1/reconcile")
+        assert response.status_code == 401
 
     def test_list_bank_statements_no_org(self, client):
-        mock_db = make_mock_db()
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = None
-        mock_db.execute.return_value = mock_result
-
-        app.dependency_overrides[get_db] = lambda: mock_db
-        try:
-            response = client.get("/api/v1/bank-statements")
-            assert response.status_code == 404
-        finally:
-            app.dependency_overrides.clear()
+        response = client.get("/api/v1/bank-statements")
+        assert response.status_code == 401
 
     def test_get_bank_statement_not_found(self, client):
         from app.models.database import Organisation
@@ -187,68 +170,31 @@ class TestReconcileEndpoints:
         mock_org.id = uuid4()
 
         mock_db = make_mock_db()
-        mock_org_result = MagicMock()
-        mock_org_result.scalar_one_or_none.return_value = mock_org
         mock_bs_result = MagicMock()
         mock_bs_result.scalar_one_or_none.return_value = None
+        mock_db.execute.return_value = mock_bs_result
 
-        call_count = 0
-
-        async def side_effect(*args, **kwargs):
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                return mock_org_result
-            return mock_bs_result
-
-        mock_db.execute.side_effect = side_effect
-
+        app.dependency_overrides[get_current_org] = lambda: mock_org
         app.dependency_overrides[get_db] = lambda: mock_db
         try:
             response = client.get(f"/api/v1/bank-statements/{uuid4()}")
             assert response.status_code == 404
             assert "not found" in response.json()["detail"].lower()
         finally:
-            app.dependency_overrides.clear()
+            app.dependency_overrides.pop(get_current_org, None)
+            app.dependency_overrides.pop(get_db, None)
 
     def test_confirm_match_no_org(self, client):
-        mock_db = make_mock_db()
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = None
-        mock_db.execute.return_value = mock_result
-
-        app.dependency_overrides[get_db] = lambda: mock_db
-        try:
-            response = client.post(f"/api/v1/bank-statements/{uuid4()}/confirm")
-            assert response.status_code == 404
-        finally:
-            app.dependency_overrides.clear()
+        response = client.post(f"/api/v1/bank-statements/{uuid4()}/confirm")
+        assert response.status_code == 401
 
     def test_unmatch_no_org(self, client):
-        mock_db = make_mock_db()
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = None
-        mock_db.execute.return_value = mock_result
-
-        app.dependency_overrides[get_db] = lambda: mock_db
-        try:
-            response = client.post(f"/api/v1/bank-statements/{uuid4()}/unmatch")
-            assert response.status_code == 404
-        finally:
-            app.dependency_overrides.clear()
+        response = client.post(f"/api/v1/bank-statements/{uuid4()}/unmatch")
+        assert response.status_code == 401
 
     def test_manual_match_no_org(self, client):
-        mock_db = make_mock_db()
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = None
-        mock_db.execute.return_value = mock_result
-
-        app.dependency_overrides[get_db] = lambda: mock_db
-        try:
-            response = client.post(
-                f"/api/v1/bank-statements/{uuid4()}/match",
-                json={"transaction_id": str(uuid4())},
-            )
-            assert response.status_code == 404
-        finally:
-            app.dependency_overrides.clear()
+        response = client.post(
+            f"/api/v1/bank-statements/{uuid4()}/match",
+            json={"transaction_id": str(uuid4())},
+        )
+        assert response.status_code == 401
