@@ -566,9 +566,9 @@ Response:
 ### Fixture set
 
 `fixtures/transactions.json` contains 50 labelled UK SME bank transactions:
-- **24 easy**: Unambiguous (HMRC payments, well-known SaaS, payroll runs)
-- **16 medium**: Require context (professional memberships, dual-category spends, inter-company transfers)
-- **10 hard**: Industry-specific, balance-sheet vs P&L edge cases, unfamiliar vendors
+- **31 easy**: Unambiguous (HMRC payments, well-known SaaS, payroll runs)
+- **15 medium**: Require context (professional memberships, dual-category spends, inter-company transfers)
+- **4 hard**: Industry-specific, balance-sheet vs P&L edge cases, unfamiliar vendors
 
 `fixtures/accounts.json` contains 20 standard UK chart-of-accounts codes.
 
@@ -597,9 +597,9 @@ python -m evals.eval_runner --mode live --limit 10 --budget 0.01
 Overall accuracy: 88.0% (44/50)
 
 By difficulty:
-  easy   : 95.8% (23/24)  ████████████████████
-  medium : 81.3% (13/16)  ████████████████
-  hard   : 80.0% ( 8/10)  ████████████████
+  easy   : 93.5% (29/31)  ████████████████████
+  medium : 80.0% (12/15)  ████████████████
+  hard   : 75.0%  (3/4)   ███████████████
 
 Confidence calibration:
   high   (>0.85) : acc=95.0% (40 transactions)  <- auto-accept threshold
@@ -614,15 +614,15 @@ Per-category F1:
 
 ### Acceptance criteria
 
-The agent must pass these thresholds before any deployment:
+The runner enforces these thresholds and exits with code 1 if any are missed:
 
-| Metric | Minimum | Target |
-|---|---|---|
-| Overall accuracy | 80% | 90%+ |
-| Easy accuracy | 95% | 100% |
-| Auto-accept accuracy (conf above 0.85) | 90% | 95% |
-| Cost per transaction | below $0.01 | below $0.005 |
-| F1 on core categories (HMRC, payroll, software) | 0.90 | 0.95+ |
+| Metric | Minimum | Target | Enforced |
+|---|---|---|---|
+| Overall accuracy | 80% | 90%+ | ✅ |
+| Easy tier accuracy (31 transactions) | 95% | 100% | ✅ |
+| Auto-accept accuracy (conf > 0.85) | 90% | 95% | ✅ |
+| Cost per transaction | < $0.01 | < $0.005 | — |
+| F1 on core categories (HMRC, payroll, software) | 0.90 | 0.95+ | — |
 
 ### Cost controls
 

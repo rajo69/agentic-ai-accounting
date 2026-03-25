@@ -392,6 +392,32 @@ async def run_eval(
         csv_path = save_csv(results, model)
         print(f"\n  Results saved to: {csv_path}")
 
+    # --- Acceptance gate ---
+    failures = []
+    overall_acc = metrics["overall_accuracy"]
+    if overall_acc < 0.80:
+        failures.append(f"Overall accuracy {overall_acc:.1%} < 80% minimum")
+
+    easy = metrics["by_difficulty"].get("easy", {})
+    easy_acc = easy.get("accuracy", 1.0)
+    if easy.get("count", 0) > 0 and easy_acc < 0.95:
+        failures.append(f"Easy tier accuracy {easy_acc:.1%} < 95% minimum")
+
+    high_cal = metrics["confidence_calibration"].get("high (>0.85)", {})
+    auto_acc = high_cal.get("accuracy", 1.0)
+    if high_cal.get("count", 0) > 0 and auto_acc < 0.90:
+        failures.append(f"Auto-accept accuracy {auto_acc:.1%} < 90% minimum")
+
+    if failures:
+        print("\n  ❌ ACCEPTANCE GATE FAILED:")
+        for f in failures:
+            print(f"     - {f}")
+        print()
+        metrics["gate_passed"] = False
+    else:
+        print("\n  ✅ Acceptance gate passed\n")
+        metrics["gate_passed"] = True
+
     return metrics
 
 
@@ -413,13 +439,15 @@ def main():
         print("ERROR: ANTHROPIC_API_KEY not set. Add it to backend/.env")
         sys.exit(1)
 
-    asyncio.run(run_eval(
+    metrics = asyncio.run(run_eval(
         mode=args.mode,
         model=args.model,
         budget_usd=args.budget,
         limit=args.limit,
         save_results=not args.no_save,
     ))
+    if not metrics.get("gate_passed", True):
+        sys.exit(1)
 
 
 if __name__ == "__main__":
