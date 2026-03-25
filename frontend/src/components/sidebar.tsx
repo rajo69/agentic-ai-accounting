@@ -10,7 +10,7 @@ import {
   GitCompare,
   FileText,
   Settings,
-  Sparkles,
+  BrainCircuit,
   LogOut,
 } from "lucide-react";
 
@@ -42,7 +42,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
       <div className="h-16 flex items-center px-5 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center shadow-md shadow-indigo-500/20">
-            <Sparkles className="w-4 h-4 text-white" />
+            <BrainCircuit className="w-4 h-4 text-white" strokeWidth={2} />
           </div>
           <span className="font-semibold text-[15px] text-slate-900 tracking-tight">
             AI Accountant
