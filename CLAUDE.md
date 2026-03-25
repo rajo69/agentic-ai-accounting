@@ -113,7 +113,7 @@ Documents
 - **Confidence thresholds**: categoriser uses 0.85/0.5; reconciler uses 0.9/0.6 — don't change without updating tests
 - **Embeddings**: `EmbeddingService` uses sentence-transformers (384-dim). The `Transaction.embedding` column is `Vector(384)`. The `backfill_embeddings()` method re-embeds when a user corrects a category, so corrections become training examples for future predictions.
 - **XAI layers**: (1) LLM reasoning text always present, (2) InterpretML EBM when ≥50 labelled samples, (3) Simpful fuzzy risk score always present. All three stored in `AuditLog.ai_decision_data`.
-- **Evals**: `backend/evals/` has a 50-transaction fixture set (24 easy / 16 medium / 10 hard). Acceptance criteria: 80% overall, 95% easy, 90% auto-accept rate. Run before any change to the categoriser.
+- **Evals**: `backend/evals/` has a 50-transaction fixture set (31 easy / 15 medium / 4 hard). Acceptance criteria (enforced by runner exit code): 80% overall, 95% easy, 90% auto-accept rate. Run before any change to the categoriser.
 - **Xero OAuth tokens**: stored in plaintext for MVP. Phase 8 notes plan for encryption. Don't add complexity until needed.
 
 ---
