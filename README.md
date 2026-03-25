@@ -8,6 +8,27 @@ Connect your Xero Account and use it : [Click Here](https://agentic-ai-accountin
 
 ---
 
+## Contents
+
+- [The problem](#the-problem)
+- [What it does](#what-it-does)
+- [Architecture](#architecture)
+- [How each feature works](#how-each-feature-works)
+- [Tech stack](#tech-stack)
+- [Database schema](#database-schema)
+- [API reference](#api-reference)
+- [Evaluation framework](#evaluation-framework)
+- [Running locally](#running-locally)
+- [Tests](#tests)
+- [Cost model](#cost-model)
+- [Deployment](#deployment)
+- [GDPR compliance](#gdpr-compliance)
+- [Research foundations](#research-foundations)
+- [Open research questions](#open-research-questions)
+- [Engineering challenges](#engineering-challenges-encountered-during-the-build)
+
+---
+
 ## The problem
 
 UK accounting firms spend a significant portion of each working week on tasks that are mechanical but error-prone:
@@ -781,76 +802,9 @@ The management letter pipeline (`services/document_service.py`) follows the RAG 
 
 ---
 
-## Evaluation framework
+## Open research questions
 
-A structured evaluation harness lives in `backend/evals/` and must pass before any change to the categorisation agent is deployed. It is separate from the pytest unit tests, which mock the LLM; the eval harness calls the real agent against a labelled fixture set.
-
-### Fixture set
-
-`evals/fixtures/transactions.json` contains 50 labelled UK SME bank transactions across three difficulty tiers:
-
-| Tier | Count | Description |
-|---|---|---|
-| Easy | 24 | Unambiguous: HMRC payments, well-known SaaS subscriptions, payroll |
-| Medium | 16 | Require context: professional memberships, dual-category spends |
-| Hard | 10 | Industry-specific, balance sheet vs P&L edge cases |
-
-`evals/fixtures/accounts.json` contains 20 standard UK chart of accounts codes covering the most common SME categories.
-
-### Acceptance criteria
-
-Before deploying any change to the categorisation agent:
-
-| Metric | Minimum | Target |
-|---|---|---|
-| Overall accuracy | 80% | 90%+ |
-| Easy tier accuracy | 95% | 100% |
-| Auto-accept accuracy (confidence > 0.85) | 90% | 95% |
-| Cost per transaction | < $0.01 | < $0.005 |
-| F1 on core categories (HMRC, payroll, software) | 0.90 | 0.95+ |
-
-### Example report output
-
-```
-Overall accuracy: 88.0% (44/50)
-
-By difficulty:
-  easy   : 95.8% (23/24)
-  medium : 81.3% (13/16)
-  hard   : 80.0%  (8/10)
-
-Confidence calibration:
-  high   (>0.85) : acc=95.0%  (40 transactions)  ← auto-accept threshold
-  medium (0.5–0.85): acc=71.4%  (7 transactions)  ← surfaced for review
-  low    (<0.5)  : acc=33.3%  (3 transactions)  ← flagged for human decision
-
-Per-category F1 (sample):
-  820 Tax & Statutory Payments : F1=1.00
-  404 Computer Equipment       : F1=0.95
-  461 Bank Charges             : F1=0.88
-```
-
-### Running the evals
-
-```bash
-# Free mock run — tests the harness itself, no API calls
-python -m evals.eval_runner --mode mock
-
-# Live run against real API (responses cached to disk; reruns are free)
-python -m evals.eval_runner --mode live --budget 0.05
-
-# Compare models
-python -m evals.eval_runner --mode live --model claude-haiku-4-5-20251001 --budget 0.05
-python -m evals.eval_runner --mode live --model claude-sonnet-4-6 --budget 0.50
-```
-
-All API responses are cached by SHA-256(model + prompt), so the second run always costs $0. Results are written to `evals/results/` as CSV for longitudinal tracking.
-
----
-
-## Research agenda
-
-This project is designed to be a working research platform, not only a product. The following questions are genuinely open — they have no published answers in the accounting AI literature — and each is tractable via the data and infrastructure built here.
+The following questions arose from building this system and remain genuinely open in the accounting AI literature. The infrastructure built here makes them tractable to study empirically.
 
 **1. Per-organisation confidence calibration**
 

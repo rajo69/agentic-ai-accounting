@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import {
-  Zap, Tag, GitCompare, FileText,
+  BrainCircuit, Tag, GitCompare, FileText,
   ArrowRight, CheckCircle2, ChevronRight,
 } from "lucide-react";
 import GradientText from "@/components/gradient-text";
@@ -98,7 +98,7 @@ export default function LandingPage() {
       <nav className="relative z-10 max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-[5px] bg-indigo-500 flex items-center justify-center shadow-md shadow-indigo-500/40">
-            <Zap className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+            <BrainCircuit className="w-3.5 h-3.5 text-white" strokeWidth={2} />
           </div>
           <span className="text-sm font-semibold tracking-tight">AI Accountant</span>
         </div>
