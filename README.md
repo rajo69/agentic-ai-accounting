@@ -383,6 +383,34 @@ A Jinja2 HTML template is populated with figures and narrative, then rendered to
 
 ---
 
+### 6. Authentication and session management
+
+`app/core/session.py`, `app/api/v1/auth.py`, `frontend/src/app/auth/callback/page.tsx`, `frontend/src/middleware.ts`
+
+The auth flow is split across four files and two runtimes.
+
+**Step 1: OAuth2 and JWT creation**
+
+The user visits `/auth/xero/connect`, which issues a browser redirect to Xero's authorisation page. After the user grants access, Xero posts back to `/auth/xero/callback?code=...`. The backend exchanges the code for Xero tokens, creates or updates the `Organisation` row, then mints a JWT (HS256, 24-hour expiry) containing `org_id` and `org_name`. It redirects the browser to `{FRONTEND_URL}/auth/callback?token=<jwt>`, passing the token as a URL query parameter.
+
+**Step 2: Token storage on the frontend**
+
+The frontend `/auth/callback` page reads the token from the query string, writes it to `localStorage` as `session_token`, sets a lightweight `has_session=1` cookie (a plain presence flag, not the JWT itself), and redirects to `/dashboard`.
+
+**Step 3: Authenticated API calls**
+
+`frontend/src/lib/api.ts` reads `session_token` from `localStorage` and attaches it as a `Bearer` token on every `Authorization` header. The `get_current_org` dependency in `app/core/session.py` decodes and validates the JWT, looks up the `Organisation` by `org_id`, and returns it to the route handler. A missing, expired, or malformed token always produces HTTP 401 and never 404.
+
+**Step 4: Client-side route protection**
+
+`frontend/src/middleware.ts` intercepts navigation to `/dashboard`, `/transactions`, `/reconciliation`, and `/documents`. If the `has_session` cookie is absent it redirects to `/` before Next.js renders the page. This is a UX convenience to prevent a blank flash on unauthenticated load; it is not the security boundary. The security boundary is the JWT check on the backend.
+
+**Logout**
+
+`POST /api/v1/auth/logout` simply acknowledges the request. The token is client-side only; the browser clears `session_token` from `localStorage` and lets the `has_session` cookie expire. There is no server-side revocation list.
+
+---
+
 ## Tech stack
 
 ### Backend
@@ -429,7 +457,7 @@ A Jinja2 HTML template is populated with figures and narrative, then rendered to
 
 ## Database schema
 
-Seven tables. All data queries are scoped by `organisation_id`; there is no route that returns data across organisations.
+Six tables. All data queries are scoped by `organisation_id`; there is no route that returns data across organisations.
 
 ```
 organisations
@@ -486,6 +514,12 @@ generated_documents
 ---
 
 ## API reference
+
+### Health
+
+```
+GET  /health                                  Service status (no auth required)
+```
 
 ### Auth and data
 
@@ -621,8 +655,8 @@ The runner enforces these thresholds and exits with code 1 if any are missed:
 | Overall accuracy | 80% | 90%+ | ✅ |
 | Easy tier accuracy (31 transactions) | 95% | 100% | ✅ |
 | Auto-accept accuracy (conf > 0.85) | 90% | 95% | ✅ |
-| Cost per transaction | < $0.01 | < $0.005 | — |
-| F1 on core categories (HMRC, payroll, software) | 0.90 | 0.95+ | — |
+| Cost per transaction | < $0.01 | < $0.005 | No |
+| F1 on core categories (HMRC, payroll, software) | 0.90 | 0.95+ | No |
 
 ### Cost controls
 
@@ -800,6 +834,30 @@ Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., Kuttler
 
 The management letter pipeline (`services/document_service.py`) follows the RAG pattern: retrieve relevant transaction context via pgvector similarity search, then condition the generative model on that retrieved context rather than relying on parametric memory alone.
 
+**Sentence embeddings (semantic similarity search)**
+
+Reimers, N. and Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using siamese BERT-networks. In *Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)*, pp. 3982-3992.
+
+The `sentence-transformers/all-MiniLM-L6-v2` checkpoint used in `services/embedding_service.py` is built on the Sentence-BERT framework introduced in this paper. Applying siamese network structures to a transformer encoder produces fixed-size sentence embeddings where cosine distance correlates with semantic similarity, making nearest-neighbour lookup practical at inference time. These 384-dimensional embeddings are stored in the `transactions.embedding` pgvector column and queried to retrieve the five most semantically similar categorised transactions as few-shot examples for each new classification.
+
+**In-context learning and few-shot prompting**
+
+Brown, T.B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J.D., Dhariwal, P., Neelakantan, A., Shyam, P., Sastry, G., Askell, A., Agarwal, S., Herbert-Voss, A., Krueger, G., Henighan, T., Child, R., Ramesh, A., Ziegler, D., Wu, J., Winter, C., Hesse, C., Chen, M., Sigler, E., Litwin, M., Gray, S., Chess, B., Clark, J., Berner, C., McCandlish, S., Radford, A., Sutskever, I. and Amodei, D. (2020). Language models are few-shot learners. *Advances in Neural Information Processing Systems*, 33.
+
+The categorisation agent relies on in-context learning: the prompt includes five semantically retrieved examples of previously categorised transactions from the same organisation, conditioning the model at inference time without any gradient updates or fine-tuning. This approach, central to the GPT-3 findings in this paper, enables the system to adapt to an organisation's specific transaction vocabulary and chart-of-accounts conventions by accumulating corrections in the vector store rather than through a separate retraining pipeline.
+
+**Agentic AI and reasoning-action loops**
+
+Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K. and Cao, Y. (2023). ReAct: Synergizing reasoning and acting in language models. In *Proceedings of the International Conference on Learning Representations (ICLR)*.
+
+The LangGraph graph architecture used for both the categorisation and reconciliation agents follows the principle introduced in this paper: interleaving reasoning steps with observable actions in an explicit, inspectable loop. Each graph node is a distinct, independently testable step (fetch context, classify, validate, decide, explain), making the decision trace auditable at each stage rather than collapsed into a single opaque model call.
+
+**Bank transaction classification**
+
+Toran, L., Van Der Walt, C., Sammarone, A. and Keller, A. (2023). Scalable and weakly supervised bank transaction classification. arXiv preprint arXiv:2305.18430.
+
+Provides directly comparable empirical evidence for the classification task this system addresses. The paper presents a pipeline combining weak supervision, text embeddings, and neural networks to classify bank transactions with minimal manual labelling, reporting that transaction descriptions alone carry sufficient signal for category prediction. The few-shot pgvector approach in this project is a complementary strategy: rather than weak supervision labels, it uses an accountant's own correction history as the labelled set, which grows incrementally with use.
+
 ---
 
 ## Open research questions
@@ -820,7 +878,7 @@ Below 50 labelled transactions, the system falls back to the LLM's reasoning tex
 
 **4. Active learning for human-in-the-loop efficiency**
 
-Currently, human review is triggered passively: transactions below the confidence threshold are surfaced in arrival order. An active learning strategy would instead select transactions for review that would maximally reduce model uncertainty — for example, those in sparse regions of the embedding space or near the decision boundary. The question is whether intelligent selection reduces the number of human corrections required to reach a target accuracy, and by how much, compared to passive threshold-based review.
+Currently, human review is triggered passively: transactions below the confidence threshold are surfaced in arrival order. An active learning strategy would instead select transactions for review that would maximally reduce model uncertainty, for example those in sparse regions of the embedding space or near the decision boundary. The question is whether intelligent selection reduces the number of human corrections required to reach a target accuracy, and by how much, compared to passive threshold-based review.
 
 ---
 
@@ -948,6 +1006,8 @@ These are genuine current limitations, not caveats to dismiss:
 
 **OAuth tokens are stored in plaintext.** Acceptable for local development and early beta, but must be encrypted at rest (application-level AES or Railway's encryption at rest) before handling production client data.
 
+**JWT is stored in localStorage, not a secure httpOnly cookie.** The session token is written to `localStorage` in the browser, making it accessible to JavaScript and therefore to any XSS payload. For MVP with a limited beta audience this is an acceptable trade-off. Before handling regulated client data, the auth flow should be updated to store the token in a `Secure; HttpOnly; SameSite=Strict` cookie and remove it from `localStorage` entirely.
+
 **Single tenant per Xero organisation.** One Xero firm equals one tenant. Multi-user access within a firm is not implemented. All queries are scoped to `organisation_id` only; user-level permissions within an organisation are post-beta.
 
 **EBM requires 50 or more labelled samples.** Below this threshold, Layer 2 (feature importance) falls back to the LLM's reasoning text. New organisations will rely solely on Layers 1 and 3 (LLM reasoning and fuzzy risk) until sufficient data accumulates.
@@ -1015,11 +1075,12 @@ Rules that must survive refactoring and new contributors:
         ├── agents/                  categoriser.py, reconciler.py (LangGraph)
         ├── xai/                     explainer.py (EBM), fuzzy_engine.py (custom Mamdani)
         ├── api/v1/                  health, auth, sync, dashboard, categorise,
-        │                            reconcile, documents, explanations
+        │                            reconcile, documents, explanations, gdpr
         ├── templates/               management_letter.html (Jinja2 + WeasyPrint)
         └── tests/ + evals/          test suite + evaluation harness
 frontend/
     └── src/
+        ├── middleware.ts            Next.js route protection (redirects to / if has_session cookie absent)
         ├── app/                     page.tsx (landing), dashboard, transactions,
         │                            reconciliation, documents, auth/callback, privacy
         ├── components/              app-shell, sidebar, aurora, explanation-panel,
