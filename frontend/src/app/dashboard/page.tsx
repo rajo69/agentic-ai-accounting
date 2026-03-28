@@ -53,8 +53,8 @@ const container = {
 };
 
 const item = {
-  hidden: { opacity: 0, y: 16 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  hidden: { opacity: 0, y: 12, filter: "blur(4px)" },
+  show:   { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring" as const, stiffness: 400, damping: 28 } },
 };
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
@@ -74,8 +74,8 @@ function StatCard({ label, value, icon: Icon, iconColor, iconBg, isNumeric = tru
   return (
     <motion.div
       variants={item}
-      whileHover={{ y: -2, transition: { duration: 0.15 } }}
-      className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md flex items-start justify-between gap-4 transition-all duration-200"
+      whileHover={{ y: -3, scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 20 } }}
+      className="group bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md flex items-start justify-between gap-4 cursor-default transition-shadow duration-200"
     >
       <div>
         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</p>
@@ -83,7 +83,7 @@ function StatCard({ label, value, icon: Icon, iconColor, iconBg, isNumeric = tru
           {isNumeric ? counted.toLocaleString() : value}
         </p>
       </div>
-      <div className={`${iconBg} w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5`}>
+      <div className={`${iconBg} w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110`}>
         <Icon className={`w-5 h-5 ${iconColor}`} />
       </div>
     </motion.div>
