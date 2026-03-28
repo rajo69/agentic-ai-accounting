@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring, useScroll } from "framer-motion";
 import {
   BrainCircuit, Tag, GitCompare, FileText,
   ArrowRight, CheckCircle2, ChevronRight,
@@ -59,17 +59,71 @@ const stats = [
 
 const container = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08 } },
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 };
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" as const } },
+  hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { type: "spring" as const, stiffness: 380, damping: 30 },
+  },
 };
+
+const statItem = {
+  hidden: { opacity: 0, scale: 0.85, y: 12 },
+  show: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { type: "spring" as const, stiffness: 500, damping: 32 },
+  },
+};
+
+// ── Feature Card with 3D tilt ─────────────────────────────────────────────────
+
+function FeatureCard({ f }: { f: typeof features[0] }) {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(mouseY, [-80, 80], [6, -6]), {
+    stiffness: 350, damping: 30,
+  });
+  const rotateY = useSpring(useTransform(mouseX, [-80, 80], [-6, 6]), {
+    stiffness: 350, damping: 30,
+  });
+
+  return (
+    <motion.div
+      variants={fadeUp}
+      style={{ rotateX, rotateY, transformPerspective: 900 }}
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        mouseX.set(e.clientX - rect.left - rect.width / 2);
+        mouseY.set(e.clientY - rect.top - rect.height / 2);
+      }}
+      onMouseLeave={() => { mouseX.set(0); mouseY.set(0); }}
+      className={`group relative rounded-xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm p-6 ${f.hoverBorder} transition-colors duration-300 cursor-default overflow-hidden`}
+    >
+      <div className={`absolute inset-0 ${f.hoverGlow} transition-colors duration-300`} />
+      <div className="relative">
+        <f.icon className={`w-5 h-5 ${f.accent} mb-4`} strokeWidth={1.75} />
+        <h3 className="text-sm font-semibold text-white mb-2">{f.title}</h3>
+        <p className="text-sm text-white/40 leading-relaxed">{f.description}</p>
+      </div>
+    </motion.div>
+  );
+}
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 500], [0, 60]);
+  const heroOpacity = useTransform(scrollY, [0, 380], [1, 0.45]);
+
   return (
     <div className="relative min-h-screen bg-black text-white overflow-hidden">
 
@@ -81,11 +135,10 @@ export default function LandingPage() {
           blend={0.55}
           speed={0.45}
         />
-        {/* Fade to black at the bottom */}
         <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent to-black" />
       </div>
 
-      {/* Dot grid overlay: very subtle texture */}
+      {/* Dot grid overlay */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.18]"
         style={{
@@ -95,7 +148,12 @@ export default function LandingPage() {
       />
 
       {/* ── Nav ───────────────────────────────────────────────────────────── */}
-      <nav className="relative z-10 max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+      <motion.nav
+        initial={{ opacity: 0, y: -16, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.05 }}
+        className="relative z-10 max-w-6xl mx-auto px-6 h-14 flex items-center justify-between"
+      >
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-[5px] bg-indigo-500 flex items-center justify-center shadow-md shadow-indigo-500/40">
             <BrainCircuit className="w-3.5 h-3.5 text-white" strokeWidth={2} />
@@ -113,10 +171,13 @@ export default function LandingPage() {
             </FluidGlassButton>
           </a>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative z-10 max-w-4xl mx-auto px-6 pt-20 pb-16 text-center">
+      {/* ── Hero — scroll parallax ─────────────────────────────────────────── */}
+      <motion.section
+        style={{ y: heroY, opacity: heroOpacity }}
+        className="relative z-10 max-w-4xl mx-auto px-6 pt-20 pb-16 text-center"
+      >
         <motion.div
           variants={container}
           initial="hidden"
@@ -170,20 +231,20 @@ export default function LandingPage() {
             </a>
           </motion.div>
 
-          {/* Stats row */}
+          {/* Stats — each animates in with scale spring */}
           <motion.div
-            variants={fadeUp}
+            variants={container}
             className="mt-16 flex items-center justify-center gap-10 sm:gap-16 border-t border-white/[0.08] pt-10 w-full"
           >
             {stats.map((s, i) => (
-              <div key={i} className="text-center">
+              <motion.div key={i} variants={statItem} className="text-center">
                 <div className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">{s.value}</div>
                 <div className="text-sm text-white/50 mt-1.5 font-medium">{s.label}</div>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </motion.div>
-      </section>
+      </motion.section>
 
       {/* ── Features ──────────────────────────────────────────────────────── */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 py-16">
@@ -195,18 +256,7 @@ export default function LandingPage() {
           className="grid sm:grid-cols-3 gap-4"
         >
           {features.map((f) => (
-            <motion.div
-              key={f.title}
-              variants={fadeUp}
-              className={`group relative rounded-xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm p-6 ${f.hoverBorder} transition-all duration-300 cursor-default overflow-hidden`}
-            >
-              <div className={`absolute inset-0 ${f.hoverGlow} transition-colors duration-300`} />
-              <div className="relative">
-                <f.icon className={`w-5 h-5 ${f.accent} mb-4`} strokeWidth={1.75} />
-                <h3 className="text-sm font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-sm text-white/40 leading-relaxed">{f.description}</p>
-              </div>
-            </motion.div>
+            <FeatureCard key={f.title} f={f} />
           ))}
         </motion.div>
       </section>
@@ -227,7 +277,8 @@ export default function LandingPage() {
               <motion.div
                 key={i}
                 variants={fadeUp}
-                className="flex items-start gap-4 rounded-lg border border-white/[0.06] bg-white/[0.02] px-5 py-4"
+                whileHover={{ x: 4, transition: { type: "spring", stiffness: 400, damping: 30 } }}
+                className="flex items-start gap-4 rounded-lg border border-white/[0.06] bg-white/[0.02] px-5 py-4 cursor-default"
               >
                 <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full border border-white/[0.15] flex items-center justify-center text-[10px] font-semibold text-white/40">
                   {i + 1}
@@ -248,10 +299,10 @@ export default function LandingPage() {
       {/* ── Bottom CTA ────────────────────────────────────────────────────── */}
       <section className="relative z-10 max-w-xl mx-auto px-6 py-16 text-center">
         <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           viewport={{ once: true }}
-          transition={{ duration: 0.45 }}
+          transition={{ type: "spring", stiffness: 300, damping: 28 }}
           className="rounded-2xl border border-white/[0.09] bg-white/[0.03] backdrop-blur-sm p-10 relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(79,70,229,0.12),transparent)]" />
