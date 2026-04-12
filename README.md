@@ -1074,6 +1074,7 @@ Items scoped out of the current build, ordered by likely priority:
 | Rate limiting to cap Claude costs | **Done** — slowapi with per-organisation limits on expensive endpoints |
 | First-run onboarding | **Done** — OAuth callback auto-triggers a sync job; dashboard polls and shows progress |
 | Team management UI and invite emails | **Done** — `/team` page with invite/remove; Resend-backed emails |
+| Frontend error boundary | **Done** — graceful fallback UI for render-time React errors |
 | Per-organisation confidence threshold tuning | Requires sufficient data to calibrate; post-beta |
 | QuickBooks adapter | Second platform; same architecture, different OAuth2 flow |
 | Stripe billing integration | Post-beta; add when users confirm willingness to pay |
@@ -1133,13 +1134,17 @@ frontend/
         ├── app/                     page.tsx (landing), dashboard, transactions,
         │                            reconciliation, documents, team, auth/callback, privacy
         ├── components/              app-shell, sidebar, aurora, explanation-panel,
-        │                            gradient-text, fluid-glass-button, shadcn/ui
+        │                            error-boundary, gradient-text, fluid-glass-button, shadcn/ui
         └── lib/                     api.ts (fetch wrapper + types), utils.ts
 ```
 
 ---
 
 ## Changelog
+
+### v0.2.7 — 2026-04-12
+
+**Frontend error boundary** — New `ErrorBoundary` component in `src/components/error-boundary.tsx` wraps the authenticated app content in `AppShell`. Render-time React errors that would previously crash the whole page to a blank screen now surface a graceful fallback with "Try again" and "Refresh page" buttons. The error message is shown in development for quick debugging; hidden in production so end users don't see stack traces. The boundary catches only render-time errors by design (React's documented behaviour); async/event handler errors are still handled at the call site with try/catch plus toasts.
 
 ### v0.2.6 — 2026-04-12
 
