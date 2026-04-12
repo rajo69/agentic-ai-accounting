@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     frontend_url: str = "http://localhost:3000"
     xero_webhook_key: str = ""
+    sentry_dsn: str = ""
+    environment: str = "development"
 
 
 settings = Settings()
