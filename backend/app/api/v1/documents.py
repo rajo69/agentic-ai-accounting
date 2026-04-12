@@ -1,10 +1,11 @@
 """Document generation API routes."""
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.rate_limit import limiter
 from app.core.session import get_current_org
 from app.models.database import GeneratedDocument, Organisation
 from app.models.schemas import (
@@ -25,32 +26,34 @@ _GENERATOR_NAMES = {
 
 
 @router.post("/documents/generate")
+@limiter.limit("3/minute;30/hour")
 async def generate_document(
-    request: DocumentGenerateRequest,
+    request: Request,
+    body: DocumentGenerateRequest,
     org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
     """Generate a document PDF for the given period. Returns the PDF as a download."""
-    if request.template not in SUPPORTED_TEMPLATES:
+    if body.template not in SUPPORTED_TEMPLATES:
         raise HTTPException(
             status_code=400,
-            detail=f"Unknown template '{request.template}'. Supported: {sorted(SUPPORTED_TEMPLATES)}",
+            detail=f"Unknown template '{body.template}'. Supported: {sorted(SUPPORTED_TEMPLATES)}",
         )
-    if request.period_start > request.period_end:
+    if body.period_start > body.period_end:
         raise HTTPException(status_code=400, detail="period_start must be before period_end")
 
-    generator = getattr(document_service, _GENERATOR_NAMES[request.template])
+    generator = getattr(document_service, _GENERATOR_NAMES[body.template])
     try:
         pdf_bytes, metadata = await generator(
             org_id=org.id,
-            period_start=request.period_start,
-            period_end=request.period_end,
+            period_start=body.period_start,
+            period_end=body.period_end,
             db=db,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Document generation failed: {exc}") from exc
 
-    filename = f"{request.template}_{request.period_start}_{request.period_end}.pdf"
+    filename = f"{body.template}_{body.period_start}_{body.period_end}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

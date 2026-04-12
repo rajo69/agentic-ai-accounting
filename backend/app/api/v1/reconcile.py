@@ -4,11 +4,12 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cache import cache_delete_pattern, dashboard_key
+from app.core.rate_limit import limiter
 from app.agents.reconciler import (
     compute_amount_score,
     compute_combined_score,
@@ -36,7 +37,9 @@ _AMOUNT_TOLERANCE = Decimal("0.01")
 
 
 @router.post("/reconcile", response_model=ReconcileBatchResponse)
+@limiter.limit("5/minute;120/hour")
 async def trigger_reconcile(
+    request: Request,
     org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):

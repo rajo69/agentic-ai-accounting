@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.core.cache import cache_delete_pattern, dashboard_key
 from app.core.database import get_db
 from app.core.observability import capture_exception
+from app.core.rate_limit import limiter
 from app.core.session import get_current_org
 from app.integrations.xero_adapter import XeroAdapter
 from app.models.database import Organisation, Account, Transaction, BankStatement
@@ -14,7 +15,9 @@ router = APIRouter(prefix="/api/v1", tags=["sync"])
 
 
 @router.post("/sync", response_model=SyncResponse)
+@limiter.limit("5/minute")
 async def trigger_sync(
+    request: Request,
     org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
