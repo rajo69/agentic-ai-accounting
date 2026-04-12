@@ -166,12 +166,26 @@ class XeroAdapter:
         await db.refresh(org)
         return new_access
 
-    def _api_headers(self, access_token: str) -> dict:
-        return {
+    def _api_headers(self, access_token: str, since: Optional[datetime] = None) -> dict:
+        """Build request headers, optionally including If-Modified-Since for incremental sync.
+
+        Xero honours this header on all accounting endpoints: it returns only
+        records modified since the given UTC timestamp, dramatically reducing
+        payload size on subsequent syncs.
+        """
+        headers = {
             "Authorization": f"Bearer {access_token}",
             "Xero-tenant-id": self.organisation.xero_tenant_id,
             "Accept": "application/json",
         }
+        if since is not None:
+            # RFC 1123 in UTC — Xero expects "Tue, 01 Apr 2025 10:00:00 GMT"
+            if since.tzinfo is None:
+                since = since.replace(tzinfo=timezone.utc)
+            headers["If-Modified-Since"] = since.astimezone(timezone.utc).strftime(
+                "%a, %d %b %Y %H:%M:%S GMT"
+            )
+        return headers
 
     async def _get_with_retry(
         self,
@@ -180,13 +194,19 @@ class XeroAdapter:
         headers: dict,
         params: Optional[dict] = None,
     ) -> dict:
-        """GET with rate-limit (429) back-off, up to 3 attempts."""
+        """GET with rate-limit (429) back-off, up to 3 attempts.
+
+        Returns an empty dict for 304 Not Modified so callers can safely
+        `.get("Accounts", [])` etc. without special-casing incremental sync.
+        """
         for attempt in range(3):
             resp = await client.get(url, headers=headers, params=params)
             if resp.status_code == 429:
                 logger.warning("Xero rate limit hit, waiting 60 s (attempt %d)", attempt + 1)
                 await asyncio.sleep(60)
                 continue
+            if resp.status_code == 304:
+                return {}
             resp.raise_for_status()
             return resp.json()
         raise RuntimeError(f"Xero API failed after 3 attempts: {url}")
@@ -195,9 +215,9 @@ class XeroAdapter:
     # Sync methods
     # ------------------------------------------------------------------
 
-    async def sync_accounts(self, db: AsyncSession) -> int:
+    async def sync_accounts(self, db: AsyncSession, since: Optional[datetime] = None) -> int:
         token = await self._ensure_valid_token(db)
-        headers = self._api_headers(token)
+        headers = self._api_headers(token, since=since)
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             data = await self._get_with_retry(client, f"{XERO_API_BASE}/Accounts", headers)
@@ -229,9 +249,9 @@ class XeroAdapter:
         logger.info("Synced %d accounts for org %s", count, self.organisation.id)
         return count
 
-    async def sync_transactions(self, db: AsyncSession) -> int:
+    async def sync_transactions(self, db: AsyncSession, since: Optional[datetime] = None) -> int:
         token = await self._ensure_valid_token(db)
-        headers = self._api_headers(token)
+        headers = self._api_headers(token, since=since)
 
         count = 0
         page = 1
@@ -444,10 +464,10 @@ class XeroAdapter:
         logger.info("Synced %d transactions for org %s", count, self.organisation.id)
         return count
 
-    async def sync_bank_statements(self, db: AsyncSession) -> int:
+    async def sync_bank_statements(self, db: AsyncSession, since: Optional[datetime] = None) -> int:
         """Sync unreconciled bank transactions as statement lines."""
         token = await self._ensure_valid_token(db)
-        headers = self._api_headers(token)
+        headers = self._api_headers(token, since=since)
 
         count = 0
         page = 1
@@ -507,10 +527,28 @@ class XeroAdapter:
         logger.info("Synced %d bank statements for org %s", count, self.organisation.id)
         return count
 
-    async def full_sync(self, db: AsyncSession) -> SyncResponse:
-        accounts = await self.sync_accounts(db)
-        transactions = await self.sync_transactions(db)
-        bank_statements = await self.sync_bank_statements(db)
+    async def full_sync(self, db: AsyncSession, incremental: bool = True) -> SyncResponse:
+        """Run accounts + transactions + bank statements sync.
+
+        If `incremental` is True (default) and `last_sync_at` is set, only
+        records modified since the last successful sync are fetched. The first
+        sync for an organisation always pulls everything.
+
+        Pass `incremental=False` to force a full re-pull (useful for recovery
+        or after schema changes). `last_sync_at` is only updated on success,
+        so an interrupted sync safely re-syncs from the previous checkpoint.
+        """
+        # Use the PREVIOUS last_sync_at as the incremental cutoff; don't
+        # update the org record until all syncs succeed.
+        since = self.organisation.last_sync_at if incremental else None
+        if since:
+            logger.info("Incremental sync for org %s since %s", self.organisation.id, since.isoformat())
+        else:
+            logger.info("Full sync for org %s (first run or forced)", self.organisation.id)
+
+        accounts = await self.sync_accounts(db, since=since)
+        transactions = await self.sync_transactions(db, since=since)
+        bank_statements = await self.sync_bank_statements(db, since=since)
 
         self.organisation.last_sync_at = datetime.now(timezone.utc)
         await db.commit()
