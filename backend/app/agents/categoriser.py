@@ -24,7 +24,14 @@ from app.xai.fuzzy_engine import compute_fuzzy_inputs, compute_risk_score
 
 logger = logging.getLogger(__name__)
 
+# Primary (cheap, fast) model — pinned for eval reproducibility.
 LLM_MODEL = "claude-haiku-4-5-20251001"
+# Escalation (stronger, ~10× cost) model — alias so quality patches flow in.
+LLM_MODEL_ESCALATION = "claude-sonnet-4-6"
+# Escalate when the primary can't auto-accept. Tied to the 0.85 auto-accept
+# threshold in `decide` — Sonnet gets a chance to push the decision into the
+# auto-accept band instead of leaving it as a "suggested" for human review.
+ESCALATION_THRESHOLD = 0.85
 
 
 class CategoriserState(TypedDict):
@@ -112,19 +119,48 @@ def build_categoriser_graph(db: AsyncSession):
             "and brief reasoning (1-2 sentences)."
         )
 
-        prediction = await client.messages.create(
+        # Primary call: Haiku. Cheap, fast, sufficient for the majority
+        # of transactions where the few-shot RAG context is strong.
+        primary = await client.messages.create(
             model=LLM_MODEL,
             max_tokens=512,
             messages=[{"role": "user", "content": prompt}],
             response_model=CategoryPrediction,
         )
 
+        chosen = primary
+        model_used = LLM_MODEL
+        escalated = False
+        primary_confidence = float(primary.confidence)
+
+        # Tiered routing: if Haiku isn't confident enough to auto-accept,
+        # give Sonnet a chance before surfacing the result. On Sonnet
+        # failure, fall back to Haiku's answer — we never lose a prediction.
+        if primary_confidence < ESCALATION_THRESHOLD:
+            try:
+                chosen = await client.messages.create(
+                    model=LLM_MODEL_ESCALATION,
+                    max_tokens=512,
+                    messages=[{"role": "user", "content": prompt}],
+                    response_model=CategoryPrediction,
+                )
+                model_used = LLM_MODEL_ESCALATION
+                escalated = True
+            except Exception:
+                logger.exception(
+                    "Escalation to %s failed, keeping primary prediction",
+                    LLM_MODEL_ESCALATION,
+                )
+
         return {
             "prediction": {
-                "category_code": prediction.category_code,
-                "category_name": prediction.category_name,
-                "confidence": float(prediction.confidence),
-                "reasoning": prediction.reasoning,
+                "category_code": chosen.category_code,
+                "category_name": chosen.category_name,
+                "confidence": float(chosen.confidence),
+                "reasoning": chosen.reasoning,
+                "model_used": model_used,
+                "escalated": escalated,
+                "primary_confidence": primary_confidence if escalated else None,
             },
             "status": "classified",
         }
@@ -180,6 +216,12 @@ def build_categoriser_graph(db: AsyncSession):
             tx.categorisation_status = final_status
             tx.embedding = await embed_transaction(tx)
 
+        # Record the model that actually produced the final prediction
+        # (may be the escalation model if tiered routing fired).
+        audit_model = (
+            prediction.get("model_used", LLM_MODEL) if prediction else LLM_MODEL
+        )
+
         audit = AuditLog(
             organisation_id=org_id,
             action="ai_categorise",
@@ -189,12 +231,18 @@ def build_categoriser_graph(db: AsyncSession):
                 "category": prediction["category_name"] if prediction else None,
                 "status": final_status,
             },
-            ai_model=LLM_MODEL,
+            ai_model=audit_model,
             ai_confidence=Decimal(str(round(confidence, 4))) if prediction else None,
             ai_explanation=prediction["reasoning"] if prediction else "No prediction generated",
             ai_decision_data={
                 "category_code": prediction["category_code"] if prediction else None,
                 "similar_examples_count": len(state.get("similar_examples", [])),
+                "escalated": prediction.get("escalated", False) if prediction else False,
+                "primary_model": LLM_MODEL,
+                "primary_confidence": (
+                    prediction.get("primary_confidence") if prediction else None
+                ),
+                "escalation_threshold": ESCALATION_THRESHOLD,
             },
         )
         db.add(audit)

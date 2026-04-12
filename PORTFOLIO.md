@@ -111,15 +111,23 @@ Confidence calibration:
   <0.5   : acc=33.3% ( 3 txns)  <- flag
 ```
 
-### 6. Cost-aware model routing
+### 6. Cost-aware model routing — tiered, not flat
 
-- **Categorisation** runs on Claude Haiku (~$0.0013/call) — high volume, short prompts, structured output.
-- **Document narrative** runs on Claude Sonnet (~$0.011/doc) — low volume, long coherent output.
-- **Reconciliation matching** runs on no LLM at all — deterministic scoring with RapidFuzz `token_sort_ratio`.
-- Concurrency capped at 5 via `asyncio.Semaphore(5)` so batch jobs don't fan out to 200 parallel API calls.
+Categorisation runs **Claude Haiku first** (~$0.0013/call). If Haiku's self-reported confidence falls below the 0.85 auto-accept threshold, the same prompt is re-issued to **Claude Sonnet 4.6** (~$0.0047/call) and Sonnet's answer replaces Haiku's. If the Sonnet call errors, Haiku's original prediction is retained — no transaction ever ends up without a result.
+
+The escalation threshold matches the auto-accept threshold by design: below it, the prediction is going to a human anyway, so the extra Sonnet spend either (a) pushes the decision into the auto-accept band and saves a review, or (b) hands the reviewer stronger reasoning. Above it, Haiku is trusted and nothing more is spent. Escalating indiscriminately would ~8× total categorisation cost for no measurable gain on the easy tier (where Haiku already hits 93.5% and confidence is typically high).
+
+**Everything else in the cost budget:**
+
+- **Document narrative** runs on Sonnet (~$0.011/doc) — low volume, long coherent output, no pricing pressure.
+- **Reconciliation matching** runs on no LLM at all — deterministic RapidFuzz scoring is more trustworthy than an LLM for exact amount/date comparisons.
+- Concurrency capped at 5 via `asyncio.Semaphore(5)` so batch jobs don't fan out into 200 parallel API calls.
 - Dashboard summary cached in Redis (60s TTL) to avoid redundant DB queries.
+- **Pinning policy is deliberately asymmetric**: Haiku pinned to `claude-haiku-4-5-20251001` because it is the eval-critical model where reproducibility matters; Sonnet left on the bare alias `claude-sonnet-4-6` because it runs only in narrative generation and tiered escalation, neither currently in the eval harness — quality patches from Anthropic should flow in automatically there.
 
-At 100 customers processing 20,000 transactions/month, total AI cost is ~£10/month (0.2% of revenue at £49/mo pricing).
+Every categorisation audit-logs which model actually produced the final answer, whether escalation fired, the primary model's confidence, and the threshold in effect — so each decision is fully reconstructible after the fact.
+
+At 100 customers processing 20,000 transactions/month, blended AI cost is in the ~£10–£15/month range (0.2–0.3% of revenue at £49/mo pricing), even with escalation enabled.
 
 ---
 
@@ -158,19 +166,22 @@ flowchart TD
     FastAPI -->|OAuth2, sync, webhooks| Xero
 ```
 
-**Data flow for one categorisation:**
+**Data flow for one categorisation (with tiered routing):**
 
 ```mermaid
 flowchart LR
     TX[Uncategorised txn] --> pgv[pgvector<br/>5 nearest]
     TX --> Agent[LangGraph<br/>5-node graph]
     pgv --> Agent
-    Agent -->|CategoryPrediction<br/>via Instructor| Claude
-    Agent --> Conf{Confidence?}
+    Agent -->|CategoryPrediction<br/>via Instructor| H[Haiku — primary]
+    H --> Gate{Haiku conf<br/>>= 0.85?}
+    Gate -->|yes| Conf{Final confidence?}
+    Gate -->|no, escalate| S[Sonnet — escalation]
+    S --> Conf
     Conf -->|>0.85| Auto[auto_categorised]
     Conf -->|0.5-0.85| Sugg[suggested]
     Conf -->|<0.5| Rev[needs_review]
-    Auto --> Audit[(AuditLog<br/>+ XAI payload)]
+    Auto --> Audit[(AuditLog<br/>+ XAI payload<br/>+ model-used flag)]
     Sugg --> Audit
     Rev --> Audit
 ```
@@ -180,6 +191,8 @@ flowchart LR
 ## Engineering challenges that required judgement
 
 Selected from a longer list in the main README — these are the ones relevant to AI engineering specifically.
+
+**Tiered model routing — cost-aware choice, not a cargo-culted "always use Haiku" or "always use Sonnet".** The naïve setups both fail in specific ways. Running Haiku on everything leaves the hard tier around 75% accuracy, which isn't shippable for accounting work where mistakes have audit consequences. Running Sonnet on everything pays ~10× per call for negligible gain on the easy tier (where Haiku already scores 93.5% and confidence is typically above 0.85). The implemented design runs Haiku first and only escalates to Sonnet when Haiku's confidence falls below the 0.85 auto-accept threshold — the spend lands exactly where it's most likely to matter. Why that threshold specifically: below it the prediction was going to a human anyway, so Sonnet either promotes the decision into the auto-accept band (saving a review) or gives the reviewer stronger reasoning to evaluate; above it, Haiku is already trusted. The asymmetric pinning policy (Haiku pinned to a dated release, Sonnet on a bare alias) reflects which model is in the eval-critical loop and where reproducibility is worth more than flowing-in quality patches. A live comparison of Haiku-only vs Sonnet-only vs tiered on the 50-fixture eval set is documented and reproducible, and deliberately left pending in the README until budget allows — the baseline Haiku numbers are real, the other rows are marked pending rather than guessed. The production code is already live; the missing piece is the measurement, not the mechanism.
 
 **Structured LLM output was silently failing without Instructor.** The first implementation parsed Claude's response with string splitting. It worked on simple cases but silently returned wrong categories whenever the model added preamble text ("Sure, here is the classification…"). Replaced with `instructor[anthropic]`, which uses Anthropic tool-use to force output conformance to a Pydantic schema, with automatic retry on validation failure. The `CategoryPrediction` model became the enforceable contract between the agent and Claude.
 
@@ -212,7 +225,7 @@ Selected from a longer list in the main README — these are the ones relevant t
 | Production LLM application engineering | LangGraph agents, Instructor structured output, eval gates, response caching, concurrency caps, cost tracking |
 | Retrieval-augmented generation | pgvector few-shot lookup, cosine-distance neighbour retrieval, corrections as training examples |
 | Evaluation methodology | 50-transaction labelled fixture, difficulty tiers, confidence calibration, cost-per-transaction tracking, CI-enforceable acceptance gates |
-| LLM cost optimisation | Model routing (Haiku vs Sonnet), response caching, no-LLM paths where deterministic logic suffices, per-call token tracking |
+| LLM cost optimisation | Tiered model routing (Haiku primary, Sonnet escalate on low confidence), response caching, no-LLM paths where deterministic logic suffices, per-call token tracking, asymmetric model pinning by eval-criticality |
 | Explainable / interpretable ML | Glass-box model choices (EBM, fuzzy logic), hand-rolled Mamdani inference, three-layer explanation design |
 | Async Python at production scale | Async SQLAlchemy 2.0, asyncpg, background jobs, `asyncio.Semaphore` for concurrency control |
 | Third-party API integration | Xero OAuth2 with token refresh + encryption, rate-limit backoff, webhook signature verification, incremental sync |

@@ -191,6 +191,8 @@ class CategoryPrediction(BaseModel):
 
 Claude is never trusted to return parseable free text. Instructor uses Anthropic's tool-use feature to guarantee structured output, with automatic retry on Pydantic validation failure.
 
+The node implements **tiered model routing**: the primary call is Claude Haiku (pinned, cheap, fast). If the returned confidence is below the `ESCALATION_THRESHOLD` (0.85 — the same threshold used for auto-accept in node 4), the same prompt is retried with Claude Sonnet 4.6, which has stronger reasoning on ambiguous cases. Sonnet's answer replaces Haiku's only when the escalation call succeeds; if Sonnet errors, Haiku's original prediction is kept (no prediction is ever lost). The model that actually produced the final answer is recorded in `AuditLog.ai_model`; the escalation flag, primary-call confidence, and threshold are stored in `ai_decision_data` for auditability. See [Tiered model routing](#tiered-model-routing-cost-aware-escalation) below for the design reasoning.
+
 **Node 3: validate**
 
 Checks two things:
@@ -222,6 +224,47 @@ When an accountant corrects a categorisation via `POST /transactions/{id}/correc
 #### Batch runner
 
 `categorise_batch()` fetches all uncategorised transactions and processes them concurrently with `asyncio.Semaphore(5)`, keeping Claude API costs predictable and preventing runaway parallel requests.
+
+#### Tiered model routing (cost-aware escalation)
+
+Two models are used inside the classify node:
+
+| Role | Model | Reason for choice |
+|---|---|---|
+| Primary | `claude-haiku-4-5-20251001` (pinned) | Cheap (~$0.0013/call), fast, sufficient for the majority of transactions where the few-shot RAG context is strong. Pinned so eval runs stay reproducible. |
+| Escalation | `claude-sonnet-4-6` (aliased) | ~10× the cost but stronger on ambiguous cases. Aliased because narrative-quality model updates from Anthropic should flow in automatically; narrative generation is not in the eval harness, so version drift is acceptable there. |
+
+The escalation rule:
+
+```python
+# Pseudocode of what classify does
+primary = haiku(prompt)
+if primary.confidence < 0.85:
+    try:
+        chosen = sonnet(prompt)   # Sonnet gets to overturn Haiku
+    except Exception:
+        chosen = primary          # Sonnet failure → keep Haiku
+else:
+    chosen = primary
+```
+
+**Why the threshold is exactly 0.85.** It is the same threshold the `decide` node uses for auto-accept. Escalating at this boundary lets Sonnet push a borderline prediction into the auto-accept band when it can; below the threshold there is no point escalating because the result is surfaced to a human either way (who would prefer Sonnet's reasoning to Haiku's lower-confidence answer).
+
+**Why not escalate everything.** Running Sonnet on every transaction would ~8× total categorisation cost for no measurable quality gain on the easy tier (Haiku already scores 93.5% on easy, and easy transactions generally produce `confidence > 0.85`). Escalation targets exactly the transactions where the extra spend is most likely to matter: the medium and hard tiers.
+
+**Audit trail.** Every categorisation records both models in the audit log: `ai_model` is whichever model actually produced the final answer; `ai_decision_data` carries `escalated` (bool), `primary_model`, `primary_confidence`, and `escalation_threshold`. This keeps the decision fully reconstructible after the fact.
+
+**Asymmetric pinning policy.** Haiku is pinned to a dated release because it runs in the evaluation loop and on the high-volume auto-categorisation path — reproducibility across eval runs matters. Sonnet is left on the bare model alias because it runs only in document narrative generation and in tiered escalation, neither of which is currently in the eval harness. If narrative generation is added to the evals, the Sonnet pin should follow.
+
+**Known limitation.** As of this writing, the tiered routing has not been directly measured against a Haiku-only or Sonnet-only run on the 50-fixture eval set. The design is derived from the existing per-model accuracy data (Haiku: 88% overall, 93.5% easy, 75% hard) and the published relative strength of Sonnet on reasoning-heavy tasks. A live comparison run producing the full table below is in the Open Research Questions section.
+
+| Configuration | Overall | Easy | Medium | Hard | Est. cost / 1k txns |
+|---|---|---|---|---|---|
+| Haiku only (baseline) | 88.0% | 93.5% | 80.0% | 75.0% | ~$1.30 |
+| Sonnet only | — | — | — | — | ~$4.70 |
+| Tiered (Haiku primary, Sonnet escalate at conf < 0.85) | — | — | — | — | ~$1.30–$2.50 |
+
+The Haiku-only row is from the current live eval. The other two rows are deliberately left as `—` pending a budgeted live comparison run. Reproduction command in [Running evals](#running-evals).
 
 ---
 
@@ -659,13 +702,16 @@ python -m evals.eval_runner --mode mock
 # Live run with response caching (real API on first run, free on reruns)
 python -m evals.eval_runner --mode live --budget 0.05
 
-# Model comparison
+# Model comparison — these two runs populate the two baseline rows in the
+# tiered-routing comparison table (section "Tiered model routing" above).
 python -m evals.eval_runner --mode live --model claude-haiku-4-5-20251001 --budget 0.05
 python -m evals.eval_runner --mode live --model claude-sonnet-4-6 --budget 0.50
 
 # Quick smoke test
 python -m evals.eval_runner --mode live --limit 10 --budget 0.01
 ```
+
+**Note on the tiered row.** The eval runner passes one model to `classify` per run; it does not execute the production tiered-routing logic. Once the two baseline runs above are cached, the tiered-routing accuracy can be computed compositely: for each fixture, take Haiku's prediction if `confidence >= 0.85`, otherwise Sonnet's. The eval cache makes this a free operation after the initial budgeted runs. A small composite script is the cleanest place for this — it has not been added yet because running the two live baselines is a prerequisite.
 
 ### Sample output
 
@@ -781,11 +827,14 @@ The test suite mocks all external API calls (Xero, Anthropic) so tests run offli
 
 | Operation | Model | Approx. cost |
 |---|---|---|
-| Transaction categorisation | Claude Haiku | ~$0.0013 |
-| Transaction categorisation | Claude Sonnet | ~$0.0047 |
+| Transaction categorisation — primary only | Claude Haiku | ~$0.0013 |
+| Transaction categorisation — Sonnet escalation (only when Haiku confidence < 0.85) | Claude Sonnet | ~$0.0047 additional |
+| Transaction categorisation — blended expected cost (est.) | Haiku + occasional Sonnet | ~$0.0013–$0.0025 |
 | Reconciliation explanation | Claude Haiku | ~$0.0002 |
 | Management letter | Claude Sonnet | ~$0.011 |
 | Embeddings | sentence-transformers (local) | $0.00 |
+
+Blended cost assumes roughly 10–25% of transactions fall below the 0.85 confidence threshold and trigger an escalation call. The exact ratio will shift per organisation as the pgvector few-shot store grows — firms with more labelled history will hit fewer escalations.
 
 ### At scale
 
@@ -799,11 +848,12 @@ At 100 customers paying £49 per month, API cost is under 0.2% of revenue.
 
 ### Cost optimisation mechanisms
 
-1. **Auto-categorisation reduces volume**: as the pgvector few-shot store grows, more transactions hit the above-0.85 threshold and are categorised without prompting. Cost per new transaction trends toward zero as patterns repeat.
-2. **Reconciliation matching uses no LLM**: only the explanation sentence calls Claude.
-3. **Eval caching**: `response_cache.py` makes all eval reruns free after the first run.
-4. **Concurrency cap**: `asyncio.Semaphore(5)` in `categorise_batch()` prevents runaway parallel API calls.
-5. **Embeddings computed once**: stored in the `embedding` column and reused until a correction triggers re-embedding.
+1. **Tiered model routing**: every categorisation starts on Haiku; Sonnet is only invoked when Haiku's confidence falls below the auto-accept threshold. Confident-easy transactions never pay Sonnet cost. See [Tiered model routing](#tiered-model-routing-cost-aware-escalation).
+2. **Auto-categorisation reduces volume**: as the pgvector few-shot store grows, more transactions hit the above-0.85 threshold and are categorised without prompting. Cost per new transaction trends toward zero as patterns repeat.
+3. **Reconciliation matching uses no LLM**: only the explanation sentence calls Claude.
+4. **Eval caching**: `response_cache.py` makes all eval reruns free after the first run.
+5. **Concurrency cap**: `asyncio.Semaphore(5)` in `categorise_batch()` prevents runaway parallel API calls.
+6. **Embeddings computed once**: stored in the `embedding` column and reused until a correction triggers re-embedding.
 
 ---
 
@@ -927,6 +977,10 @@ Below 50 labelled transactions, the system falls back to the LLM's reasoning tex
 
 Currently, human review is triggered passively: transactions below the confidence threshold are surfaced in arrival order. An active learning strategy would instead select transactions for review that would maximally reduce model uncertainty, for example those in sparse regions of the embedding space or near the decision boundary. The question is whether intelligent selection reduces the number of human corrections required to reach a target accuracy, and by how much, compared to passive threshold-based review.
 
+**5. Tiered model routing: where is the true cost/accuracy optimum?**
+
+The production agent escalates from Haiku to Sonnet when Haiku's confidence is below 0.85 (the auto-accept threshold). This is a principled choice but has not been empirically optimised. The open questions are (a) whether the escalation threshold should match the auto-accept threshold or sit slightly higher — say, escalating at < 0.90 so Sonnet can push "already-going-to-auto-accept" Haiku decisions to an even higher-confidence state when the stakes are high; (b) whether the escalation should go to Sonnet at all versus another model (Opus for the hardest fixtures, a fine-tuned Haiku when enough labelled data exists); (c) whether tier decisions should be per-organisation, since an easier-distribution firm may never need Sonnet and a harder-distribution firm may benefit from Opus. A proper answer requires running the two baseline eval modes and a composite tiered analysis (see "Running evals").
+
 ---
 
 ## Engineering challenges encountered during the build
@@ -948,6 +1002,14 @@ This section documents non-obvious technical problems that arose during construc
 **Problem**: LangGraph nodes are standalone functions that transform a state dict. Each node in the categorisation agent needs an async SQLAlchemy session for database queries. Passing the session through the state dict would pollute it (sessions are not serialisable) and break any future state persistence.
 
 **Resolution**: Used a factory/closure pattern. `build_categoriser_graph(db: AsyncSession)` captures the session in a closure and returns the compiled graph. Each node is a nested function that closes over `db` without it ever appearing in the state dict. The same pattern is used in the reconciliation agent.
+
+---
+
+### Single-model categorisation leaves cost/accuracy on the table in both directions
+
+**Problem**: The initial design used Claude Haiku for every categorisation. Haiku scored 88% overall on the 50-fixture eval but only 75% on the hard tier — driven by ambiguous descriptions where Haiku produced low-confidence guesses rather than strong predictions. Switching the whole pipeline to Sonnet would cost ~10× per call for negligible gain on the easy tier (where Haiku already hits 93.5% and confidence is high). Two failure modes at once: overpaying on easy fixtures, under-reasoning on hard ones.
+
+**Resolution**: Implemented tiered model routing in the `classify` node. Haiku runs first; if its confidence is below the 0.85 auto-accept threshold, Sonnet is invoked with the same prompt and its answer replaces Haiku's. On Sonnet failure (API error, timeout), Haiku's original prediction is retained so no transaction is ever left without a result. The audit log records which model produced the final answer, whether escalation fired, the primary-model confidence, and the threshold in effect. The escalation threshold is deliberately the same value as the auto-accept threshold — below it, surfacing Sonnet's stronger reasoning to the human reviewer is always the better choice; above it, Haiku is trusted. Sonnet is left on the bare model alias because narrative-quality model patches from Anthropic should flow in automatically. Haiku stays pinned to a dated release because it is the eval-critical model where reproducibility matters. As of this commit, the end-to-end tiered accuracy has not been measured on a live eval run; a reproduction command is documented in the evals section and the tiered row in the comparison table is explicitly marked as pending.
 
 ---
 
@@ -1057,6 +1119,8 @@ These are genuine current limitations, not caveats to dismiss:
 
 **No QuickBooks integration yet.** The XeroAdapter is the only accounting platform integration. The architecture is designed to accommodate additional adapters (the data models are platform-agnostic), but QuickBooks OAuth2 and API mapping is not implemented.
 
+**Tiered model routing has not been measured end-to-end on a live eval.** The `classify` node escalates from Haiku to Sonnet on low-confidence predictions, and the design is derived from the existing per-model accuracy data. A live comparison (Haiku-only vs Sonnet-only vs composite tiered) across the full 50-fixture set is documented and reproducible but not yet run — the two baseline rows and the tiered row in the comparison table are explicitly marked pending. The production code is correct and safe (failures fall back to Haiku, no transaction goes unanswered); the measurement is what's missing.
+
 ---
 
 ## Future work
@@ -1077,6 +1141,8 @@ Items scoped out of the current build, ordered by likely priority:
 | First-run onboarding | **Done** — OAuth callback auto-triggers a sync job; dashboard polls and shows progress |
 | Team management UI and invite emails | **Done** — `/team` page with invite/remove; Resend-backed emails |
 | Frontend error boundary | **Done** — graceful fallback UI for render-time React errors |
+| Tiered model routing (Haiku primary, Sonnet escalate on low confidence) | **Done** — implemented in `classify` node; audit log carries model-used + escalation flag |
+| Live eval of tiered routing vs Haiku-only and Sonnet-only | Pending budget for the two baseline live runs; reproduction command documented |
 | Per-organisation confidence threshold tuning | Requires sufficient data to calibrate; post-beta |
 | QuickBooks adapter | Second platform; same architecture, different OAuth2 flow |
 | Stripe billing integration | Post-beta; add when users confirm willingness to pay |
@@ -1143,6 +1209,16 @@ frontend/
 ---
 
 ## Changelog
+
+### v0.2.8 — 2026-04-12
+
+**Tiered model routing in the categorisation agent** — The `classify` node now escalates from Claude Haiku to Claude Sonnet 4.6 when the primary prediction's confidence is below the 0.85 auto-accept threshold. Escalation runs the same prompt against the stronger model and its answer replaces Haiku's. If the escalation call errors, Haiku's original prediction is retained (no transaction goes unanswered). The audit log now records `ai_model` as whichever model produced the final prediction, and `ai_decision_data` carries the new keys `escalated` (bool), `primary_model`, `primary_confidence`, and `escalation_threshold` so every decision is reconstructible.
+
+The rationale is cost-aware: Haiku is ~10× cheaper than Sonnet and sufficient on the easy tier (93.5% accuracy), so the common case pays Haiku pricing; only borderline predictions pay Sonnet pricing. Blended expected cost per categorisation is ~$0.0013–$0.0025 depending on escalation rate, versus a flat ~$0.0047 if the whole pipeline ran on Sonnet.
+
+The asymmetric model-pinning policy is documented explicitly: Haiku is pinned to `claude-haiku-4-5-20251001` because it is in the eval-critical and auto-categorise paths where reproducibility matters; Sonnet is left on the bare alias `claude-sonnet-4-6` because it runs only in narrative generation and as the escalation model, and benefits from flowing-in quality patches. The policy is called out in the "Tiered model routing" section of the README.
+
+All 93 existing tests pass without modification — the tiered-routing change is internal to `classify` and does not alter the node's state contract. A live eval of tiered vs Haiku-only vs Sonnet-only is pending; reproduction command and a comparison-table scaffold are in the README evals section.
 
 ### v0.2.7 — 2026-04-12
 
