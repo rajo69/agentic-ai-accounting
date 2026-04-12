@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.core.config import settings
+from app.core.encryption import encrypt, decrypt
 from app.models.database import Organisation, Account, Transaction, BankStatement
 from app.models.schemas import SyncResponse
 
@@ -111,14 +112,14 @@ class XeroAdapter:
             org = Organisation(
                 name=tenant_name,
                 xero_tenant_id=tenant_id,
-                xero_access_token=access_token,
-                xero_refresh_token=refresh_token,
+                xero_access_token=encrypt(access_token),
+                xero_refresh_token=encrypt(refresh_token),
                 xero_token_expires_at=expires_at,
             )
             db.add(org)
         else:
-            org.xero_access_token = access_token
-            org.xero_refresh_token = refresh_token
+            org.xero_access_token = encrypt(access_token)
+            org.xero_refresh_token = encrypt(refresh_token)
             org.xero_token_expires_at = expires_at
             org.name = tenant_name
 
@@ -139,28 +140,30 @@ class XeroAdapter:
             org.xero_token_expires_at
             and org.xero_token_expires_at > now + timedelta(seconds=60)
         ):
-            return org.xero_access_token
+            return decrypt(org.xero_access_token)
 
         async with httpx.AsyncClient() as client:
             resp = await client.post(
                 XERO_TOKEN_URL,
                 data={
                     "grant_type": "refresh_token",
-                    "refresh_token": org.xero_refresh_token,
+                    "refresh_token": decrypt(org.xero_refresh_token),
                 },
                 auth=(settings.xero_client_id, settings.xero_client_secret),
             )
             resp.raise_for_status()
             token_data = resp.json()
 
-        org.xero_access_token = token_data["access_token"]
-        org.xero_refresh_token = token_data.get("refresh_token", org.xero_refresh_token)
+        new_access = token_data["access_token"]
+        new_refresh = token_data.get("refresh_token")
+        org.xero_access_token = encrypt(new_access)
+        org.xero_refresh_token = encrypt(new_refresh) if new_refresh else org.xero_refresh_token
         org.xero_token_expires_at = (
             datetime.now(timezone.utc) + timedelta(seconds=token_data["expires_in"])
         )
         await db.commit()
         await db.refresh(org)
-        return org.xero_access_token
+        return new_access
 
     def _api_headers(self, access_token: str) -> dict:
         return {

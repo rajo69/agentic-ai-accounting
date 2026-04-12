@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    @page {
+      size: A4;
+      margin: 2.2cm 2.5cm 3cm 2.5cm;
+      @bottom-center {
+        content: "AI-Assisted Draft — Not for Distribution  |  Page " counter(page) " of " counter(pages);
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-size: 7.5pt;
+        color: #9ca3af;
+      }
+    }
+
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-size: 10pt;
+      color: #111827;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #111827;
+      margin-bottom: 20px;
+    }
+    .logo-box {
+      width: 110px; height: 36px;
+      border: 1px dashed #d1d5db;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7.5pt; color: #9ca3af;
+    }
+    .header-meta {
+      text-align: right; font-size: 8.5pt; color: #6b7280; line-height: 1.7;
+    }
+    .header-meta strong { color: #111827; font-size: 9pt; }
+
+    h1 { font-size: 20pt; font-weight: 700; margin: 0 0 4px 0; letter-spacing: -0.5px; }
+    .subtitle { font-size: 9pt; color: #6b7280; margin-bottom: 18px; }
+
+    .disclaimer {
+      background: #fffbeb; border: 1px solid #fcd34d; border-left: 4px solid #f59e0b;
+      border-radius: 3px; padding: 8px 12px; font-size: 8.5pt; color: #92400e; margin-bottom: 22px;
+    }
+    .disclaimer strong { color: #78350f; }
+
+    h2 {
+      font-size: 12pt; font-weight: 700; color: #111827;
+      margin: 24px 0 8px 0; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;
+    }
+
+    table {
+      width: 100%; border-collapse: collapse; margin: 8px 0 16px 0; font-size: 9.5pt;
+    }
+    th {
+      background: #f3f4f6; text-align: left; padding: 6px 10px;
+      border: 1px solid #e5e7eb; font-weight: 600; font-size: 9pt; color: #374151;
+    }
+    td { padding: 5px 10px; border: 1px solid #e5e7eb; color: #111827; }
+    tr:nth-child(even) td { background: #f9fafb; }
+    .amount { text-align: right; font-variant-numeric: tabular-nums; }
+    .positive { color: #065f46; font-weight: 600; }
+    .negative { color: #991b1b; font-weight: 600; }
+    .summary-row td { font-weight: 700; background: #f3f4f6 !important; font-size: 10pt; }
+
+    .vat-box {
+      background: #f0fdf4; border: 1px solid #86efac; border-radius: 4px;
+      padding: 14px 18px; text-align: center; margin: 16px 0;
+    }
+    .vat-box.owed { background: #fef2f2; border-color: #fca5a5; }
+    .vat-box .big { font-size: 18pt; font-weight: 700; margin-bottom: 4px; }
+    .vat-box .label { font-size: 9pt; color: #6b7280; }
+
+    .narrative { font-size: 10pt; line-height: 1.6; color: #1f2937; text-align: justify; }
+    .narrative p { margin: 0 0 8px 0; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div class="logo-box">Your Logo Here</div>
+    <div class="header-meta">
+      Generated: {{ generated_at }}<br>
+      Period: {{ period_start }} — {{ period_end }}<br>
+      <strong>{{ organisation_name }}</strong>
+    </div>
+  </div>
+
+  <h1>VAT Return Summary</h1>
+  <div class="subtitle">For the period {{ period_start }} to {{ period_end }}</div>
+
+  <div class="disclaimer">
+    <strong>AI-Assisted Draft:</strong> This is an estimated VAT summary based on Xero data.
+    It does not replace a formal VAT return. All figures must be verified before MTD submission.
+  </div>
+
+  <!-- VAT position -->
+  <div class="vat-box {% if figures.net_vat >= 0 %}owed{% endif %}">
+    <div class="big {% if figures.net_vat >= 0 %}negative{% else %}positive{% endif %}">
+      {{ fmt_money(figures.net_vat) }}
+    </div>
+    <div class="label">Net VAT — {{ figures.net_vat_label }}</div>
+  </div>
+
+  <!-- Summary table -->
+  <h2>VAT Summary</h2>
+  <table>
+    <thead>
+      <tr><th>Item</th><th class="amount">Amount</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Output VAT (on sales)</td>
+        <td class="amount">{{ fmt_money(figures.output_vat) }}</td>
+      </tr>
+      <tr>
+        <td>Input VAT (on purchases)</td>
+        <td class="amount">{{ fmt_money(figures.input_vat) }}</td>
+      </tr>
+      <tr class="summary-row">
+        <td>Net VAT</td>
+        <td class="amount {% if figures.net_vat >= 0 %}negative{% else %}positive{% endif %}">
+          {{ fmt_money(figures.net_vat) }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Breakdown by rate -->
+  {% if figures.rate_breakdown %}
+  <h2>Breakdown by VAT Rate</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Rate</th>
+        <th class="amount">Net Sales</th>
+        <th class="amount">Output VAT</th>
+        <th class="amount">Net Purchases</th>
+        <th class="amount">Input VAT</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in figures.rate_breakdown %}
+      <tr>
+        <td>{{ r.rate }}</td>
+        <td class="amount">{{ fmt_money(r.net_sales) }}</td>
+        <td class="amount">{{ fmt_money(r.output_vat) }}</td>
+        <td class="amount">{{ fmt_money(r.net_purchases) }}</td>
+        <td class="amount">{{ fmt_money(r.input_vat) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <!-- AI commentary -->
+  <h2>Overview</h2>
+  <div class="narrative">
+    {% for line in narrative.overview.split('\n') %}
+    {% if line.strip() %}<p>{{ line }}</p>{% endif %}
+    {% endfor %}
+  </div>
+
+  <h2>Output VAT Commentary</h2>
+  <div class="narrative">
+    {% for line in narrative.output_vat_commentary.split('\n') %}
+    {% if line.strip() %}<p>{{ line }}</p>{% endif %}
+    {% endfor %}
+  </div>
+
+  <h2>Input VAT Commentary</h2>
+  <div class="narrative">
+    {% for line in narrative.input_vat_commentary.split('\n') %}
+    {% if line.strip() %}<p>{{ line }}</p>{% endif %}
+    {% endfor %}
+  </div>
+
+  <h2>Recommendations</h2>
+  <div class="narrative">
+    {% for line in narrative.recommendations.split('\n') %}
+    {% if line.strip() %}<p>{{ line }}</p>{% endif %}
+    {% endfor %}
+  </div>
+
+</body>
+</html>

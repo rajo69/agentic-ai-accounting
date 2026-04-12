@@ -13,6 +13,7 @@ from app.api.v1.reconcile import router as reconcile_router
 from app.api.v1.documents import router as documents_router
 from app.api.v1.explanations import router as explanations_router
 from app.api.v1.gdpr import router as gdpr_router
+from app.api.v1.webhooks import router as webhooks_router
 import app.models.database  # noqa: F401 — ensure models are registered
 
 
@@ -42,3 +43,4 @@ app.include_router(reconcile_router)
 app.include_router(documents_router)
 app.include_router(explanations_router)
 app.include_router(gdpr_router)
+app.include_router(webhooks_router)

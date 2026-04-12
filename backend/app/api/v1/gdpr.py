@@ -26,6 +26,7 @@ from app.models.database import (
     GeneratedDocument,
     Organisation,
     Transaction,
+    User,
 )
 
 router = APIRouter(prefix="/api/v1/gdpr", tags=["gdpr"])
@@ -91,10 +92,15 @@ async def export_data(
         select(GeneratedDocument).where(GeneratedDocument.organisation_id == org.id)
     )).scalars().all()
 
+    users = (await db.execute(
+        select(User).where(User.organisation_id == org.id)
+    )).scalars().all()
+
     return {
         "exported_at": datetime.utcnow().isoformat() + "Z",
         "gdpr_basis": "GDPR Articles 15 and 20 — right of access and data portability",
         "organisation": _row_to_dict(org, exclude=_TOKEN_FIELDS),
+        "users": [_row_to_dict(r) for r in users],
         "accounts": [_row_to_dict(r) for r in accounts],
         "transactions": [_row_to_dict(r) for r in transactions],
         "bank_statements": [_row_to_dict(r) for r in statements],
@@ -130,6 +136,7 @@ async def erase_data(
     await db.execute(delete(BankStatement).where(BankStatement.organisation_id == org_id))
     await db.execute(delete(Transaction).where(Transaction.organisation_id == org_id))
     await db.execute(delete(Account).where(Account.organisation_id == org_id))
+    await db.execute(delete(User).where(User.organisation_id == org_id))
     await db.execute(delete(Organisation).where(Organisation.id == org_id))
     await db.commit()
 

@@ -33,6 +33,20 @@ class ManagementLetterNarrative(BaseModel):
     recommendations: str
 
 
+class ProfitLossNarrative(BaseModel):
+    overview: str
+    income_commentary: str
+    expense_commentary: str
+    outlook: str
+
+
+class VatSummaryNarrative(BaseModel):
+    overview: str
+    output_vat_commentary: str
+    input_vat_commentary: str
+    recommendations: str
+
+
 # ── Financial calculations (pure Python, no LLM) ─────────────────────────────
 
 def _calculate_figures(transactions: list, period_start: date, period_end: date) -> dict:
@@ -240,4 +254,305 @@ async def generate_management_letter(
         "generated_at": now.isoformat(),
     }
 
+    return pdf_bytes, metadata
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Profit & Loss Statement
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _calculate_pnl_figures(transactions: list, period_start: date, period_end: date) -> dict:
+    income_by_cat: dict[str, Decimal] = {}
+    expense_by_cat: dict[str, Decimal] = {}
+
+    for t in transactions:
+        cat = t.category or "Uncategorised"
+        if t.amount > 0:
+            income_by_cat[cat] = income_by_cat.get(cat, Decimal("0")) + t.amount
+        elif t.amount < 0:
+            expense_by_cat[cat] = expense_by_cat.get(cat, Decimal("0")) + abs(t.amount)
+
+    total_income = sum(income_by_cat.values(), Decimal("0"))
+    total_expenses = sum(expense_by_cat.values(), Decimal("0"))
+    net = total_income - total_expenses
+
+    def _sorted_cats(d: dict) -> list:
+        return [
+            {"name": k, "amount": float(v)}
+            for k, v in sorted(d.items(), key=lambda x: x[1], reverse=True)
+        ]
+
+    return {
+        "income_categories": _sorted_cats(income_by_cat),
+        "expense_categories": _sorted_cats(expense_by_cat),
+        "total_income": float(total_income),
+        "total_expenses": float(total_expenses),
+        "net": float(net),
+        "transaction_count": len(transactions),
+        "period_start": str(period_start),
+        "period_end": str(period_end),
+    }
+
+
+async def _generate_pnl_narrative(figures: dict, org_name: str) -> ProfitLossNarrative:
+    client = instructor.from_anthropic(
+        AsyncAnthropic(api_key=settings.anthropic_api_key)
+    )
+
+    income_lines = "\n".join(
+        f"  - {c['name']}: £{c['amount']:,.2f}" for c in figures["income_categories"]
+    ) or "  (none)"
+    expense_lines = "\n".join(
+        f"  - {c['name']}: £{c['amount']:,.2f}" for c in figures["expense_categories"]
+    ) or "  (none)"
+    net_label = "profit" if figures["net"] >= 0 else "loss"
+
+    prompt = (
+        f"You are a professional UK accountant preparing a Profit & Loss statement commentary for {org_name}.\n\n"
+        f"Period: {figures['period_start']} to {figures['period_end']}\n"
+        f"Total Income: £{figures['total_income']:,.2f}\n"
+        f"Total Expenses: £{figures['total_expenses']:,.2f}\n"
+        f"Net {net_label.title()}: £{abs(figures['net']):,.2f}\n\n"
+        f"Income by Category:\n{income_lines}\n\n"
+        f"Expenses by Category:\n{expense_lines}\n\n"
+        "Write 4 sections (2-3 sentences each):\n"
+        "1. overview: overall P&L health\n"
+        "2. income_commentary: income patterns and notable categories\n"
+        "3. expense_commentary: spending patterns and notable categories\n"
+        "4. outlook: forward-looking observations for a UK SME\n\n"
+        "Professional tone. Interpret, don't just repeat numbers."
+    )
+
+    return await client.messages.create(
+        model=LLM_MODEL,
+        max_tokens=1200,
+        messages=[{"role": "user", "content": prompt}],
+        response_model=ProfitLossNarrative,
+    )
+
+
+async def generate_profit_loss(
+    org_id: uuid.UUID,
+    period_start: date,
+    period_end: date,
+    db: AsyncSession,
+) -> tuple[bytes, dict]:
+    """Generate a Profit & Loss statement PDF."""
+    org_result = await db.execute(select(Organisation).where(Organisation.id == org_id))
+    org = org_result.scalar_one_or_none()
+    if not org:
+        raise ValueError(f"Organisation {org_id} not found")
+
+    tx_result = await db.execute(
+        select(Transaction).where(
+            Transaction.organisation_id == org_id,
+            Transaction.date >= period_start,
+            Transaction.date <= period_end,
+        )
+    )
+    transactions = list(tx_result.scalars().all())
+
+    figures = _calculate_pnl_figures(transactions, period_start, period_end)
+    narrative = await _generate_pnl_narrative(figures, org.name)
+
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=False)
+    template = env.get_template("profit_loss.html")
+    html = template.render(
+        figures=figures,
+        narrative=narrative,
+        fmt_money=_fmt_money,
+        organisation_name=org.name,
+        period_start=period_start.strftime("%d %B %Y"),
+        period_end=period_end.strftime("%d %B %Y"),
+        generated_at=datetime.now().strftime("%d %B %Y at %H:%M"),
+        net_positive=figures["net"] >= 0,
+    )
+
+    pdf_bytes = await asyncio.to_thread(_html_to_pdf_sync, html)
+
+    doc_id = uuid.uuid4()
+    db.add(GeneratedDocument(
+        id=doc_id, organisation_id=org_id, template="profit_loss",
+        period_start=period_start, period_end=period_end,
+        ai_model=LLM_MODEL, figures=figures,
+    ))
+    db.add(AuditLog(
+        organisation_id=org_id, action="generate_document",
+        entity_type="generated_document", entity_id=doc_id,
+        new_value={"template": "profit_loss", "period_start": str(period_start), "period_end": str(period_end)},
+        ai_model=LLM_MODEL, ai_explanation="Profit & Loss statement with AI commentary",
+    ))
+    await db.commit()
+
+    metadata = {
+        "document_id": str(doc_id), "template": "profit_loss",
+        "period_start": str(period_start), "period_end": str(period_end),
+        "transaction_count": figures["transaction_count"],
+        "generated_at": datetime.now().isoformat(),
+    }
+    return pdf_bytes, metadata
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# VAT Return Summary
+# ═══════════════════════════════════════════════════════════════════════════════
+
+UK_VAT_RATES = {"OUTPUT2": Decimal("0.20"), "INPUT2": Decimal("0.20"),
+                "ZERORATEDOUTPUT": Decimal("0"), "ZERORATEDINPUT": Decimal("0"),
+                "EXEMPTOUTPUT": Decimal("0"), "EXEMPTINPUT": Decimal("0"),
+                "RRINPUT": Decimal("0.05"), "RROUTPUT": Decimal("0.05")}
+
+
+def _calculate_vat_figures(transactions: list, accounts: list, period_start: date, period_end: date) -> dict:
+    """Estimate VAT from transaction amounts and account tax types."""
+    account_tax_map = {a.id: a.tax_type for a in accounts}
+
+    output_vat = Decimal("0")  # VAT on sales (owed to HMRC)
+    input_vat = Decimal("0")   # VAT on purchases (reclaimable)
+    by_rate: dict[str, dict] = {}
+
+    for t in transactions:
+        tax_type = account_tax_map.get(t.account_id) or ""
+        rate = UK_VAT_RATES.get(tax_type, Decimal("0.20"))  # Default to standard rate
+        rate_key = f"{float(rate * 100):.0f}%"
+
+        if rate_key not in by_rate:
+            by_rate[rate_key] = {"net_sales": Decimal("0"), "net_purchases": Decimal("0"),
+                                 "output_vat": Decimal("0"), "input_vat": Decimal("0")}
+
+        if t.amount > 0:
+            by_rate[rate_key]["net_sales"] += t.amount
+            vat = t.amount * rate
+            by_rate[rate_key]["output_vat"] += vat
+            output_vat += vat
+        elif t.amount < 0:
+            by_rate[rate_key]["net_purchases"] += abs(t.amount)
+            vat = abs(t.amount) * rate
+            by_rate[rate_key]["input_vat"] += vat
+            input_vat += vat
+
+    net_vat = output_vat - input_vat
+
+    rate_breakdown = [
+        {
+            "rate": k,
+            "net_sales": float(v["net_sales"]),
+            "net_purchases": float(v["net_purchases"]),
+            "output_vat": float(v["output_vat"]),
+            "input_vat": float(v["input_vat"]),
+        }
+        for k, v in sorted(by_rate.items(), reverse=True)
+    ]
+
+    return {
+        "output_vat": float(output_vat),
+        "input_vat": float(input_vat),
+        "net_vat": float(net_vat),
+        "net_vat_label": "owed to HMRC" if net_vat >= 0 else "reclaimable from HMRC",
+        "rate_breakdown": rate_breakdown,
+        "transaction_count": len(transactions),
+        "period_start": str(period_start),
+        "period_end": str(period_end),
+    }
+
+
+async def _generate_vat_narrative(figures: dict, org_name: str) -> VatSummaryNarrative:
+    client = instructor.from_anthropic(
+        AsyncAnthropic(api_key=settings.anthropic_api_key)
+    )
+
+    breakdown = "\n".join(
+        f"  - {r['rate']}: sales £{r['net_sales']:,.2f} (output VAT £{r['output_vat']:,.2f}), "
+        f"purchases £{r['net_purchases']:,.2f} (input VAT £{r['input_vat']:,.2f})"
+        for r in figures["rate_breakdown"]
+    ) or "  (no data)"
+
+    prompt = (
+        f"You are a UK VAT specialist preparing a VAT return summary for {org_name}.\n\n"
+        f"Period: {figures['period_start']} to {figures['period_end']}\n"
+        f"Output VAT (on sales): £{figures['output_vat']:,.2f}\n"
+        f"Input VAT (on purchases): £{figures['input_vat']:,.2f}\n"
+        f"Net VAT: £{abs(figures['net_vat']):,.2f} ({figures['net_vat_label']})\n\n"
+        f"Breakdown by rate:\n{breakdown}\n\n"
+        "Write 4 sections (2-3 sentences each):\n"
+        "1. overview: VAT position summary\n"
+        "2. output_vat_commentary: commentary on sales VAT\n"
+        "3. input_vat_commentary: commentary on purchase VAT\n"
+        "4. recommendations: MTD compliance tips or filing reminders for a UK SME\n\n"
+        "Professional tone. Reference HMRC where appropriate."
+    )
+
+    return await client.messages.create(
+        model=LLM_MODEL,
+        max_tokens=1200,
+        messages=[{"role": "user", "content": prompt}],
+        response_model=VatSummaryNarrative,
+    )
+
+
+async def generate_vat_summary(
+    org_id: uuid.UUID,
+    period_start: date,
+    period_end: date,
+    db: AsyncSession,
+) -> tuple[bytes, dict]:
+    """Generate a VAT Return Summary PDF."""
+    from app.models.database import Account
+
+    org_result = await db.execute(select(Organisation).where(Organisation.id == org_id))
+    org = org_result.scalar_one_or_none()
+    if not org:
+        raise ValueError(f"Organisation {org_id} not found")
+
+    tx_result = await db.execute(
+        select(Transaction).where(
+            Transaction.organisation_id == org_id,
+            Transaction.date >= period_start,
+            Transaction.date <= period_end,
+        )
+    )
+    transactions = list(tx_result.scalars().all())
+
+    acc_result = await db.execute(
+        select(Account).where(Account.organisation_id == org_id)
+    )
+    accounts = list(acc_result.scalars().all())
+
+    figures = _calculate_vat_figures(transactions, accounts, period_start, period_end)
+    narrative = await _generate_vat_narrative(figures, org.name)
+
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=False)
+    template = env.get_template("vat_summary.html")
+    html = template.render(
+        figures=figures,
+        narrative=narrative,
+        fmt_money=_fmt_money,
+        organisation_name=org.name,
+        period_start=period_start.strftime("%d %B %Y"),
+        period_end=period_end.strftime("%d %B %Y"),
+        generated_at=datetime.now().strftime("%d %B %Y at %H:%M"),
+    )
+
+    pdf_bytes = await asyncio.to_thread(_html_to_pdf_sync, html)
+
+    doc_id = uuid.uuid4()
+    db.add(GeneratedDocument(
+        id=doc_id, organisation_id=org_id, template="vat_summary",
+        period_start=period_start, period_end=period_end,
+        ai_model=LLM_MODEL, figures=figures,
+    ))
+    db.add(AuditLog(
+        organisation_id=org_id, action="generate_document",
+        entity_type="generated_document", entity_id=doc_id,
+        new_value={"template": "vat_summary", "period_start": str(period_start), "period_end": str(period_end)},
+        ai_model=LLM_MODEL, ai_explanation="VAT Return Summary with AI commentary",
+    ))
+    await db.commit()
+
+    metadata = {
+        "document_id": str(doc_id), "template": "vat_summary",
+        "period_start": str(period_start), "period_end": str(period_end),
+        "transaction_count": figures["transaction_count"],
+        "generated_at": datetime.now().isoformat(),
+    }
     return pdf_bytes, metadata

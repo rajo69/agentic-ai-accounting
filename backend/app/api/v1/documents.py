@@ -11,11 +11,17 @@ from app.models.schemas import (
     DocumentGenerateRequest,
     GeneratedDocumentRead,
 )
-from app.services.document_service import generate_management_letter
+from app.services import document_service
 
 router = APIRouter(prefix="/api/v1", tags=["documents"])
 
-SUPPORTED_TEMPLATES = {"management_letter"}
+SUPPORTED_TEMPLATES = {"management_letter", "profit_loss", "vat_summary"}
+
+_GENERATOR_NAMES = {
+    "management_letter": "generate_management_letter",
+    "profit_loss": "generate_profit_loss",
+    "vat_summary": "generate_vat_summary",
+}
 
 
 @router.post("/documents/generate")
@@ -33,8 +39,9 @@ async def generate_document(
     if request.period_start > request.period_end:
         raise HTTPException(status_code=400, detail="period_start must be before period_end")
 
+    generator = getattr(document_service, _GENERATOR_NAMES[request.template])
     try:
-        pdf_bytes, metadata = await generate_management_letter(
+        pdf_bytes, metadata = await generator(
             org_id=org.id,
             period_start=request.period_start,
             period_end=request.period_end,
@@ -43,7 +50,7 @@ async def generate_document(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Document generation failed: {exc}") from exc
 
-    filename = f"management_letter_{request.period_start}_{request.period_end}.pdf"
+    filename = f"{request.template}_{request.period_start}_{request.period_end}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

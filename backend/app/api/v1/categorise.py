@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.categoriser import categorise_batch
+from app.core.cache import cache_delete_pattern, dashboard_key
 from app.core.database import get_db
 from app.core.session import get_current_org
 from app.models.database import Account, AuditLog, Organisation, Transaction
@@ -31,7 +32,9 @@ async def trigger_categorise(
     db: AsyncSession = Depends(get_db),
 ):
     """Run AI categorisation on all uncategorised transactions."""
-    return await categorise_batch(org.id, db)
+    result = await categorise_batch(org.id, db)
+    await cache_delete_pattern(dashboard_key(org.id))
+    return result
 
 
 @router.get("/transactions", response_model=TransactionListResponse)

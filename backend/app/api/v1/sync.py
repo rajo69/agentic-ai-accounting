@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
+from app.core.cache import cache_delete_pattern, dashboard_key
 from app.core.database import get_db
 from app.core.session import get_current_org
 from app.integrations.xero_adapter import XeroAdapter
@@ -22,6 +23,7 @@ async def trigger_sync(
         result = await adapter.full_sync(db)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Xero sync failed: {exc}") from exc
+    await cache_delete_pattern(dashboard_key(org.id))
     return result
 
 

@@ -163,8 +163,9 @@ async def test_generate_document_happy_path():
 
     app.dependency_overrides[get_current_org] = lambda: fake_org
     try:
-        with patch(
-            "app.api.v1.documents.generate_management_letter",
+        with patch.object(
+            __import__("app.services.document_service", fromlist=["generate_management_letter"]),
+            "generate_management_letter",
             new=AsyncMock(
                 return_value=(
                     fake_pdf,

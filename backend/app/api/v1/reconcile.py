@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.cache import cache_delete_pattern, dashboard_key
 from app.agents.reconciler import (
     compute_amount_score,
     compute_combined_score,
@@ -40,7 +41,9 @@ async def trigger_reconcile(
     db: AsyncSession = Depends(get_db),
 ):
     """Run AI reconciliation on all unmatched bank statements."""
-    return await reconcile_batch(org.id, db)
+    result = await reconcile_batch(org.id, db)
+    await cache_delete_pattern(dashboard_key(org.id))
+    return result
 
 
 @router.get("/bank-statements", response_model=BankStatementListResponse)
