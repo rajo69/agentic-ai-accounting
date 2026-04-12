@@ -24,6 +24,7 @@ from app.models.database import (
     AuditLog,
     BankStatement,
     GeneratedDocument,
+    Job,
     Organisation,
     Transaction,
     User,
@@ -132,6 +133,7 @@ async def erase_data(
     org_id = org.id
 
     await db.execute(delete(AuditLog).where(AuditLog.organisation_id == org_id))
+    await db.execute(delete(Job).where(Job.organisation_id == org_id))
     await db.execute(delete(GeneratedDocument).where(GeneratedDocument.organisation_id == org_id))
     await db.execute(delete(BankStatement).where(BankStatement.organisation_id == org_id))
     await db.execute(delete(Transaction).where(Transaction.organisation_id == org_id))

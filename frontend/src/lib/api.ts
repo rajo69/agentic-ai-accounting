@@ -332,3 +332,62 @@ export const generateDocument = (body: {
     body: JSON.stringify(body),
   });
 };
+
+// ── Background jobs ───────────────────────────────────────────────────────────
+
+export interface JobSubmitResponse {
+  job_id: string;
+  status: string;
+  kind: string;
+}
+
+export interface JobRead {
+  id: string;
+  organisation_id: string;
+  kind: string;
+  status: "queued" | "running" | "completed" | "failed";
+  progress_current: number;
+  progress_total: number;
+  result: Record<string, unknown> | null;
+  error: string | null;
+  params: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+}
+
+export const submitCategoriseJob = () =>
+  apiFetch<JobSubmitResponse>("/api/v1/categorise/async", { method: "POST" });
+
+export const submitReconcileJob = () =>
+  apiFetch<JobSubmitResponse>("/api/v1/reconcile/async", { method: "POST" });
+
+export const submitDocumentJob = (body: { template: string; period_start: string; period_end: string }) =>
+  apiFetch<JobSubmitResponse>("/api/v1/documents/generate/async", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const getJob = (jobId: string) =>
+  apiFetch<JobRead>(`/api/v1/jobs/${jobId}`);
+
+/**
+ * Poll a job until it completes or fails. Calls onProgress each tick.
+ * Returns the final Job record. Rejects if the job fails.
+ */
+export async function pollJob(
+  jobId: string,
+  options?: { intervalMs?: number; onProgress?: (job: JobRead) => void; timeoutMs?: number },
+): Promise<JobRead> {
+  const intervalMs = options?.intervalMs ?? 1000;
+  const timeoutMs = options?.timeoutMs ?? 10 * 60 * 1000; // 10 minute default
+  const start = Date.now();
+  for (;;) {
+    const job = await getJob(jobId);
+    options?.onProgress?.(job);
+    if (job.status === "completed") return job;
+    if (job.status === "failed") throw new Error(job.error || "Job failed");
+    if (Date.now() - start > timeoutMs) throw new Error("Job polling timed out");
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+}

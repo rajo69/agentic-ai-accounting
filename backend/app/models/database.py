@@ -141,6 +141,28 @@ class AuditLog(Base):
     )
 
 
+class Job(Base):
+    __tablename__ = "jobs"
+
+    id: Mapped[uuid.UUID] = mapped_column(SA_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    organisation_id: Mapped[uuid.UUID] = mapped_column(SA_UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    kind: Mapped[str] = mapped_column(String(50), nullable=False)  # categorise | reconcile | sync | document
+    status: Mapped[str] = mapped_column(String(50), default="queued", nullable=False)  # queued | running | completed | failed
+    progress_current: Mapped[int] = mapped_column(default=0, nullable=False)
+    progress_total: Mapped[int] = mapped_column(default=0, nullable=False)
+    result: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    params: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        Index("ix_jobs_org_status", "organisation_id", "status"),
+        Index("ix_jobs_created_at", "created_at"),
+    )
+
+
 class GeneratedDocument(Base):
     __tablename__ = "generated_documents"
 
