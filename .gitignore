@@ -33,6 +33,13 @@ htmlcov/
 backend/evals/.cache/
 backend/evals/results/
 
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Playwright
+.playwright/
+
 # OS
 .DS_Store
 Thumbs.db

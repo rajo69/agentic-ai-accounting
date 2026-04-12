@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
+from app.core.cache import cache_get, cache_set, dashboard_key
 from app.core.database import get_db
 from app.core.session import get_current_org
 from app.models.database import Organisation, Account, Transaction, BankStatement
@@ -15,7 +16,11 @@ async def dashboard_summary(
     org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
-    """Return high-level counts for the dashboard."""
+    """Return high-level counts for the dashboard (cached 60s)."""
+    cached = await cache_get(dashboard_key(org.id))
+    if cached:
+        return DashboardSummary(**cached)
+
     total_accounts = await db.scalar(
         select(func.count()).select_from(Account).where(Account.organisation_id == org.id)
     )
@@ -39,7 +44,7 @@ async def dashboard_summary(
         )
     )
 
-    return DashboardSummary(
+    summary = DashboardSummary(
         total_accounts=total_accounts or 0,
         total_transactions=total_transactions or 0,
         uncategorised_count=uncategorised_count or 0,
@@ -47,3 +52,5 @@ async def dashboard_summary(
         last_sync_at=org.last_sync_at,
         organisation_name=org.name,
     )
+    await cache_set(dashboard_key(org.id), summary.model_dump(), ttl_seconds=60)
+    return summary

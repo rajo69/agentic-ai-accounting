@@ -6,6 +6,22 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
+class UserRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    organisation_id: uuid.UUID
+    email: str
+    name: str
+    role: str
+    created_at: datetime
+
+
+class InviteRequest(BaseModel):
+    email: str
+    name: str
+
+
 class OrganisationRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

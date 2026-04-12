@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     xero_redirect_uri: str = "http://localhost:8000/auth/xero/callback"
     anthropic_api_key: str = ""
     frontend_url: str = "http://localhost:3000"
+    xero_webhook_key: str = ""
 
 
 settings = Settings()
