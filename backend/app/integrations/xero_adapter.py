@@ -30,7 +30,8 @@ XERO_SCOPES = (
     "accounting.invoices "
     "accounting.contacts.read "
     "accounting.contacts "
-    "accounting.settings.read"
+    "accounting.settings.read "
+    "accounting.transactions.read"
 )
 
 
@@ -361,6 +362,77 @@ class XeroAdapter:
                         tx.date = tx_date
                         tx.amount = amount
                         tx.description = description
+                    count += 1
+
+                await db.commit()
+
+                if len(items) < 100:
+                    break
+                page += 1
+
+        # Also pull Payments (captures bank-feed payment records not in BankTransactions)
+        page = 1
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            while True:
+                data = await self._get_with_retry(
+                    client,
+                    f"{XERO_API_BASE}/Payments",
+                    headers,
+                    params={"page": page},
+                )
+                items = data.get("Payments", [])
+                if not items:
+                    break
+
+                for item in items:
+                    if item.get("Status") == "DELETED":
+                        continue
+
+                    xero_id = f"pay-{item['PaymentID']}"
+                    pay_date = _parse_xero_date(item.get("Date"))
+                    if pay_date is None:
+                        continue
+
+                    # Already synced via invoices? Skip duplicates.
+                    invoice_id = item.get("Invoice", {}).get("InvoiceID")
+                    if invoice_id:
+                        existing = await db.execute(
+                            select(Transaction).where(Transaction.xero_id == f"inv-{invoice_id}")
+                        )
+                        if existing.scalar_one_or_none():
+                            continue
+
+                    # Already synced this payment?
+                    existing = await db.execute(
+                        select(Transaction).where(Transaction.xero_id == xero_id)
+                    )
+                    if existing.scalar_one_or_none():
+                        continue
+
+                    contact_name = (
+                        item.get("Invoice", {}).get("Contact", {}).get("Name")
+                        or "Unknown"
+                    )
+                    reference = item.get("Reference") or ""
+                    description = f"Payment: {contact_name}"
+                    if reference:
+                        description = f"Payment: {contact_name} — {reference}"
+
+                    amount = Decimal(str(item.get("Amount", 0)))
+                    pay_type = item.get("PaymentType", "")
+                    invoice_type = item.get("Invoice", {}).get("Type", "")
+                    if invoice_type == "ACCPAY" or pay_type == "ACCPAYPAYMENT":
+                        amount = -abs(amount)
+
+                    tx = Transaction(
+                        organisation_id=self.organisation.id,
+                        xero_id=xero_id,
+                        date=pay_date,
+                        amount=amount,
+                        description=description,
+                        reference=reference or None,
+                    )
+                    db.add(tx)
                     count += 1
 
                 await db.commit()
