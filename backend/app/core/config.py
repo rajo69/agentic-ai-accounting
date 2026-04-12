@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     xero_webhook_key: str = ""
     sentry_dsn: str = ""
     environment: str = "development"
+    resend_api_key: str = ""
+    email_from: str = "AI Accountant <noreply@example.com>"
 
 
 settings = Settings()

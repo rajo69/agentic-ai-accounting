@@ -333,6 +333,41 @@ export const generateDocument = (body: {
   });
 };
 
+// ── Team management ──────────────────────────────────────────────────────────
+
+export interface TeamMember {
+  id: string;
+  organisation_id: string;
+  email: string;
+  name: string;
+  role: "owner" | "member";
+  created_at: string;
+}
+
+export interface Me {
+  org_id: string;
+  org_name: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  role: "owner" | "member";
+}
+
+export const getMe = () => apiFetch<Me>("/api/v1/auth/me");
+
+export const listTeam = () => apiFetch<TeamMember[]>("/api/v1/auth/team");
+
+export const inviteMember = (body: { email: string; name: string }) =>
+  apiFetch<TeamMember>("/api/v1/auth/invite", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const removeMember = (userId: string) =>
+  apiFetch<{ status: string; user_id: string }>(`/api/v1/auth/team/${userId}`, {
+    method: "DELETE",
+  });
+
 // ── Background jobs ───────────────────────────────────────────────────────────
 
 export interface JobSubmitResponse {
