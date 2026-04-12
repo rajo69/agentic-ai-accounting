@@ -4,6 +4,7 @@ from sqlalchemy import select, func
 
 from app.core.cache import cache_delete_pattern, dashboard_key
 from app.core.database import get_db
+from app.core.observability import capture_exception
 from app.core.session import get_current_org
 from app.integrations.xero_adapter import XeroAdapter
 from app.models.database import Organisation, Account, Transaction, BankStatement
@@ -22,6 +23,7 @@ async def trigger_sync(
     try:
         result = await adapter.full_sync(db)
     except Exception as exc:
+        capture_exception(exc, org_id=str(org.id), endpoint="sync")
         raise HTTPException(status_code=502, detail=f"Xero sync failed: {exc}") from exc
     await cache_delete_pattern(dashboard_key(org.id))
     return result

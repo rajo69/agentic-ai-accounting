@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.observability import set_org_context
 from app.models.database import Organisation, User
 
 ALGORITHM = "HS256"
@@ -57,6 +58,7 @@ async def get_current_org(
     if not org:
         raise HTTPException(status_code=401, detail="Organisation not found")
 
+    set_org_context(str(org.id), org.name)
     return org
 
 

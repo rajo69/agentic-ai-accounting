@@ -10,6 +10,7 @@ from sqlalchemy import select
 from app.core.cache import cache_delete_pattern, cache_get, cache_set, dashboard_key
 from app.core.config import settings
 from app.core.database import async_session
+from app.core.observability import capture_exception
 from app.integrations.xero_adapter import XeroAdapter
 from app.models.database import Organisation
 
@@ -61,8 +62,9 @@ async def _background_sync(tenant_id: str) -> None:
                 "Webhook sync complete for org %s: %d accounts, %d transactions, %d statements",
                 org.id, result.synced_accounts, result.synced_transactions, result.synced_bank_statements,
             )
-        except Exception:
+        except Exception as exc:
             logger.exception("Webhook sync failed for org %s", org.id)
+            capture_exception(exc, org_id=str(org.id), source="webhook")
 
 
 @router.post("/webhooks/xero")

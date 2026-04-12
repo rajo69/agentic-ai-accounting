@@ -3,6 +3,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.observability import init_sentry
+
+# Initialise Sentry before anything else so integrations can instrument imports.
+init_sentry()
+
 from app.core.database import engine, Base
 from app.api.v1.health import router as health_router
 from app.api.v1.auth import router as auth_router
