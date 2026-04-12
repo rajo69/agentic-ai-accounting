@@ -9,6 +9,7 @@ import {
   ArrowLeftRight,
   GitCompare,
   FileText,
+  Users,
   Settings,
   BrainCircuit,
   LogOut,
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/reconciliation", label: "Reconciliation", icon: GitCompare },
   { href: "/documents", label: "Documents", icon: FileText },
+  { href: "/team", label: "Team", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings, soon: true },
 ];
 

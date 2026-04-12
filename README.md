@@ -434,6 +434,7 @@ The frontend `/auth/callback` page reads the token from the query string, writes
 | Token encryption | Fernet (from cryptography) | Xero OAuth tokens encrypted at rest with `enc::` prefix for backwards compatibility |
 | Observability | Sentry SDK (FastAPI/Starlette/SQLAlchemy integrations) | Error tracking and 10% perf sampling; graceful no-op without `SENTRY_DSN` |
 | Rate limiting | slowapi | Per-organisation limits keyed on JWT `org_id`; in-memory storage (upgradable to Redis) |
+| Transactional email | Resend (via httpx) | Team invitation emails; graceful no-op without `RESEND_API_KEY` |
 
 ### Frontend
 
@@ -1072,6 +1073,7 @@ Items scoped out of the current build, ordered by likely priority:
 | Background PDF rendering | **Done** — in-process async tasks with DB-tracked job state and polling |
 | Rate limiting to cap Claude costs | **Done** — slowapi with per-organisation limits on expensive endpoints |
 | First-run onboarding | **Done** — OAuth callback auto-triggers a sync job; dashboard polls and shows progress |
+| Team management UI and invite emails | **Done** — `/team` page with invite/remove; Resend-backed emails |
 | Per-organisation confidence threshold tuning | Requires sufficient data to calibrate; post-beta |
 | QuickBooks adapter | Second platform; same architecture, different OAuth2 flow |
 | Stripe billing integration | Post-beta; add when users confirm willingness to pay |
@@ -1114,7 +1116,7 @@ Rules that must survive refactoring and new contributors:
         ├── main.py                  FastAPI app, routers, CORS, lifespan
         ├── core/                    config, database, session/JWT, encryption, cache,
         │                            observability (Sentry), jobs (background tasks),
-        │                            rate_limit (per-org slowapi)
+        │                            rate_limit (per-org slowapi), email (Resend)
         ├── models/                  SQLAlchemy models + Pydantic v2 schemas
         ├── integrations/            xero_adapter.py
         ├── services/                embedding_service.py, document_service.py
@@ -1129,7 +1131,7 @@ frontend/
     └── src/
         ├── middleware.ts            Next.js route protection (redirects to / if has_session cookie absent)
         ├── app/                     page.tsx (landing), dashboard, transactions,
-        │                            reconciliation, documents, auth/callback, privacy
+        │                            reconciliation, documents, team, auth/callback, privacy
         ├── components/              app-shell, sidebar, aurora, explanation-panel,
         │                            gradient-text, fluid-glass-button, shadcn/ui
         └── lib/                     api.ts (fetch wrapper + types), utils.ts
@@ -1138,6 +1140,10 @@ frontend/
 ---
 
 ## Changelog
+
+### v0.2.6 — 2026-04-12
+
+**Team management UI and invite emails** — New `/team` page in the frontend lists all users in the organisation with their role (owner or member), join date, and email. Owners see an "Invite member" button that opens a small form to enter name and email. On submit, a `POST /api/v1/auth/invite` creates the member record and sends an invitation email via Resend (HTML + plain text). Owners can remove members they're not themselves; the owner cannot be removed. New "Team" link added to the sidebar. Email sending is best-effort: if `RESEND_API_KEY` is not set or Resend is down, the invite still succeeds — the email is just skipped with a warning log.
 
 ### v0.2.5 — 2026-04-12
 

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.email import render_invite_email, send_email
 from app.core.jobs import submit_job
 from app.core.session import create_session_token, get_current_org, get_current_user
 from app.integrations.xero_adapter import XeroAdapter
@@ -128,6 +129,21 @@ async def invite_member(
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
+
+    # Send invitation email (best-effort; failure doesn't block the invite).
+    invite_link = f"{settings.frontend_url}/?invited=1"
+    html, text = render_invite_email(
+        inviter_name=user.name,
+        org_name=org.name,
+        invite_link=invite_link,
+    )
+    await send_email(
+        to=body.email,
+        subject=f"You've been invited to join {org.name} on AI Accountant",
+        html=html,
+        text=text,
+    )
+
     return new_user
 
 
