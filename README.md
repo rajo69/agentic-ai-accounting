@@ -2,6 +2,8 @@
 
 ![CI](https://github.com/rajo69/agentic-ai-accounting/actions/workflows/ci.yml/badge.svg)
 
+> **Looking for a quick engineering overview?** See [PORTFOLIO.md](PORTFOLIO.md) for a 5-minute read focused on AI engineering patterns, evaluation results, and production concerns. The README below is the full technical documentation.
+
 A production-grade AI assistant for UK accountants built on top of **Xero**. It automates the three most time-consuming manual tasks in a small accounting practice: transaction categorisation, bank reconciliation, and management letter drafting. Every AI decision is transparent, auditable, and correctable by the human in the loop.
 
 Connect your Xero Account and use it : [Click Here](https://agentic-ai-accounting.vercel.app)
