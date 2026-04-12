@@ -49,9 +49,9 @@ This project is a full-stack implementation of a solution to that problem: an ag
 |---|---|
 | **Transaction categorisation** | LangGraph agent classifies Xero transactions against the chart of accounts using Claude and pgvector few-shot examples drawn from the firm's own history. High-confidence results are applied automatically; uncertain results are surfaced for human review. |
 | **Bank reconciliation** | Algorithmic LangGraph agent matches bank statement lines to transactions by scoring amount, date, and description similarity. Matching is deterministic (no LLM); Claude only writes the human-readable explanation after a match is found. |
-| **Management letter generation** | RAG pipeline computes financial figures in pure Python (no LLM), retrieves relevant transaction context via pgvector, then uses Claude and Instructor to write structured narrative sections. WeasyPrint renders the result as a professional A4 PDF. |
+| **Document generation** | RAG pipeline computes financial figures in pure Python (no LLM), retrieves relevant transaction context via pgvector, then uses Claude and Instructor to write structured narrative sections. WeasyPrint renders the result as a professional A4 PDF. Three templates: Management Letter, Profit & Loss, and VAT Return Summary. |
 | **Explainable AI** | Every AI decision stores feature importances (InterpretML EBM), a custom Mamdani fuzzy logic risk score, and the LLM's own reasoning; all in an immutable audit log. |
-| **Xero integration** | Full OAuth2 flow, automatic token refresh, rate-limit backoff, and incremental sync of accounts, transactions, and bank statements. |
+| **Xero integration** | Full OAuth2 flow, automatic token refresh, rate-limit backoff, incremental sync, and real-time webhook receiver for push-based updates. OAuth tokens encrypted at rest with Fernet. |
 | **Few-shot learning from corrections** | When an accountant corrects a categorisation, the transaction is re-embedded and becomes a training example for future predictions. No fine-tuning required. |
 
 ---
@@ -429,8 +429,9 @@ The frontend `/auth/callback` page reads the token from the query string, writes
 | String matching | RapidFuzz | C-extension reimplementation of fuzzywuzzy; 10 to 100x faster, no GPL licence issues |
 | PDF | WeasyPrint + Jinja2 | HTML/CSS authoring is natural for structured documents; pure Python, no Chromium dependency |
 | HTTP client | httpx (async) | Async-native with identical sync API; HTTP/2 support; standard for modern async Python |
-| Auth | JWT + Xero OAuth2 | Xero identity is the login identity in MVP; no separate user table |
-| Cache | Redis | Optional; used for session state and future API response caching |
+| Auth | JWT + Xero OAuth2 | JWT carries `user_id` + `org_id`; multi-user with owner/member roles |
+| Cache | Redis | Dashboard summary cache (60s TTL); webhook sync debounce; graceful fallback if unavailable |
+| Token encryption | Fernet (from cryptography) | Xero OAuth tokens encrypted at rest with `enc::` prefix for backwards compatibility |
 
 ### Frontend
 
@@ -457,14 +458,20 @@ The frontend `/auth/callback` page reads the token from the query string, writes
 
 ## Database schema
 
-Six tables. All data queries are scoped by `organisation_id`; there is no route that returns data across organisations.
+Seven tables. All data queries are scoped by `organisation_id`; there is no route that returns data across organisations.
 
 ```
 organisations
   id (UUID PK)
   name, xero_tenant_id (UNIQUE)
-  xero_access_token, xero_refresh_token, xero_token_expires_at
+  xero_access_token, xero_refresh_token, xero_token_expires_at   <- Fernet-encrypted at rest
   last_sync_at, created_at, updated_at
+
+users                              <- multi-user support within an organisation
+  id (UUID PK), organisation_id (FK)
+  email (UNIQUE), name
+  role                             <- owner | member
+  created_at
 
 accounts                           <- chart of accounts, synced from Xero
   id, organisation_id (FK)
@@ -521,17 +528,26 @@ generated_documents
 GET  /health                                  Service status (no auth required)
 ```
 
-### Auth and data
+### Auth, team management, and data
 
 ```
 GET  /auth/xero/connect                       Redirect to Xero OAuth2
-GET  /auth/xero/callback?code=...             Exchange code for JWT session
-GET  /api/v1/auth/me                          Current org (requires JWT)
+GET  /auth/xero/callback?code=...             Exchange code for JWT session; creates owner user
+GET  /api/v1/auth/me                          Current user + org (requires JWT)
 POST /api/v1/auth/logout                      Clear session
+GET  /api/v1/auth/team                        List all users in the organisation
+POST /api/v1/auth/invite                      Invite a member (owner only; body: email, name)
+DELETE /api/v1/auth/team/{user_id}            Remove a member (owner only)
 
 POST /api/v1/sync                             Full Xero sync (accounts + transactions + statements)
 GET  /api/v1/sync/status                      Last sync timestamp, row counts
-GET  /api/v1/dashboard/summary                Aggregate stats
+GET  /api/v1/dashboard/summary                Aggregate stats (cached 60s in Redis)
+```
+
+### Webhooks
+
+```
+POST /api/v1/webhooks/xero                    Xero webhook receiver (HMAC-SHA256 signature verification)
 ```
 
 ### Categorisation
@@ -562,6 +578,8 @@ POST /api/v1/bank-statements/{id}/match       Manually match to a specific trans
 ```
 POST /api/v1/documents/generate               Generate PDF (body: template, period_start, period_end)
 GET  /api/v1/documents                        List previously generated documents
+
+Supported templates: management_letter, profit_loss, vat_summary
 ```
 
 ### GDPR
@@ -700,6 +718,7 @@ SECRET_KEY=change-me-in-production
 XERO_CLIENT_ID=
 XERO_CLIENT_SECRET=
 XERO_REDIRECT_URI=http://localhost:8000/auth/xero/callback
+XERO_WEBHOOK_KEY=                                                    # optional; from Xero developer portal
 ANTHROPIC_API_KEY=
 FRONTEND_URL=http://localhost:3000
 ```
@@ -718,6 +737,8 @@ pytest tests/test_categorise.py       # categorisation agent (mocked Claude)
 pytest tests/test_reconcile.py        # reconciliation scoring + Decimal edge cases
 pytest tests/test_documents.py        # document generation
 pytest tests/test_xai.py              # fuzzy engine + EBM explainer
+pytest tests/test_encryption.py      # Fernet token encryption + legacy fallback
+pytest tests/test_webhooks.py        # Xero webhook signature verification
 
 cd frontend
 npm run lint
@@ -796,7 +817,7 @@ The product handles financial data on behalf of UK accounting firms. The followi
 | Data minimisation | Article 5(1)(c) | Xero OAuth tokens are excluded from exports; embedding vectors are excluded as derived, non-personal data |
 | Security of processing | Article 32 | All data routes require Bearer JWT scoped to `organisation_id`; CORS restricts allowed HTTP methods and headers |
 
-**Known gaps before production use**: OAuth tokens are currently stored in plaintext (acceptable for beta; must be AES-encrypted before handling regulated client data). There is no automated data retention policy; old audit logs are retained indefinitely.
+**Known gaps before production use**: There is no automated data retention policy; old audit logs are retained indefinitely.
 
 ---
 
@@ -1004,11 +1025,7 @@ These are genuine current limitations, not caveats to dismiss:
 
 **Xero sync is full-page, not incremental.** `sync_transactions()` fetches all pages on every sync. This is acceptable for SMEs but will be slow for organisations with thousands of transactions. `If-Modified-Since` incremental sync is designed but not yet implemented.
 
-**OAuth tokens are stored in plaintext.** Acceptable for local development and early beta, but must be encrypted at rest (application-level AES or Railway's encryption at rest) before handling production client data.
-
 **JWT is stored in localStorage, not a secure httpOnly cookie.** The session token is written to `localStorage` in the browser, making it accessible to JavaScript and therefore to any XSS payload. For MVP with a limited beta audience this is an acceptable trade-off. Before handling regulated client data, the auth flow should be updated to store the token in a `Secure; HttpOnly; SameSite=Strict` cookie and remove it from `localStorage` entirely.
-
-**Single tenant per Xero organisation.** One Xero firm equals one tenant. Multi-user access within a firm is not implemented. All queries are scoped to `organisation_id` only; user-level permissions within an organisation are post-beta.
 
 **EBM requires 50 or more labelled samples.** Below this threshold, Layer 2 (feature importance) falls back to the LLM's reasoning text. New organisations will rely solely on Layers 1 and 3 (LLM reasoning and fuzzy risk) until sufficient data accumulates.
 
@@ -1022,17 +1039,19 @@ These are genuine current limitations, not caveats to dismiss:
 
 Items scoped out of the current build, ordered by likely priority:
 
-| Item | Reason not built yet |
+| Item | Status |
 |---|---|
+| Token encryption at rest | **Done** — Fernet encryption with backwards-compatible `enc::` prefix |
+| Redis caching | **Done** — Dashboard summary cached 60s; webhook debounce |
+| Xero webhooks | **Done** — Real-time sync via HMAC-SHA256 signed webhook receiver |
+| Multi-user within an organisation | **Done** — User model with owner/member roles; invite, list, remove endpoints |
+| Additional document templates | **Done** — Profit & Loss and VAT Return Summary added |
 | Incremental Xero sync (`If-Modified-Since`) | Not needed at MVP scale; adds complexity |
 | Per-organisation confidence threshold tuning | Requires sufficient data to calibrate; post-beta |
 | QuickBooks adapter | Second platform; same architecture, different OAuth2 flow |
-| Token encryption at rest | Planned for pre-beta; currently plaintext in dev |
 | Stripe billing integration | Post-beta; add when users confirm willingness to pay |
-| Multi-user within an organisation | Post-beta; user table + RBAC middleware |
 | Background PDF rendering | Needed at scale; move WeasyPrint to Celery worker |
 | GDPR formal compliance audit | Basic data export and erasure endpoints are implemented; formal ICO registration and DPA review are post-revenue |
-| Additional document templates | Tax letters, VAT returns; build based on user requests |
 | Fine-tuning on categorisation corrections | Potential accuracy improvement; expensive; evaluate after sufficient data |
 
 ---
@@ -1065,18 +1084,19 @@ Rules that must survive refactoring and new contributors:
     ├── pyproject.toml
     ├── Dockerfile
     ├── Procfile                     Railway deployment command
-    ├── alembic/                     4 migrations (schema, embedding resize, documents)
+    ├── alembic/                     5 migrations (schema, embedding resize, documents, users)
     └── app/
         ├── main.py                  FastAPI app, routers, CORS, lifespan
-        ├── core/                    config, database, session/JWT
+        ├── core/                    config, database, session/JWT, encryption, cache
         ├── models/                  SQLAlchemy models + Pydantic v2 schemas
         ├── integrations/            xero_adapter.py
         ├── services/                embedding_service.py, document_service.py
         ├── agents/                  categoriser.py, reconciler.py (LangGraph)
         ├── xai/                     explainer.py (EBM), fuzzy_engine.py (custom Mamdani)
         ├── api/v1/                  health, auth, sync, dashboard, categorise,
-        │                            reconcile, documents, explanations, gdpr
-        ├── templates/               management_letter.html (Jinja2 + WeasyPrint)
+        │                            reconcile, documents, explanations, gdpr, webhooks
+        ├── templates/               management_letter.html, profit_loss.html,
+        │                            vat_summary.html (Jinja2 + WeasyPrint)
         └── tests/ + evals/          test suite + evaluation harness
 frontend/
     └── src/
@@ -1087,6 +1107,24 @@ frontend/
         │                            gradient-text, fluid-glass-button, shadcn/ui
         └── lib/                     api.ts (fetch wrapper + types), utils.ts
 ```
+
+---
+
+## Changelog
+
+### v0.2.0 — 2026-04-12
+
+Five production-readiness improvements, all backwards-compatible with the existing deployed app.
+
+**Token encryption** — Xero OAuth access and refresh tokens are now Fernet-encrypted at rest in the database. Uses an `enc::` prefix to distinguish encrypted values from legacy plaintext, so existing tokens continue to work and get encrypted on next refresh. Key is derived from `SECRET_KEY` via SHA-256.
+
+**Redis caching** — Dashboard summary endpoint is cached for 60 seconds per organisation, invalidated automatically after sync, categorise, or reconcile operations. The cache layer degrades gracefully: if Redis is unavailable or the package is not installed, the app works identically without caching.
+
+**Xero webhooks** — New `POST /api/v1/webhooks/xero` endpoint receives push notifications from Xero when bank transactions change. Validates the HMAC-SHA256 signature against `XERO_WEBHOOK_KEY`, then triggers a background sync for the affected organisation. Debounced via Redis to prevent multiple syncs within 60 seconds.
+
+**Multi-user support** — New `users` table with `owner` and `member` roles. The Xero OAuth callback creates an owner user automatically. JWT now carries `user_id` alongside `org_id`. New endpoints: `GET /api/v1/auth/team`, `POST /api/v1/auth/invite` (owner only), `DELETE /api/v1/auth/team/{id}` (owner only). Old tokens without `user_id` fall back to the org owner for backwards compatibility. GDPR export and erase updated to include user records.
+
+**Extra document templates** — Added Profit & Loss statement and VAT Return Summary alongside the existing Management Letter. Each template has its own figure calculator (pure Python) and LLM narrative model (Claude Sonnet via Instructor). The frontend documents page now shows a template selector. VAT calculations use account tax types from Xero to split by UK VAT rate.
 
 ---
 
