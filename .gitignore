@@ -37,6 +37,9 @@ backend/evals/results/
 .claude/
 CLAUDE.md
 
+# Local setup notes (contains deploy-specific instructions)
+SETUP.txt
+
 # Playwright
 .playwright/
 
