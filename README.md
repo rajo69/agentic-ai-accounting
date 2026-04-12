@@ -1071,6 +1071,7 @@ Items scoped out of the current build, ordered by likely priority:
 | Error tracking and observability | **Done** — Sentry SDK with FastAPI / SQLAlchemy integrations |
 | Background PDF rendering | **Done** — in-process async tasks with DB-tracked job state and polling |
 | Rate limiting to cap Claude costs | **Done** — slowapi with per-organisation limits on expensive endpoints |
+| First-run onboarding | **Done** — OAuth callback auto-triggers a sync job; dashboard polls and shows progress |
 | Per-organisation confidence threshold tuning | Requires sufficient data to calibrate; post-beta |
 | QuickBooks adapter | Second platform; same architecture, different OAuth2 flow |
 | Stripe billing integration | Post-beta; add when users confirm willingness to pay |
@@ -1137,6 +1138,10 @@ frontend/
 ---
 
 ## Changelog
+
+### v0.2.5 — 2026-04-12
+
+**First-run onboarding** — When a new organisation completes Xero OAuth, the callback now auto-submits an initial sync as a background job and passes the `job_id` through to the frontend via a query parameter. The auth callback page stashes it in `sessionStorage`, and the dashboard polls the job on first load, displaying "Importing your Xero data…" with progress updates and a success toast when done. The first-run banner switches to a "Setting up your account…" state while the sync runs. If the auto-sync fails, the user sees a clear toast and the manual Sync button still works. Only triggers on first connection (`last_sync_at is None`), so existing orgs aren't disturbed.
 
 ### v0.2.4 — 2026-04-12
 

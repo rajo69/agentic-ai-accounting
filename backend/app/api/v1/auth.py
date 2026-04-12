@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.jobs import submit_job
 from app.core.session import create_session_token, get_current_org, get_current_user
 from app.integrations.xero_adapter import XeroAdapter
 from app.models.database import Organisation, User
@@ -46,10 +47,24 @@ async def xero_callback(code: str, db: AsyncSession = Depends(get_db)):
         await db.refresh(user)
 
     token = create_session_token(org.id, org.name, user_id=user.id)
-    return RedirectResponse(
-        url=f"{settings.frontend_url}/auth/callback?token={token}",
-        status_code=302,
-    )
+
+    # First-run onboarding: auto-trigger a sync so the user doesn't land on an
+    # empty dashboard. Runs in the background so the redirect is instant.
+    # Only for first-time connections — existing orgs have last_sync_at set.
+    first_sync_job_id = None
+    if org.last_sync_at is None:
+        try:
+            from app.api.v1.jobs import _sync_job
+            sync_job = await submit_job(db, org.id, "sync", _sync_job)
+            first_sync_job_id = str(sync_job.id)
+        except Exception:
+            # If the job system is down, just skip — user can click Sync manually.
+            pass
+
+    redirect_url = f"{settings.frontend_url}/auth/callback?token={token}"
+    if first_sync_job_id:
+        redirect_url += f"&first_sync_job={first_sync_job_id}"
+    return RedirectResponse(url=redirect_url, status_code=302)
 
 
 @router.get("/api/v1/auth/me")

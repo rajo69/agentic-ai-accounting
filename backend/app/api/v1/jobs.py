@@ -71,6 +71,21 @@ async def list_jobs(
 
 # ── Async job wrappers for the AI operations ─────────────────────────────────
 
+async def _sync_job(db, org_id, progress, params):
+    """Run a full Xero sync. Used for first-run onboarding after OAuth."""
+    from app.integrations.xero_adapter import XeroAdapter
+
+    org_result = await db.execute(select(Organisation).where(Organisation.id == org_id))
+    org = org_result.scalar_one_or_none()
+    if not org:
+        raise ValueError(f"Organisation {org_id} not found")
+
+    adapter = XeroAdapter(org)
+    result = await adapter.full_sync(db)
+    await cache_delete_pattern(dashboard_key(org_id))
+    return result.model_dump()
+
+
 async def _categorise_job(db, org_id, progress, params):
     """Wrap categorise_batch to match the JobFunc signature."""
     response = await categorise_batch(org_id, db)
