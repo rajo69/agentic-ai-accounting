@@ -47,6 +47,34 @@ def test_get_auth_url_contains_required_params():
     assert "response_type=code" in url
 
 
+def test_api_headers_no_since_omits_if_modified_since():
+    """First sync (since=None) should not include If-Modified-Since header."""
+    org = _make_org()
+    adapter = XeroAdapter(org)
+    headers = adapter._api_headers("tok_access")
+    assert "If-Modified-Since" not in headers
+
+
+def test_api_headers_with_since_includes_rfc1123_date():
+    """Incremental sync should include a correctly formatted If-Modified-Since header."""
+    org = _make_org()
+    adapter = XeroAdapter(org)
+    # 2026-04-12 15:30:00 UTC
+    since = datetime(2026, 4, 12, 15, 30, 0, tzinfo=timezone.utc)
+    headers = adapter._api_headers("tok_access", since=since)
+    assert "If-Modified-Since" in headers
+    assert headers["If-Modified-Since"] == "Sun, 12 Apr 2026 15:30:00 GMT"
+
+
+def test_api_headers_naive_datetime_treated_as_utc():
+    """Timezone-naive datetimes should be treated as UTC to avoid silent drift."""
+    org = _make_org()
+    adapter = XeroAdapter(org)
+    since = datetime(2026, 4, 12, 15, 30, 0)  # naive
+    headers = adapter._api_headers("tok_access", since=since)
+    assert headers["If-Modified-Since"] == "Sun, 12 Apr 2026 15:30:00 GMT"
+
+
 def test_parse_xero_date_ms_format():
     # 2021-01-01 00:00:00 UTC = 1609459200000 ms
     result = _parse_xero_date("/Date(1609459200000+0000)/")
