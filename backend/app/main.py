@@ -21,6 +21,8 @@ from app.api.v1.gdpr import router as gdpr_router
 from app.api.v1.webhooks import router as webhooks_router
 from app.api.v1.jobs import router as jobs_router
 from app.core.jobs import mark_stale_jobs_failed
+from app.core.rate_limit import limiter, rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 import app.models.database  # noqa: F401 — ensure models are registered
 
 
@@ -38,6 +40,10 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="AI Accountant", version="0.1.0", lifespan=lifespan)
+
+# Rate limiting — attach limiter state and the 429 exception handler.
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,

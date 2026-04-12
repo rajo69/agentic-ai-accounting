@@ -10,7 +10,7 @@ kept for backwards compatibility — the async variants are opt-in.
 from typing import Callable
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +19,7 @@ from app.agents.reconciler import reconcile_batch
 from app.core.cache import cache_delete_pattern, dashboard_key
 from app.core.database import get_db
 from app.core.jobs import submit_job
+from app.core.rate_limit import limiter
 from app.core.session import get_current_org
 from app.models.database import Job, Organisation
 from app.models.schemas import (
@@ -115,7 +116,9 @@ async def _document_job(db, org_id, progress, params):
 
 
 @router.post("/categorise/async", response_model=JobSubmitResponse)
+@limiter.limit("5/minute;120/hour")
 async def submit_categorise_job(
+    request: Request,
     org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
@@ -125,7 +128,9 @@ async def submit_categorise_job(
 
 
 @router.post("/reconcile/async", response_model=JobSubmitResponse)
+@limiter.limit("5/minute;120/hour")
 async def submit_reconcile_job(
+    request: Request,
     org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
@@ -135,8 +140,10 @@ async def submit_reconcile_job(
 
 
 @router.post("/documents/generate/async", response_model=JobSubmitResponse)
+@limiter.limit("3/minute;30/hour")
 async def submit_document_job(
-    request: DocumentGenerateRequest,
+    request: Request,
+    body: DocumentGenerateRequest,
     org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
@@ -145,13 +152,13 @@ async def submit_document_job(
     The generated PDF is stored in the database via GeneratedDocument. The
     client fetches it via GET /api/v1/documents after the job completes.
     """
-    if request.period_start > request.period_end:
+    if body.period_start > body.period_end:
         raise HTTPException(status_code=400, detail="period_start must be before period_end")
 
     params = {
-        "template": request.template,
-        "period_start": request.period_start.isoformat(),
-        "period_end": request.period_end.isoformat(),
+        "template": body.template,
+        "period_start": body.period_start.isoformat(),
+        "period_end": body.period_end.isoformat(),
     }
     job = await submit_job(db, org.id, "document", _document_job, params=params)
     return JobSubmitResponse(job_id=job.id, status=job.status, kind=job.kind)

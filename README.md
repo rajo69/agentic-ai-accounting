@@ -433,6 +433,7 @@ The frontend `/auth/callback` page reads the token from the query string, writes
 | Cache | Redis | Dashboard summary cache (60s TTL); webhook sync debounce; graceful fallback if unavailable |
 | Token encryption | Fernet (from cryptography) | Xero OAuth tokens encrypted at rest with `enc::` prefix for backwards compatibility |
 | Observability | Sentry SDK (FastAPI/Starlette/SQLAlchemy integrations) | Error tracking and 10% perf sampling; graceful no-op without `SENTRY_DSN` |
+| Rate limiting | slowapi | Per-organisation limits keyed on JWT `org_id`; in-memory storage (upgradable to Redis) |
 
 ### Frontend
 
@@ -1069,6 +1070,7 @@ Items scoped out of the current build, ordered by likely priority:
 | Incremental Xero sync (`If-Modified-Since`) | **Done** — `last_sync_at` drives incremental pulls; HTTP 304 handled |
 | Error tracking and observability | **Done** — Sentry SDK with FastAPI / SQLAlchemy integrations |
 | Background PDF rendering | **Done** — in-process async tasks with DB-tracked job state and polling |
+| Rate limiting to cap Claude costs | **Done** — slowapi with per-organisation limits on expensive endpoints |
 | Per-organisation confidence threshold tuning | Requires sufficient data to calibrate; post-beta |
 | QuickBooks adapter | Second platform; same architecture, different OAuth2 flow |
 | Stripe billing integration | Post-beta; add when users confirm willingness to pay |
@@ -1110,7 +1112,8 @@ Rules that must survive refactoring and new contributors:
     └── app/
         ├── main.py                  FastAPI app, routers, CORS, lifespan
         ├── core/                    config, database, session/JWT, encryption, cache,
-        │                            observability (Sentry), jobs (background tasks)
+        │                            observability (Sentry), jobs (background tasks),
+        │                            rate_limit (per-org slowapi)
         ├── models/                  SQLAlchemy models + Pydantic v2 schemas
         ├── integrations/            xero_adapter.py
         ├── services/                embedding_service.py, document_service.py
@@ -1134,6 +1137,18 @@ frontend/
 ---
 
 ## Changelog
+
+### v0.2.4 — 2026-04-12
+
+**Per-organisation rate limiting** — The expensive endpoints (`POST /sync`, `POST /categorise`, `POST /reconcile`, `POST /documents/generate`, and their `/async` variants) now enforce rate limits keyed on the Bearer token's `org_id`. Limits are tuned to allow legitimate testing while preventing runaway Claude API costs from a buggy client or retry storm.
+
+Limits applied:
+- `POST /sync`: 5/minute (Xero already rate limits at 60/min upstream)
+- `POST /categorise` and `/async`: 5/minute, 120/hour
+- `POST /reconcile` and `/async`: 5/minute, 120/hour
+- `POST /documents/generate` and `/async`: 3/minute, 30/hour
+
+A clean 429 response with `Retry-After: 60` header and a JSON body explaining the limit is returned when exceeded. Unauthenticated requests (e.g. the webhook endpoint) fall back to per-IP keying. Currently uses in-memory storage — upgrade path to Redis backend is one line in `app/core/rate_limit.py` if the app scales to multiple Railway replicas.
 
 ### v0.2.3 — 2026-04-12
 

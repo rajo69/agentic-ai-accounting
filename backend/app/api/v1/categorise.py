@@ -4,13 +4,14 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.categoriser import categorise_batch
 from app.core.cache import cache_delete_pattern, dashboard_key
 from app.core.database import get_db
+from app.core.rate_limit import limiter
 from app.core.session import get_current_org
 from app.models.database import Account, AuditLog, Organisation, Transaction
 from app.models.schemas import (
@@ -27,7 +28,9 @@ router = APIRouter(prefix="/api/v1", tags=["categorise"])
 
 
 @router.post("/categorise", response_model=BatchCategoriseResponse)
+@limiter.limit("5/minute;120/hour")
 async def trigger_categorise(
+    request: Request,
     org: Organisation = Depends(get_current_org),
     db: AsyncSession = Depends(get_db),
 ):
