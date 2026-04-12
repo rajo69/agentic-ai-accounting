@@ -5,15 +5,16 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import Sidebar from "@/components/sidebar";
+import ErrorBoundary from "@/components/error-boundary";
 
-const APP_ROUTES = ["/dashboard", "/transactions", "/reconciliation", "/documents", "/settings"];
+const APP_ROUTES = ["/dashboard", "/transactions", "/reconciliation", "/documents", "/team", "/settings"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const showSidebar = APP_ROUTES.some((r) => pathname.startsWith(r));
 
-  if (!showSidebar) return <>{children}</>;
+  if (!showSidebar) return <ErrorBoundary>{children}</ErrorBoundary>;
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
@@ -38,7 +39,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </Sheet>
 
       <main className="flex-1 overflow-y-auto bg-slate-50">
-        <div className="min-h-full p-4 md:p-8 pt-16 md:pt-8">{children}</div>
+        <div className="min-h-full p-4 md:p-8 pt-16 md:pt-8">
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </div>
       </main>
     </div>
   );
