@@ -432,6 +432,7 @@ The frontend `/auth/callback` page reads the token from the query string, writes
 | Auth | JWT + Xero OAuth2 | JWT carries `user_id` + `org_id`; multi-user with owner/member roles |
 | Cache | Redis | Dashboard summary cache (60s TTL); webhook sync debounce; graceful fallback if unavailable |
 | Token encryption | Fernet (from cryptography) | Xero OAuth tokens encrypted at rest with `enc::` prefix for backwards compatibility |
+| Observability | Sentry SDK (FastAPI/Starlette/SQLAlchemy integrations) | Error tracking and 10% perf sampling; graceful no-op without `SENTRY_DSN` |
 
 ### Frontend
 
@@ -721,6 +722,8 @@ XERO_REDIRECT_URI=http://localhost:8000/auth/xero/callback
 XERO_WEBHOOK_KEY=                                                    # optional; from Xero developer portal
 ANTHROPIC_API_KEY=
 FRONTEND_URL=http://localhost:3000
+SENTRY_DSN=                                                          # optional; from sentry.io project settings
+ENVIRONMENT=development                                              # development | production
 ```
 
 ---
@@ -1023,8 +1026,6 @@ These are genuine current limitations, not caveats to dismiss:
 
 **Fuzzy risk scoring uses heuristic input normalisation.** `vendor_frequency` is normalised by dividing raw count by 20 (i.e., 20 or more appearances = "frequent"). This cap is arbitrary and may not fit all organisation sizes. A firm with 5,000 transactions per month will have different frequency distributions than one with 200.
 
-**Xero sync is full-page, not incremental.** `sync_transactions()` fetches all pages on every sync. This is acceptable for SMEs but will be slow for organisations with thousands of transactions. `If-Modified-Since` incremental sync is designed but not yet implemented.
-
 **JWT is stored in localStorage, not a secure httpOnly cookie.** The session token is written to `localStorage` in the browser, making it accessible to JavaScript and therefore to any XSS payload. For MVP with a limited beta audience this is an acceptable trade-off. Before handling regulated client data, the auth flow should be updated to store the token in a `Secure; HttpOnly; SameSite=Strict` cookie and remove it from `localStorage` entirely.
 
 **EBM requires 50 or more labelled samples.** Below this threshold, Layer 2 (feature importance) falls back to the LLM's reasoning text. New organisations will rely solely on Layers 1 and 3 (LLM reasoning and fuzzy risk) until sufficient data accumulates.
@@ -1046,7 +1047,8 @@ Items scoped out of the current build, ordered by likely priority:
 | Xero webhooks | **Done** — Real-time sync via HMAC-SHA256 signed webhook receiver |
 | Multi-user within an organisation | **Done** — User model with owner/member roles; invite, list, remove endpoints |
 | Additional document templates | **Done** — Profit & Loss and VAT Return Summary added |
-| Incremental Xero sync (`If-Modified-Since`) | Not needed at MVP scale; adds complexity |
+| Incremental Xero sync (`If-Modified-Since`) | **Done** — `last_sync_at` drives incremental pulls; HTTP 304 handled |
+| Error tracking and observability | **Done** — Sentry SDK with FastAPI / SQLAlchemy integrations |
 | Per-organisation confidence threshold tuning | Requires sufficient data to calibrate; post-beta |
 | QuickBooks adapter | Second platform; same architecture, different OAuth2 flow |
 | Stripe billing integration | Post-beta; add when users confirm willingness to pay |
@@ -1111,6 +1113,16 @@ frontend/
 ---
 
 ## Changelog
+
+### v0.2.2 — 2026-04-12
+
+**Sentry error tracking** — New `app/core/observability.py` integrates Sentry SDK with FastAPI, Starlette, and SQLAlchemy. Every authenticated request tags the active `org_id` and `org_name` on subsequent events. Xero sync and webhook background failures are explicitly captured with context. 10% transaction sampling for performance monitoring. Fully no-op if `SENTRY_DSN` is not configured — no crash, no overhead.
+
+**Incremental Xero sync** — `full_sync()` now uses the `If-Modified-Since` HTTP header with the previous `last_sync_at` as the cutoff. Xero returns only records modified since the last successful sync. First sync still pulls everything; subsequent syncs drop from minutes to seconds for large organisations. `last_sync_at` is only updated on success, so interrupted syncs safely resume from the previous checkpoint. `_get_with_retry` handles HTTP 304 Not Modified gracefully.
+
+### v0.2.1 — 2026-04-12
+
+**Xero Payments endpoint sync** — Added a third data source alongside `BankTransactions` and `Invoices`: the `GET /Payments` endpoint. This captures payment records against invoices and bills that the Xero Demo Company (and many real organisations) store as bank feed items — previously these were invisible to the Accounting API and the sync returned 0 transactions. Deduplicates against already-synced invoice records to prevent double-counting. Added the `accounting.transactions.read` OAuth scope; users who connected before this release need to reconnect Xero.
 
 ### v0.2.0 — 2026-04-12
 
