@@ -20,6 +20,7 @@ import {
   submitCategoriseJob,
   submitReconcileJob,
   pollJob,
+  getJob,
   type DashboardSummary,
 } from "@/lib/api";
 import FluidGlassButton from "@/components/fluid-glass-button";
@@ -155,6 +156,48 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => { fetchSummary(); }, [fetchSummary]);
+
+  // First-run onboarding: if we were redirected here from OAuth with an
+  // initial sync job queued, poll it and show progress.
+  useEffect(() => {
+    const jobId = typeof window !== "undefined"
+      ? sessionStorage.getItem("first_sync_job_id")
+      : null;
+    if (!jobId) return;
+    sessionStorage.removeItem("first_sync_job_id");
+
+    (async () => {
+      const tid = toast.loading("Importing your Xero data… this may take a minute.");
+      setSyncing(true);
+      try {
+        // Intermediate progress checks — useful for a long sync
+        const intervalId = setInterval(async () => {
+          try {
+            const j = await getJob(jobId);
+            if (j.status === "running" && j.progress_total > 0) {
+              toast.loading(
+                `Importing… ${j.progress_current} / ${j.progress_total}`,
+                { id: tid },
+              );
+            }
+          } catch { /* ignore — pollJob below will surface the real error */ }
+        }, 2000);
+
+        const job = await pollJob(jobId, { intervalMs: 1500 });
+        clearInterval(intervalId);
+        const r = job.result as { synced_accounts?: number; synced_transactions?: number } | null;
+        toast.success(
+          `Welcome! Imported ${r?.synced_accounts ?? 0} accounts and ${r?.synced_transactions ?? 0} transactions from Xero.`,
+          { id: tid },
+        );
+        await fetchSummary();
+      } catch (e) {
+        toast.error(`First sync failed: ${e instanceof Error ? e.message : String(e)}. You can retry with the Sync button.`, { id: tid });
+      } finally {
+        setSyncing(false);
+      }
+    })();
+  }, [fetchSummary]);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -296,13 +339,26 @@ export default function DashboardPage() {
           className="bg-indigo-50 border border-indigo-100 rounded-xl p-5 flex items-start gap-4"
         >
           <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
-            <Sparkles className="w-4 h-4 text-white" />
+            {syncing
+              ? <RefreshCw className="w-4 h-4 text-white animate-spin" />
+              : <Sparkles className="w-4 h-4 text-white" />}
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-indigo-900 text-sm">You&apos;re connected! Run your first sync</p>
-            <p className="text-indigo-600/70 text-xs mt-1">
-              Click &ldquo;Sync with Xero&rdquo; below to import your transactions, then run the AI pipeline.
-            </p>
+            {syncing ? (
+              <>
+                <p className="font-semibold text-indigo-900 text-sm">Setting up your account…</p>
+                <p className="text-indigo-600/70 text-xs mt-1">
+                  We&apos;re importing your Xero data in the background. This usually takes under a minute.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold text-indigo-900 text-sm">You&apos;re connected! Run your first sync</p>
+                <p className="text-indigo-600/70 text-xs mt-1">
+                  Click &ldquo;Sync with Xero&rdquo; below to import your transactions, then run the AI pipeline.
+                </p>
+              </>
+            )}
           </div>
         </motion.div>
       )}

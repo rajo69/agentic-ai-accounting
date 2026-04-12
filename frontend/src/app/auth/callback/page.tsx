@@ -10,10 +10,16 @@ function CallbackHandler() {
 
   useEffect(() => {
     const token = params.get("token");
+    const firstSyncJob = params.get("first_sync_job");
     if (token) {
       localStorage.setItem("session_token", token);
       // Set a plain cookie so the middleware can detect the session
       document.cookie = "has_session=1; path=/; SameSite=Lax; Max-Age=86400";
+      // Pass the initial sync job id through sessionStorage so the dashboard
+      // can poll it and show progress on first load.
+      if (firstSyncJob) {
+        sessionStorage.setItem("first_sync_job_id", firstSyncJob);
+      }
       router.replace("/dashboard");
     } else {
       router.replace("/");
