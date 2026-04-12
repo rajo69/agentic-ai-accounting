@@ -268,3 +268,26 @@ class DocumentGenerateResponse(BaseModel):
     period_end: date
     transaction_count: int
     generated_at: str
+
+
+class JobRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    organisation_id: uuid.UUID
+    kind: str
+    status: str
+    progress_current: int
+    progress_total: int
+    result: Optional[dict] = None
+    error: Optional[str] = None
+    params: Optional[dict] = None
+    created_at: datetime
+    updated_at: datetime
+    completed_at: Optional[datetime] = None
+
+
+class JobSubmitResponse(BaseModel):
+    job_id: uuid.UUID
+    status: str
+    kind: str

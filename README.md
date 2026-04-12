@@ -459,7 +459,7 @@ The frontend `/auth/callback` page reads the token from the query string, writes
 
 ## Database schema
 
-Seven tables. All data queries are scoped by `organisation_id`; there is no route that returns data across organisations.
+Eight tables. All data queries are scoped by `organisation_id`; there is no route that returns data across organisations.
 
 ```
 organisations
@@ -511,6 +511,15 @@ generated_documents
   template, period_start, period_end
   ai_model, figures (JSONB)
   generated_at
+
+jobs                               <- background job tracking
+  id, organisation_id (FK)
+  kind                             <- categorise | reconcile | sync | document
+  status                           <- queued | running | completed | failed
+  progress_current, progress_total
+  result (JSONB), error, params (JSONB)
+  created_at, updated_at, completed_at
+  [INDEX: (organisation_id, status), created_at]
 ```
 
 **Financial amounts are always `NUMERIC(12,2)` / Python `Decimal`.** IEEE 754 float cannot represent 0.1 exactly; a rounding error causing a penny discrepancy in a reconciliation match is a critical bug in an accounting tool. Float is never used for money.
@@ -549,6 +558,16 @@ GET  /api/v1/dashboard/summary                Aggregate stats (cached 60s in Red
 
 ```
 POST /api/v1/webhooks/xero                    Xero webhook receiver (HMAC-SHA256 signature verification)
+```
+
+### Background jobs
+
+```
+POST /api/v1/categorise/async                 Submit categorisation as a background job
+POST /api/v1/reconcile/async                  Submit reconciliation as a background job
+POST /api/v1/documents/generate/async         Submit document generation as a background job
+GET  /api/v1/jobs/{job_id}                    Poll job status (returns queued | running | completed | failed)
+GET  /api/v1/jobs                             List recent jobs (filter by kind/status)
 ```
 
 ### Categorisation
@@ -1049,6 +1068,7 @@ Items scoped out of the current build, ordered by likely priority:
 | Additional document templates | **Done** — Profit & Loss and VAT Return Summary added |
 | Incremental Xero sync (`If-Modified-Since`) | **Done** — `last_sync_at` drives incremental pulls; HTTP 304 handled |
 | Error tracking and observability | **Done** — Sentry SDK with FastAPI / SQLAlchemy integrations |
+| Background PDF rendering | **Done** — in-process async tasks with DB-tracked job state and polling |
 | Per-organisation confidence threshold tuning | Requires sufficient data to calibrate; post-beta |
 | QuickBooks adapter | Second platform; same architecture, different OAuth2 flow |
 | Stripe billing integration | Post-beta; add when users confirm willingness to pay |
@@ -1086,17 +1106,18 @@ Rules that must survive refactoring and new contributors:
     ├── pyproject.toml
     ├── Dockerfile
     ├── Procfile                     Railway deployment command
-    ├── alembic/                     5 migrations (schema, embedding resize, documents, users)
+    ├── alembic/                     6 migrations (schema, embedding resize, documents, users, jobs)
     └── app/
         ├── main.py                  FastAPI app, routers, CORS, lifespan
-        ├── core/                    config, database, session/JWT, encryption, cache
+        ├── core/                    config, database, session/JWT, encryption, cache,
+        │                            observability (Sentry), jobs (background tasks)
         ├── models/                  SQLAlchemy models + Pydantic v2 schemas
         ├── integrations/            xero_adapter.py
         ├── services/                embedding_service.py, document_service.py
         ├── agents/                  categoriser.py, reconciler.py (LangGraph)
         ├── xai/                     explainer.py (EBM), fuzzy_engine.py (custom Mamdani)
         ├── api/v1/                  health, auth, sync, dashboard, categorise,
-        │                            reconcile, documents, explanations, gdpr, webhooks
+        │                            reconcile, documents, explanations, gdpr, webhooks, jobs
         ├── templates/               management_letter.html, profit_loss.html,
         │                            vat_summary.html (Jinja2 + WeasyPrint)
         └── tests/ + evals/          test suite + evaluation harness
@@ -1113,6 +1134,10 @@ frontend/
 ---
 
 ## Changelog
+
+### v0.2.3 — 2026-04-12
+
+**Background jobs for long-running operations** — New `jobs` table and `POST /api/v1/{categorise,reconcile,documents/generate}/async` endpoints. These return a `{job_id}` immediately and run the work in an `asyncio.create_task` with its own DB session; clients poll `GET /api/v1/jobs/{id}` for status. A startup hook marks any jobs stuck in `running` state from a previous process as `failed` with a clear error message, so restarts don't leave clients polling forever. Old synchronous endpoints are retained for backwards compatibility. Dashboard frontend migrated to the async endpoints with a 1.5-second polling interval. No new Railway services or job queue infrastructure required — all state lives in Postgres.
 
 ### v0.2.2 — 2026-04-12
 

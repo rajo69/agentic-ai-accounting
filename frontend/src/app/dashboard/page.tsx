@@ -17,8 +17,9 @@ import {
 import {
   getDashboardSummary,
   triggerSync,
-  triggerCategorise,
-  triggerReconcile,
+  submitCategoriseJob,
+  submitReconcileJob,
+  pollJob,
   type DashboardSummary,
 } from "@/lib/api";
 import FluidGlassButton from "@/components/fluid-glass-button";
@@ -166,20 +167,34 @@ export default function DashboardPage() {
 
   const handleCategorise = async () => {
     setCategorising(true);
+    const tid = toast.loading("Starting categorisation…");
     try {
-      const res = await triggerCategorise();
-      toast.success(`Categorised ${res.total_processed}: ${res.auto_categorised} auto, ${res.suggested} suggested`);
+      const { job_id } = await submitCategoriseJob();
+      toast.loading("Categorising transactions…", { id: tid });
+      const job = await pollJob(job_id, { intervalMs: 1500 });
+      const r = job.result as { total_processed?: number; auto_categorised?: number; suggested?: number } | null;
+      toast.success(
+        `Categorised ${r?.total_processed ?? 0}: ${r?.auto_categorised ?? 0} auto, ${r?.suggested ?? 0} suggested`,
+        { id: tid },
+      );
       await fetchSummary();
-    } catch (e) { toast.error(String(e)); } finally { setCategorising(false); }
+    } catch (e) { toast.error(String(e), { id: tid }); } finally { setCategorising(false); }
   };
 
   const handleReconcile = async () => {
     setReconciling(true);
+    const tid = toast.loading("Starting reconciliation…");
     try {
-      const res = await triggerReconcile();
-      toast.success(`Reconciled ${res.total_processed}: ${res.auto_matched} auto, ${res.suggested} suggested`);
+      const { job_id } = await submitReconcileJob();
+      toast.loading("Matching bank statements…", { id: tid });
+      const job = await pollJob(job_id, { intervalMs: 1500 });
+      const r = job.result as { total_processed?: number; auto_matched?: number; suggested?: number } | null;
+      toast.success(
+        `Reconciled ${r?.total_processed ?? 0}: ${r?.auto_matched ?? 0} auto, ${r?.suggested ?? 0} suggested`,
+        { id: tid },
+      );
       await fetchSummary();
-    } catch (e) { toast.error(String(e)); } finally { setReconciling(false); }
+    } catch (e) { toast.error(String(e), { id: tid }); } finally { setReconciling(false); }
   };
 
   if (loading) {
