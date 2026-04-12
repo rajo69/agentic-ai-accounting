@@ -1,0 +1,334 @@
+================================================================================
+  AI ACCOUNTANT — EXTERNAL SETUP GUIDE
+================================================================================
+
+This file lists the external services you need to configure outside of the
+codebase (Sentry, Resend, Xero Webhooks, Railway env vars). Each section is
+self-contained — skip any that you don't need right now.
+
+Everything below is OPTIONAL. The app runs fine without any of these; each
+integration has a graceful fallback. But setting them up unlocks the features
+documented for each release (Sentry catches production errors, Resend sends
+invite emails, Xero webhooks trigger real-time sync, etc.)
+
+
+================================================================================
+  TL;DR — RAILWAY ENVIRONMENT VARIABLES
+================================================================================
+
+Open https://railway.app/dashboard -> your project -> backend service ->
+"Variables" tab. These are the variables relevant to the v0.2.x features:
+
+  Required (should already be set):
+    DATABASE_URL           (auto-set by Railway PostgreSQL)
+    DATABASE_URL_SYNC      (derive from above, swap the driver prefix)
+    REDIS_URL              (auto-set by Railway Redis)
+    SECRET_KEY             (any long random string)
+    XERO_CLIENT_ID         (from Xero developer portal)
+    XERO_CLIENT_SECRET     (from Xero developer portal)
+    XERO_REDIRECT_URI      (https://YOUR-BACKEND.up.railway.app/auth/xero/callback)
+    ANTHROPIC_API_KEY      (from console.anthropic.com)
+    FRONTEND_URL           (https://YOUR-FRONTEND.vercel.app)
+
+  Added in v0.2.x (all optional):
+    XERO_WEBHOOK_KEY       (real-time Xero push notifications)
+    SENTRY_DSN             (error tracking)
+    ENVIRONMENT            (set to "production" on Railway, "development" locally)
+    RESEND_API_KEY         (invite emails)
+    EMAIL_FROM             (verified sender address for Resend)
+
+Railway redeploys automatically whenever you add or change a variable.
+
+
+================================================================================
+  1. SENTRY — ERROR TRACKING (v0.2.2)
+================================================================================
+
+What it does:
+  Captures every exception in your FastAPI routes, LangGraph agents, Xero sync,
+  webhook processing, etc. — with the authenticated org_id tagged on every
+  event. You'll get emailed when anything breaks in production.
+
+Free tier:
+  5,000 errors/month. More than enough for a beta.
+
+STEP-BY-STEP:
+
+  1. Go to https://sentry.io and click "Get Started for Free"
+
+  2. Sign up (GitHub OAuth is fastest)
+
+  3. When prompted to create a project:
+     - Platform:     Python -> FastAPI
+     - Alert level:  "Alert me on every new issue" (recommended for beta)
+     - Project name: ai-accountant-backend
+
+  4. Sentry shows you a DSN that looks like:
+     https://abc123def456@o1234567.ingest.sentry.io/9876543
+
+     COPY IT — you won't need any of the code snippets they show you, just
+     this DSN.
+
+  5. In Railway:
+     - Open your backend service -> Variables tab
+     - Click "New Variable"
+     - Name:  SENTRY_DSN
+     - Value: (paste the DSN from step 4)
+     - Click "New Variable" again
+     - Name:  ENVIRONMENT
+     - Value: production
+
+  6. Railway redeploys automatically. After it finishes, trigger any error
+     to verify — easiest test:
+
+        curl -X POST https://YOUR-BACKEND.up.railway.app/api/v1/sync \
+          -H "Authorization: Bearer invalid-token"
+
+     You'll get a 401 back (expected — that's not an error). For a real
+     error test, temporarily break something or trigger a sync with a bad
+     Xero token. The error should appear in your Sentry dashboard within
+     a few seconds.
+
+     To find it: sentry.io -> Issues -> the new issue will be at the top,
+     tagged with org_id and org_name.
+
+USEFUL LINKS:
+  Dashboard:       https://sentry.io/
+  Your issues:     https://sentry.io/organizations/YOUR-ORG/issues/
+  Alert settings:  sentry.io -> Settings -> Alerts
+
+
+================================================================================
+  2. RESEND — INVITE EMAILS (v0.2.6)
+================================================================================
+
+What it does:
+  When an owner invites a team member via POST /api/v1/auth/invite (the "Invite
+  member" button on the /team page), Resend sends them an HTML email with a
+  "join" link.
+
+Without Resend:
+  Invites still work — the user record is created in the database — but no
+  email is sent. You'd have to tell the invited person manually.
+
+Free tier:
+  3,000 emails/month, 100/day. Plenty for a beta.
+
+STEP-BY-STEP:
+
+  1. Go to https://resend.com and sign up (GitHub OAuth works)
+
+  2. Verify your sending domain:
+
+     OPTION A — Use a real domain you own (recommended for production):
+       a. Click "Domains" in the left nav
+       b. Click "Add Domain"
+       c. Enter your domain, e.g. "agentic-ai-accounting.com"
+       d. Resend shows 3 DNS records (SPF, DKIM, MX). Add them in your
+          DNS provider (Cloudflare, Namecheap, GoDaddy, Vercel, etc.)
+       e. Click "Verify DNS Records" and wait a minute or two
+
+     OPTION B — Use Resend's sandbox sender (fine for testing):
+       You can immediately send from "onboarding@resend.dev". No DNS setup
+       needed, but emails will show a "via resend.dev" note in some clients
+       and may be rate-limited.
+
+  3. Create an API key:
+     a. Click "API Keys" in the left nav
+     b. Click "Create API Key"
+     c. Name:        "railway-backend"
+     d. Permission:  "Sending access"
+     e. Click "Add"
+     f. COPY the key (starts with "re_...") — you cannot view it again
+
+  4. In Railway:
+     - Open backend service -> Variables tab
+     - Name:  RESEND_API_KEY
+     - Value: (paste the key from step 3)
+     - Name:  EMAIL_FROM
+     - Value: "AI Accountant <noreply@yourdomain.com>"    (for Option A)
+              or
+              "AI Accountant <onboarding@resend.dev>"     (for Option B)
+
+  5. Railway redeploys. Test by going to /team on your deployed frontend
+     and inviting yourself at a different email address. You should receive
+     the invite within seconds.
+
+     If the email doesn't arrive:
+     - Check Resend dashboard -> Emails tab for delivery status
+     - Check your spam folder
+     - Make sure the "from" address matches your verified domain exactly
+
+USEFUL LINKS:
+  Dashboard:          https://resend.com/emails
+  Domain setup docs:  https://resend.com/docs/dashboard/domains/introduction
+  API reference:      https://resend.com/docs/api-reference/emails/send-email
+
+
+================================================================================
+  3. XERO WEBHOOKS — REAL-TIME SYNC (v0.2.0)
+================================================================================
+
+What it does:
+  Xero sends a POST to your backend whenever bank transactions change. The
+  backend verifies the signature, triggers a background sync, and invalidates
+  the dashboard cache. Result: near-real-time sync without users clicking
+  "Sync with Xero".
+
+Without webhooks:
+  Everything still works — users just have to click "Sync" manually or wait
+  for their next login.
+
+STEP-BY-STEP:
+
+  1. Go to https://developer.xero.com and log in
+
+  2. Click "My apps" -> your AI Accountant app
+
+  3. Scroll down to "Webhooks" section
+
+  4. Enter the webhook delivery URL:
+     https://YOUR-BACKEND.up.railway.app/api/v1/webhooks/xero
+
+     (Replace YOUR-BACKEND with your actual Railway subdomain. Find it
+     in Railway -> backend service -> Settings -> Networking.)
+
+  5. Tick the events you want to subscribe to. For this app, you want:
+     - Invoice
+     - Contact
+     (Xero doesn't offer a BankTransactions webhook directly — Invoice
+     covers the payment-sync scenarios that matter for accounting.)
+
+  6. Click "Save" — Xero assigns you a Webhook Key (a long random string)
+
+  7. COPY the Webhook Key and add it in Railway:
+     - Name:  XERO_WEBHOOK_KEY
+     - Value: (paste the webhook key)
+
+  8. Railway redeploys. Now go back to Xero's webhook settings page and
+     click "Send intent to receive" — this is Xero's handshake test. Your
+     backend must respond with HTTP 200 to a validation payload.
+
+     If it works, Xero shows a green tick. If you see "Response not 2XX",
+     check:
+     - XERO_WEBHOOK_KEY in Railway matches exactly what Xero shows you
+     - The latest commit has actually deployed to Railway (check Deployments
+       tab)
+     - Logs: Railway -> backend -> Deployments -> View Logs
+
+  9. Trigger a test event: log into your Xero Demo Company and create a
+     new Spend Money transaction. Within a few seconds, your backend should
+     have received a webhook, triggered a background sync, and the new
+     transaction should be visible on your dashboard.
+
+USEFUL LINKS:
+  Your apps:           https://developer.xero.com/app/manage
+  Webhooks docs:       https://developer.xero.com/documentation/guides/webhooks/overview
+  Event types:         https://developer.xero.com/documentation/guides/webhooks/overview#webhook-notification-payload
+
+
+================================================================================
+  4. RAILWAY — DEPLOYMENT (already set up, reference only)
+================================================================================
+
+You already have this working, so this is just a reminder of how it's wired.
+
+How deploys happen:
+  Every push to main on GitHub triggers a Railway rebuild. Railway reads
+  the Procfile (backend/Procfile) which is:
+
+    web: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+  So every deploy runs pending migrations before starting the server.
+
+How to check deploy status:
+  Railway dashboard -> backend service -> Deployments tab. Each commit
+  shows as a deploy; click it for build logs.
+
+How to roll back:
+  Deployments tab -> find a previous successful deploy -> click "..." ->
+  "Redeploy". Railway will rebuild that commit.
+
+How to view runtime logs:
+  Railway dashboard -> backend service -> latest deploy -> "View Logs".
+  This is where your application logger.info() / logger.exception() calls
+  show up. Sentry captures the exceptions in parallel; logs give you more
+  context around them.
+
+Environment variables (complete list):
+  See the TL;DR section at the top of this file.
+
+
+================================================================================
+  5. VERCEL — FRONTEND (already set up, reference only)
+================================================================================
+
+Same deploy-on-push model as Railway. The only env var you need on Vercel:
+
+    NEXT_PUBLIC_API_URL=https://YOUR-BACKEND.up.railway.app
+
+This is the backend URL the frontend calls. Set it once in Vercel -> your
+project -> Settings -> Environment Variables. If you change your Railway
+domain, update this value and redeploy.
+
+Vercel doesn't need any of the backend env vars (Sentry, Resend, etc.) —
+those all live on Railway.
+
+
+================================================================================
+  6. VERIFYING EVERYTHING WORKS
+================================================================================
+
+After setting up each integration, here's how to confirm it's live:
+
+  SENTRY:
+    - Trigger a failing sync (disconnect Xero, then try /api/v1/sync)
+    - Check sentry.io -> Issues — new error should appear within seconds
+    - It should be tagged with your org_id
+
+  RESEND:
+    - Go to /team on your frontend
+    - Invite yourself at a different email
+    - Check Resend dashboard -> Emails tab for delivery status
+    - Check the destination inbox
+
+  XERO WEBHOOKS:
+    - Confirm "Intent to receive" shows green tick in Xero dev portal
+    - Create a Spend Money transaction in Xero
+    - Wait ~10 seconds
+    - Dashboard should show the new transaction without clicking Sync
+
+  RATE LIMITING (v0.2.4 — already working, no setup needed):
+    - Rapidly POST to /api/v1/categorise 10 times
+    - After 5 within the same minute, you should get HTTP 429 with a
+      Retry-After: 60 header
+
+  FIRST-RUN ONBOARDING (v0.2.5 — already working):
+    - Use a fresh Xero Demo Company (or disconnect + reconnect)
+    - After OAuth, you should see "Importing your Xero data…" on the
+      dashboard with live progress, then a welcome toast
+
+  BACKGROUND JOBS (v0.2.3 — already working):
+    - Click "Categorise All" on the dashboard
+    - The request returns immediately (no 30-second hang)
+    - A toast shows progress, then completion
+
+
+================================================================================
+  SUPPORT
+================================================================================
+
+If something breaks after setting up one of these:
+
+  1. Railway logs are your best friend:
+     Railway dashboard -> backend -> latest deploy -> View Logs
+
+  2. Sentry will catch exceptions even when you haven't explicitly logged them
+     (once SENTRY_DSN is set)
+
+  3. For Xero-specific issues: https://central.xero.com/s/topic/developer
+
+  4. For Resend delivery problems: check resend.com -> Emails -> click the
+     specific email to see bounce/delivery details
+
+================================================================================
