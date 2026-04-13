@@ -42,6 +42,7 @@ SETUP.txt
 
 # Playwright
 .playwright/
+.playwright-cli/
 
 # OS
 .DS_Store
