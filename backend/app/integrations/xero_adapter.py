@@ -31,7 +31,7 @@ XERO_SCOPES = (
     "accounting.contacts.read "
     "accounting.contacts "
     "accounting.settings.read "
-    "accounting.transactions.read"
+    "accounting.payments.read"
 )
 
 
