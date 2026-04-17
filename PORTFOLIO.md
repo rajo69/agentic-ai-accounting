@@ -7,7 +7,7 @@ explainability, evaluation with acceptance gates, and cost tracking.
 
 **Live app:** [agentic-ai-accounting.vercel.app](https://agentic-ai-accounting.vercel.app)
 **Full technical documentation:** [README.md](README.md)
-**Source:** 5,011 lines Python · 4,575 lines TypeScript · 1,154 lines of tests · 93 passing
+**Source:** ~7,300 lines Python · ~4,600 lines TypeScript · 1,154 lines of tests · 93 passing
 
 ---
 
@@ -15,7 +15,7 @@ explainability, evaluation with acceptance gates, and cost tracking.
 
 Automates two parts of a UK accountant's workflow:
 1. **Categorise** bank transactions against a chart of accounts using an LLM + retrieved few-shot examples from the firm's own correction history.
-2. **Reconcile** bank statement lines to transactions using algorithmic scoring with an LLM-generated explanation.
+2. **Reconcile** bank statement lines to transactions using algorithmic scoring with a deterministic, template-generated explanation.
 
 Every decision is stored in an append-only audit log with the full reasoning: the LLM's `reasoning` string, feature importances from an Explainable Boosting Machine, and a fuzzy-logic risk score with the specific rules that fired.
 
@@ -66,7 +66,7 @@ flowchart LR
     FC[fetch_context] --> CL[classify] --> VA[validate] --> DE[decide] --> EX[explain]
 ```
 
-The same pattern is reused for the reconciliation agent, with the key difference that it contains no LLM in the matching decision — only in the explanation — because deterministic scoring is more trustworthy than an LLM for exact amount / date comparisons.
+The same pattern is reused for the reconciliation agent, with the key difference that it contains no LLM at all — neither in the matching decision nor in the explanation. The explanation is produced by a deterministic template over the match scores (see `reconciler.py:174-198`). Deterministic scoring is more trustworthy than an LLM for exact amount / date comparisons, and a fixed explanation template is faster and free at inference time; an LLM rewrite of the explanation is tracked as open work.
 
 ### 3. RAG with learning-from-corrections, no retraining required
 
@@ -115,7 +115,7 @@ Confidence calibration:
 
 Categorisation runs **Claude Haiku first** (~$0.0013/call). If Haiku's self-reported confidence falls below the 0.85 auto-accept threshold, the same prompt is re-issued to **Claude Sonnet 4.6** (~$0.0047/call) and Sonnet's answer replaces Haiku's. If the Sonnet call errors, Haiku's original prediction is retained — no transaction ever ends up without a result.
 
-The escalation threshold matches the auto-accept threshold by design: below it, the prediction is going to a human anyway, so the extra Sonnet spend either (a) pushes the decision into the auto-accept band and saves a review, or (b) hands the reviewer stronger reasoning. Above it, Haiku is trusted and nothing more is spent. Escalating indiscriminately would ~8× total categorisation cost for no measurable gain on the easy tier (where Haiku already hits 93.5% and confidence is typically high).
+The escalation threshold matches the auto-accept threshold by design: below it, the prediction is going to a human anyway, so the extra Sonnet spend either (a) pushes the decision into the auto-accept band and saves a review, or (b) hands the reviewer stronger reasoning. Above it, Haiku is trusted and nothing more is spent. Escalating indiscriminately would multiply total categorisation cost by ~3.75× (the Sonnet/Haiku per-token ratio from `backend/evals/cost_tracker.py`: $3.00/$0.80 for input, $15.00/$4.00 for output), for no measurable gain on the easy tier (where Haiku already hits 93.5% and confidence is typically high).
 
 **Everything else in the cost budget:**
 
@@ -192,7 +192,7 @@ flowchart LR
 
 Selected from a longer list in the main README — these are the ones relevant to AI engineering specifically.
 
-**Tiered model routing — cost-aware choice, not a cargo-culted "always use Haiku" or "always use Sonnet".** The naïve setups both fail in specific ways. Running Haiku on everything leaves the hard tier around 75% accuracy, which isn't shippable for accounting work where mistakes have audit consequences. Running Sonnet on everything pays ~10× per call for negligible gain on the easy tier (where Haiku already scores 93.5% and confidence is typically above 0.85). The implemented design runs Haiku first and only escalates to Sonnet when Haiku's confidence falls below the 0.85 auto-accept threshold — the spend lands exactly where it's most likely to matter. Why that threshold specifically: below it the prediction was going to a human anyway, so Sonnet either promotes the decision into the auto-accept band (saving a review) or gives the reviewer stronger reasoning to evaluate; above it, Haiku is already trusted. The asymmetric pinning policy (Haiku pinned to a dated release, Sonnet on a bare alias) reflects which model is in the eval-critical loop and where reproducibility is worth more than flowing-in quality patches. A live comparison of Haiku-only vs Sonnet-only vs tiered on the 50-fixture eval set is documented and reproducible, and deliberately left pending in the README until budget allows — the baseline Haiku numbers are real, the other rows are marked pending rather than guessed. The production code is already live; the missing piece is the measurement, not the mechanism.
+**Tiered model routing — cost-aware choice, not a cargo-culted "always use Haiku" or "always use Sonnet".** The naïve setups both fail in specific ways. Running Haiku on everything leaves the hard tier around 75% accuracy, which isn't shippable for accounting work where mistakes have audit consequences. Running Sonnet on everything pays ~3.75× per call (Sonnet/Haiku per-token ratio from `backend/evals/cost_tracker.py`) for negligible gain on the easy tier (where Haiku already scores 93.5% and confidence is typically above 0.85). The implemented design runs Haiku first and only escalates to Sonnet when Haiku's confidence falls below the 0.85 auto-accept threshold — the spend lands exactly where it's most likely to matter. Why that threshold specifically: below it the prediction was going to a human anyway, so Sonnet either promotes the decision into the auto-accept band (saving a review) or gives the reviewer stronger reasoning to evaluate; above it, Haiku is already trusted. The asymmetric pinning policy (Haiku pinned to a dated release, Sonnet on a bare alias) reflects which model is in the eval-critical loop and where reproducibility is worth more than flowing-in quality patches. A live comparison of Haiku-only vs Sonnet-only vs tiered on the 50-fixture eval set is documented and reproducible, and deliberately left pending in the README until budget allows — the baseline Haiku numbers are real, the other rows are marked pending rather than guessed. The production code is already live; the missing piece is the measurement, not the mechanism.
 
 **Structured LLM output was silently failing without Instructor.** The first implementation parsed Claude's response with string splitting. It worked on simple cases but silently returned wrong categories whenever the model added preamble text ("Sure, here is the classification…"). Replaced with `instructor[anthropic]`, which uses Anthropic tool-use to force output conformance to a Pydantic schema, with automatic retry on validation failure. The `CategoryPrediction` model became the enforceable contract between the agent and Claude.
 
