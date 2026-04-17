@@ -26,7 +26,8 @@ logger = logging.getLogger(__name__)
 
 # Primary (cheap, fast) model — pinned for eval reproducibility.
 LLM_MODEL = "claude-haiku-4-5-20251001"
-# Escalation (stronger, ~10× cost) model — alias so quality patches flow in.
+# Escalation (stronger, ~3.75× per-token cost; see evals/cost_tracker.py) model
+# — alias so quality patches flow in.
 LLM_MODEL_ESCALATION = "claude-sonnet-4-6"
 # Escalate when the primary can't auto-accept. Tied to the 0.85 auto-accept
 # threshold in `decide` — Sonnet gets a chance to push the decision into the

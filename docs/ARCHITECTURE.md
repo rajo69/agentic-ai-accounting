@@ -169,7 +169,7 @@ a `<->` (L2 distance) or `<=>` (cosine similarity) operator.
 
 **Model selection strategy**:
 - Production categorisation: `claude-sonnet-4-6` (accuracy matters, run once per sync)
-- High-volume evals and testing: `claude-haiku-4-5-20251001` (~10x cheaper)
+- High-volume evals and testing: `claude-haiku-4-5-20251001` (~3.75× cheaper per token)
 - Document generation: `claude-sonnet-4-6` (narrative quality matters)
 
 ### 3.5 LangGraph (not raw LLM chains)
@@ -392,7 +392,7 @@ literature benchmarks for accounting tasks.
 
 ### 6.2 Reconciliation agent (LangGraph)
 
-Multi-signal scoring — no LLM needed for matching, only for explanation:
+Multi-signal deterministic scoring — no LLM is used anywhere in this pipeline:
 
 ```
 Combined score = (amount × 0.5) + (date × 0.2) + (description × 0.3)
@@ -416,10 +416,13 @@ an exact amount match with a close date is nearly always correct. Date is less
 reliable because some Xero transactions are backdated. Description similarity is
 useful for high-confidence matches but unreliable alone (descriptions vary by bank).
 
-**LLM only for explanation**: The explanation node uses Claude to write a human-
-readable sentence ("Matched to TESCO STORES on 14 Mar: amount matches exactly
-(£52.40), same day, description 87% similar"). No LLM is used for the matching
-decision itself — it's deterministic and auditable.
+**No LLM anywhere**: the explanation node builds its human-readable sentence
+("Matched to TESCO STORES on 14 Mar: amount matches exactly (£52.40), same
+day, description 87% similar") from a fixed f-string template over the match
+scores. No LLM is invoked at any stage of the reconciliation graph — matching
+and explanation are both deterministic and fully auditable. An LLM rewrite
+of the explanation (for more natural phrasing under edge cases) is tracked
+as open work.
 
 ### 6.3 Vector embeddings for transactions
 
@@ -565,9 +568,11 @@ At £49/month pricing, even Sonnet costs <2% of revenue per customer.
 5. **No embedding re-computation** — embeddings are computed once and cached in
    `transactions.embedding`. Only new or corrected transactions trigger re-embedding.
 
-6. **Reconciliation uses no LLM** — the matching algorithm (amount/date/description
-   scoring) is purely algorithmic. Claude is only called to generate the human-readable
-   explanation after a match is found. Explanation calls are short (~100 output tokens).
+6. **Reconciliation uses no LLM at all** — the matching algorithm
+   (amount/date/description scoring) is purely algorithmic, and the human-readable
+   explanation is produced by a fixed f-string template over the match scores, so
+   there is no per-reconciliation LLM cost. An LLM rewrite of the explanation is
+   tracked as open work.
 
 ### 9.4 Monthly cost estimate at scale
 
