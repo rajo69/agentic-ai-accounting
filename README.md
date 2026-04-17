@@ -50,7 +50,7 @@ This project is a full-stack implementation of a solution to that problem: an ag
 | Feature | How it works |
 |---|---|
 | **Transaction categorisation** | LangGraph agent classifies Xero transactions against the chart of accounts using Claude and pgvector few-shot examples drawn from the firm's own history. High-confidence results are applied automatically; uncertain results are surfaced for human review. |
-| **Bank reconciliation** | Algorithmic LangGraph agent matches bank statement lines to transactions by scoring amount, date, and description similarity. Matching is deterministic (no LLM); Claude only writes the human-readable explanation after a match is found. |
+| **Bank reconciliation** | Algorithmic LangGraph agent matches bank statement lines to transactions by scoring amount, date, and description similarity. Both the matching decision and the human-readable explanation are deterministic (no LLM); the explanation is produced by a fixed template over the match scores. An LLM rewrite of the explanation is tracked as open work. |
 | **Document generation** | RAG pipeline computes financial figures in pure Python (no LLM), retrieves relevant transaction context via pgvector, then uses Claude and Instructor to write structured narrative sections. WeasyPrint renders the result as a professional A4 PDF. Three templates: Management Letter, Profit & Loss, and VAT Return Summary. |
 | **Explainable AI** | Every AI decision stores feature importances (InterpretML EBM), a custom Mamdani fuzzy logic risk score, and the LLM's own reasoning; all in an immutable audit log. |
 | **Xero integration** | Full OAuth2 flow, automatic token refresh, rate-limit backoff, incremental sync, and real-time webhook receiver for push-based updates. OAuth tokens encrypted at rest with Fernet. |
@@ -232,7 +232,7 @@ Two models are used inside the classify node:
 | Role | Model | Reason for choice |
 |---|---|---|
 | Primary | `claude-haiku-4-5-20251001` (pinned) | Cheap (~$0.0013/call), fast, sufficient for the majority of transactions where the few-shot RAG context is strong. Pinned so eval runs stay reproducible. |
-| Escalation | `claude-sonnet-4-6` (aliased) | ~10× the cost but stronger on ambiguous cases. Aliased because narrative-quality model updates from Anthropic should flow in automatically; narrative generation is not in the eval harness, so version drift is acceptable there. |
+| Escalation | `claude-sonnet-4-6` (aliased) | ~3.75× the per-token cost (see `cost_tracker.py` pricing) but stronger on ambiguous cases. Aliased because narrative-quality model updates from Anthropic should flow in automatically; narrative generation is not in the eval harness, so version drift is acceptable there. |
 
 The escalation rule:
 
@@ -250,7 +250,7 @@ else:
 
 **Why the threshold is exactly 0.85.** It is the same threshold the `decide` node uses for auto-accept. Escalating at this boundary lets Sonnet push a borderline prediction into the auto-accept band when it can; below the threshold there is no point escalating because the result is surfaced to a human either way (who would prefer Sonnet's reasoning to Haiku's lower-confidence answer).
 
-**Why not escalate everything.** Running Sonnet on every transaction would ~8× total categorisation cost for no measurable quality gain on the easy tier (Haiku already scores 93.5% on easy, and easy transactions generally produce `confidence > 0.85`). Escalation targets exactly the transactions where the extra spend is most likely to matter: the medium and hard tiers.
+**Why not escalate everything.** Running Sonnet on every transaction would multiply total categorisation cost by ~3.75× (per the per-token pricing ratio in `backend/evals/cost_tracker.py`) for no measurable quality gain on the easy tier (Haiku already scores 93.5% on easy, and easy transactions generally produce `confidence > 0.85`). Escalation targets exactly the transactions where the extra spend is most likely to matter: the medium and hard tiers.
 
 **Audit trail.** Every categorisation records both models in the audit log: `ai_model` is whichever model actually produced the final answer; `ai_decision_data` carries `escalated` (bool), `primary_model`, `primary_confidence`, and `escalation_threshold`. This keeps the decision fully reconstructible after the fact.
 
@@ -270,7 +270,7 @@ The Haiku-only row is from the current live eval. The other two rows are deliber
 
 ### 3. Bank reconciliation agent
 
-`agents/reconciler.py`: a five-node LangGraph graph. No LLM is used for the matching decision; only for the explanation.
+`agents/reconciler.py`: a five-node LangGraph graph. No LLM is used anywhere in the pipeline — not in the matching decision, and not in the explanation. The explanation is produced by a fixed f-string template over the match scores (`reconciler.py:174-198`). An LLM rewrite of the explanation is tracked as open work.
 
 #### Graph structure
 
@@ -750,7 +750,7 @@ The runner enforces these thresholds and exits with code 1 if any are missed:
 
 - `cost_tracker.py` counts tokens and enforces a `--budget` hard limit before the run starts
 - `response_cache.py` caches responses to disk keyed by `SHA-256(model + prompt)`. All reruns against unchanged fixtures cost $0
-- Default eval model is `claude-haiku-4-5-20251001` (approximately 10x cheaper than Sonnet). Switch to Sonnet only for pre-deployment quality checks
+- Default eval model is `claude-haiku-4-5-20251001` (approximately 3.75× cheaper per token than Sonnet, per `cost_tracker.py` pricing). Switch to Sonnet only for pre-deployment quality checks
 
 ---
 
@@ -830,7 +830,7 @@ The test suite mocks all external API calls (Xero, Anthropic) so tests run offli
 | Transaction categorisation — primary only | Claude Haiku | ~$0.0013 |
 | Transaction categorisation — Sonnet escalation (only when Haiku confidence < 0.85) | Claude Sonnet | ~$0.0047 additional |
 | Transaction categorisation — blended expected cost (est.) | Haiku + occasional Sonnet | ~$0.0013–$0.0025 |
-| Reconciliation explanation | Claude Haiku | ~$0.0002 |
+| Reconciliation explanation | Deterministic template (no LLM) | $0.00 |
 | Management letter | Claude Sonnet | ~$0.011 |
 | Embeddings | sentence-transformers (local) | $0.00 |
 
@@ -850,7 +850,7 @@ At 100 customers paying £49 per month, API cost is under 0.2% of revenue.
 
 1. **Tiered model routing**: every categorisation starts on Haiku; Sonnet is only invoked when Haiku's confidence falls below the auto-accept threshold. Confident-easy transactions never pay Sonnet cost. See [Tiered model routing](#tiered-model-routing-cost-aware-escalation).
 2. **Auto-categorisation reduces volume**: as the pgvector few-shot store grows, more transactions hit the above-0.85 threshold and are categorised without prompting. Cost per new transaction trends toward zero as patterns repeat.
-3. **Reconciliation matching uses no LLM**: only the explanation sentence calls Claude.
+3. **Reconciliation uses no LLM at all**: matching is deterministic scoring; the explanation is a fixed template. Zero per-reconciliation inference cost.
 4. **Eval caching**: `response_cache.py` makes all eval reruns free after the first run.
 5. **Concurrency cap**: `asyncio.Semaphore(5)` in `categorise_batch()` prevents runaway parallel API calls.
 6. **Embeddings computed once**: stored in the `embedding` column and reused until a correction triggers re-embedding.
@@ -1007,7 +1007,7 @@ This section documents non-obvious technical problems that arose during construc
 
 ### Single-model categorisation leaves cost/accuracy on the table in both directions
 
-**Problem**: The initial design used Claude Haiku for every categorisation. Haiku scored 88% overall on the 50-fixture eval but only 75% on the hard tier — driven by ambiguous descriptions where Haiku produced low-confidence guesses rather than strong predictions. Switching the whole pipeline to Sonnet would cost ~10× per call for negligible gain on the easy tier (where Haiku already hits 93.5% and confidence is high). Two failure modes at once: overpaying on easy fixtures, under-reasoning on hard ones.
+**Problem**: The initial design used Claude Haiku for every categorisation. Haiku scored 88% overall on the 50-fixture eval but only 75% on the hard tier — driven by ambiguous descriptions where Haiku produced low-confidence guesses rather than strong predictions. Switching the whole pipeline to Sonnet would cost ~3.75× per call (per `backend/evals/cost_tracker.py` pricing) for negligible gain on the easy tier (where Haiku already hits 93.5% and confidence is high). Two failure modes at once: overpaying on easy fixtures, under-reasoning on hard ones.
 
 **Resolution**: Implemented tiered model routing in the `classify` node. Haiku runs first; if its confidence is below the 0.85 auto-accept threshold, Sonnet is invoked with the same prompt and its answer replaces Haiku's. On Sonnet failure (API error, timeout), Haiku's original prediction is retained so no transaction is ever left without a result. The audit log records which model produced the final answer, whether escalation fired, the primary-model confidence, and the threshold in effect. The escalation threshold is deliberately the same value as the auto-accept threshold — below it, surfacing Sonnet's stronger reasoning to the human reviewer is always the better choice; above it, Haiku is trusted. Sonnet is left on the bare model alias because narrative-quality model patches from Anthropic should flow in automatically. Haiku stays pinned to a dated release because it is the eval-critical model where reproducibility matters. As of this commit, the end-to-end tiered accuracy has not been measured on a live eval run; a reproduction command is documented in the evals section and the tiered row in the comparison table is explicitly marked as pending.
 
@@ -1214,7 +1214,7 @@ frontend/
 
 **Tiered model routing in the categorisation agent** — The `classify` node now escalates from Claude Haiku to Claude Sonnet 4.6 when the primary prediction's confidence is below the 0.85 auto-accept threshold. Escalation runs the same prompt against the stronger model and its answer replaces Haiku's. If the escalation call errors, Haiku's original prediction is retained (no transaction goes unanswered). The audit log now records `ai_model` as whichever model produced the final prediction, and `ai_decision_data` carries the new keys `escalated` (bool), `primary_model`, `primary_confidence`, and `escalation_threshold` so every decision is reconstructible.
 
-The rationale is cost-aware: Haiku is ~10× cheaper than Sonnet and sufficient on the easy tier (93.5% accuracy), so the common case pays Haiku pricing; only borderline predictions pay Sonnet pricing. Blended expected cost per categorisation is ~$0.0013–$0.0025 depending on escalation rate, versus a flat ~$0.0047 if the whole pipeline ran on Sonnet.
+The rationale is cost-aware: Haiku is ~3.75× cheaper per token than Sonnet (per `backend/evals/cost_tracker.py` pricing) and sufficient on the easy tier (93.5% accuracy), so the common case pays Haiku pricing; only borderline predictions pay Sonnet pricing. Blended expected cost per categorisation is ~$0.0013–$0.0025 depending on escalation rate, versus a flat ~$0.0047 if the whole pipeline ran on Sonnet.
 
 The asymmetric model-pinning policy is documented explicitly: Haiku is pinned to `claude-haiku-4-5-20251001` because it is in the eval-critical and auto-categorise paths where reproducibility matters; Sonnet is left on the bare alias `claude-sonnet-4-6` because it runs only in narrative generation and as the escalation model, and benefits from flowing-in quality patches. The policy is called out in the "Tiered model routing" section of the README.
 

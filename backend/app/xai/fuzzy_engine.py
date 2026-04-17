@@ -1,4 +1,10 @@
-"""Simpful fuzzy inference system for transaction risk scoring.
+"""Mamdani-style fuzzy inference system for transaction risk scoring.
+
+Implemented from scratch (no ``simpful`` / ``skfuzzy`` / ``pyfuzzy`` dependency)
+so the rule base, membership functions, and defuzzification step are explicit
+and glass-box. Defuzzification uses a simplified centroid against the three
+output-term centroids rather than full area integration over the output MF;
+this is documented inline in :func:`compute_risk_score`.
 
 Inputs
 ------

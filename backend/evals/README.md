@@ -112,9 +112,10 @@ add few-shot examples, or adjust confidence thresholds first.
 
 See `docs/ARCHITECTURE.md` Section 9 for the full cost model.
 
-**Key strategy**: Use `claude-haiku-4-5-20251001` for all eval runs (~10x cheaper
-than Sonnet). Only switch to `claude-sonnet-4-6` for a final pre-deployment
-quality check. Cache all responses to disk — the second run always costs $0.
+**Key strategy**: Use `claude-haiku-4-5-20251001` for all eval runs (~3.75×
+cheaper per token than Sonnet, per `cost_tracker.py` pricing). Only switch to
+`claude-sonnet-4-6` for a final pre-deployment quality check. Cache all
+responses to disk — the second run always costs $0.
 
 ---
 
