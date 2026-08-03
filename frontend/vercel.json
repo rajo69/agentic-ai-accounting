@@ -5,11 +5,25 @@
   "installCommand": "npm install",
   "headers": [
     {
-      "source": "/(.*)",
+      "//": "Everything except the root. `/:path+` matches one or more path segments, so the marketing page below is deliberately excluded. The dashboard and the Xero OAuth flow stay unframable: framing an authenticated financial integration is a clickjacking route.",
+      "source": "/:path+",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    },
+    {
+      "//": "The public marketing page only. X-Frame-Options is omitted rather than overridden: it has no allowlist syntax, and where both headers are present browsers may honour the stricter one. Content-Security-Policy frame-ancestors is its modern replacement and takes an explicit allowlist. Nothing here is authenticated, so the exposure is a public landing page rendering inside a named origin.",
+      "source": "/",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        {
+          "//": "TODO before the portfolio launches: add its production origin here, e.g. https://example.com. Until then only local development can frame this page, so the live embed will not work from a deployed portfolio.",
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self' http://localhost:3000"
+        }
       ]
     }
   ]
