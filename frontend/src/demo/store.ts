@@ -87,15 +87,19 @@ function freshState(opts: { populated: boolean }): DemoState {
     job_seq: 0,
   };
   if (opts.populated) {
-    // Looks like a quarter that was imported, categorised and reconciled a few minutes ago, with
-    // the three documents drafted after that.
+    // Looks like a quarter that was imported a few minutes ago and partly worked: 30 of 50 rows
+    // categorised (24 auto, 6 suggested) and 18 of 32 statement lines reconciled, so the lists are
+    // full of decisions to look at while Categorise and Reconcile still have a mixed batch to run
+    // (20 rows: 6 auto / 7 suggested / 7 review; 14 lines: 2 auto / 7 suggested / 5 review).
     applySync(s, minutesAgo(15));
-    categoriseRows(s, uncategorisedInPlanOrder(s), minutesAgo(12));
-    reconcileStatements(s, unmatchedStatementIds(s), minutesAgo(10));
+    const rows = uncategorisedInPlanOrder(s); // plan order, so the index is the plan position
+    categoriseRows(s, rows.filter((_, i) => i < 24 || (i >= 30 && i < 36)), minutesAgo(12));
+    const lines = unmatchedStatementIds(s); // seed order
+    reconcileStatements(s, lines.filter((_, i) => i < 14 || (i >= 20 && i < 24)), minutesAgo(10));
     const [start, end] = bookPeriod(s);
-    addDocument(s, { template: "vat_summary", period_start: start, period_end: end }, minutesAgo(8));
-    addDocument(s, { template: "profit_loss", period_start: start, period_end: end }, minutesAgo(7));
-    addDocument(s, { template: "management_letter", period_start: start, period_end: end }, minutesAgo(6));
+    generateDemoDocument(s, { template: "vat_summary", period_start: start, period_end: end }, minutesAgo(8));
+    generateDemoDocument(s, { template: "profit_loss", period_start: start, period_end: end }, minutesAgo(7));
+    generateDemoDocument(s, { template: "management_letter", period_start: start, period_end: end }, minutesAgo(6));
   }
   return s;
 }
@@ -425,12 +429,17 @@ export interface DocumentRequest {
   period_end: string;
 }
 
-export function addDocument(s: DemoState, req: DocumentRequest, at: string): GeneratedDocument {
+export function addDocument(
+  s: DemoState,
+  req: DocumentRequest,
+  at: string,
+  source: Transaction[] = s.transactions,
+): GeneratedDocument {
   const compute = FIGURES_FOR[req.template];
   if (!compute) {
     throw new Error(`Unknown template '${req.template}'. Supported: ${JSON.stringify([...DOCUMENT_TEMPLATES].sort())}`);
   }
-  const rows = inPeriod(s.transactions, req.period_start, req.period_end);
+  const rows = inPeriod(source, req.period_start, req.period_end);
   const doc: GeneratedDocument = {
     id: newId(),
     organisation_id: ORG_ID,
@@ -464,7 +473,10 @@ export function addDocument(s: DemoState, req: DocumentRequest, at: string): Gen
  */
 export function generateDemoDocument(s: DemoState, req: DocumentRequest, at: string): GeneratedDocument {
   const [period_start, period_end] = bookPeriod(s);
-  return addDocument(s, { template: req.template, period_start, period_end }, at);
+  // Figures on the seed's planned categories, the same book the PDFs were rendered from, so the
+  // row and the file agree whether or not the rows on screen have been categorised yet.
+  const planned = s.transactions.map((t) => ({ ...t, category: seedRow(t.id)?.plan.category ?? t.category }));
+  return addDocument(s, { template: req.template, period_start, period_end }, at, planned);
 }
 
 // ── Mutations: team ──────────────────────────────────────────────────────────
