@@ -39,8 +39,15 @@ export const fonts = {
 export const easeOutExpo = (t: number): number => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
 export const easeOutQuart = (t: number): number => 1 - Math.pow(1 - t, 4);
 
-/** Durations in frames at 30 fps (hover 150 ms, UI 200 ms, reveal 600 ms). */
-export const fps = 30;
-export const frames = { hover: 5, ui: 6, reveal: 18 } as const;
+/**
+ * Frame rate of the render. The composition is clocked in milliseconds (`layout.ts` `toMs`), so this only sets
+ * how finely motion is sampled: 30 for the S7 rough cuts, 60 for the final (S8 brief: 1920x1080, 60 fps, H.264).
+ * The few constants kept in frames (`timing.ts`, `music.ts`, mirrored in `scripts/timing.py`) scale with it via `F`.
+ */
+export const fps = 60;
+/** A count of frames at the 30 fps design rate, converted to this render's frames (leads and ramps keep their length). */
+export const F = (framesAt30: number): number => Math.round((framesAt30 * fps) / 30);
+/** Durations in frames (hover 150 ms, UI 200 ms, reveal 600 ms). */
+export const frames = { hover: F(5), ui: F(6), reveal: F(18) } as const;
 
 export const video = { width: 1920, height: 1080, fps } as const;

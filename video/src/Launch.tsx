@@ -1,10 +1,10 @@
 import { AbsoluteFill, Audio, getStaticFiles, Sequence, staticFile, useCurrentFrame } from "remotion";
-import { colors, fonts } from "./theme";
+import { colors, F, fonts } from "./theme";
 import { toMs } from "./layout";
 import { BEATS, BEAT_ORDER, TEMPO } from "./timing";
 import { ensureFonts } from "./fonts";
 import { Captions } from "./kit/captions";
-import { musicGain } from "./music";
+import { MASTER, musicGain } from "./music";
 import { Title } from "./sections/title";
 import { Problem } from "./sections/problem";
 import { Product } from "./sections/product";
@@ -23,8 +23,8 @@ function VoiceOver() {
         if (!present.has(name)) return null;
         const beat = BEATS[id];
         return (
-          <Sequence key={id} from={beat.start} durationInFrames={Math.max(1, beat.duration + 2)} name={`vo ${id}`}>
-            <Audio src={staticFile(name)} playbackRate={TEMPO} />
+          <Sequence key={id} from={beat.start} durationInFrames={Math.max(1, beat.duration + F(2))} name={`vo ${id}`}>
+            <Audio src={staticFile(name)} playbackRate={TEMPO} volume={MASTER} />
           </Sequence>
         );
       })}
@@ -40,7 +40,7 @@ function VoiceOver() {
 function Music() {
   const present = new Set(getStaticFiles().map((f) => f.name));
   if (!present.has("music/bed.wav")) return null;
-  return <Audio src={staticFile("music/bed.wav")} volume={(f) => musicGain(f)} name="music bed" />;
+  return <Audio src={staticFile("music/bed.wav")} volume={(f) => MASTER * musicGain(f)} name="music bed" />;
 }
 
 export const Launch: React.FC = () => {

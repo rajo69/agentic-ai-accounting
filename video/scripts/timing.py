@@ -1,7 +1,8 @@
 """
 Beat timing and the music gain curve, mirrored from `src/timing.ts` and `src/music.ts` so the Python audio
 scripts (`music.py`, `stems.py`) agree with the composition to the frame. Keep the constants in step with the
-TypeScript (LEAD, DEFAULT_GAP, TEMPO, TAIL, MUSIC).
+TypeScript (FPS, LEAD, DEFAULT_GAP, TEMPO, TAIL, MUSIC, MASTER). Frame constants are written at the 30 fps design
+rate and converted with `F()`, as in `src/theme.ts`.
 """
 from __future__ import annotations
 
@@ -10,7 +11,13 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FPS = 30
+FPS = 60
+
+
+def F(frames_at_30: float) -> int:
+    return round(frames_at_30 * FPS / 30)
+
+
 TAIL = 60
 DEFAULT_GAP = 5
 LEAD = {
@@ -27,7 +34,8 @@ LEAD = {
     "honest": 10,
     "close": 14,
 }
-MUSIC = {"bed": 0.42, "duck": 0.16, "intro": 0.55, "fadeFrames": 60, "rampIn": 10, "rampOut": 16}
+MUSIC = {"bed": 0.42, "duck": 0.16, "intro": 0.55, "fadeFrames": F(60), "rampIn": F(10), "rampOut": F(16)}
+MASTER = 0.934
 
 
 def tempo() -> float:
@@ -48,11 +56,11 @@ def beats() -> tuple[dict[str, dict], int]:
     out: dict[str, dict] = {}
     for bid in beat_order():
         seconds = (manifest.get(bid, {}).get("seconds") or 0) / t
-        cursor += LEAD.get(bid, DEFAULT_GAP)
+        cursor += F(LEAD.get(bid, DEFAULT_GAP))
         duration = round(seconds * FPS)
         out[bid] = {"start": cursor, "duration": duration, "startSec": cursor / FPS, "seconds": seconds}
         cursor += duration
-    return out, cursor + TAIL
+    return out, cursor + F(TAIL)
 
 
 def clamp01(v: float) -> float:

@@ -1,5 +1,5 @@
 import { BEATS, BEAT_ORDER, TOTAL_FRAMES } from "./timing";
-import { video } from "./theme";
+import { F, video } from "./theme";
 
 /**
  * The music bed's gain curve, a pure function of the frame (`scripts/music.py` writes the bed to
@@ -8,7 +8,14 @@ import { video } from "./theme";
  * before the first word and fades over the last two seconds. `scripts/timing.py` mirrors this curve for
  * the stems, so keep the two in step.
  */
-export const MUSIC = { bed: 0.42, duck: 0.16, intro: 0.55, fadeFrames: 60, rampIn: 10, rampOut: 16 } as const;
+export const MUSIC = { bed: 0.42, duck: 0.16, intro: 0.55, fadeFrames: F(60), rampIn: F(10), rampOut: F(16) } as const;
+
+/**
+ * Master trim on both layers (S8). The S7 mix measured -15.4 LUFS integrated with the ratio above
+ * (`scripts/loudness.py`); the delivery target is -16 LUFS (RULES.md section 5), so both layers come down
+ * 0.6 dB together and the voice-to-bed ratio is unchanged. Mirrored in `scripts/timing.py`.
+ */
+export const MASTER = 0.934;
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
