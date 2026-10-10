@@ -3,6 +3,9 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
+import { exitDemo } from "@/demo/flag";
+import { Lockup } from "@/components/brand/logo";
 
 function CallbackHandler() {
   const router = useRouter();
@@ -12,6 +15,7 @@ function CallbackHandler() {
     const token = params.get("token");
     const firstSyncJob = params.get("first_sync_job");
     if (token) {
+      exitDemo({ silent: true }); // a real session always wins over a demo one
       localStorage.setItem("session_token", token);
       // Set a plain cookie so the middleware can detect the session
       document.cookie = "has_session=1; path=/; SameSite=Lax; Max-Age=86400";
@@ -27,10 +31,11 @@ function CallbackHandler() {
   }, [params, router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50">
-      <div className="text-center space-y-3">
-        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-sm text-slate-500">Connecting your account…</p>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-foreground">
+      <Lockup size={22} />
+      <div className="flex items-center gap-3" role="status" aria-live="polite">
+        <Loader2 className="size-4 animate-spin text-muted-foreground" />
+        <p className="font-mono text-xs text-muted-foreground">Connecting your Xero organisation</p>
       </div>
     </div>
   );

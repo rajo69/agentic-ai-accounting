@@ -1,3 +1,5 @@
+import { isDemo } from "@/demo/flag";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function getToken(): string | null {
@@ -6,6 +8,7 @@ function getToken(): string | null {
 }
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  if (isDemo()) { const { demoHandle } = await import("@/demo"); return demoHandle<T>(path, options); }
   const token = getToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -318,11 +321,12 @@ export interface GeneratedDocument {
 export const listDocuments = () =>
   apiFetch<GeneratedDocument[]>("/api/v1/documents");
 
-export const generateDocument = (body: {
+export const generateDocument = async (body: {
   template: string;
   period_start: string;
   period_end: string;
 }) => {
+  if (isDemo()) { const { demoGenerateDocument } = await import("@/demo"); return demoGenerateDocument(body); }
   const token = getToken();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;

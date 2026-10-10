@@ -1,11 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { StatusChip } from "@/components/ui/status-chip";
 import { toast } from "sonner";
-import { FileText, Download, RefreshCw, TrendingUp, TrendingDown, Sparkles, Receipt, BarChart3 } from "lucide-react";
+import { FileText, Download, Loader2, Check } from "lucide-react";
 import { GeneratedDocument, generateDocument, listDocuments } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/app/page-header";
+import { EmptyState } from "@/components/app/empty-state";
+import { Skeleton } from "@/components/app/skeleton";
+import { uiTransition } from "@/lib/motion";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -24,15 +32,10 @@ function currentQuarter(): { start: string; end: string } {
 }
 
 const TEMPLATES = [
-  { value: "management_letter", label: "Management Letter", description: "Executive summary, income & expense analysis, cash flow and recommendations", icon: FileText },
-  { value: "profit_loss", label: "Profit & Loss", description: "Income and expenses by category with AI commentary and outlook", icon: BarChart3 },
-  { value: "vat_summary", label: "VAT Return Summary", description: "Output/input VAT breakdown by rate with MTD compliance tips", icon: Receipt },
+  { value: "management_letter", label: "Management letter", description: "Summary, income and expense analysis, cash position, recommendations." },
+  { value: "profit_loss", label: "Profit and loss", description: "Income and expenses by category with commentary and outlook." },
+  { value: "vat_summary", label: "VAT return summary", description: "Output and input VAT by rate with MTD notes." },
 ] as const;
-
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.25} },
-};
 
 // ── Document row ──────────────────────────────────────────────────────────────
 
@@ -67,46 +70,35 @@ function DocumentRow({ doc }: { doc: GeneratedDocument }) {
   }
 
   return (
-    <motion.div
-      variants={item}
-      className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 px-5 py-4 flex items-center justify-between gap-4 hover:ring-indigo-100 transition-all"
-    >
-      <div className="flex items-start gap-4">
-        <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0 mt-0.5">
-          <FileText className="w-4.5 h-4.5 text-indigo-500" />
-        </div>
-        <div>
-          <p className="font-semibold text-slate-900 text-sm">{templateLabel(doc.template)}</p>
-          <p className="text-xs text-slate-500 mt-0.5">
+    <li className="flex flex-col gap-3 border-b border-border px-4 py-3 last:border-b-0 sm:flex-row sm:items-center sm:gap-4">
+      <FileText className="hidden size-4 shrink-0 text-muted-foreground sm:block" strokeWidth={1.75} />
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusChip tone="muted" dot={false}>{templateLabel(doc.template)}</StatusChip>
+          <span className="text-table text-foreground">
             {fmtDate(doc.period_start)} to {fmtDate(doc.period_end)}
-            &nbsp;·&nbsp;{doc.figures.transaction_count} transactions
-          </p>
-          <div className="flex items-center gap-1 mt-1.5">
-            {isProfit
-              ? <TrendingUp className="w-3 h-3 text-emerald-500" />
-              : <TrendingDown className="w-3 h-3 text-rose-500" />}
-            <span className={`text-xs font-semibold ${isProfit ? "text-emerald-600" : "text-rose-600"}`}>
-              {isProfit ? "+" : "-"}{fmtMoney(net)} net
-            </span>
-            <span className="text-xs text-slate-300 ml-1">· Generated {fmtDate(doc.generated_at)}</span>
-          </div>
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-x-3 font-mono text-xs text-muted-foreground">
+          <span className="tabular-nums">{doc.figures.transaction_count} transactions</span>
+          <span className={cn("tabular-nums", isProfit ? "text-success" : "text-danger")}>
+            {isProfit ? "+" : "-"}{fmtMoney(net)} net
+          </span>
+          <span>Generated {fmtDate(doc.generated_at)}</span>
         </div>
       </div>
-
-      <motion.div whileTap={{ scale: 0.97 }}>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRegenerate}
-          disabled={regenerating}
-          className="shrink-0 gap-1.5 bg-white border-slate-200"
-        >
-          {regenerating
-            ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Generating…</>
-            : <><Download className="w-3.5 h-3.5" /> Re-generate</>}
-        </Button>
-      </motion.div>
-    </motion.div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleRegenerate}
+        disabled={regenerating}
+        className="shrink-0 self-start sm:self-auto"
+      >
+        {regenerating
+          ? <><Loader2 className="animate-spin" /> Generating</>
+          : <><Download /> Re-generate</>}
+      </Button>
+    </li>
   );
 }
 
@@ -162,119 +154,123 @@ export default function DocumentsPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3}}
-      className="max-w-3xl space-y-8"
+      transition={uiTransition}
+      className="space-y-6"
     >
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Documents</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Generate AI-assisted management letters from your Xero data</p>
-      </div>
+      <PageHeader
+        title="Documents"
+        meta={documents.length > 0 ? `${documents.length} generated` : "Management letters and summaries from the synced books"}
+      />
 
-      {/* Generate card */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-600 to-indigo-500 px-6 py-5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-white">Generate Document</h2>
-              <p className="text-indigo-200 text-xs mt-0.5">AI-assisted PDF reports from your Xero data</p>
-            </div>
-          </div>
-        </div>
-        <div className="px-6 py-5 space-y-4">
+      <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        {/* Generate card */}
+        <div className="flex flex-col gap-4 self-start rounded-lg border border-border bg-surface p-5">
+          <Eyebrow className="text-muted-foreground">Generate</Eyebrow>
+
           {/* Template selector */}
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div role="radiogroup" aria-label="Template" className="flex flex-col gap-1.5">
             {TEMPLATES.map((t) => {
-              const Icon = t.icon;
               const active = selectedTemplate === t.value;
               return (
                 <button
                   key={t.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
                   onClick={() => setSelectedTemplate(t.value)}
-                  className={`text-left rounded-lg border px-3 py-2.5 transition-all ${
+                  className={cn(
+                    "flex items-start gap-3 rounded-md border px-3 py-2.5 text-left outline-none transition-colors duration-150 ease-out-quart",
+                    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
                     active
-                      ? "border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500"
-                      : "border-slate-200 bg-white hover:border-slate-300"
-                  }`}
+                      ? "border-border-strong bg-surface-2"
+                      : "border-border hover:border-border-strong hover:bg-surface-2/60"
+                  )}
                 >
-                  <div className="flex items-center gap-2">
-                    <Icon className={`w-4 h-4 ${active ? "text-indigo-600" : "text-slate-400"}`} />
-                    <span className={`text-sm font-medium ${active ? "text-indigo-700" : "text-slate-700"}`}>{t.label}</span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">{t.description}</p>
+                  <span
+                    className={cn(
+                      "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-sm ring-1 ring-inset",
+                      active ? "bg-primary/10 text-primary ring-primary/40" : "text-transparent ring-border-strong"
+                    )}
+                  >
+                    <Check className="size-3" strokeWidth={2.5} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-foreground">{t.label}</span>
+                    <span className="block text-xs leading-5 text-muted-foreground">{t.description}</span>
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          <div className="flex flex-wrap gap-4 items-end">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600 uppercase tracking-wide">Period Start</label>
-              <input
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="period-start" className="text-small text-muted-foreground">Period start</label>
+              <Input
+                id="period-start"
                 type="date"
                 value={periodStart}
                 onChange={(e) => setPeriodStart(e.target.value)}
-                className="block bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="font-mono text-[13px]"
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600 uppercase tracking-wide">Period End</label>
-              <input
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="period-end" className="text-small text-muted-foreground">Period end</label>
+              <Input
+                id="period-end"
                 type="date"
                 value={periodEnd}
                 onChange={(e) => setPeriodEnd(e.target.value)}
-                className="block bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="font-mono text-[13px]"
               />
             </div>
-            <motion.div whileTap={{ scale: 0.97 }}>
-              <Button
-                onClick={handleGenerate}
-                disabled={generating}
-                className="bg-indigo-600 hover:bg-indigo-700 gap-2 shadow-sm shadow-indigo-200"
-              >
-                {generating
-                  ? <><RefreshCw className="w-4 h-4 animate-spin" /> Generating…</>
-                  : <><Download className="w-4 h-4" /> Generate PDF</>}
-              </Button>
-            </motion.div>
           </div>
-        </div>
-      </div>
 
-      {/* History */}
-      <div>
-        <h2 className="text-base font-semibold text-slate-900 mb-4">Previously Generated</h2>
-        {loading ? (
-          <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 bg-slate-200 rounded-xl animate-pulse" />
-            ))}
-          </div>
-        ) : documents.length === 0 ? (
-          <div className="border-2 border-dashed border-slate-200 rounded-xl py-12 text-center">
-            <FileText className="w-8 h-8 text-slate-300 mx-auto mb-3" />
-            <p className="text-sm text-slate-400">No documents generated yet.</p>
-            <p className="text-xs text-slate-300 mt-1">Use the form above to create your first management letter.</p>
-          </div>
-        ) : (
-          <AnimatePresence>
-            <motion.div
-              className="space-y-3"
-              initial="hidden"
-              animate="show"
-              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
-            >
+          <Button
+            onClick={handleGenerate}
+            disabled={generating}
+            className="mt-1 w-full"
+          >
+            {generating
+              ? <><Loader2 className="animate-spin" /> Generating</>
+              : <><Download /> Generate PDF</>}
+          </Button>
+          <p className="font-mono text-xs text-muted-foreground">Figures come from the synced books; the commentary is drafted by the model and marked indicative.</p>
+        </div>
+
+        {/* History */}
+        <div className="flex min-w-0 flex-col gap-3">
+          <Eyebrow className="text-muted-foreground">Generated</Eyebrow>
+          {loading ? (
+            <ul className="overflow-hidden rounded-lg border border-border bg-surface">
+              {[...Array(3)].map((_, i) => (
+                <li key={i} className="flex items-center gap-4 border-b border-border px-4 py-4 last:border-b-0">
+                  <Skeleton className="size-4" />
+                  <div className="flex flex-1 flex-col gap-2">
+                    <Skeleton className="h-3 w-1/2" />
+                    <Skeleton className="h-3 w-1/3" />
+                  </div>
+                  <Skeleton className="h-8 w-28" />
+                </li>
+              ))}
+            </ul>
+          ) : documents.length === 0 ? (
+            <EmptyState
+              icon={<FileText />}
+              title="No documents generated yet."
+              hint="Pick a template and a period, then generate the first letter."
+            />
+          ) : (
+            <ul className="overflow-hidden rounded-lg border border-border bg-surface">
               {documents.map((doc) => (
                 <DocumentRow key={doc.id} doc={doc} />
               ))}
-            </motion.div>
-          </AnimatePresence>
-        )}
+            </ul>
+          )}
+        </div>
       </div>
     </motion.div>
   );
