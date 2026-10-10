@@ -2,12 +2,14 @@ import { colors, fonts } from "../theme";
 import { CAPTION_Y, W } from "../layout";
 import { BEATS, BEAT_ORDER, type Beat } from "../timing";
 import { enterStyle, seg } from "../timeline";
+import { beatWords } from "../words";
 
 /**
  * Burned-in captions (RULES.md section 1): Geist 32 px, bottom band, one line at a time, a short
  * hairline above. Each beat's text is split at sentence and clause boundaries into lines of at most
- * `MAX` characters, and each line gets a share of the beat's measured audio time proportional to its
- * length. Stage directions in parentheses never reach the screen.
+ * `MAX` characters. A line starts when its first word is spoken and ends with its last (word timings
+ * from `words.ts`); a beat without word data falls back to a share proportional to length. Stage
+ * directions in parentheses never reach the screen.
  */
 const MAX = 72;
 
@@ -64,6 +66,17 @@ interface Line {
 
 function linesFor(beat: Beat): Line[] {
   const lines = splitCaption(beat.text);
+  const words = beatWords(beat.id);
+  const lineWords = lines.map((l) => l.split(" ").length);
+  if (lineWords.reduce((a, b) => a + b, 0) === words.length) {
+    let i = 0;
+    return lines.map((text, k) => {
+      const first = words[i];
+      const last = words[i + lineWords[k] - 1];
+      i += lineWords[k];
+      return { text, startMs: first.start, endMs: last.end };
+    });
+  }
   const total = lines.reduce((n, l) => n + l.length, 0) || 1;
   let cursor = beat.startMs;
   return lines.map((text) => {

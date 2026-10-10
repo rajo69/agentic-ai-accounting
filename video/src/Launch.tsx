@@ -4,6 +4,7 @@ import { toMs } from "./layout";
 import { BEATS, BEAT_ORDER, TEMPO } from "./timing";
 import { ensureFonts } from "./fonts";
 import { Captions } from "./kit/captions";
+import { musicGain } from "./music";
 import { Title } from "./sections/title";
 import { Problem } from "./sections/problem";
 import { Product } from "./sections/product";
@@ -31,6 +32,17 @@ function VoiceOver() {
   );
 }
 
+/**
+ * The music bed is its own layer with its own file (`scripts/music.py` -> `public/music/bed.wav`, local
+ * only), ducked under the voice by `musicGain`; the voice and the bed never share a file, so either can
+ * be regenerated or re-levelled alone (`scripts/stems.py` exports them separately as well).
+ */
+function Music() {
+  const present = new Set(getStaticFiles().map((f) => f.name));
+  if (!present.has("music/bed.wav")) return null;
+  return <Audio src={staticFile("music/bed.wav")} volume={(f) => musicGain(f)} name="music bed" />;
+}
+
 export const Launch: React.FC = () => {
   ensureFonts();
   const frame = useCurrentFrame();
@@ -46,6 +58,7 @@ export const Launch: React.FC = () => {
       <Close />
       <Captions t={t} />
       <VoiceOver />
+      <Music />
     </AbsoluteFill>
   );
 };

@@ -3,6 +3,9 @@ import { CONSOLE, CONSOLE_H, CONSOLE_W, toMs } from "../layout";
 import { ms } from "../timing";
 import { seg, swapDip } from "../timeline";
 import { colors, radius } from "../theme";
+import { Kinetic } from "../kit/kinetic";
+import { poseStyle, Stage, TILTED_IN } from "../kit/depth";
+import { beatWords } from "../words";
 import { Camera, Cursor, type CameraKey, type CursorKey } from "../kit/camera";
 import { Shell, type ShellPage } from "../kit/shell";
 import { alpha } from "../kit/primitives";
@@ -32,7 +35,14 @@ const R2 = ms("reconcile2");
 const RP = ms("report");
 const B1 = ms("built1");
 
-export const FRAME_IN = P - 500;
+/**
+ * The reference opens on words, then tilts the product in. The first sentence of the beat ("AI Accountant
+ * sits after Xero's AI and before the sign-off.") is kinetic type on the bare canvas; the frame enters, tilted
+ * in space and settling flat, on "Here is a quarter's review".
+ * product words: 0 AI 1 Accountant 2 sits 3 after 4 Xero's 5 AI 6 and 7 before 8 the 9 sign-off. 10 Here ...
+ */
+const PW = beatWords("product");
+export const FRAME_IN = PW[10].start - 250;
 export const FRAME_OUT = B1 - 350;
 const SWAP_CAT = C1 - 350;
 const SWAP_REC = R1 - 350;
@@ -121,14 +131,29 @@ function page(t: number): ShellPage {
 export function Product() {
   const frame = useCurrentFrame();
   const t = toMs(frame);
-  if (t < FRAME_IN - 100 || t > FRAME_OUT + 700) return null;
-  const pin = seg(t, FRAME_IN, 700);
+  if (t < P - 400 || t > FRAME_OUT + 700) return null;
+  const pin = seg(t, FRAME_IN, 1000);
   const pout = seg(t, FRAME_OUT, 500);
-  const scale = 0.96 + 0.04 * pin - 0.02 * pout;
-  const opacity = Math.min(pin, 1 - pout);
   const dip = Math.min(swapDip(t, SWAP_CAT), swapDip(t, SWAP_REC), swapDip(t, SWAP_REP));
   const current = page(t);
+  // Entrance from the reference's tilted pose to flat; a small tilt kick on each content swap; a recede on the way out.
+  const kick = Math.max(seg(t, SWAP_CAT, 650), seg(t, SWAP_REC, 650), seg(t, SWAP_REP, 650));
+  const kickRy = t >= SWAP_CAT && t < SWAP_CAT + 650 ? 3 * (1 - kick) : t >= SWAP_REC && t < SWAP_REC + 650 ? 3 * (1 - kick) : t >= SWAP_REP && t < SWAP_REP + 650 ? 3 * (1 - kick) : 0;
+  const entry = poseStyle(TILTED_IN, { ry: kickRy, scale: 1 - 0.03 * pout, opacity: 1 - pout, y: 12 * pout }, pin, "50% 60%");
   return (
+    <Stage>
+    {t < FRAME_IN + 400 && (
+      <Kinetic
+        t={t}
+        beat="product"
+        size={116}
+        phrases={[
+          { from: 0, to: 2, accent: [0] },
+          { from: 2, to: 6, accent: [5] },
+          { from: 6, to: 10, hold: -260 },
+        ]}
+      />
+    )}
     <div
       style={{
         position: "absolute",
@@ -136,13 +161,11 @@ export function Product() {
         top: CONSOLE.top,
         width: CONSOLE_W,
         height: CONSOLE_H,
-        opacity,
-        transform: `scale(${scale})`,
-        transformOrigin: "50% 60%",
         borderRadius: radius.frame,
         overflow: "hidden",
         boxShadow: `0 0 0 1px ${colors.border}, inset 0 1px 0 0 ${alpha("#ffffff", 0.05)}, 0 40px 120px -40px rgba(0,0,0,0.8)`,
         background: colors.background,
+        ...entry,
       }}
     >
       <div style={{ width: CONSOLE.designW, height: CONSOLE.designH, transform: `scale(${CONSOLE.scale})`, transformOrigin: "0 0" }}>
@@ -159,6 +182,7 @@ export function Product() {
         </Camera>
       </div>
     </div>
+    </Stage>
   );
 }
 

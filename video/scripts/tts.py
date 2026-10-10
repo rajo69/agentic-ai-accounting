@@ -12,6 +12,12 @@ following paragraph is its text; lines in parentheses are stage directions and a
 
 Writes video/public/vo/manifest.json with the duration of each clip (measured with mutagen if installed, else by
 ffmpeg from the Playwright cache) so compositions can time scenes from real audio lengths.
+
+Delivery (2026-10-10, S7 voice pass): the beat text may carry Fish S2 bracket cues such as `[calm]`, `[confident]`,
+`[emphasis]` before a word, or `[break]` for a pause. They are sent to the model and stripped from the manifest text,
+so captions never show them. Sampling is lowered (temperature 0.55, top_p 0.65) for a smoother, more even read, the
+pace is set natively with `prosody.speed` (no time-stretch in the render), and the MP3 is 192 kbps at "normal"
+latency, the higher-quality path.
 """
 from __future__ import annotations
 
@@ -29,6 +35,16 @@ SCRIPT = ROOT / "script.md"
 OUT_DIR = ROOT / "public" / "vo"
 VOICE_ID = "eb715e7383264e88ae6973b8da51bbb4"  # "Rajo", cloned by the owner on fish.audio (2026-10-10)
 BACKEND = "s2.1-pro-free"
+# Delivery parameters (see the module docstring). SPEED is the model's own pace: 1.0 reads at ~2.35 words/s.
+SPEED = 1.08
+TEMPERATURE = 0.55
+TOP_P = 0.65
+TAG = re.compile(r"\[[^\]]*\]")
+
+
+def strip_cues(text: str) -> str:
+    """Remove `[bracket]` delivery cues and tidy the spacing: the text the captions show."""
+    return re.sub(r"\s+", " ", TAG.sub(" ", text)).replace(" ,", ",").replace(" .", ".").strip()
 FFMPEG = Path(os.environ.get("LOCALAPPDATA", "")) / "ms-playwright" / "ffmpeg-1011" / "ffmpeg-win64.exe"
 
 
@@ -50,13 +66,24 @@ def parse_script(path: Path) -> list[tuple[str, str]]:
     return [(bid, " ".join(lines)) for bid, lines in beats if lines]
 
 
-def synthesize(key: str, text: str, out: Path) -> None:
-    from fish_audio_sdk import Session, TTSRequest
+def synthesize(key: str, text: str, out: Path, speed: float = SPEED) -> None:
+    from fish_audio_sdk import Prosody, Session, TTSRequest
 
     out.parent.mkdir(parents=True, exist_ok=True)
     session = Session(key)
+    request = TTSRequest(
+        text=text,
+        reference_id=VOICE_ID,
+        format="mp3",
+        mp3_bitrate=192,
+        latency="normal",
+        chunk_length=300,
+        prosody=Prosody(speed=speed, volume=0),
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+    )
     with out.open("wb") as f:
-        for chunk in session.tts(TTSRequest(text=text, reference_id=VOICE_ID, format="mp3"), backend=BACKEND):
+        for chunk in session.tts(request, backend=BACKEND):
             f.write(chunk)
 
 
@@ -81,12 +108,13 @@ def main() -> None:
     ap.add_argument("--beat", help="only this beat id from script.md")
     ap.add_argument("--text", help="synthesize this text instead of the script")
     ap.add_argument("--out", help="output path for --text")
+    ap.add_argument("--speed", type=float, default=SPEED, help=f"prosody speed (default {SPEED})")
     args = ap.parse_args()
     key = load_key()
 
     if args.text:
         out = Path(args.out or OUT_DIR / "adhoc.mp3")
-        synthesize(key, args.text, out)
+        synthesize(key, args.text, out, args.speed)
         print(f"wrote {out} ({out.stat().st_size} bytes, {duration_seconds(out)} s)")
         return
 
@@ -101,8 +129,8 @@ def main() -> None:
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     for bid, text in beats:
         out = OUT_DIR / f"{bid}.mp3"
-        synthesize(key, text, out)
-        manifest[bid] = {"text": text, "seconds": duration_seconds(out), "bytes": out.stat().st_size}
+        synthesize(key, text, out, args.speed)
+        manifest[bid] = {"text": strip_cues(text), "cues": text, "seconds": duration_seconds(out), "bytes": out.stat().st_size}
         print(f"{bid}: {manifest[bid]['seconds']} s, {out.stat().st_size} bytes")
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     # Committed copy (durations only matter): the composition builds its timeline from it without the audio.
