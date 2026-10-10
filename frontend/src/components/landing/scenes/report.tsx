@@ -103,7 +103,7 @@ export function ReportScene({ t }: { t: number }) {
               <span className="font-mono text-xs text-muted-foreground">Job</span>
               <JobChip
                 state={job}
-                label={job === "idle" ? "—" : job === "queued" ? "Queued" : job === "running" ? "Running" : "Completed"}
+                label={job === "idle" ? "Not started" : job === "queued" ? "Queued" : job === "running" ? "Running" : "Completed"}
               />
             </div>
             {job !== "idle" && (

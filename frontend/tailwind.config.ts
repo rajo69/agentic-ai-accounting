@@ -33,6 +33,9 @@ const config: Config = {
       // DESIGN.md section 4 scale. Each entry carries its own leading, tracking and weight.
       fontSize: {
         display: ["clamp(2.5rem, 6vw, 4rem)", { lineHeight: "1.02", letterSpacing: "-0.035em", fontWeight: "600" }],
+        // Landing display type in Instrument Serif: lighter tracking, a little more leading for descenders.
+        "display-serif": ["clamp(2.875rem, 6.6vw, 4.75rem)", { lineHeight: "1.05", letterSpacing: "-0.015em", fontWeight: "400" }],
+        "h2-serif": ["clamp(2rem, 3.8vw, 2.875rem)", { lineHeight: "1.1", letterSpacing: "-0.01em", fontWeight: "400" }],
         h2: ["clamp(1.75rem, 3.2vw, 2.5rem)", { lineHeight: "1.1", letterSpacing: "-0.025em", fontWeight: "600" }],
         h3: ["1.25rem", { lineHeight: "1.3", letterSpacing: "-0.015em", fontWeight: "600" }],
         lead: ["1.0625rem", { lineHeight: "1.6" }],

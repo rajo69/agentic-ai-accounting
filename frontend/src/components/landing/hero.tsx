@@ -1,7 +1,6 @@
 "use client";
 
 import GradientText from "@/components/gradient-text";
-import { Eyebrow } from "@/components/ui/eyebrow";
 
 import { ButtonLink } from "./button-link";
 import { AURORA_STOPS, DEMO_PATH } from "./links";
@@ -11,47 +10,43 @@ import { Container } from "./section";
 const rise = (i: number) => ({ animationDelay: `${i * 50}ms` });
 
 /**
- * Left-aligned hero (DESIGN.md section 10). The headline's one accent word borrows the aurora's
- * colours; everything else is type on the canvas.
+ * Left-aligned hero (DESIGN.md section 10). Four elements: headline, lead, the two CTAs, one
+ * line of fact about the demo. The headline is Instrument Serif, the brand's own serif, with
+ * "evidence" in italic and the aurora's colours (owner decisions 2026-10-10).
  */
 export function Hero({ connectHref, videoUrl }: { connectHref: string; videoUrl?: string }) {
   return (
     <section className="relative z-10">
-      <Container className="pb-14 pt-16 md:pb-20 md:pt-24">
+      <Container className="pb-12 pt-14 md:pb-16 md:pt-20">
         <div className="max-w-[980px]">
-          <div className="animate-rise" style={rise(0)}>
-            <Eyebrow className="text-muted-foreground">Review layer for Xero · built with Claude</Eyebrow>
-          </div>
-
-          <h1 className="animate-rise mt-6 max-w-[980px] text-display text-foreground" style={rise(1)}>
-            Every AI-coded transaction,
+          <h1 className="animate-rise font-serif text-display-serif text-foreground" style={rise(0)}>
+            Every AI<span className="-mx-[0.07em]">-</span>coded transaction,
             <br className="hidden sm:block" /> reviewed with{" "}
-            <GradientText colors={AURORA_STOPS} animationSpeed={14}>
+            <GradientText colors={AURORA_STOPS} animationSpeed={14} className="italic">
               evidence
             </GradientText>
             .
           </h1>
 
-          <p className="animate-rise mt-6 max-w-[600px] text-lead text-muted-foreground" style={rise(2)}>
-            Xero’s AI codes the books. The errors it leaves are still the accountant’s to find. Every transaction
-            gets a proposed category with written reasoning, a confidence tier and a risk flag. You decide, and every
-            decision is recorded.
+          <p className="animate-rise mt-6 max-w-[560px] text-lead text-muted-foreground" style={rise(1)}>
+            Xero’s AI codes the books. The errors are still yours to find. Every transaction arrives with written
+            reasoning, a confidence tier and a risk flag. You decide.
           </p>
 
-          <div className="animate-rise mt-8 flex flex-wrap items-center gap-3" style={rise(3)}>
-            <ButtonLink href={connectHref} variant="outline" size="lg">
-              Connect Xero
-            </ButtonLink>
+          <div className="animate-rise mt-8 flex flex-wrap items-center gap-3" style={rise(2)}>
             <ButtonLink href={DEMO_PATH} size="lg">
               Launch demo <span aria-hidden>↗</span>
             </ButtonLink>
+            <ButtonLink href={connectHref} variant="outline" size="lg">
+              Connect Xero
+            </ButtonLink>
           </div>
 
-          <p className="animate-rise mt-5 font-mono text-xs text-muted-foreground" style={rise(4)}>
-            Demo uses a synthetic company. No account needed.
+          <p className="animate-rise mt-5 font-mono text-xs text-muted-foreground" style={rise(3)}>
+            The demo is a synthetic company. No account needed.
             {videoUrl && (
               <>
-                {" · "}
+                {" "}
                 <a
                   href={videoUrl}
                   target="_blank"

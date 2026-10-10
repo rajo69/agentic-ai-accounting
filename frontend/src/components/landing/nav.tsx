@@ -35,7 +35,7 @@ export function Nav({ connectHref }: { connectHref: string }) {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <ButtonLink href={connectHref} variant="outline" size="sm" className="hidden sm:inline-flex">
+          <ButtonLink href={connectHref} variant="ghost" size="sm" className="hidden sm:inline-flex">
             Connect Xero
           </ButtonLink>
           <ButtonLink href={DEMO_PATH} size="sm">

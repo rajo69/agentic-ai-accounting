@@ -29,12 +29,12 @@ const EDGES = [
 ];
 
 const FACTS = [
-  "FastAPI · 34 endpoints · OpenAPI contract",
-  "pytest · 93 tests in CI",
-  "LangGraph graph · Haiku 4.5 → Sonnet 4.6 escalation",
-  "Instructor · Pydantic-validated structured outputs",
-  "pgvector · precedent retrieval scoped to the organisation",
-  "fuzzy risk engine · 8 rules · audit row per decision",
+  "34 FastAPI endpoints behind one OpenAPI contract",
+  "93 pytest tests run on every push",
+  "Haiku 4.5 first, Sonnet 4.6 when the fast model is unsure",
+  "Instructor outputs validated by Pydantic before they are stored",
+  "pgvector precedents, scoped to the organisation",
+  "Eight fuzzy risk rules and an audit row for every decision",
 ];
 
 const LINKS = [
@@ -88,7 +88,6 @@ export function Architecture() {
     <section id="engineering" className="relative z-10 scroll-mt-6 border-t border-border">
       <Container className="py-24 md:py-32">
         <SectionHeader
-          index={4}
           eyebrow="How it is built"
           title="One API, two graphs, every answer validated."
           lead="A Next.js app on Vercel talks to a FastAPI service on Railway. Categorisation and reconciliation are LangGraph graphs that call Claude through Instructor, so each answer is validated before it is stored. Postgres holds the books, the pgvector precedents and the audit log."
@@ -98,12 +97,9 @@ export function Architecture() {
             <Diagram />
           </div>
           <div className="flex flex-col gap-10 self-start lg:col-span-4">
-            <ul className="grid gap-x-8 gap-y-3 font-mono text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-1 lg:pt-2">
+            <ul className="grid gap-x-8 gap-y-3.5 font-mono text-xs leading-5 text-muted-foreground sm:grid-cols-2 lg:grid-cols-1 lg:pt-2">
               {FACTS.map((f) => (
-                <li key={f} className="flex items-start gap-2.5">
-                  <span aria-hidden className="mt-[7px] size-1 shrink-0 rounded-full bg-border-strong" />
-                  <span>{f}</span>
-                </li>
+                <li key={f}>{f}</li>
               ))}
             </ul>
             <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">

@@ -16,11 +16,11 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
-// Editorial accent (S0 decision): italic only, one or two words in the hero.
+// Display face (owner decision 2026-10-10): landing h1/h2 upright, emphasis and the wordmark italic.
 const serif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
-  style: "italic",
+  style: ["normal", "italic"],
   variable: "--font-serif",
   display: "swap",
 });
