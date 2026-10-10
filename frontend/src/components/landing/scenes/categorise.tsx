@@ -24,6 +24,8 @@ import { enterStyle, gbp, outroOpacity, pressStyle, seg } from "./timeline";
  * risk rules ticking. Holds, fades, loops.
  */
 export const CATEGORISE_DURATION = 8600;
+/** First loop starts here: rows already coded, the reviewed row about to open. */
+export const CATEGORISE_START = 4400;
 
 const ROW_IN = (i: number) => 150 + i * 90;
 const PRESS_AT = 1200;
@@ -71,11 +73,7 @@ export function CategoriseTable({
               </TableCell>
               <TableCell className="text-right font-mono tabular-nums text-foreground">{gbp(row.amount)}</TableCell>
               <TableCell>
-                {pr > 0 ? (
-                  <CategoryLabel code={row.code} name={row.category} className="flex" />
-                ) : (
-                  <span className="text-subtle-foreground">—</span>
-                )}
+                {pr > 0 && <CategoryLabel code={row.code} name={row.category} className="flex" />}
               </TableCell>
               <TableCell>
                 <CountingConfidence value={row.confidence} p={pr} />

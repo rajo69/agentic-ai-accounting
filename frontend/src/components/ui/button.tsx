@@ -7,7 +7,9 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 /**
- * DESIGN.md section 7. Three real tiers: default/primary (solid accent), outline (hairline), ghost.
+ * DESIGN.md section 7 (amended 2026-10-10): default/primary is the foreground colour on the dark
+ * canvas, like Linear and Vercel; the accent token stays for focus rings, active bars and chips.
+ * Three real tiers: default/primary, outline (hairline), ghost.
  * `secondary` is a tonal fill for grouped toolbars; `destructive` is a tinted chip-style button
  * for reject actions. Heights: xs 28, sm 32, default 36, lg 40.
  */
@@ -24,9 +26,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-highlight hover:brightness-110 aria-expanded:brightness-110",
+          "bg-foreground text-background hover:bg-white aria-expanded:bg-white",
         primary:
-          "bg-primary text-primary-foreground shadow-highlight hover:brightness-110 aria-expanded:brightness-110",
+          "bg-foreground text-background hover:bg-white aria-expanded:bg-white",
         outline:
           "border-border bg-transparent text-foreground hover:border-border-strong hover:bg-surface-2 aria-expanded:border-border-strong aria-expanded:bg-surface-2",
         secondary:

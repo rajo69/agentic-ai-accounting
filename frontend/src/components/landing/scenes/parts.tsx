@@ -194,7 +194,7 @@ export function CountingConfidence({ value, p, className }: { value: number; p: 
     <span className={cn("flex items-center gap-3", className)}>
       <ConfidenceMeter value={p > 0 ? value : null} showValue={false} className="flex-1" />
       <span className="w-9 shrink-0 text-right font-mono text-small tabular-nums text-muted-foreground">
-        {p > 0 ? `${pct(value, p)}%` : "—"}
+        {p > 0 ? `${pct(value, p)}%` : ""}
       </span>
     </span>
   );

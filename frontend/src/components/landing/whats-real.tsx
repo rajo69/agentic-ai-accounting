@@ -27,7 +27,7 @@ export function WhatsReal() {
     <section id="real" className="relative z-10 border-t border-border">
       <Container className="py-24 md:py-32">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <SectionHeader index={5} eyebrow="What is real" title="What is live, what is demo." className="lg:col-span-5" />
+          <SectionHeader title="What is live, what is demo." className="lg:col-span-5" />
           <motion.dl
             variants={stagger(0.08)}
             initial="hidden"

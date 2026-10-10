@@ -21,16 +21,14 @@ export function Reveal({ className, children }: { className?: string; children: 
   );
 }
 
-/** Eyebrow with numeral, h2 ending in a full stop, optional lead. Staggered reveal. */
+/** Serif h2 ending in a full stop, optional lead. One eyebrow per three sections at most. */
 export function SectionHeader({
-  index,
   eyebrow,
   title,
   lead,
   className,
 }: {
-  index?: number;
-  eyebrow: string;
+  eyebrow?: string;
   title: ReactNode;
   lead?: ReactNode;
   className?: string;
@@ -43,12 +41,12 @@ export function SectionHeader({
       viewport={revealOnce}
       className={cn("max-w-[640px]", className)}
     >
-      <motion.div variants={reveal}>
-        <Eyebrow index={index} className="text-muted-foreground">
-          {eyebrow}
-        </Eyebrow>
-      </motion.div>
-      <motion.h2 variants={reveal} className="mt-4 text-balance text-h2 text-foreground">
+      {eyebrow && (
+        <motion.div variants={reveal} className="mb-4">
+          <Eyebrow className="text-muted-foreground">{eyebrow}</Eyebrow>
+        </motion.div>
+      )}
+      <motion.h2 variants={reveal} className="text-balance font-serif text-h2-serif text-foreground">
         {title}
       </motion.h2>
       {lead && (

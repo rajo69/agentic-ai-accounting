@@ -5,28 +5,27 @@ import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 import { reveal, revealOnce, stagger } from "@/lib/motion";
-import { Eyebrow } from "@/components/ui/eyebrow";
 
 /**
  * DESIGN.md section 5: text 5 columns, product 7 columns, alternating; never three cards.
- * Copy: eyebrow, h2 with a full stop, two sentences, one mono fact.
+ * The headline carries the section; no eyebrow. `children` is the desktop crop, `mobile` the
+ * phone-width crop (each scene has a narrow composition, so nothing is scaled below legibility).
  */
 export function CapabilityRow({
-  index,
-  eyebrow,
   title,
   body,
   fact,
   flip = false,
+  mobile,
   children,
 }: {
-  index: number;
-  eyebrow: string;
   title: string;
   body: ReactNode;
+  /** One plain fact in mono, no separators. */
   fact: string;
   /** Product on the left, text on the right. */
   flip?: boolean;
+  mobile: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -38,12 +37,7 @@ export function CapabilityRow({
         viewport={revealOnce}
         className={cn("md:col-span-5", flip && "md:order-2")}
       >
-        <motion.div variants={reveal}>
-          <Eyebrow index={index} className="text-muted-foreground">
-            {eyebrow}
-          </Eyebrow>
-        </motion.div>
-        <motion.h2 variants={reveal} className="mt-4 text-balance text-h2 text-foreground">
+        <motion.h2 variants={reveal} className="text-balance font-serif text-h2-serif text-foreground">
           {title}
         </motion.h2>
         <motion.p variants={reveal} className="mt-4 text-body text-muted-foreground">
@@ -62,7 +56,8 @@ export function CapabilityRow({
         aria-hidden
         className={cn("min-w-0 md:col-span-7", flip && "md:order-1")}
       >
-        {children}
+        <div className="hidden sm:block">{children}</div>
+        <div className="sm:hidden">{mobile}</div>
       </motion.div>
     </div>
   );
