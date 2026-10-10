@@ -7,7 +7,8 @@ voice.wav: every beat MP3 placed at its composition start, time-stretched by TEM
 preserved, the same filter Remotion uses). music.wav: `public/music/bed.wav` through the composition's gain curve
 (`scripts/timing.py` mirrors `src/music.ts`). mix.wav: the two summed, which is what the render carries. The levels
 printed at the end (voice RMS over the spoken parts, music RMS under the voice and in the gaps) are the check for
-RULES.md section 5: the bed sits about 16 dB under the voice.
+RULES.md section 5: the bed sits about 16 dB under the voice. Both stems carry the composition's MASTER trim
+(`src/music.ts`); `scripts/loudness.py` then measures them in LUFS.
 """
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-from timing import FPS, beats, music_gain, tempo
+from timing import FPS, MASTER, beats, music_gain, tempo
 
 ROOT = Path(__file__).resolve().parents[1]
 VO = ROOT / "public" / "vo"
@@ -71,6 +72,8 @@ def main() -> None:
     gain = np.array([music_gain(f, b, total) for f in frames[:: SR // 100]])  # one value per 10 ms
     gain = np.interp(np.arange(m), np.arange(len(gain)) * (SR // 100), gain)
     music[:m] = bed[:m] * gain[:, None]
+    voice *= MASTER
+    music *= MASTER
     mix = voice + music
     peak = float(np.max(np.abs(mix)))
     if peak > 0.98:

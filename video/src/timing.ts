@@ -1,5 +1,5 @@
 import manifest from "./vo-manifest.json";
-import { video } from "./theme";
+import { F, video } from "./theme";
 
 /**
  * Beat timing comes from the measured voice-over (`scripts/tts.py` writes `public/vo/manifest.json`
@@ -32,7 +32,7 @@ export const BEAT_ORDER = [
 
 export type BeatId = (typeof BEAT_ORDER)[number];
 
-/** Extra silence before a beat, in frames. Section openers get a breath; the title gets a lead-in. */
+/** Extra silence before a beat, in frames at the 30 fps design rate (`F` converts). Section openers get a breath; the title gets a lead-in. */
 const LEAD: Partial<Record<BeatId, number>> = {
   hook: 36,
   problem1: 12,
@@ -54,7 +54,7 @@ const DEFAULT_GAP = 5;
  * free backend only partly honours), so only a light stretch remains here; raise it to shorten the cut.
  */
 export const TEMPO = 1.05;
-/** Frames held after the last word of the close. */
+/** Frames (at 30 fps) held after the last word of the close. */
 const TAIL = 60;
 
 export interface Beat {
@@ -81,7 +81,7 @@ function build(): { beats: Record<BeatId, Beat>; total: number } {
   for (const id of BEAT_ORDER) {
     const entry = m[id];
     const seconds = (entry?.seconds ?? 0) / TEMPO;
-    cursor += LEAD[id] ?? DEFAULT_GAP;
+    cursor += F(LEAD[id] ?? DEFAULT_GAP);
     const duration = Math.round(seconds * video.fps);
     const beat: Beat = {
       id,
@@ -96,7 +96,7 @@ function build(): { beats: Record<BeatId, Beat>; total: number } {
     list.push(beat);
     cursor += duration;
   }
-  const total = cursor + TAIL;
+  const total = cursor + F(TAIL);
   list.forEach((b, i) => {
     b.next = i + 1 < list.length ? list[i + 1].start : total;
   });
