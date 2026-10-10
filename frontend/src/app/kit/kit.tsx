@@ -28,6 +28,7 @@ import { STATUS_STYLES, StatusChip } from "@/components/ui/status-chip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { reveal, stagger } from "@/lib/motion";
+import { BrandSection } from "./brand";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -131,6 +132,9 @@ export default function Kit() {
           Dark only. Geist Sans, Geist Mono, one accent.
         </p>
       </header>
+
+      {/* 00 Brand (candidates) */}
+      <BrandSection />
 
       {/* 01 Colour */}
       <Section index={1} title="Colour" note="Thirteen tokens. Greys carry a trace of indigo (hue 240) so the accent sits in them.">

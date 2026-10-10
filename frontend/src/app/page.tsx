@@ -3,10 +3,11 @@
 import dynamic from "next/dynamic";
 import { motion, useMotionValue, useTransform, useSpring, useScroll } from "framer-motion";
 import {
-  BrainCircuit, Tag, GitCompare, FileText,
+  Tag, GitCompare, FileText,
   ArrowRight, CheckCircle2, ChevronRight,
 } from "lucide-react";
 import GradientText from "@/components/gradient-text";
+import { Lockup } from "@/components/brand/logo";
 import FluidGlassButton from "@/components/fluid-glass-button";
 
 const Aurora = dynamic(() => import("@/components/aurora"), { ssr: false });
@@ -154,12 +155,7 @@ export default function LandingPage() {
         transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.05 }}
         className="relative z-10 max-w-6xl mx-auto px-6 h-14 flex items-center justify-between"
       >
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-[5px] bg-indigo-500 flex items-center justify-center shadow-md shadow-indigo-500/40">
-            <BrainCircuit className="w-3.5 h-3.5 text-white" strokeWidth={2} />
-          </div>
-          <span className="text-sm font-semibold tracking-tight">AI Accountant</span>
-        </div>
+        <Lockup animated />
         <div className="flex items-center gap-4">
           <span className="text-xs text-white/40 hidden sm:block">For UK accounting firms</span>
           <a href="/privacy" className="text-xs text-white/40 hover:text-white/70 transition-colors hidden sm:block">
