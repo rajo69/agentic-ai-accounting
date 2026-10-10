@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/app-shell";
+import { MotionProvider } from "@/components/motion-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
@@ -15,16 +16,18 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
-const jakarta = Plus_Jakarta_Sans({
+// Display face (owner decision 2026-10-10): landing h1/h2 upright, emphasis and the wordmark italic.
+const serif = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-jakarta",
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
   title: "AI Accountant",
-  description: "AI-powered Xero assistant for UK accountants",
+  description: "The review layer for AI-coded Xero books. Portfolio project by Rajarshi Nandi.",
 };
 
 export default function RootLayout({
@@ -33,10 +36,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${jakarta.variable} antialiased`}>
-        <AppShell>{children}</AppShell>
-        <Toaster richColors position="top-right" />
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${serif.variable}`}>
+      <body className="min-h-screen">
+        <MotionProvider>
+          <AppShell>{children}</AppShell>
+          <Toaster position="top-right" />
+        </MotionProvider>
       </body>
     </html>
   );

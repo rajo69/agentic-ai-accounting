@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Lockup } from "@/components/brand/logo";
 import Sidebar from "@/components/sidebar";
 import ErrorBoundary from "@/components/error-boundary";
+import DemoBanner from "@/components/demo-banner";
 
 const APP_ROUTES = ["/dashboard", "/transactions", "/reconciliation", "/documents", "/team", "/settings"];
 
@@ -17,32 +20,37 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (!showSidebar) return <ErrorBoundary>{children}</ErrorBoundary>;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Desktop sidebar */}
       <div className="hidden md:flex">
         <Sidebar onNavigate={() => {}} />
       </div>
 
-      {/* Mobile hamburger */}
-      <button
-        className="md:hidden fixed top-4 left-4 z-50 w-9 h-9 bg-white rounded-lg flex items-center justify-center shadow-sm border border-slate-200"
-        onClick={() => setMobileOpen(true)}
-      >
-        <Menu className="w-4 h-4 text-slate-600" />
-      </button>
-
       {/* Mobile sidebar drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="p-0 w-60 border-none">
+        <SheetContent side="left" className="w-60 max-w-[240px] p-0" showCloseButton={false}>
+          <SheetTitle className="sr-only">Navigation</SheetTitle>
           <Sidebar onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
 
-      <main className="flex-1 overflow-y-auto bg-slate-50">
-        <div className="min-h-full p-4 md:p-8 pt-16 md:pt-8">
-          <ErrorBoundary>{children}</ErrorBoundary>
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Mobile top bar: the demo banner sits below it, so nothing overlaps */}
+        <div className="flex h-12 shrink-0 items-center gap-2 border-b border-border bg-surface px-2 md:hidden">
+          <Button variant="ghost" size="icon-sm" aria-label="Open navigation" onClick={() => setMobileOpen(true)}>
+            <Menu />
+          </Button>
+          <Lockup />
         </div>
-      </main>
+
+        <DemoBanner />
+
+        <main className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-[1280px] px-4 py-6 md:px-8 md:py-8">
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

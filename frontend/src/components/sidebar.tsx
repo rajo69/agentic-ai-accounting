@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { Lockup } from "@/components/brand/logo";
+import { exitDemo, isDemo } from "@/demo/flag";
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -11,18 +13,21 @@ import {
   FileText,
   Users,
   Settings,
-  BrainCircuit,
   LogOut,
 } from "lucide-react";
 
+/** Settings ships in demo mode only (S0 decision 4), so its item renders only when `isDemo()`. */
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/reconciliation", label: "Reconciliation", icon: GitCompare },
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/team", label: "Team", icon: Users },
-  { href: "/settings", label: "Settings", icon: Settings, soon: true },
+  { href: "/settings", label: "Settings", icon: Settings, demoOnly: true },
 ];
+
+const itemClass =
+  "flex h-9 w-full items-center gap-2.5 rounded-md px-2.5 text-sm font-medium outline-none transition-colors duration-150 ease-out-quart focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -31,6 +36,11 @@ interface SidebarProps {
 export default function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  // Demo flag read after mount so server and client render the same markup.
+  const [demo, setDemo] = useState(false);
+  useEffect(() => {
+    setDemo(isDemo());
+  }, []);
 
   function handleLogout() {
     localStorage.removeItem("session_token");
@@ -39,50 +49,42 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
   }
 
   return (
-    <aside className="w-60 flex-shrink-0 bg-white flex flex-col border-r border-slate-200 h-screen">
+    <aside className="flex h-full w-60 flex-shrink-0 flex-col border-r border-border bg-surface">
       {/* Logo */}
-      <div className="h-16 flex items-center px-5 border-b border-slate-100">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center shadow-md shadow-indigo-500/20">
-            <BrainCircuit className="w-4 h-4 text-white" strokeWidth={2} />
-          </div>
-          <span className="font-semibold text-[15px] text-slate-900 tracking-tight">
-            AI Accountant
-          </span>
-        </div>
+      <div className="flex h-14 shrink-0 items-center px-5">
+        <Link
+          href="/dashboard"
+          onClick={onNavigate}
+          aria-label="AI Accountant dashboard"
+          className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+        >
+          <Lockup />
+        </Link>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 px-3 space-y-0.5">
-        {navItems.map(({ href, label, icon: Icon, soon }) => {
+      <nav aria-label="Main" className="flex flex-1 flex-col gap-0.5 px-3 pt-1">
+        {navItems.map(({ href, label, icon: Icon, demoOnly }) => {
+          if (demoOnly && !demo) return null;
           const active = href === "/dashboard" ? pathname.startsWith("/dashboard") : pathname === href;
           return (
             <Link
               key={href}
-              href={soon ? "#" : href}
-              onClick={soon ? undefined : onNavigate}
+              href={href}
+              onClick={onNavigate}
+              aria-current={active ? "page" : undefined}
               className={cn(
-                "group relative flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                itemClass,
                 active
-                  ? "text-white"
-                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-100",
-                soon && "pointer-events-none opacity-40"
+                  ? "bg-surface-2 text-foreground shadow-[inset_2px_0_0_0_hsl(var(--primary))]"
+                  : "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground"
               )}
             >
-              {active && (
-                <motion.div
-                  layoutId="nav-active"
-                  className="absolute inset-0 rounded-lg bg-indigo-600"
-                  transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                />
-              )}
-              <span className="relative flex items-center gap-3">
-                <Icon className="w-4 h-4 shrink-0" />
-                {label}
-              </span>
-              {soon && (
-                <span className="relative text-[10px] bg-slate-100 text-slate-400 rounded px-1.5 py-0.5">
-                  Soon
+              <Icon className="size-4 shrink-0" strokeWidth={1.75} />
+              {label}
+              {demoOnly && (
+                <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.08em] text-subtle-foreground">
+                  demo
                 </span>
               )}
             </Link>
@@ -91,15 +93,16 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
       </nav>
 
       {/* Bottom */}
-      <div className="p-3 border-t border-slate-100 space-y-1">
+      <div className="flex flex-col gap-1 border-t border-border p-3">
         <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all duration-150"
+          type="button"
+          onClick={demo ? () => exitDemo() : handleLogout}
+          className={cn(itemClass, "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground")}
         >
-          <LogOut className="w-4 h-4 shrink-0" />
-          Disconnect Xero
+          <LogOut className="size-4 shrink-0" strokeWidth={1.75} />
+          {demo ? "Exit demo" : "Sign out"}
         </button>
-        <p className="text-[11px] text-slate-400 text-center pt-1">v0.1.0 · Beta</p>
+        <p className="px-2.5 pt-1 font-mono text-[11px] text-subtle-foreground">v0.2.8 · portfolio build</p>
       </div>
     </aside>
   );

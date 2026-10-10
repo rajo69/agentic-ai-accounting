@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- AI Accountant mark: a disc split by a check-shaped gap, on the canvas tile. -->
+  <rect width="32" height="32" rx="7" fill="#09090c"/>
+  <g transform="translate(5 5) scale(0.9167)">
+    <mask id="gap" maskUnits="userSpaceOnUse" x="-4" y="-4" width="32" height="32">
+      <rect x="-4" y="-4" width="32" height="32" fill="#fff"/>
+      <path d="M-1 10.5 L9 20 L25 3.5" stroke="#000" stroke-width="4.4" stroke-linejoin="miter" fill="none"/>
+    </mask>
+    <circle cx="12" cy="12" r="10" fill="#ebebf0" mask="url(#gap)"/>
+  </g>
+</svg>

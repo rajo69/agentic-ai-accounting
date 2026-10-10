@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,17 +14,29 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { StatusChip } from "@/components/ui/status-chip";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { toast } from "sonner";
 import {
   ChevronLeft,
   ChevronRight,
-  CheckCircle2,
-  XCircle,
+  Check,
+  X,
   Search,
   Link2,
+  GitCompare,
 } from "lucide-react";
 import {
   getBankStatements,
@@ -38,24 +50,27 @@ import {
   type Transaction,
 } from "@/lib/api";
 import { ExplanationPanel } from "@/components/explanation-panel";
+import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/app/page-header";
+import { EmptyState } from "@/components/app/empty-state";
+import { PanelSection } from "@/components/app/panel-section";
+import { MiniBar, toneForScore } from "@/components/app/mini-bar";
+import { Skeleton } from "@/components/app/skeleton";
+import { uiTransition } from "@/lib/motion";
 
-// ── Match badge ───────────────────────────────────────────────────────────────
+// ── Status filter ─────────────────────────────────────────────────────────────
 
-const MATCH_CONFIG: Record<string, { label: string; className: string }> = {
-  confirmed:    { label: "Confirmed",    className: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" },
-  auto_matched: { label: "Auto-matched", className: "bg-sky-50 text-sky-700 ring-1 ring-sky-200" },
-  suggested:    { label: "Suggested",    className: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" },
-  unmatched:    { label: "Unmatched",    className: "bg-slate-100 text-slate-500 ring-1 ring-slate-200" },
-};
-
-function MatchBadge({ status }: { status: string }) {
-  const cfg = MATCH_CONFIG[status] ?? { label: status, className: "bg-slate-100 text-slate-500" };
-  return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${cfg.className}`}>
-      {cfg.label}
-    </span>
-  );
-}
+const MATCH_OPTIONS: { value: string; label: string }[] = [
+  { value: "all", label: "All statuses" },
+  { value: "unmatched", label: "Unmatched" },
+  { value: "suggested", label: "Suggested" },
+  { value: "auto_matched", label: "Auto-matched" },
+  { value: "confirmed", label: "Confirmed" },
+];
+const MATCH_ITEMS: Record<string, string> = Object.fromEntries([
+  ["", "All statuses"],
+  ...MATCH_OPTIONS.map((o) => [o.value, o.label]),
+]);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -69,26 +84,15 @@ function fmtPct(n: number) {
   return `${(n * 100).toFixed(0)}%`;
 }
 
-// ── Score bar ─────────────────────────────────────────────────────────────────
-
-function ScoreBar({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="space-y-0.5">
-      <div className="flex justify-between text-[10px] text-slate-500">
-        <span>{label}</span>
-        <span className="font-mono">{fmtPct(value)}</span>
-      </div>
-      <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
-        <motion.div
-          className="h-full bg-indigo-400 rounded-full"
-          initial={{ width: 0 }}
-          animate={{ width: `${value * 100}%` }}
-          transition={{ duration: 0.5}}
-        />
-      </div>
-    </div>
-  );
+function onActivate(fn: () => void) {
+  return (e: React.KeyboardEvent) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); }
+  };
 }
+
+const rowClass =
+  "flex w-full cursor-pointer flex-col justify-center gap-1 border-b border-border px-4 py-3 text-left outline-none transition-colors duration-150 ease-out-quart last:border-b-0 hover:bg-surface-2/60 focus-visible:bg-surface-2/60 focus-visible:shadow-[inset_2px_0_0_0_hsl(var(--ring))]";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -170,275 +174,255 @@ export default function ReconciliationPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3}}
-      className="max-w-6xl"
+      transition={uiTransition}
+      className="space-y-6"
     >
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Reconciliation</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Match bank statement lines to your Xero transactions</p>
-      </div>
+      <PageHeader
+        title="Reconciliation"
+        meta={total > 0 ? `${total.toLocaleString("en-GB")} statement lines · page ${page} of ${Math.max(totalPages, 1)}` : "Match bank statement lines to transactions"}
+      >
+        <Select
+          value={matchStatus}
+          onValueChange={(v) => { setMatchStatus(v === "all" ? "" : v ?? ""); setPage(1); }}
+          items={MATCH_ITEMS}
+        >
+          <SelectTrigger className="w-44" aria-label="Filter by match status">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            {MATCH_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </PageHeader>
 
-      <div className="flex flex-col lg:flex-row gap-5">
-        {/* Left panel: statements list */}
-        <div className="flex-1 min-w-0 space-y-3">
-          <Select
-            value={matchStatus}
-            onValueChange={(v) => { setMatchStatus(v === "all" ? "" : v ?? ""); setPage(1); }}
-          >
-            <SelectTrigger className="w-48 bg-white border-slate-200 text-sm">
-              <SelectValue placeholder="All statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="unmatched">Unmatched</SelectItem>
-              <SelectItem value="suggested">Suggested</SelectItem>
-              <SelectItem value="auto_matched">Auto-matched</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <div className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 overflow-hidden">
+      <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+        {/* Left pane: statement lines */}
+        <div className="flex min-w-0 flex-col gap-3">
+          <div className="overflow-hidden rounded-lg border border-border bg-surface">
             {loading ? (
-              <div className="divide-y divide-slate-50">
+              <ul>
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="flex items-center justify-between px-4 py-3.5 gap-4">
-                    <div className="space-y-1.5 flex-1">
-                      <div className="h-3.5 bg-slate-100 rounded animate-pulse w-3/4" />
-                      <div className="h-3 bg-slate-100 rounded animate-pulse w-1/3" />
+                  <li key={i} className="flex flex-col gap-2 border-b border-border px-4 py-3 last:border-b-0">
+                    <div className="flex items-center justify-between gap-3">
+                      <Skeleton className="h-3 w-2/3" />
+                      <Skeleton className="h-3 w-16" />
                     </div>
-                    <div className="h-5 w-16 bg-slate-100 rounded-full animate-pulse" />
-                  </div>
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-[22px] w-20" />
+                    </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : statements.length === 0 ? (
-              <div className="py-16 text-center space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto">
-                  <GitCompareIcon className="w-6 h-6 text-slate-300" />
-                </div>
-                <p className="text-sm font-medium text-slate-600">No bank statements</p>
-                <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                  {matchStatus
-                    ? "Try a different filter"
-                    : "Sync with Xero to import bank statement lines, then run Reconcile All"}
-                </p>
-              </div>
+              <EmptyState
+                className="border-0"
+                icon={<GitCompare />}
+                title="No bank statement lines."
+                hint={matchStatus
+                  ? "Try a different filter."
+                  : "Sync with Xero to import statement lines, then run Reconcile from the dashboard."}
+              />
             ) : (
-              <motion.div
-                className="divide-y divide-slate-50"
-                initial="hidden"
-                animate="show"
-                variants={{ hidden: {}, show: { transition: { staggerChildren: 0.03 } } }}
-              >
-                {statements.map((s) => (
-                  <motion.div
-                    key={s.id}
-                    variants={{ hidden: { opacity: 0, x: -8 }, show: { opacity: 1, x: 0, transition: { duration: 0.2 } } }}
-                    onClick={() => openStatement(s.id)}
-                    className={`flex items-center justify-between px-4 py-3.5 cursor-pointer transition-colors text-sm ${
-                      selected?.id === s.id
-                        ? "bg-indigo-50/60 border-l-2 border-indigo-500"
-                        : "hover:bg-slate-50/80"
-                    }`}
-                  >
-                    <div className="space-y-0.5 min-w-0">
-                      <p className="font-medium text-slate-900 truncate">{s.description}</p>
-                      <p className="text-slate-400 text-xs">{fmtDate(s.date)}</p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5 shrink-0 ml-4">
-                      <span className={`font-mono font-medium ${parseFloat(s.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}`}>
-                        {fmtAmount(s.amount)}
-                      </span>
-                      <MatchBadge status={s.match_status} />
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
+              <ul>
+                {statements.map((s) => {
+                  const isSelected = selected?.id === s.id;
+                  return (
+                    <li key={s.id}>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={isSelected}
+                        onClick={() => openStatement(s.id)}
+                        onKeyDown={onActivate(() => openStatement(s.id))}
+                        className={cn(rowClass, isSelected && "bg-surface-2 shadow-[inset_2px_0_0_0_hsl(var(--primary))]")}
+                      >
+                        <span className="flex items-center justify-between gap-3">
+                          <span className="min-w-0 flex-1 truncate text-table font-medium text-foreground">{s.description}</span>
+                          <span className="shrink-0 font-mono text-table tabular-nums text-foreground">{fmtAmount(s.amount)}</span>
+                        </span>
+                        <span className="flex items-center gap-3">
+                          <span className="font-mono text-xs text-muted-foreground">{fmtDate(s.date)}</span>
+                          <StatusChip status={s.match_status} />
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </div>
 
           {totalPages > 1 && (
-            <div className="flex items-center gap-3 text-sm text-slate-500">
-              <Button variant="outline" size="sm" className="bg-white gap-1" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-                <ChevronLeft className="w-3.5 h-3.5" /> Previous
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+                <ChevronLeft /> Previous
               </Button>
-              <span className="text-xs">{page} / {totalPages}</span>
-              <Button variant="outline" size="sm" className="bg-white gap-1" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
-                Next <ChevronRight className="w-3.5 h-3.5" />
+              <span className="font-mono text-xs tabular-nums text-muted-foreground">{page} / {totalPages}</span>
+              <Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+                Next <ChevronRight />
               </Button>
             </div>
           )}
         </div>
 
-        {/* Right panel: detail */}
-        <div className="lg:w-80 shrink-0">
-          <AnimatePresence mode="wait">
-            {selected ? (
-              <motion.div
-                key={selected.id}
-                initial={{ opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 12 }}
-                transition={{ duration: 0.2}}
-                className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 p-5 space-y-5 text-sm"
-              >
-                {/* Statement info */}
-                <div>
-                  <p className="font-semibold text-slate-900 text-base leading-snug">{selected.description}</p>
-                  <p className="text-slate-400 text-xs mt-1">{fmtDate(selected.date)}</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-y-2.5 bg-slate-50 rounded-lg p-3">
-                  <span className="text-slate-400 text-xs uppercase tracking-wide font-medium self-center">Amount</span>
-                  <span className={`font-mono font-semibold ${parseFloat(selected.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}`}>
-                    {fmtAmount(selected.amount)}
-                  </span>
-                  <span className="text-slate-400 text-xs uppercase tracking-wide font-medium self-center">Status</span>
-                  <MatchBadge status={selected.match_status} />
-                  {selected.match_confidence && (
-                    <>
-                      <span className="text-slate-400 text-xs uppercase tracking-wide font-medium">Confidence</span>
-                      <span className="font-mono text-indigo-600 font-semibold">{fmtPct(parseFloat(selected.match_confidence))}</span>
-                    </>
-                  )}
-                </div>
-
-                {/* Match candidates */}
-                {selected.candidates.length > 0 && (
-                  <div>
-                    <p className="font-semibold text-slate-700 text-xs uppercase tracking-wide mb-2">Match candidates</p>
-                    <div className="space-y-3">
-                      {selected.candidates.map((c, i) => (
-                        <motion.div
-                          key={c.transaction_id}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.05 }}
-                          className="rounded-lg border border-slate-100 p-3 space-y-2"
-                        >
-                          <div className="flex justify-between items-start gap-2">
-                            <p className="font-medium text-xs text-slate-900 leading-snug truncate">{c.description}</p>
-                            <span className={`font-mono text-xs shrink-0 ${parseFloat(c.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}`}>
-                              {fmtAmount(c.amount)}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-400">{fmtDate(c.date)}</p>
-                          <div className="space-y-1">
-                            <ScoreBar label="Amount" value={c.amount_score} />
-                            <ScoreBar label="Date" value={c.date_score} />
-                            <ScoreBar label="Description" value={c.description_score} />
-                          </div>
-                          <div className="flex justify-between items-center pt-1">
-                            <span className="text-xs text-slate-400">Overall</span>
-                            <span className="text-sm font-bold text-indigo-600">{fmtPct(c.combined_score)}</span>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+        {/* Right pane: detail */}
+        <div className="min-w-0">
+          {selected ? (
+            <div key={selected.id} className="flex min-w-0 flex-col rounded-lg border border-border bg-surface">
+              {/* Statement info + actions */}
+              <div className="flex flex-col gap-4 border-b border-border px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="min-w-0 truncate text-base font-medium tracking-[-0.01em] text-foreground">{selected.description}</p>
+                    <StatusChip status={selected.match_status} />
                   </div>
-                )}
-
-                {/* Matched transaction AI explanation */}
-                {selected.matched_transaction_id && (
-                  <div>
-                    <p className="font-semibold text-slate-700 text-xs uppercase tracking-wide mb-2">
-                      Matched transaction: AI explanation
-                    </p>
-                    <ExplanationPanel transactionId={selected.matched_transaction_id} inline />
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-100">
-                  {(selected.match_status === "suggested" || selected.match_status === "auto_matched") && (
-                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 gap-1.5" onClick={handleConfirm} disabled={actionLoading}>
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Confirm
+                  <p className="mt-1 font-mono text-xs text-muted-foreground">
+                    {fmtDate(selected.date)} · {fmtAmount(selected.amount)}
+                    {selected.reference && <> · {selected.reference}</>}
+                    {selected.match_confidence && <> · match {fmtPct(parseFloat(selected.match_confidence))}</>}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  {selected.match_status === "unmatched" && (
+                    <Button size="sm" variant="outline" onClick={() => { setTxSearch(""); setTxResults([]); setSearchOpen(true); }}>
+                      <Link2 /> Manual search
                     </Button>
                   )}
                   {selected.match_status !== "unmatched" && (
-                    <Button size="sm" variant="outline" className="text-rose-600 hover:text-rose-700 gap-1.5" onClick={handleUnmatch} disabled={actionLoading}>
-                      <XCircle className="w-3.5 h-3.5" /> Unmatch
+                    <Button size="sm" variant="destructive" onClick={handleUnmatch} disabled={actionLoading}>
+                      <X /> Unmatch
                     </Button>
                   )}
-                  {selected.match_status === "unmatched" && (
-                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setTxSearch(""); setTxResults([]); setSearchOpen(true); }}>
-                      <Link2 className="w-3.5 h-3.5" /> Find &amp; Match
+                  {(selected.match_status === "suggested" || selected.match_status === "auto_matched") && (
+                    <Button size="sm" onClick={handleConfirm} disabled={actionLoading}>
+                      <Check /> Confirm match
                     </Button>
                   )}
                 </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 p-8 text-center"
-              >
-                <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center mx-auto mb-3">
-                  <GitCompareIcon className="w-5 h-5 text-slate-300" />
+              </div>
+
+              {/* Match candidates */}
+              {selected.candidates.length > 0 ? (
+                <div className="flex flex-col gap-3 px-3 py-4">
+                  <Eyebrow className="px-2 text-muted-foreground">Candidates</Eyebrow>
+                  <Table className="min-w-[560px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="px-2">Record</TableHead>
+                        <TableHead className="w-[104px] px-2 text-right">Amount</TableHead>
+                        <TableHead className="w-[84px] px-2">Amount</TableHead>
+                        <TableHead className="w-[84px] px-2">Date</TableHead>
+                        <TableHead className="w-[84px] px-2">Text</TableHead>
+                        <TableHead className="w-[96px] px-2">Combined</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selected.candidates.map((c) => {
+                        const isMatched = selected.matched_transaction_id === c.transaction_id;
+                        return (
+                          <TableRow key={c.transaction_id} data-state={isMatched ? "selected" : undefined} className="h-12">
+                            <TableCell className="max-w-0 px-2">
+                              <span className="flex min-w-0 flex-col leading-tight">
+                                <span className="truncate text-small text-foreground">{c.description}</span>
+                                <span className="truncate font-mono text-xs text-muted-foreground">{fmtDate(c.date)}</span>
+                              </span>
+                            </TableCell>
+                            <TableCell className="px-2 text-right font-mono tabular-nums text-foreground">{fmtAmount(c.amount)}</TableCell>
+                            <TableCell className="px-2"><MiniBar value={c.amount_score} tone={toneForScore(c.amount_score)} width="w-6" compact /></TableCell>
+                            <TableCell className="px-2"><MiniBar value={c.date_score} tone={toneForScore(c.date_score)} width="w-6" compact /></TableCell>
+                            <TableCell className="px-2"><MiniBar value={c.description_score} tone={toneForScore(c.description_score)} width="w-6" compact /></TableCell>
+                            <TableCell className="px-2">
+                              <span className={cn("font-mono text-small tabular-nums", isMatched ? "text-foreground" : "text-muted-foreground")}>
+                                {c.combined_score.toFixed(2)}
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
-                <p className="text-sm text-slate-400">Select a statement to see details and match candidates</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              ) : (
+                <p className="px-5 py-4 text-small text-muted-foreground">
+                  No candidates scored for this line. Use manual search to pick a transaction.
+                </p>
+              )}
+
+              {/* Matched transaction AI explanation */}
+              {selected.matched_transaction_id && (
+                <div className="border-t border-border px-5 py-5">
+                  <PanelSection eyebrow="Matched transaction">
+                    <ExplanationPanel transactionId={selected.matched_transaction_id} inline />
+                  </PanelSection>
+                </div>
+              )}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<GitCompare />}
+              title="Select a statement line."
+              hint="Its scored candidates, the matched transaction and the actions appear here."
+              className="min-h-[240px]"
+            />
+          )}
         </div>
       </div>
 
       {/* Manual match search dialog */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-base">Find Transaction to Match</DialogTitle>
+            <DialogTitle>Find a transaction to match</DialogTitle>
+            <DialogDescription>Search by description, then choose the record this statement line settles.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle-foreground" />
+                <label htmlFor="match-search" className="sr-only">Search transactions</label>
                 <Input
-                  placeholder="Search by description…"
-                  className="pl-9 bg-white border-slate-200"
+                  id="match-search"
+                  placeholder="Search by description"
+                  className="pl-9"
                   value={txSearch}
                   onChange={(e) => setTxSearch(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && searchTransactions()}
                 />
               </div>
-              <Button onClick={searchTransactions} disabled={txSearching} className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
-                {txSearching ? "…" : "Search"}
+              <Button onClick={searchTransactions} disabled={txSearching} className="shrink-0">
+                {txSearching ? "Searching" : "Search"}
               </Button>
             </div>
             {txResults.length > 0 && (
-              <div className="divide-y divide-slate-50 border border-slate-100 rounded-xl overflow-hidden max-h-64 overflow-y-auto">
+              <ul className="max-h-64 overflow-y-auto rounded-md border border-border">
                 {txResults.map((tx) => (
-                  <div
-                    key={tx.id}
-                    className="flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 cursor-pointer text-sm transition-colors"
-                    onClick={() => handleManualMatch(tx.id)}
-                  >
-                    <div>
-                      <p className="font-medium text-slate-900 truncate max-w-52">{tx.description}</p>
-                      <p className="text-slate-400 text-xs">{fmtDate(tx.date)}</p>
+                  <li key={tx.id}>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      className={cn(rowClass, "flex-row items-center justify-between gap-3 py-2.5")}
+                      onClick={() => handleManualMatch(tx.id)}
+                      onKeyDown={onActivate(() => handleManualMatch(tx.id))}
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-small font-medium text-foreground">{tx.description}</span>
+                        <span className="block font-mono text-xs text-muted-foreground">{fmtDate(tx.date)}</span>
+                      </span>
+                      <span className="shrink-0 font-mono text-small tabular-nums text-foreground">{fmtAmount(tx.amount)}</span>
                     </div>
-                    <span className={`font-mono text-xs shrink-0 ml-3 ${parseFloat(tx.amount) >= 0 ? "text-emerald-700" : "text-slate-900"}`}>
-                      {fmtAmount(tx.amount)}
-                    </span>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </div>
         </DialogContent>
       </Dialog>
     </motion.div>
-  );
-}
-
-function GitCompareIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-      <circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 8.5v2a5 5 0 005 5H14M18 15.5v-2a5 5 0 00-5-5H10" />
-    </svg>
   );
 }
