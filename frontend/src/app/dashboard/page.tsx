@@ -8,11 +8,8 @@ import {
   RefreshCw,
   Tag,
   GitCompare,
-  Layers,
-  AlertCircle,
-  Clock,
-  Sparkles,
   Unlink2,
+  Loader2,
 } from "lucide-react";
 import {
   getDashboardSummary,
@@ -23,7 +20,14 @@ import {
   getJob,
   type DashboardSummary,
 } from "@/lib/api";
-import FluidGlassButton from "@/components/fluid-glass-button";
+import { KpiTile } from "@/components/ui/kpi-tile";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { StatusChip } from "@/components/ui/status-chip";
+import { PageHeader } from "@/components/app/page-header";
+import { JobChip } from "@/components/app/job-chip";
+import { Skeleton } from "@/components/app/skeleton";
+import { uiTransition } from "@/lib/motion";
 
 // ── Count-up hook ─────────────────────────────────────────────────────────────
 
@@ -47,55 +51,18 @@ function useCountUp(target: number, duration = 800) {
   return value;
 }
 
-// ── Animation variants ────────────────────────────────────────────────────────
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 12, filter: "blur(4px)" },
-  show:   { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring" as const, stiffness: 400, damping: 28 } },
-};
-
-// ── Stat card ─────────────────────────────────────────────────────────────────
-
-interface StatCardProps {
-  label: string;
-  value: number | string;
-  icon: React.ElementType;
-  iconColor: string;
-  iconBg: string;
-  isNumeric?: boolean;
+/** Mono numeral that counts up to its target (DESIGN.md section 6: the one counting animation). */
+function Counted({ value }: { value: number }) {
+  const counted = useCountUp(value);
+  return <>{counted.toLocaleString("en-GB")}</>;
 }
 
-function StatCard({ label, value, icon: Icon, iconColor, iconBg, isNumeric = true }: StatCardProps) {
-  const counted = useCountUp(isNumeric ? (value as number) : 0);
+// ── Pipeline row ──────────────────────────────────────────────────────────────
 
-  return (
-    <motion.div
-      variants={item}
-      whileHover={{ y: -3, scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 20 } }}
-      className="group bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md flex items-start justify-between gap-4 cursor-default transition-shadow duration-200"
-    >
-      <div>
-        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</p>
-        <p className="mt-2 text-3xl font-bold text-slate-900 tabular-nums">
-          {isNumeric ? counted.toLocaleString() : value}
-        </p>
-      </div>
-      <div className={`${iconBg} w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-transform duration-300 group-hover:scale-110`}>
-        <Icon className={`w-5 h-5 ${iconColor}`} />
-      </div>
-    </motion.div>
-  );
-}
-
-// ── Action button ─────────────────────────────────────────────────────────────
-
-interface ActionBtnProps {
+interface ActionRowProps {
+  index: number;
   label: string;
+  description: string;
   loadingLabel: string;
   icon: React.ElementType;
   loading: boolean;
@@ -103,30 +70,33 @@ interface ActionBtnProps {
   variant?: "primary" | "secondary";
 }
 
-function ActionBtn({ label, loadingLabel, icon: Icon, loading, onClick, variant = "secondary" }: ActionBtnProps) {
-  if (variant === "primary") {
-    return (
-      <FluidGlassButton
-        onClick={onClick}
-        disabled={loading}
-        variant="primary"
-        className="shadow-md shadow-indigo-600/20"
-      >
-        <Icon className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-        {loading ? loadingLabel : label}
-      </FluidGlassButton>
-    );
-  }
+function ActionRow({ index, label, description, loadingLabel, icon: Icon, loading, onClick, variant = "secondary" }: ActionRowProps) {
   return (
-    <Button
-      variant="outline"
-      onClick={onClick}
-      disabled={loading}
-      className="gap-2 text-sm"
-    >
-      <Icon className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-      {loading ? loadingLabel : label}
-    </Button>
+    <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4">
+      <span className="hidden size-8 shrink-0 items-center justify-center rounded-md border border-border bg-surface-2 text-muted-foreground sm:flex">
+        <Icon className="size-4" strokeWidth={1.75} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2.5">
+          <span className="font-mono text-xs tabular-nums text-subtle-foreground">{String(index).padStart(2, "0")}</span>
+          <span className="text-sm font-medium text-foreground">{label}</span>
+        </div>
+        <p className="mt-0.5 text-small text-muted-foreground">{description}</p>
+      </div>
+      <div className="flex items-center gap-3 sm:shrink-0">
+        <JobChip state={loading ? "running" : "idle"} label={loading ? loadingLabel : "Idle"} />
+        <Button
+          variant={variant === "primary" ? "default" : "outline"}
+          size="sm"
+          onClick={onClick}
+          disabled={loading}
+          className="min-w-24"
+        >
+          {loading ? <Loader2 className="animate-spin" /> : <Icon />}
+          {label}
+        </Button>
+      </div>
+    </li>
   );
 }
 
@@ -242,13 +212,17 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-5xl">
-        <div className="h-7 w-36 bg-slate-200 rounded-lg animate-pulse" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-3 w-56" />
+        </div>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-28 bg-white rounded-xl animate-pulse border border-slate-200" />
+            <Skeleton key={i} className="h-[108px] rounded-lg bg-surface" />
           ))}
         </div>
+        <Skeleton className="h-64 rounded-lg bg-surface" />
       </div>
     );
   }
@@ -256,25 +230,21 @@ export default function DashboardPage() {
   if (error) {
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center h-[60vh] gap-6"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={uiTransition}
+        className="flex h-[60vh] flex-col items-center justify-center gap-6"
       >
-        <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center">
-          <Unlink2 className="w-8 h-8 text-indigo-500" />
+        <div className="flex size-12 items-center justify-center rounded-lg border border-border bg-surface text-muted-foreground">
+          <Unlink2 className="size-5" strokeWidth={1.75} />
         </div>
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-slate-900">Xero not connected</h2>
-          <p className="text-sm text-slate-500 mt-1">Connect your Xero account to start using the AI pipeline.</p>
+          <h2 className="text-lg font-medium tracking-[-0.01em] text-foreground">Xero not connected.</h2>
+          <p className="mt-1 text-small text-muted-foreground">Connect a Xero organisation to sync its books into the review console.</p>
         </div>
-        <a href={`${API_BASE}/auth/xero/connect`}>
-          <motion.div whileTap={{ scale: 0.97 }}>
-            <Button className="bg-indigo-600 hover:bg-indigo-500 gap-2 px-6">
-              <Sparkles className="w-4 h-4" />
-              Connect with Xero
-            </Button>
-          </motion.div>
-        </a>
+        <Button nativeButton={false} render={<a href={`${API_BASE}/auth/xero/connect`} />}>
+          Connect Xero
+        </Button>
       </motion.div>
     );
   }
@@ -282,122 +252,120 @@ export default function DashboardPage() {
   const isFirstRun = !summary?.last_sync_at && (summary?.total_transactions ?? 0) === 0;
 
   const lastSync = summary?.last_sync_at
-    ? new Date(summary.last_sync_at).toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" })
+    ? new Date(summary.last_sync_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })
     : "Never";
 
-  const stats: StatCardProps[] = [
-    {
-      label: "Total Transactions",
-      value: summary?.total_transactions ?? 0,
-      icon: Layers,
-      iconColor: "text-slate-500",
-      iconBg: "bg-slate-100",
-    },
-    {
-      label: "Uncategorised",
-      value: summary?.uncategorised_count ?? 0,
-      icon: AlertCircle,
-      iconColor: (summary?.uncategorised_count ?? 0) > 0 ? "text-amber-500" : "text-emerald-500",
-      iconBg:    (summary?.uncategorised_count ?? 0) > 0 ? "bg-amber-50" : "bg-emerald-50",
-    },
-    {
-      label: "Unreconciled",
-      value: summary?.unreconciled_count ?? 0,
-      icon: GitCompare,
-      iconColor: (summary?.unreconciled_count ?? 0) > 0 ? "text-rose-500" : "text-emerald-500",
-      iconBg:    (summary?.unreconciled_count ?? 0) > 0 ? "bg-rose-50" : "bg-emerald-50",
-    },
-    {
-      label: "Last Sync",
-      value: lastSync,
-      icon: Clock,
-      iconColor: "text-slate-400",
-      iconBg: "bg-slate-100",
-      isNumeric: false,
-    },
-  ];
+  const uncategorised = summary?.uncategorised_count ?? 0;
+  const unreconciled = summary?.unreconciled_count ?? 0;
+  const totalTx = summary?.total_transactions ?? 0;
 
   return (
     <motion.div
-      initial="hidden"
-      animate="show"
-      variants={container}
-      className="space-y-8 max-w-5xl"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={uiTransition}
+      className="space-y-8"
     >
       {/* Header */}
-      <motion.div variants={item}>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-        {summary?.organisation_name && (
-          <p className="text-sm text-slate-500 mt-1">{summary.organisation_name}</p>
-        )}
-      </motion.div>
+      <PageHeader
+        title={summary?.organisation_name ?? "Dashboard"}
+        meta={<>Last sync {lastSync}</>}
+        chip={isFirstRun ? <StatusChip tone="info" dot={false}>First run</StatusChip> : undefined}
+      />
 
       {/* First-run prompt */}
       {isFirstRun && (
-        <motion.div
-          variants={item}
-          className="bg-indigo-50 border border-indigo-100 rounded-xl p-5 flex items-start gap-4"
-        >
-          <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
+        <div className="flex items-start gap-4 rounded-lg border border-border bg-surface p-5">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border bg-surface-2 text-muted-foreground">
             {syncing
-              ? <RefreshCw className="w-4 h-4 text-white animate-spin" />
-              : <Sparkles className="w-4 h-4 text-white" />}
-          </div>
-          <div className="flex-1">
+              ? <Loader2 className="size-4 animate-spin" />
+              : <RefreshCw className="size-4" strokeWidth={1.75} />}
+          </span>
+          <div className="min-w-0 flex-1">
             {syncing ? (
               <>
-                <p className="font-semibold text-indigo-900 text-sm">Setting up your account…</p>
-                <p className="text-indigo-600/70 text-xs mt-1">
-                  We&apos;re importing your Xero data in the background. This usually takes under a minute.
+                <p className="text-sm font-medium text-foreground">Importing the books.</p>
+                <p className="mt-0.5 text-small text-muted-foreground">
+                  Accounts and transactions are being read from Xero in the background. This usually takes under a minute.
                 </p>
               </>
             ) : (
               <>
-                <p className="font-semibold text-indigo-900 text-sm">You&apos;re connected! Run your first sync</p>
-                <p className="text-indigo-600/70 text-xs mt-1">
-                  Click &ldquo;Sync with Xero&rdquo; below to import your transactions, then run the AI pipeline.
+                <p className="text-sm font-medium text-foreground">Connected. Run the first sync.</p>
+                <p className="mt-0.5 text-small text-muted-foreground">
+                  Sync imports the chart of accounts and the quarter&apos;s transactions; Categorise then codes each one with evidence.
                 </p>
               </>
             )}
           </div>
-        </motion.div>
+        </div>
       )}
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <StatCard key={s.label} {...s} />
-        ))}
+      {/* KPI tiles */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <KpiTile
+          label="Accounts"
+          value={<Counted value={summary?.total_accounts ?? 0} />}
+          delta="Chart of accounts"
+        />
+        <KpiTile
+          label="Transactions"
+          value={<Counted value={totalTx} />}
+          delta={totalTx > 0 ? "Imported from Xero" : "Nothing imported yet"}
+        />
+        <KpiTile
+          label="Uncategorised"
+          value={<Counted value={uncategorised} />}
+          delta={totalTx === 0 ? "Sync first" : uncategorised > 0 ? "Awaiting categorisation" : "All categorised"}
+          deltaTone={totalTx > 0 && uncategorised === 0 ? "success" : "muted"}
+        />
+        <KpiTile
+          label="Unreconciled"
+          value={<Counted value={unreconciled} />}
+          delta={totalTx === 0 ? "Sync first" : unreconciled > 0 ? "Awaiting a bank match" : "All reconciled"}
+          deltaTone={totalTx > 0 && unreconciled === 0 ? "success" : "muted"}
+        />
       </div>
 
-      {/* Actions */}
-      <motion.div variants={item} className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">AI Pipeline</p>
-        <div className="flex flex-wrap gap-3 sm:flex-row flex-col sm:items-center">
-          <ActionBtn
-            label="Sync with Xero"
-            loadingLabel="Syncing…"
-            icon={RefreshCw}
-            loading={syncing}
-            onClick={handleSync}
-            variant="primary"
-          />
-          <ActionBtn
-            label="Categorise All"
-            loadingLabel="Categorising…"
-            icon={Tag}
-            loading={categorising}
-            onClick={handleCategorise}
-          />
-          <ActionBtn
-            label="Reconcile All"
-            loadingLabel="Reconciling…"
-            icon={GitCompare}
-            loading={reconciling}
-            onClick={handleReconcile}
-          />
-        </div>
-      </motion.div>
+      {/* Pipeline */}
+      <Card>
+        <CardHeader className="border-b">
+          <Eyebrow>Pipeline</Eyebrow>
+          <p className="text-sm text-muted-foreground">Three steps, each one a job you can watch. Every AI decision writes an audit row.</p>
+        </CardHeader>
+        <CardContent>
+          <ul className="divide-y divide-border">
+            <ActionRow
+              index={1}
+              label="Sync"
+              description="Read the chart of accounts, transactions and bank statement lines from Xero."
+              loadingLabel="Syncing"
+              icon={RefreshCw}
+              loading={syncing}
+              onClick={handleSync}
+              variant="primary"
+            />
+            <ActionRow
+              index={2}
+              label="Categorise"
+              description="Code every uncategorised transaction with a confidence, a reasoning and a risk score."
+              loadingLabel="Categorising"
+              icon={Tag}
+              loading={categorising}
+              onClick={handleCategorise}
+            />
+            <ActionRow
+              index={3}
+              label="Reconcile"
+              description="Match bank statement lines to transactions; suggestions wait for a human."
+              loadingLabel="Matching"
+              icon={GitCompare}
+              loading={reconciling}
+              onClick={handleReconcile}
+            />
+          </ul>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }

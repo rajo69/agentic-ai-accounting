@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { UserPlus, Trash2, Crown, User as UserIcon, Mail } from "lucide-react";
+import { UserPlus, Trash2, Users, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { StatusChip } from "@/components/ui/status-chip";
 import {
   getMe,
   listTeam,
@@ -13,11 +16,24 @@ import {
   type Me,
   type TeamMember,
 } from "@/lib/api";
+import { PageHeader } from "@/components/app/page-header";
+import { EmptyState } from "@/components/app/empty-state";
+import { Skeleton } from "@/components/app/skeleton";
+import { uiTransition } from "@/lib/motion";
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", {
     day: "2-digit", month: "short", year: "numeric",
   });
+}
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
 }
 
 export default function TeamPage() {
@@ -82,65 +98,56 @@ export default function TeamPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="max-w-3xl space-y-8"
+      transition={uiTransition}
+      className="max-w-3xl space-y-6"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Team</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            {isOwner
-              ? "Manage who can access your organisation."
-              : "Members of your organisation."}
-          </p>
-        </div>
+      <PageHeader
+        title="Team"
+        meta={me?.org_name ? `${me.org_name} · ${members.length} ${members.length === 1 ? "member" : "members"}` : "Who can review this organisation"}
+      >
         {isOwner && !showInvite && (
-          <motion.div whileTap={{ scale: 0.97 }}>
-            <Button
-              onClick={() => setShowInvite(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 gap-2"
-            >
-              <UserPlus className="w-4 h-4" />
-              Invite member
-            </Button>
-          </motion.div>
+          <Button onClick={() => setShowInvite(true)}>
+            <UserPlus />
+            Invite member
+          </Button>
         )}
-      </div>
+      </PageHeader>
 
       {/* Invite form */}
       {showInvite && isOwner && (
-        <motion.form
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
+        <form
           onSubmit={handleInvite}
-          className="bg-white rounded-xl border border-slate-200 p-5 space-y-4 shadow-sm"
+          className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-5"
         >
+          <Eyebrow className="text-muted-foreground">Invite</Eyebrow>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600 uppercase tracking-wide">Name</label>
-              <input
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="invite-name" className="text-small text-muted-foreground">Name</label>
+              <Input
+                id="invite-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Jane Smith"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                autoComplete="off"
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600 uppercase tracking-wide">Email</label>
-              <input
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="invite-email" className="text-small text-muted-foreground">Email</label>
+              <Input
+                id="invite-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="jane@firm.co.uk"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                autoComplete="off"
               />
             </div>
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex justify-end gap-2">
             <Button
               type="button"
               variant="outline"
@@ -149,89 +156,81 @@ export default function TeamPage() {
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={inviting}
-              className="bg-indigo-600 hover:bg-indigo-700 gap-2"
-            >
-              <Mail className="w-4 h-4" />
-              {inviting ? "Sending…" : "Send invite"}
+            <Button type="submit" disabled={inviting}>
+              {inviting ? <Loader2 className="animate-spin" /> : <UserPlus />}
+              {inviting ? "Sending" : "Send invite"}
             </Button>
           </div>
-        </motion.form>
+        </form>
       )}
 
       {/* Member list */}
-      <div>
+      <div className="flex flex-col gap-3">
+        <Eyebrow className="text-muted-foreground">Members</Eyebrow>
         {loading ? (
-          <div className="space-y-3">
+          <ul className="overflow-hidden rounded-lg border border-border bg-surface">
             {[...Array(2)].map((_, i) => (
-              <div key={i} className="h-16 bg-slate-200 rounded-xl animate-pulse" />
+              <li key={i} className="flex items-center gap-4 border-b border-border px-4 py-4 last:border-b-0">
+                <Skeleton className="size-8 rounded-full" />
+                <div className="flex flex-1 flex-col gap-2">
+                  <Skeleton className="h-3 w-1/3" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+              </li>
             ))}
-          </div>
+          </ul>
         ) : members.length === 0 ? (
-          <div className="border-2 border-dashed border-slate-200 rounded-xl py-12 text-center">
-            <UserIcon className="w-8 h-8 text-slate-300 mx-auto mb-3" />
-            <p className="text-sm text-slate-400">No team members yet.</p>
-          </div>
+          <EmptyState icon={<Users />} title="No team members yet." />
         ) : (
-          <div className="space-y-3">
+          <ul className="overflow-hidden rounded-lg border border-border bg-surface">
             {members.map((m) => {
               const isSelf = me?.user_id === m.id;
               return (
-                <motion.div
+                <li
                   key={m.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-xl shadow-sm ring-1 ring-slate-100 px-5 py-4 flex items-center justify-between gap-4"
+                  className="flex items-center justify-between gap-4 border-b border-border px-4 py-3 last:border-b-0"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
-                      {m.role === "owner"
-                        ? <Crown className="w-4 h-4 text-indigo-600" />
-                        : <UserIcon className="w-4 h-4 text-slate-500" />}
-                    </div>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span
+                      aria-hidden
+                      className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-surface-2 font-mono text-xs text-muted-foreground"
+                    >
+                      {initials(m.name)}
+                    </span>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-slate-900 text-sm truncate">{m.name}</p>
-                        {isSelf && (
-                          <span className="text-xs text-indigo-600 font-medium">You</span>
-                        )}
-                        <span className={`text-xs px-1.5 py-0.5 rounded ${
-                          m.role === "owner"
-                            ? "bg-indigo-50 text-indigo-700"
-                            : "bg-slate-100 text-slate-600"
-                        }`}>
-                          {m.role}
-                        </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-medium text-foreground">{m.name}</p>
+                        <StatusChip tone={m.role === "owner" ? "primary" : "muted"} dot={false}>
+                          {m.role === "owner" ? "Owner" : "Member"}
+                        </StatusChip>
+                        {isSelf && <span className="font-mono text-xs text-muted-foreground">you</span>}
                       </div>
-                      <p className="text-xs text-slate-500 truncate">{m.email}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">Joined {fmtDate(m.created_at)}</p>
+                      <p className="truncate font-mono text-xs text-muted-foreground">
+                        {m.email} · joined {fmtDate(m.created_at)}
+                      </p>
                     </div>
                   </div>
                   {isOwner && !isSelf && m.role !== "owner" && (
-                    <motion.div whileTap={{ scale: 0.97 }}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRemove(m)}
-                        className="shrink-0 gap-1.5 text-rose-600 border-rose-200 hover:bg-rose-50"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Remove
-                      </Button>
-                    </motion.div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemove(m)}
+                      className="shrink-0 text-danger hover:bg-danger/10 hover:text-danger"
+                    >
+                      <Trash2 />
+                      Remove
+                    </Button>
                   )}
-                </motion.div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
       </div>
 
       {/* Help text for non-owners */}
       {!isOwner && !loading && (
-        <p className="text-xs text-slate-400">
+        <p className="text-small text-muted-foreground">
           Only owners can invite or remove members. Ask the account owner if you need to add someone.
         </p>
       )}
