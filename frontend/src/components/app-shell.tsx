@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import Sidebar from "@/components/sidebar";
 import ErrorBoundary from "@/components/error-boundary";
+import DemoBanner from "@/components/demo-banner";
 
 const APP_ROUTES = ["/dashboard", "/transactions", "/reconciliation", "/documents", "/team", "/settings"];
 
@@ -39,6 +40,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </Sheet>
 
       <main className="flex-1 overflow-y-auto bg-slate-50">
+        <DemoBanner />
         <div className="min-h-full p-4 md:p-8 pt-16 md:pt-8">
           <ErrorBoundary>{children}</ErrorBoundary>
         </div>

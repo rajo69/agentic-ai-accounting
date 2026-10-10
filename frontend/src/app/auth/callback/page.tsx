@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { exitDemo } from "@/demo/flag";
 
 function CallbackHandler() {
   const router = useRouter();
@@ -12,6 +13,7 @@ function CallbackHandler() {
     const token = params.get("token");
     const firstSyncJob = params.get("first_sync_job");
     if (token) {
+      exitDemo({ silent: true }); // a real session always wins over a demo one
       localStorage.setItem("session_token", token);
       // Set a plain cookie so the middleware can detect the session
       document.cookie = "has_session=1; path=/; SameSite=Lax; Max-Age=86400";
