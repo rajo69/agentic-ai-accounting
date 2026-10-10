@@ -10,3 +10,5 @@ import { Config } from "@remotion/cli/config";
 Config.setRspack(true);
 Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
+// The aurora is a WebGL shader; ANGLE renders it in headless Chrome on Windows.
+Config.setChromiumOpenGlRenderer("angle");

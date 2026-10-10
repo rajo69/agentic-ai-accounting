@@ -1,0 +1,107 @@
+{
+  "hook": {
+    "text": "Xero's AI now codes the books. The errors are still yours to find.",
+    "seconds": 4.6235625,
+    "bytes": 73977
+  },
+  "problem1": {
+    "text": "Sign off a client's quarter and you are reviewing a model's work. A green tick is not evidence.",
+    "seconds": 5.590125,
+    "bytes": 89442
+  },
+  "problem2": {
+    "text": "Finding the three wrong lines in a hundred costs the same whether the books are ninety percent right or ninety-nine.",
+    "seconds": 7.026875,
+    "bytes": 112430
+  },
+  "product": {
+    "text": "AI Accountant sits after Xero's AI and before the sign-off. Here is a quarter's review, on a synthetic company.",
+    "seconds": 7.784375,
+    "bytes": 124550
+  },
+  "categorise1": {
+    "text": "Run categorise. Every transaction gets a category, a confidence score and a tier.",
+    "seconds": 6.608875,
+    "bytes": 105742
+  },
+  "categorise2": {
+    "text": "High confidence goes through. The uncertain ones come to you.",
+    "seconds": 4.101125,
+    "bytes": 65618
+  },
+  "explain1": {
+    "text": "Open one. The reasoning is written out, with the model that made the call.",
+    "seconds": 5.9035625,
+    "bytes": 94457
+  },
+  "explain2": {
+    "text": "The question is no longer what happened. It is: do I agree?",
+    "seconds": 5.355,
+    "bytes": 85680
+  },
+  "explain3": {
+    "text": "And a risk flag from eight plain-language rules: unusual amount, rare vendor, odd timing.",
+    "seconds": 7.993375,
+    "bytes": 127894
+  },
+  "decide1": {
+    "text": "Approve, correct or reject. A correction becomes a precedent, with no training on client data.",
+    "seconds": 6.5305,
+    "bytes": 104488
+  },
+  "decide2": {
+    "text": "Every decision, the model's and yours, lands in the audit trail.",
+    "seconds": 5.40725,
+    "bytes": 86516
+  },
+  "reconcile1": {
+    "text": "Reconcile matches bank lines to invoices and payments, with scores.",
+    "seconds": 5.30275,
+    "bytes": 84844
+  },
+  "reconcile2": {
+    "text": "Clear matches go through. Ambiguous ones wait for you.",
+    "seconds": 4.284,
+    "bytes": 68544
+  },
+  "report": {
+    "text": "Then draft the management letter from the actual figures.",
+    "seconds": 3.4480625,
+    "bytes": 55169
+  },
+  "built1": {
+    "text": "Now, for engineers. Next.js, FastAPI, and two LangGraph workflows calling Claude through Instructor, so every answer is validated before it is stored.",
+    "seconds": 12.042375,
+    "bytes": 192678
+  },
+  "built2": {
+    "text": "A fast model first, a stronger one when unsure. Thirty-four endpoints, ninety-three tests, one audit row per decision.",
+    "seconds": 9.586875,
+    "bytes": 153390
+  },
+  "judgement1": {
+    "text": "Three things needed judgement. Xero changed its OAuth scope scheme mid-build.",
+    "seconds": 5.40725,
+    "bytes": 86516
+  },
+  "judgement2": {
+    "text": "A CORS fix took production down in a loop: a browser type error, not a four-oh-one.",
+    "seconds": 6.1125625,
+    "bytes": 97801
+  },
+  "judgement3": {
+    "text": "And a six-lens review of my own code found bugs the green test suite could not. I published them.",
+    "seconds": 6.556625,
+    "bytes": 104906
+  },
+  "honest": {
+    "text": "The live pipeline runs on a real Xero organisation. The demo is synthetic. And no accuracy claims without a reproducible evaluation.",
+    "seconds": 9.8741875,
+    "bytes": 157987
+  },
+  "close": {
+    "text": "Try the demo, no account needed. Read the code on GitHub. And if you are hiring for AI engineering, let's talk.",
+    "seconds": 8.097875,
+    "bytes": 129566
+  }
+}

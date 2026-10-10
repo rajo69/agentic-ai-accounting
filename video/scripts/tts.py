@@ -105,7 +105,9 @@ def main() -> None:
         manifest[bid] = {"text": text, "seconds": duration_seconds(out), "bytes": out.stat().st_size}
         print(f"{bid}: {manifest[bid]['seconds']} s, {out.stat().st_size} bytes")
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    print(f"manifest: {manifest_path}")
+    # Committed copy (durations only matter): the composition builds its timeline from it without the audio.
+    (ROOT / "src" / "vo-manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    print(f"manifest: {manifest_path} (+ src/vo-manifest.json)")
 
 
 if __name__ == "__main__":
