@@ -50,9 +50,10 @@ const LEAD: Partial<Record<BeatId, number>> = {
 const DEFAULT_GAP = 5;
 /**
  * Playback rate of the voice files (pitch preserved by Chrome and by ffmpeg's atempo in the render).
- * The cloned voice reads at about 2.3 words/s; 1.12 brings 315 words to roughly two minutes.
+ * The voice pass of 2026-10-10 sets the pace natively (`prosody.speed` 1.1 in `scripts/tts.py`, which the
+ * free backend only partly honours), so only a light stretch remains here; raise it to shorten the cut.
  */
-export const TEMPO = 1.12;
+export const TEMPO = 1.05;
 /** Frames held after the last word of the close. */
 const TAIL = 60;
 

@@ -1,107 +1,128 @@
 {
   "hook": {
     "text": "Xero's AI now codes the books. The errors are still yours to find.",
-    "seconds": 4.6235625,
-    "bytes": 73977
+    "cues": "[confident] Xero's AI now codes the books. [break] [calm] The errors are still [emphasis] yours to find.",
+    "seconds": 4.989333333333334,
+    "bytes": 119744
   },
   "problem1": {
     "text": "Sign off a client's quarter and you are reviewing a model's work. A green tick is not evidence.",
-    "seconds": 5.590125,
-    "bytes": 89442
+    "cues": "[calm] Sign off a client's quarter and you are reviewing a model's work. [break] [confident] A green tick is not evidence.",
+    "seconds": 5.773,
+    "bytes": 138552
   },
   "problem2": {
-    "text": "Finding the three wrong lines in a hundred costs the same whether the books are ninety percent right or ninety-nine.",
-    "seconds": 7.026875,
-    "bytes": 112430
+    "text": "Finding the three wrong lines in a hundred costs the same whether the books are ninety percent right, or ninety-nine.",
+    "cues": "[curious] Finding the three wrong lines in a hundred costs the same whether the books are ninety percent right, [break] or ninety-nine.",
+    "seconds": 7.053,
+    "bytes": 169272
   },
   "product": {
     "text": "AI Accountant sits after Xero's AI and before the sign-off. Here is a quarter's review, on a synthetic company.",
-    "seconds": 7.784375,
-    "bytes": 124550
+    "cues": "[optimistic] AI Accountant sits after Xero's AI and before the sign-off. [break] [relaxed] Here is a quarter's review, on a synthetic company.",
+    "seconds": 7.601583333333333,
+    "bytes": 182438
   },
   "categorise1": {
     "text": "Run categorise. Every transaction gets a category, a confidence score and a tier.",
-    "seconds": 6.608875,
-    "bytes": 105742
+    "cues": "[calm] Run categorise. [break] Every transaction gets a category, a confidence score and a tier.",
+    "seconds": 6.582791666666667,
+    "bytes": 157987
   },
   "categorise2": {
     "text": "High confidence goes through. The uncertain ones come to you.",
-    "seconds": 4.101125,
-    "bytes": 65618
+    "cues": "[satisfied] High confidence goes through. [break] [calm] The uncertain ones come to you.",
+    "seconds": 4.101166666666667,
+    "bytes": 98428
   },
   "explain1": {
     "text": "Open one. The reasoning is written out, with the model that made the call.",
-    "seconds": 5.9035625,
-    "bytes": 94457
+    "cues": "[curious] Open one. [break] [calm] The reasoning is written out, with the model that made the call.",
+    "seconds": 5.119958333333333,
+    "bytes": 122879
   },
   "explain2": {
     "text": "The question is no longer what happened. It is: do I agree?",
-    "seconds": 5.355,
-    "bytes": 85680
+    "cues": "[calm] The question is no longer what happened. [break] [confident] It is: [emphasis] do I agree?",
+    "seconds": 4.858708333333333,
+    "bytes": 116609
   },
   "explain3": {
     "text": "And a risk flag from eight plain-language rules: unusual amount, rare vendor, odd timing.",
-    "seconds": 7.993375,
-    "bytes": 127894
+    "cues": "[calm] And a risk flag from eight plain-language rules: [break] unusual amount, rare vendor, odd timing.",
+    "seconds": 6.765666666666666,
+    "bytes": 162376
   },
   "decide1": {
     "text": "Approve, correct or reject. A correction becomes a precedent, with no training on client data.",
-    "seconds": 6.5305,
-    "bytes": 104488
+    "cues": "[confident] Approve, correct or reject. [break] [calm] A correction becomes a precedent, with no training on client data.",
+    "seconds": 6.582791666666667,
+    "bytes": 157987
   },
   "decide2": {
     "text": "Every decision, the model's and yours, lands in the audit trail.",
-    "seconds": 5.40725,
-    "bytes": 86516
+    "cues": "[confident] Every decision, the model's and yours, lands in the audit trail.",
+    "seconds": 4.675875,
+    "bytes": 112221
   },
   "reconcile1": {
     "text": "Reconcile matches bank lines to invoices and payments, with scores.",
-    "seconds": 5.30275,
-    "bytes": 84844
+    "cues": "[calm] Reconcile matches bank lines to invoices and payments, with scores.",
+    "seconds": 4.8064583333333335,
+    "bytes": 115355
   },
   "reconcile2": {
     "text": "Clear matches go through. Ambiguous ones wait for you.",
-    "seconds": 4.284,
-    "bytes": 68544
+    "cues": "[satisfied] Clear matches go through. [break] [calm] Ambiguous ones wait for you.",
+    "seconds": 3.6832083333333334,
+    "bytes": 88397
   },
   "report": {
     "text": "Then draft the management letter from the actual figures.",
-    "seconds": 3.4480625,
-    "bytes": 55169
+    "cues": "[relaxed] Then draft the management letter from the actual figures.",
+    "seconds": 2.951791666666667,
+    "bytes": 70843
   },
   "built1": {
     "text": "Now, for engineers. Next.js, FastAPI, and two LangGraph workflows calling Claude through Instructor, so every answer is validated before it is stored.",
-    "seconds": 12.042375,
-    "bytes": 192678
+    "cues": "[confident] Now, for engineers. [break] [calm] Next.js, FastAPI, and two LangGraph workflows calling Claude through Instructor, so every answer is validated before it is stored.",
+    "seconds": 11.023625,
+    "bytes": 264567
   },
   "built2": {
     "text": "A fast model first, a stronger one when unsure. Thirty-four endpoints, ninety-three tests, one audit row per decision.",
-    "seconds": 9.586875,
-    "bytes": 153390
+    "cues": "[calm] A fast model first, a stronger one when unsure. [break] [confident] Thirty-four endpoints, ninety-three tests, one audit row per decision.",
+    "seconds": 8.071791666666666,
+    "bytes": 193723
   },
   "judgement1": {
     "text": "Three things needed judgement. Xero changed its OAuth scope scheme mid-build.",
-    "seconds": 5.40725,
-    "bytes": 86516
+    "cues": "[determined] Three things needed judgement. [break] [calm] Xero changed its OAuth scope scheme mid-build.",
+    "seconds": 4.989333333333334,
+    "bytes": 119744
   },
   "judgement2": {
     "text": "A CORS fix took production down in a loop: a browser type error, not a four-oh-one.",
-    "seconds": 6.1125625,
-    "bytes": 97801
+    "cues": "[calm] A CORS fix took production down in a loop: [break] a browser type error, not a four-oh-one.",
+    "seconds": 5.433416666666667,
+    "bytes": 130402
   },
   "judgement3": {
     "text": "And a six-lens review of my own code found bugs the green test suite could not. I published them.",
-    "seconds": 6.556625,
-    "bytes": 104906
+    "cues": "[proud] And a six-lens review of my own code found bugs the green test suite could not. [break] [confident] I published them.",
+    "seconds": 6.295458333333333,
+    "bytes": 151091
   },
   "honest": {
     "text": "The live pipeline runs on a real Xero organisation. The demo is synthetic. And no accuracy claims without a reproducible evaluation.",
-    "seconds": 9.8741875,
-    "bytes": 157987
+    "cues": "[calm] The live pipeline runs on a real Xero organisation. [break] The demo is synthetic. [break] [confident] And no accuracy claims without a reproducible evaluation.",
+    "seconds": 8.777083333333334,
+    "bytes": 210650
   },
   "close": {
     "text": "Try the demo, no account needed. Read the code on GitHub. And if you are hiring for AI engineering, let's talk.",
-    "seconds": 8.097875,
-    "bytes": 129566
+    "cues": "[hopeful] Try the demo, no account needed. [break] Read the code on GitHub. [break] [confident] And if you are hiring for AI engineering, [emphasis] let's talk.",
+    "seconds": 7.470958333333333,
+    "bytes": 179303
   }
 }

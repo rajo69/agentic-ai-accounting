@@ -1,7 +1,9 @@
 # Launch video script (locked 2026-10-10, S7 step 3)
 
 Read by `scripts/tts.py`: a `## <id>` heading opens a beat, the paragraph under it is the voice-over text, lines in
-parentheses are stage directions and are skipped. Beats are short on purpose (one or two sentences) so every visual
+parentheses are stage directions and are skipped. `[bracket]` words are Fish S2 delivery cues (voice pass 2026-10-10:
+an emotion tag opens each sentence, `[emphasis]` stresses the next word, `[break]` is a short pause); they are sent
+to the model and stripped from the manifest, so captions and the kinetic type never show them. Beats are short on purpose (one or two sentences) so every visual
 event sits on the measured start of its own audio file, which is what keeps picture, voice and caption in sync
 without a forced aligner. Target 110 to 125 s at the cloned voice's pace (measured 2.35 words/s): under 290 words. First draft (408 words) ran 174 s; second (337) 143 s; this one is ~312 words and plays at 1.1x (`TEMPO` in `src/timing.ts`, pitch preserved).
 
@@ -39,65 +41,65 @@ return) and an eased synthetic cursor with a 150 ms press; the aurora only behin
 | close | aurora returns; mark, wordmark, demo URL, GitHub URL, name, "open to AI engineering roles" | static |
 
 ## hook
-Xero's AI now codes the books. The errors are still yours to find.
+[confident] Xero's AI now codes the books. [break] [calm] The errors are still [emphasis] yours to find.
 
 ## problem1
-Sign off a client's quarter and you are reviewing a model's work. A green tick is not evidence.
+[calm] Sign off a client's quarter and you are reviewing a model's work. [break] [confident] A green tick is not evidence.
 
 ## problem2
-Finding the three wrong lines in a hundred costs the same whether the books are ninety percent right or ninety-nine.
+[curious] Finding the three wrong lines in a hundred costs the same whether the books are ninety percent right, [break] or ninety-nine.
 
 ## product
-AI Accountant sits after Xero's AI and before the sign-off. Here is a quarter's review, on a synthetic company.
+[optimistic] AI Accountant sits after Xero's AI and before the sign-off. [break] [relaxed] Here is a quarter's review, on a synthetic company.
 
 ## categorise1
-Run categorise. Every transaction gets a category, a confidence score and a tier.
+[calm] Run categorise. [break] Every transaction gets a category, a confidence score and a tier.
 
 ## categorise2
-High confidence goes through. The uncertain ones come to you.
+[satisfied] High confidence goes through. [break] [calm] The uncertain ones come to you.
 
 ## explain1
-Open one. The reasoning is written out, with the model that made the call.
+[curious] Open one. [break] [calm] The reasoning is written out, with the model that made the call.
 
 ## explain2
 (reasoning paragraphs enter)
-The question is no longer what happened. It is: do I agree?
+[calm] The question is no longer what happened. [break] [confident] It is: [emphasis] do I agree?
 
 ## explain3
-And a risk flag from eight plain-language rules: unusual amount, rare vendor, odd timing.
+[calm] And a risk flag from eight plain-language rules: [break] unusual amount, rare vendor, odd timing.
 
 ## decide1
-Approve, correct or reject. A correction becomes a precedent, with no training on client data.
+[confident] Approve, correct or reject. [break] [calm] A correction becomes a precedent, with no training on client data.
 
 ## decide2
-Every decision, the model's and yours, lands in the audit trail.
+[confident] Every decision, the model's and yours, lands in the audit trail.
 
 ## reconcile1
-Reconcile matches bank lines to invoices and payments, with scores.
+[calm] Reconcile matches bank lines to invoices and payments, with scores.
 
 ## reconcile2
-Clear matches go through. Ambiguous ones wait for you.
+[satisfied] Clear matches go through. [break] [calm] Ambiguous ones wait for you.
 
 ## report
-Then draft the management letter from the actual figures.
+[relaxed] Then draft the management letter from the actual figures.
 
 ## built1
-Now, for engineers. Next.js, FastAPI, and two LangGraph workflows calling Claude through Instructor, so every answer is validated before it is stored.
+[confident] Now, for engineers. [break] [calm] Next.js, FastAPI, and two LangGraph workflows calling Claude through Instructor, so every answer is validated before it is stored.
 
 ## built2
-A fast model first, a stronger one when unsure. Thirty-four endpoints, ninety-three tests, one audit row per decision.
+[calm] A fast model first, a stronger one when unsure. [break] [confident] Thirty-four endpoints, ninety-three tests, one audit row per decision.
 
 ## judgement1
-Three things needed judgement. Xero changed its OAuth scope scheme mid-build.
+[determined] Three things needed judgement. [break] [calm] Xero changed its OAuth scope scheme mid-build.
 
 ## judgement2
-A CORS fix took production down in a loop: a browser type error, not a four-oh-one.
+[calm] A CORS fix took production down in a loop: [break] a browser type error, not a four-oh-one.
 
 ## judgement3
-And a six-lens review of my own code found bugs the green test suite could not. I published them.
+[proud] And a six-lens review of my own code found bugs the green test suite could not. [break] [confident] I published them.
 
 ## honest
-The live pipeline runs on a real Xero organisation. The demo is synthetic. And no accuracy claims without a reproducible evaluation.
+[calm] The live pipeline runs on a real Xero organisation. [break] The demo is synthetic. [break] [confident] And no accuracy claims without a reproducible evaluation.
 
 ## close
-Try the demo, no account needed. Read the code on GitHub. And if you are hiring for AI engineering, let's talk.
+[hopeful] Try the demo, no account needed. [break] Read the code on GitHub. [break] [confident] And if you are hiring for AI engineering, [emphasis] let's talk.

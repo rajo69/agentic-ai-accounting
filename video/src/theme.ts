@@ -19,7 +19,11 @@ export const colors = {
   info: "#0ea5e9", // 199 89% 48%
 } as const;
 
-/** The aurora's own stops; the landing headline word "evidence" borrows them. */
+/**
+ * The aurora's own stops; the landing headline word "evidence" borrows them. The kinetic type's accent
+ * (`kit/kinetic.tsx`, `#a594ff`) is the middle stop lifted to read on the dark canvas: the one place the
+ * reference's coloured keyword enters this brand (recorded exception, S7 voice-and-video pass 2026-10-10).
+ */
 export const auroraStops = ["#4338CA", "#7C3AED", "#0EA5E9"] as const;
 
 export const radius = { chip: 4, control: 6, card: 8, frame: 12 } as const;

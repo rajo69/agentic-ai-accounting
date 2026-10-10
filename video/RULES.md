@@ -20,6 +20,11 @@ other 90%.
 - Render with `npx remotion render Launch out/launch.mp4`; `out/` is gitignored.
 
 ## 2. Look (bans, from DESIGN.md section 2)
+Business half exception (owner's second reference, 2026-10-10, see `STYLE-REF.md`): the hook, the problem and the
+product entrance use kinetic typography (centred, one to four spoken words at a time, each popping on its own
+syllable with a short focus pull), accent words in Instrument Serif italic in `#a594ff`, product UI entering tilted
+in perspective, and a large count-up numeral. The engineering half keeps the rules below unchanged.
+
 No gradient text except the one hero word "evidence" in the aurora stops; no glassmorphism; no three equal cards
 with coloured icons; no stats with invented numbers; no drifting blob orbs; no purple glow behind headlines; no
 centred-everything; no emoji; no superlatives; no uniform 16 px radius; no coloured drop-shadow glows; no spring
@@ -45,9 +50,17 @@ The honesty line is in the script and stays in: the demo is a synthetic company;
 Xero organisation.
 
 ## 5. Sound
-Voice: the owner's cloned voice via Fish Audio (`scripts/tts.py`, free S2.1 Pro backend), normalised to -16 LUFS in
-S8. Music: one royalty-free track (YouTube Audio Library), -18 dB under the voice, fade out on the close card.
-UI sounds optional and only if they sit exactly on the frame of the change they mark.
+Voice: the owner's cloned voice via Fish Audio (`scripts/tts.py`, free S2.1 Pro backend). Delivery is written into
+`script.md` as S2 bracket cues (an emotion tag opens each sentence, `[emphasis]` before a stressed word, `[break]`
+for a pause), sent to the model and stripped from captions; sampling temperature 0.55 / top_p 0.65 for an even
+read, native pace `prosody.speed` 1.1, 192 kbps. Every generated beat is checked by `scripts/words.py`
+(faster-whisper, local): it writes the word timings the kinetic type and captions use and prints the recognised
+text against the script, so a dropped or garbled word is caught before a render. Normalise to -16 LUFS in S8.
+Music: generated in code (`scripts/music.py`, numpy; 92 BPM, D minor, pad / sub / pluck / soft kick / tick), so
+nothing is licensed or downloaded and the arrangement follows the beat grid. It is a separate file and a separate
+`<Audio>` layer, ducked by `src/music.ts` to about 16 dB under the voice and fading on the close; `scripts/stems.py`
+exports voice, music and mix as separate WAVs with their levels. UI sounds optional and only if they sit exactly on
+the frame of the change they mark.
 
 ## 6. Feedback loop
 After each rough cut: score the render on clarity, pacing, legibility, brand fidelity and honesty (1 to 10), name
