@@ -115,6 +115,10 @@ export function createJob(s: DemoState, kind: JobKind, id?: string, params: Reco
   return job;
 }
 
+function syncInFlight(s: DemoState): boolean {
+  return Object.values(s.jobs).some((j) => j.kind === "sync" && (j.status === "queued" || j.status === "running"));
+}
+
 /** One poll's worth of progress. Completed and failed jobs are returned unchanged. */
 export function tickJob(s: DemoState, job: JobRead): JobRead {
   if (job.status === "completed" || job.status === "failed") return job;
@@ -125,6 +129,16 @@ export function tickJob(s: DemoState, job: JobRead): JobRead {
     return job;
   }
   const at = nowIso();
+  // A categorise or reconcile submitted while the first import is still running waits for it
+  // (a worker would queue behind the sync) and sizes itself once the rows exist.
+  if ((job.kind === "categorise" || job.kind === "reconcile") && syncInFlight(s)) {
+    job.status = "queued";
+    job.updated_at = at;
+    return job;
+  }
+  if (job.progress_current === 0 && (job.kind === "categorise" || job.kind === "reconcile")) {
+    job.progress_total = script.total(s, job.params);
+  }
   const step = Math.max(1, Math.ceil(job.progress_total / script.ticks));
   const ticks = ((job.params?.ticks as number | undefined) ?? 0) + 1;
   job.status = "running";
