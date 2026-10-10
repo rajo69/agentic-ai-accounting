@@ -22,7 +22,7 @@ export function Hero({ connectHref, videoUrl }: { connectHref: string; videoUrl?
           <h1 className="animate-rise font-serif text-display-serif text-foreground" style={rise(0)}>
             Every AI<span className="-mx-[0.07em]">-</span>coded transaction,
             <br className="hidden sm:block" /> reviewed with{" "}
-            <GradientText colors={AURORA_STOPS} animationSpeed={14} className="italic">
+            <GradientText colors={AURORA_STOPS} animationSpeed={14} className="-mr-[0.1em] pr-[0.1em] italic">
               evidence
             </GradientText>
             .
