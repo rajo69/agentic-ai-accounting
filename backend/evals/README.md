@@ -1,136 +1,89 @@
-# Eval Framework
+# Eval harness
 
-Evaluate the AI categorisation agent before deploying. Measures accuracy,
-per-category F1, confidence calibration, and API cost.
+Measures the categorisation prompt on a fixed set of synthetic UK transactions: accuracy by difficulty tier,
+per-category F1, confidence calibration and API cost. It is a harness for the prompt, not a replay of the production
+agent: it sends its own prompt with no precedent retrieval and no model routing. Parity with the production graph
+is on the [roadmap](../../docs/PRODUCTION_ROADMAP.md).
 
----
-
-## Quick Start
+## Quick start
 
 ```bash
 cd backend
 
-# 1. Dry run — no API calls, uses rule-based mock (free, instant)
+# Rule-based mock: no API calls, free. Exercises the harness itself.
 python -m evals.eval_runner --mode mock
 
-# 2. Cached run — uses real API once, caches to disk, free on reruns
-python -m evals.eval_runner --mode live --budget 0.05
+# Live run with a hard budget (USD). Responses are cached to disk, so reruns are free.
+python -m evals.eval_runner --mode live --budget 0.10
 
-# 3. Rerun against cache (zero cost after first run)
-python -m evals.eval_runner --mode live --budget 0.05  # hits cache
-
-# 4. Clear cache and force fresh API calls
-python -c "from evals.response_cache import ResponseCache; print(ResponseCache().clear(), 'files deleted')"
-
-# 5. Benchmark: compare Haiku vs Sonnet
-python -m evals.eval_runner --mode live --model claude-haiku-4-5-20251001 --budget 0.05
+# Compare models
+python -m evals.eval_runner --mode live --model claude-haiku-4-5-20251001 --budget 0.10
 python -m evals.eval_runner --mode live --model claude-sonnet-4-6 --budget 0.50
 
-# 6. Quick smoke test on 10 transactions
-python -m evals.eval_runner --mode live --limit 10 --budget 0.01
+# Smoke test on 10 fixtures
+python -m evals.eval_runner --mode live --limit 10 --budget 0.02
+
+# Clear the cache
+python -c "from evals.response_cache import ResponseCache; print(ResponseCache().clear(), 'files deleted')"
 ```
 
----
+Set `PYTHONIOENCODING=utf-8` on Windows consoles; the report uses block characters.
 
-## Eval Modes
+## Modes
 
-| Mode | API calls | Cost | When to use |
-|------|-----------|------|-------------|
-| `mock` | None | $0 | Testing the eval framework itself |
-| `live` (cache hit) | None | $0 | Reruns after first live run |
-| `live` (cache miss) | Yes | See below | First run or after cache clear |
+| Mode | API calls | Cost | Use |
+|---|---|---|---|
+| `mock` | none | 0 | testing the harness |
+| `live`, cache hit | none | 0 | reruns on unchanged fixtures and prompt |
+| `live`, cache miss | yes | see below | first run, or after a prompt change |
 
----
+The runner also accepts `--mode cached`; it behaves as `mock` and is kept only for backwards compatibility.
 
-## Expected Costs
+## Fixtures
 
-All costs use the 50-transaction fixture set.
+`fixtures/transactions.json`: 50 labelled synthetic UK SME bank transactions, written by hand (no Xero API data):
 
-| Model | Est. cost | Notes |
-|-------|-----------|-------|
-| claude-haiku-4-5-20251001 | ~$0.001 | Use for all development evals |
-| claude-sonnet-4-6 | ~$0.005 | Use for pre-deployment quality check |
+- 31 easy (unambiguous: HMRC, well-known SaaS, payroll)
+- 15 medium (need context: memberships, dual-purpose spend, inter-account transfers)
+- 4 hard (industry-specific, balance sheet versus P&L edge cases)
 
-After the first live run, **reruns are free** (responses are cached to `evals/.cache/`).
+`fixtures/accounts.json`: 20 UK chart-of-accounts codes.
 
----
+The hard tier is too small to support a claim on its own; treat the tier split as diagnostic.
 
-## What the Report Shows
+## Cost
 
-```
-Overall accuracy: 88.0% (44/50)
+`cost_tracker.py` holds Anthropic list prices per million tokens (checked 2026-10-10): Haiku 4.5 at 1.00 in / 5.00
+out, Sonnet 4.6 at 3.00 / 15.00, Opus 4.6 at 5.00 / 25.00. Sonnet is therefore 3x Haiku per token. Before a live run
+the tracker prints an estimate from assumed token counts (800 in, 150 out per fixture, about USD 0.06 for 50 fixtures
+on Haiku) and aborts if it exceeds `--budget`; recorded cost is the actual token usage after the run.
 
-By difficulty:
-  easy    : 95.8% (23/24) ████████████████████
-  medium  : 81.3% (13/16) ████████████████
-  hard    :  80.0% (8/10) ████████████████
+## Acceptance gates
 
-Confidence calibration:
-  high (>0.85):   acc=95.0% (40 transactions)  ← auto-accept threshold
-  medium (0.5-0.85): acc=71.4% (7 transactions) ← shown to accountant
-  low (<0.5):     acc=33.3% (3 transactions)    ← flagged for review
-
-Per-category (F1 ≥ 0.8 is good):
-  404 Computer Equipment & Software: F1=0.95 P=0.95 R=0.95
-  820 Tax & Statutory Payments:      F1=1.00 P=1.00 R=1.00
-  ...
-```
-
----
-
-## Fixture Set
-
-`fixtures/transactions.json` — 50 labeled UK SME bank transactions:
-- 24 **easy** (unambiguous: HMRC, well-known SaaS, payroll)
-- 16 **medium** (require context: professional memberships, dual-category spends)
-- 10 **hard** (industry-specific, balance sheet vs P&L edge cases)
-
-`fixtures/accounts.json` — 20 standard UK chart of accounts codes.
-
-To add more fixtures, append to `transactions.json` following the same schema.
-
----
-
-## Acceptance Criteria (pre-deployment)
-
-Before going live with any version of the categorisation agent:
+The runner exits non-zero when a gate is missed. Gates are enforced by the runner, not yet in CI.
 
 | Metric | Minimum | Target |
-|--------|---------|--------|
-| Overall accuracy | 80% | 90%+ |
-| Easy accuracy | 95% | 100% |
-| Auto-accept accuracy (conf > 0.85) | 90% | 95% |
-| Cost per transaction | < $0.01 | < $0.005 |
-| F1 on core categories (HMRC, payroll, software) | 0.90 | 0.95+ |
+|---|---|---|
+| Overall accuracy | 80% | 90% |
+| Easy tier accuracy | 95% | 100% |
+| Auto-accept tier accuracy (confidence above 0.85) | 90% | 95% |
+| Cost per transaction | under USD 0.01 | under USD 0.005 |
 
-If the agent doesn't meet these thresholds, **do not deploy**. Tune prompts,
-add few-shot examples, or adjust confidence thresholds first.
+## Results and provenance
 
----
-
-## Cost Architecture
-
-See `docs/ARCHITECTURE.md` Section 9 for the full cost model.
-
-**Key strategy**: Use `claude-haiku-4-5-20251001` for all eval runs (~3.75×
-cheaper per token than Sonnet, per `cost_tracker.py` pricing). Only switch to
-`claude-sonnet-4-6` for a final pre-deployment quality check. Cache all
-responses to disk — the second run always costs $0.
-
----
+Result CSVs are written to `results/` (gitignored). No accuracy figure is published in this repository until a run is
+committed together with its provenance: commit, fixture version, prompt version, model id and date. Earlier
+README figures were removed on 2026-10-10 for that reason.
 
 ## Files
 
 ```
 evals/
-├── __init__.py
-├── README.md               ← this file
-├── cost_tracker.py         ← token counting + cost estimation + budget guard
-├── response_cache.py       ← disk cache for API responses (keyed by SHA-256(model+prompt))
-├── eval_runner.py          ← main runner: loads fixtures, calls agent, prints metrics
-├── fixtures/
-│   ├── transactions.json   ← 50 labeled UK transactions
-│   └── accounts.json       ← 20 chart of accounts codes
-├── results/                ← CSV results from each run (auto-created)
-└── .cache/                 ← cached API responses (auto-created, gitignored)
+├── README.md
+├── cost_tracker.py       token counting, price table, budget guard
+├── response_cache.py     disk cache keyed by SHA-256(model + prompt)
+├── eval_runner.py        loads fixtures, calls the model, prints metrics, enforces gates
+├── fixtures/             transactions.json (50), accounts.json (20)
+├── results/              CSV per run (gitignored)
+└── .cache/               cached responses (gitignored)
 ```
