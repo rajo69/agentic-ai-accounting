@@ -15,9 +15,9 @@
     --foreground: 240 8% 93%;
     --muted-foreground: 240 5% 60%;
     --subtle-foreground: 240 5% 42%;
-    --primary: 246 84% 67%;
+    --primary: 246 80% 63%; /* white text reaches AA (5.2:1); 67% measured 4.36:1 */
     --primary-foreground: 0 0% 100%;
-    --ring: 246 84% 67%;
+    --ring: 246 80% 63%;
     --success: 152 56% 45%;
     --warning: 38 92% 55%;
     --danger: 0 70% 60%;
@@ -33,6 +33,7 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
   }
 
   body { @apply bg-background text-foreground font-sans antialiased; }
@@ -52,6 +53,13 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
   .tabular { font-variant-numeric: tabular-nums; }
+  /* Hero entrance without waiting for hydration: opacity 0 to 1, y 12 to 0, out-expo. */
+  .animate-rise { animation: rise 600ms var(--ease-out-expo) both; }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
