@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Settings } from "lucide-react";
 import { isDemo } from "@/demo/flag";
+import type { DemoSettings } from "@/demo";
 import { Button } from "@/components/ui/button";
 import { StatusChip } from "@/components/ui/status-chip";
 import { PageHeader } from "@/components/app/page-header";
@@ -13,8 +14,8 @@ import { EmptyState } from "@/components/app/empty-state";
 import { uiTransition } from "@/lib/motion";
 
 /**
- * Settings is demo-only (S0 decision 4). Values are the demo's static defaults until S5 wires
- * them to the demo store; everything here is read-only. No data fetching.
+ * Settings is demo-only (S0 decision 4). Values come from the demo store through a dynamic import
+ * so the seed stays out of this route's bundle in real mode; everything here is read-only.
  */
 
 type Row = { label: string; value: React.ReactNode; hint?: string };
@@ -23,63 +24,96 @@ const Mono = ({ children }: { children: React.ReactNode }) => (
   <span className="font-mono text-small tabular-nums text-foreground">{children}</span>
 );
 
-const SECTIONS: { eyebrow: string; blurb: string; rows: Row[] }[] = [
-  {
-    eyebrow: "AI policy",
-    blurb: "Thresholds decide what is coded automatically, what is suggested and what waits for a reviewer.",
-    rows: [
-      { label: "Auto-categorise at", value: <Mono>0.85</Mono>, hint: "Confidence at or above this is applied without review." },
-      { label: "Suggest at", value: <Mono>0.50</Mono>, hint: "Between the two thresholds the category is a suggestion." },
-      { label: "Escalation threshold", value: <Mono>0.85</Mono>, hint: "Below this the primary model's answer is re-run on the stronger model." },
-      { label: "Primary model", value: <StatusChip tone="info" dot={false} className="font-mono">claude-haiku-4-5-20251001</StatusChip> },
-      { label: "Escalation model", value: <StatusChip tone="info" dot={false} className="font-mono">claude-sonnet-4-5-20250929</StatusChip> },
-      { label: "Precedent retrieval", value: <StatusChip tone="warning" outline>Behind a flag</StatusChip>, hint: "Confirmed corrections are stored as precedents; retrieval is gated until the Xero terms question is settled." },
-    ],
-  },
-  {
-    eyebrow: "Sync",
-    blurb: "How the books reach the console.",
-    rows: [
-      { label: "Source", value: <Mono>Xero (synthetic)</Mono> },
-      { label: "Schedule", value: <Mono>Manual</Mono>, hint: "Run Sync from the dashboard; nothing runs on a timer in the demo." },
-      { label: "Scope", value: <Mono>Chart of accounts · bank transactions · statement lines</Mono> },
-    ],
-  },
-  {
-    eyebrow: "Notifications",
-    blurb: "Nothing is sent from the demo.",
-    rows: [
-      { label: "Review digest", value: <StatusChip tone="muted">Off</StatusChip> },
-      { label: "Job failures", value: <StatusChip tone="muted">Off</StatusChip> },
-    ],
-  },
-  {
-    eyebrow: "Data and privacy",
-    blurb: "Where the data lives and how it leaves.",
-    rows: [
-      { label: "Storage", value: <Mono>This browser only</Mono>, hint: "Demo state is kept in localStorage; Reset data clears it." },
-      { label: "Model provider", value: <Mono>Pre-written reasoning</Mono>, hint: "The demo replays reasoning generated from the fixtures; no model is called." },
-      { label: "Export", value: <Mono>GET /api/v1/gdpr/export</Mono>, hint: "Real mode only." },
-      { label: "Erase", value: <Mono>DELETE /api/v1/gdpr/erase</Mono>, hint: "Real mode only." },
-    ],
-  },
-  {
-    eyebrow: "Organisation",
-    blurb: "The synthetic company behind the demo.",
-    rows: [
-      { label: "Name", value: <span className="text-sm text-foreground">Harlow &amp; Finch Ltd</span> },
-      { label: "Reviewer", value: <Mono>reviewer@demo.invalid</Mono> },
-      { label: "Currency", value: <Mono>GBP</Mono> },
-      { label: "Reporting", value: <Mono>MTD for Income Tax · quarterly</Mono> },
-    ],
-  },
-];
+function fmtBytes(n: number) {
+  return n >= 1024 ? `${(n / 1024).toFixed(0)} KB` : `${n} B`;
+}
+
+function fmtWhen(iso: string | null) {
+  return iso ? new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : "Never";
+}
+
+function sections(d: DemoSettings): { eyebrow: string; blurb: string; rows: Row[] }[] {
+  return [
+    {
+      eyebrow: "AI policy",
+      blurb: "Thresholds decide what is coded automatically, what is suggested and what waits for a reviewer.",
+      rows: [
+        { label: "Auto-categorise at", value: <Mono>{d.auto_threshold.toFixed(2)}</Mono>, hint: "Confidence at or above this is applied without review." },
+        { label: "Suggest at", value: <Mono>{d.suggest_threshold.toFixed(2)}</Mono>, hint: "Between the two thresholds the category is a suggestion." },
+        { label: "Escalation threshold", value: <Mono>{d.escalation_threshold.toFixed(2)}</Mono>, hint: "Below this the primary model's answer is re-run on the stronger model." },
+        { label: "Primary model", value: <StatusChip tone="info" dot={false} className="font-mono">{d.primary_model}</StatusChip> },
+        { label: "Escalation model", value: <StatusChip tone="info" dot={false} className="font-mono">{d.escalation_model}</StatusChip> },
+        { label: "Document model", value: <StatusChip tone="info" dot={false} className="font-mono">{d.document_model}</StatusChip>, hint: "Recorded on each generated document in real mode; the demo replays pre-written sections." },
+        { label: "Risk rules", value: <Mono>{d.rule_count} plain-language rules</Mono>, hint: "Amount deviation, vendor frequency and time pattern; each fired rule is shown on the transaction." },
+        { label: "Precedent retrieval", value: <StatusChip tone="warning" outline>Behind a flag</StatusChip>, hint: "Confirmed corrections are stored as precedents; retrieval is gated until the Xero terms question is settled." },
+      ],
+    },
+    {
+      eyebrow: "Sync",
+      blurb: "How the books reach the console.",
+      rows: [
+        { label: "Source", value: <Mono>Xero (synthetic)</Mono> },
+        { label: "Last sync", value: <Mono>{fmtWhen(d.synced_at)}</Mono> },
+        { label: "Schedule", value: <Mono>Manual</Mono>, hint: "Run Sync from the dashboard; nothing runs on a timer in the demo." },
+        {
+          label: "Scope",
+          value: <Mono>{d.counts.accounts} accounts · {d.counts.transactions} transactions · {d.counts.statements} statement lines</Mono>,
+        },
+        {
+          label: "Documents",
+          value: <Mono>Pre-rendered for the imported quarter</Mono>,
+          hint: "The three templates are rendered once from the synthetic book with the real document templates; the period picker does not change them in the demo.",
+        },
+      ],
+    },
+    {
+      eyebrow: "Notifications",
+      blurb: "Nothing is sent from the demo.",
+      rows: [
+        { label: "Review digest", value: <StatusChip tone="muted">Off</StatusChip> },
+        { label: "Job failures", value: <StatusChip tone="muted">Off</StatusChip> },
+        { label: "Invitations", value: <StatusChip tone="muted">Simulated</StatusChip>, hint: "Team invites are recorded but no email leaves the browser." },
+      ],
+    },
+    {
+      eyebrow: "Data and privacy",
+      blurb: "Where the data lives and how it leaves.",
+      rows: [
+        { label: "Storage", value: <Mono>This browser only · {fmtBytes(d.storage_bytes)}</Mono>, hint: "Demo state is kept in localStorage; Reset demo clears it." },
+        { label: "Audit trail", value: <Mono>{d.counts.audit} rows</Mono>, hint: "Every AI proposal and every human decision so far in this demo." },
+        { label: "Model provider", value: <Mono>Pre-written reasoning</Mono>, hint: "The demo replays reasoning generated from the fixtures; no model is called." },
+        { label: "Export", value: <Mono>GET /api/v1/gdpr/export</Mono>, hint: "Real mode only." },
+        { label: "Erase", value: <Mono>DELETE /api/v1/gdpr/erase</Mono>, hint: "Real mode only." },
+      ],
+    },
+    {
+      eyebrow: "Organisation",
+      blurb: "The synthetic company behind the demo.",
+      rows: [
+        { label: "Name", value: <span className="text-sm text-foreground">{d.org_name}</span> },
+        { label: "Reviewer", value: <Mono>{d.reviewer_email}</Mono> },
+        { label: "Currency", value: <Mono>GBP</Mono> },
+        { label: "Reporting", value: <Mono>MTD for Income Tax · quarterly</Mono> },
+      ],
+    },
+  ];
+}
 
 export default function SettingsPage() {
   // Read after mount so server and client render the same markup.
   const [demo, setDemo] = useState<boolean | null>(null);
+  const [settings, setSettings] = useState<DemoSettings | null>(null);
   useEffect(() => {
-    setDemo(isDemo());
+    const on = isDemo();
+    setDemo(on);
+    if (!on) return;
+    let cancelled = false;
+    import("@/demo").then(({ demoSettings }) => {
+      if (!cancelled) setSettings(demoSettings());
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (demo === null) return null;
@@ -101,6 +135,8 @@ export default function SettingsPage() {
     );
   }
 
+  if (!settings) return null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -115,7 +151,7 @@ export default function SettingsPage() {
       />
 
       <div className="flex flex-col gap-4">
-        {SECTIONS.map((section) => (
+        {sections(settings).map((section) => (
           <div key={section.eyebrow} className="rounded-lg border border-border bg-surface">
             <div className="border-b border-border px-5 py-4">
               <PanelSection eyebrow={section.eyebrow}>

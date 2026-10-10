@@ -36,7 +36,7 @@ export default function DemoBanner() {
             window.location.href = "/demo?skip_onboarding=1";
           }}
         >
-          Reset data
+          Reset demo
         </Button>
         <Button
           variant="ghost"

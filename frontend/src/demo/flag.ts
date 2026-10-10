@@ -27,7 +27,8 @@ export function enterDemo(opts: { skipOnboarding?: boolean } = {}) {
 
 export function exitDemo(opts: { silent?: boolean } = {}) {
   localStorage.removeItem(KEY);
-  localStorage.removeItem("demo_state_v2");
+  // Current store key plus earlier shapes (see store.ts STORAGE_KEY / STALE_STORAGE_KEYS).
+  for (const k of ["demo_state_v3", "demo_state_v2"]) localStorage.removeItem(k);
   document.cookie = "has_session=; Max-Age=0; path=/";
   sessionStorage.removeItem("first_sync_job_id");
   if (!opts.silent) window.location.href = "/";
