@@ -8,6 +8,8 @@ A production-grade AI assistant for UK accountants built on top of **Xero**. It 
 
 Connect your Xero Account and use it : [Click Here](https://agentic-ai-accounting.vercel.app)
 
+**Try the demo (no account needed):** [agentic-ai-accounting.vercel.app/demo](https://agentic-ai-accounting.vercel.app/demo) opens the console on a synthetic company. Everything in the demo runs in your browser: the categorisation reasoning, risk flags and match scores are replayed from fixtures and pre-written drafts, no model is called, nothing is sent to a server, and nothing is written to Xero. The live pipeline behind "Connect Xero" is the real thing.
+
 ---
 
 ## Contents
