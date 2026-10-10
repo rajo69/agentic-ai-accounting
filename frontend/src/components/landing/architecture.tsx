@@ -31,7 +31,7 @@ const EDGES = [
 const FACTS = [
   "34 FastAPI endpoints behind one OpenAPI contract",
   "93 pytest tests run on every push",
-  "Haiku 4.5 first, Sonnet 4.6 when the fast model is unsure",
+  "A fast model first, a stronger one when it is unsure",
   "Instructor outputs validated by Pydantic before they are stored",
   "pgvector precedents, scoped to the organisation",
   "Eight fuzzy risk rules and an audit row for every decision",
@@ -85,7 +85,7 @@ function Diagram() {
 
 export function Architecture() {
   return (
-    <section id="engineering" className="relative z-10 scroll-mt-6 border-t border-border">
+    <section id="engineering" className="relative z-10 scroll-mt-6">
       <Container className="py-24 md:py-32">
         <SectionHeader
           eyebrow="How it is built"

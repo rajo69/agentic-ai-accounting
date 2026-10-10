@@ -7,6 +7,7 @@ import { Hero } from "@/components/landing/hero";
 import { Nav } from "@/components/landing/nav";
 import { ProductFrame } from "@/components/landing/product-frame";
 import { ProofStrip } from "@/components/landing/proof-strip";
+import { ReviewFlow } from "@/components/landing/review-flow";
 import { WhatsReal } from "@/components/landing/whats-real";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -21,8 +22,9 @@ export default function LandingPage() {
       <Nav connectHref={`${API_BASE}/auth/xero/connect`} />
       <Hero connectHref={`${API_BASE}/auth/xero/connect`} videoUrl={VIDEO_URL} />
       <ProductFrame />
-      <ProofStrip />
+      <ReviewFlow />
       <Capabilities />
+      <ProofStrip />
       <Architecture />
       <WhatsReal />
       <Cta connectHref={`${API_BASE}/auth/xero/connect`} />
