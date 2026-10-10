@@ -3,7 +3,7 @@
 Read by `scripts/tts.py`: a `## <id>` heading opens a beat, the paragraph under it is the voice-over text, lines in
 parentheses are stage directions and are skipped. Beats are short on purpose (one or two sentences) so every visual
 event sits on the measured start of its own audio file, which is what keeps picture, voice and caption in sync
-without a forced aligner. Target 105 to 118 s at the cloned voice's pace; ~265 words.
+without a forced aligner. Target 110 to 125 s at the cloned voice's pace (measured 2.35 words/s): under 290 words. First draft (408 words) ran 174 s; second (337) 143 s; this one is ~312 words and plays at 1.1x (`TEMPO` in `src/timing.ts`, pitch preserved).
 
 Research applied (2026-10-10, third-party guides on YC launch videos; YC's own guidance covers founder videos, not
 product demos): hook inside five seconds, problem before product, the real product on screen by 20 to 30 s, one idea
@@ -42,62 +42,62 @@ return) and an eased synthetic cursor with a 150 ms press; the aurora only behin
 Xero's AI now codes the books. The errors are still yours to find.
 
 ## problem1
-If you sign off a client's quarter, you are reviewing a model's work. A green tick is not evidence.
+Sign off a client's quarter and you are reviewing a model's work. A green tick is not evidence.
 
 ## problem2
-Finding the three wrong lines in a hundred takes the same effort whether the books are ninety or ninety-nine percent right. And with Making Tax Digital, that sign-off now happens every quarter.
+Finding the three wrong lines in a hundred costs the same whether the books are ninety percent right or ninety-nine.
 
 ## product
-AI Accountant is the review layer that sits after Xero's AI and before the sign-off. This is a quarter's review, on a synthetic company.
+AI Accountant sits after Xero's AI and before the sign-off. Here is a quarter's review, on a synthetic company.
 
 ## categorise1
-Run categorise. Every transaction gets a proposed category, a confidence score and a tier.
+Run categorise. Every transaction gets a category, a confidence score and a tier.
 
 ## categorise2
-High confidence is accepted automatically. The uncertain ones are routed to you.
+High confidence goes through. The uncertain ones come to you.
 
 ## explain1
-Open one. The reasoning is written out, with the model that made the call and whether it was escalated to a stronger one.
+Open one. The reasoning is written out, with the model that made the call.
 
 ## explain2
 (reasoning paragraphs enter)
-The question is no longer "what happened". It is "do I agree".
+The question is no longer what happened. It is: do I agree?
 
 ## explain3
 And a risk flag from eight plain-language rules: unusual amount, rare vendor, odd timing.
 
 ## decide1
-Approve, correct or reject. A correction becomes a precedent for the next similar transaction, with no training on client data.
+Approve, correct or reject. A correction becomes a precedent, with no training on client data.
 
 ## decide2
 Every decision, the model's and yours, lands in the audit trail.
 
 ## reconcile1
-Reconcile matches bank lines to invoices and payments on amount, date and description.
+Reconcile matches bank lines to invoices and payments, with scores.
 
 ## reconcile2
-Clear matches go through. Ambiguous ones wait for you, with the scores shown.
+Clear matches go through. Ambiguous ones wait for you.
 
 ## report
-Then draft the management letter from the actual figures, labelled indicative, as a PDF.
+Then draft the management letter from the actual figures.
 
 ## built1
-Now the part for engineers. A Next.js console talks to a FastAPI service. Categorisation and reconciliation are LangGraph workflows calling Claude through Instructor, so every answer is validated before it is stored.
+Now, for engineers. Next.js, FastAPI, and two LangGraph workflows calling Claude through Instructor, so every answer is validated before it is stored.
 
 ## built2
-A fast model first, a stronger one when it is unsure. Postgres holds the books, the pgvector precedents and the audit log. Thirty-four endpoints, ninety-three tests on every push.
+A fast model first, a stronger one when unsure. Thirty-four endpoints, ninety-three tests, one audit row per decision.
 
 ## judgement1
-Three things that needed judgement. Xero changed its OAuth scope scheme in the middle of the build.
+Three things needed judgement. Xero changed its OAuth scope scheme mid-build.
 
 ## judgement2
-A CORS fix took production down in a loop, diagnosed by telling a browser-level type error from a four-oh-one.
+A CORS fix took production down in a loop: a browser type error, not a four-oh-one.
 
 ## judgement3
-And a six-lens review of my own code found bugs a green test suite could not. I published them instead of hiding them.
+And a six-lens review of my own code found bugs the green test suite could not. I published them.
 
 ## honest
-The live pipeline runs on a connected Xero organisation with real model calls. The demo is a synthetic company. No accuracy figure is published until a reproducible evaluation is committed.
+The live pipeline runs on a real Xero organisation. The demo is synthetic. And no accuracy claims without a reproducible evaluation.
 
 ## close
-Try the demo, no account needed. Read the code on GitHub. And if you are hiring for AI engineering, I would like to talk.
+Try the demo, no account needed. Read the code on GitHub. And if you are hiring for AI engineering, let's talk.
