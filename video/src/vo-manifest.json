@@ -2,127 +2,274 @@
   "hook": {
     "text": "Xero's AI now codes the books. The errors are still yours to find.",
     "cues": "[confident] Xero's AI now codes the books. [break] [calm] The errors are still [emphasis] yours to find.",
-    "seconds": 4.989333333333334,
-    "bytes": 119744
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 4.466938775510204,
+    "bytes": 108503,
+    "level": {
+      "lufs": -15.43,
+      "tp": -3.24,
+      "gain_db": 3.42,
+      "limited_db": -1.23
+    }
   },
   "problem1": {
     "text": "Sign off a client's quarter and you are reviewing a model's work. A green tick is not evidence.",
     "cues": "[calm] Sign off a client's quarter and you are reviewing a model's work. [break] [confident] A green tick is not evidence.",
-    "seconds": 5.773,
-    "bytes": 138552
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 5.903673469387755,
+    "bytes": 142985,
+    "level": {
+      "lufs": -15.44,
+      "tp": -3.26,
+      "gain_db": 4.54,
+      "limited_db": -2.15
+    }
   },
   "problem2": {
     "text": "Finding the three wrong lines in a hundred costs the same whether the books are ninety percent right, or ninety-nine.",
     "cues": "[curious] Finding the three wrong lines in a hundred costs the same whether the books are ninety percent right, [break] or ninety-nine.",
-    "seconds": 7.053,
-    "bytes": 169272
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 6.373877551020408,
+    "bytes": 154270,
+    "level": {
+      "lufs": -15.41,
+      "tp": -3.24,
+      "gain_db": 4.2,
+      "limited_db": -2.22
+    }
   },
   "product": {
     "text": "AI Accountant sits after Xero's AI and before the sign-off. Here is a quarter's review, on a synthetic company.",
     "cues": "[optimistic] AI Accountant sits after Xero's AI and before the sign-off. [break] [relaxed] Here is a quarter's review, on a synthetic company.",
-    "seconds": 7.601583333333333,
-    "bytes": 182438
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 7.497142857142857,
+    "bytes": 181228,
+    "level": {
+      "lufs": -15.42,
+      "tp": -3.22,
+      "gain_db": 4.83,
+      "limited_db": -0.57
+    }
   },
   "categorise1": {
     "text": "Run categorise. Every transaction gets a category, a confidence score and a tier.",
     "cues": "[calm] Run categorise. [break] Every transaction gets a category, a confidence score and a tier.",
-    "seconds": 6.582791666666667,
-    "bytes": 157987
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 5.903673469387755,
+    "bytes": 142985,
+    "level": {
+      "lufs": -15.43,
+      "tp": -3.24,
+      "gain_db": 6.18,
+      "limited_db": -4.49
+    }
   },
   "categorise2": {
     "text": "High confidence goes through. The uncertain ones come to you.",
     "cues": "[satisfied] High confidence goes through. [break] [calm] The uncertain ones come to you.",
-    "seconds": 4.101166666666667,
-    "bytes": 98428
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 3.7355102040816326,
+    "bytes": 90949,
+    "level": {
+      "lufs": -15.4,
+      "tp": -3.25,
+      "gain_db": 4.64,
+      "limited_db": -1.84
+    }
   },
   "explain1": {
     "text": "Open one. The reasoning is written out, with the model that made the call.",
     "cues": "[curious] Open one. [break] [calm] The reasoning is written out, with the model that made the call.",
-    "seconds": 5.119958333333333,
-    "bytes": 122879
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 4.6236734693877555,
+    "bytes": 112265,
+    "level": {
+      "lufs": -15.41,
+      "tp": -3.25,
+      "gain_db": 4.28,
+      "limited_db": -1.36
+    }
   },
   "explain2": {
     "text": "The question is no longer what happened. It is: do I agree?",
     "cues": "[calm] The question is no longer what happened. [break] [confident] It is: [emphasis] do I agree?",
-    "seconds": 4.858708333333333,
-    "bytes": 116609
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 4.101224489795919,
+    "bytes": 99726,
+    "level": {
+      "lufs": -15.42,
+      "tp": -3.26,
+      "gain_db": 3.86,
+      "limited_db": -2.41
+    }
   },
   "explain3": {
     "text": "And a risk flag from eight plain-language rules: unusual amount, rare vendor, odd timing.",
     "cues": "[calm] And a risk flag from eight plain-language rules: [break] unusual amount, rare vendor, odd timing.",
-    "seconds": 6.765666666666666,
-    "bytes": 162376
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 6.060408163265306,
+    "bytes": 146746,
+    "level": {
+      "lufs": -15.41,
+      "tp": -3.24,
+      "gain_db": 4.01,
+      "limited_db": -0.24
+    }
   },
   "decide1": {
     "text": "Approve, correct or reject. A correction becomes a precedent, with no training on client data.",
     "cues": "[confident] Approve, correct or reject. [break] [calm] A correction becomes a precedent, with no training on client data.",
-    "seconds": 6.582791666666667,
-    "bytes": 157987
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 6.530612244897959,
+    "bytes": 158031,
+    "level": {
+      "lufs": -15.42,
+      "tp": -3.26,
+      "gain_db": 4.37,
+      "limited_db": -1.48
+    }
   },
   "decide2": {
     "text": "Every decision, the model's and yours, lands in the audit trail.",
     "cues": "[confident] Every decision, the model's and yours, lands in the audit trail.",
-    "seconds": 4.675875,
-    "bytes": 112221
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 4.440816326530612,
+    "bytes": 107876,
+    "level": {
+      "lufs": -15.4,
+      "tp": -3.21,
+      "gain_db": 3.8,
+      "limited_db": -1.08
+    }
   },
   "reconcile1": {
     "text": "Reconcile matches bank lines to invoices and payments, with scores.",
     "cues": "[calm] Reconcile matches bank lines to invoices and payments, with scores.",
-    "seconds": 4.8064583333333335,
-    "bytes": 115355
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 4.048979591836734,
+    "bytes": 98472,
+    "level": {
+      "lufs": -15.4,
+      "tp": -3.25,
+      "gain_db": 4.59,
+      "limited_db": -2.51
+    }
   },
   "reconcile2": {
     "text": "Clear matches go through. Ambiguous ones wait for you.",
     "cues": "[satisfied] Clear matches go through. [break] [calm] Ambiguous ones wait for you.",
-    "seconds": 3.6832083333333334,
-    "bytes": 88397
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 3.5526530612244898,
+    "bytes": 86560,
+    "level": {
+      "lufs": -15.43,
+      "tp": -3.22,
+      "gain_db": 5.51,
+      "limited_db": -2.48
+    }
   },
   "report": {
     "text": "Then draft the management letter from the actual figures.",
     "cues": "[relaxed] Then draft the management letter from the actual figures.",
-    "seconds": 2.951791666666667,
-    "bytes": 70843
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 2.7689795918367346,
+    "bytes": 67752,
+    "level": {
+      "lufs": -15.41,
+      "tp": -3.25,
+      "gain_db": 4.56,
+      "limited_db": -1.88
+    }
   },
   "built1": {
     "text": "Now, for engineers. Next.js, FastAPI, and two LangGraph workflows calling Claude through Instructor, so every answer is validated before it is stored.",
     "cues": "[confident] Now, for engineers. [break] [calm] Next.js, FastAPI, and two LangGraph workflows calling Claude through Instructor, so every answer is validated before it is stored.",
-    "seconds": 11.023625,
-    "bytes": 264567
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 10.971428571428572,
+    "bytes": 264611,
+    "level": {
+      "lufs": -15.44,
+      "tp": -3.23,
+      "gain_db": 4.77,
+      "limited_db": -1.94
+    }
   },
   "built2": {
     "text": "A fast model first, a stronger one when unsure. Thirty-four endpoints, ninety-three tests, one audit row per decision.",
     "cues": "[calm] A fast model first, a stronger one when unsure. [break] [confident] Thirty-four endpoints, ninety-three tests, one audit row per decision.",
-    "seconds": 8.071791666666666,
-    "bytes": 193723
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 8.933877551020409,
+    "bytes": 215710,
+    "level": {
+      "lufs": -15.44,
+      "tp": -3.25,
+      "gain_db": 4.41,
+      "limited_db": -3.05
+    }
   },
   "judgement1": {
     "text": "Three things needed judgement. Xero changed its OAuth scope scheme mid-build.",
     "cues": "[determined] Three things needed judgement. [break] [calm] Xero changed its OAuth scope scheme mid-build.",
-    "seconds": 4.989333333333334,
-    "bytes": 119744
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 5.12,
+    "bytes": 124176,
+    "level": {
+      "lufs": -15.41,
+      "tp": -3.51,
+      "gain_db": 3.14,
+      "limited_db": 0.0
+    }
   },
   "judgement2": {
     "text": "A CORS fix took production down in a loop: a browser type error, not a four-oh-one.",
     "cues": "[calm] A CORS fix took production down in a loop: [break] a browser type error, not a four-oh-one.",
-    "seconds": 5.433416666666667,
-    "bytes": 130402
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 5.537959183673469,
+    "bytes": 134208,
+    "level": {
+      "lufs": -15.42,
+      "tp": -3.25,
+      "gain_db": 4.87,
+      "limited_db": -2.65
+    }
   },
   "judgement3": {
     "text": "And a six-lens review of my own code found bugs the green test suite could not. I published them.",
     "cues": "[proud] And a six-lens review of my own code found bugs the green test suite could not. [break] [confident] I published them.",
-    "seconds": 6.295458333333333,
-    "bytes": 151091
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 6.112653061224489,
+    "bytes": 148000,
+    "level": {
+      "lufs": -15.41,
+      "tp": -3.24,
+      "gain_db": 5.76,
+      "limited_db": -2.53
+    }
   },
   "honest": {
     "text": "The live pipeline runs on a real Xero organisation. The demo is synthetic. And no accuracy claims without a reproducible evaluation.",
     "cues": "[calm] The live pipeline runs on a real Xero organisation. [break] The demo is synthetic. [break] [confident] And no accuracy claims without a reproducible evaluation.",
-    "seconds": 8.777083333333334,
-    "bytes": 210650
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 9.064489795918368,
+    "bytes": 218844,
+    "level": {
+      "lufs": -15.43,
+      "tp": -3.23,
+      "gain_db": 4.19,
+      "limited_db": -1.69
+    }
   },
   "close": {
     "text": "Try the demo, no account needed. Read the code on GitHub. And if you are hiring for AI engineering, let's talk.",
     "cues": "[hopeful] Try the demo, no account needed. [break] Read the code on GitHub. [break] [confident] And if you are hiring for AI engineering, [emphasis] let's talk.",
-    "seconds": 7.470958333333333,
-    "bytes": 179303
+    "voice": "beb44e5fac1e4b33a15dfcdcc2a9421d",
+    "seconds": 7.68,
+    "bytes": 185616,
+    "level": {
+      "lufs": -15.43,
+      "tp": -3.23,
+      "gain_db": 4.4,
+      "limited_db": -2.32
+    }
   }
 }

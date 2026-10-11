@@ -50,10 +50,11 @@ The honesty line is in the script and stays in: the demo is a synthetic company;
 Xero organisation.
 
 ## 5. Sound
-Voice: the owner's cloned voice via Fish Audio (`scripts/tts.py`, free S2.1 Pro backend). Delivery is written into
-`script.md` as S2 bracket cues (an emotion tag opens each sentence, `[emphasis]` before a stressed word, `[break]`
-for a pause), sent to the model and stripped from captions; sampling temperature 0.55 / top_p 0.65 for an even
-read, native pace `prosody.speed` 1.1, 192 kbps. Every generated beat is checked by `scripts/words.py`
+Voice: the stock Fish Audio library voice "Sleepless historian" (`beb44e5fac1e4b33a15dfcdcc2a9421d`) via
+`scripts/tts.py` on the free S2.1 Pro backend, plain delivery (the `[bracket]` cues in `script.md` are stripped before
+sending, prosody speed 1.0, model-default sampling), 192 kbps, played at TEMPO 1.0. Owner's decision 2026-10-11: the
+cloned take was replaced for quality; the clone route (`--voice`, `--cues`) remains in tts.py. `scripts/level.py`
+then brings each beat to -15.4 LUFS under a -3 dBFS lookahead limiter (raw takes kept in `public/vo/raw/`). Every generated beat is checked by `scripts/words.py`
 (faster-whisper, local): it writes the word timings the kinetic type and captions use and prints the recognised
 text against the script, so a dropped or garbled word is caught before a render. Normalise to -16 LUFS in S8.
 Music: generated in code (`scripts/music.py`, numpy; 92 BPM, D minor, pad / sub / pluck / soft kick / tick), so

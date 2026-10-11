@@ -50,10 +50,10 @@ const LEAD: Partial<Record<BeatId, number>> = {
 const DEFAULT_GAP = 5;
 /**
  * Playback rate of the voice files (pitch preserved by Chrome and by ffmpeg's atempo in the render).
- * The voice pass of 2026-10-10 sets the pace natively (`prosody.speed` 1.1 in `scripts/tts.py`, which the
- * free backend only partly honours), so only a light stretch remains here; raise it to shorten the cut.
+ * 1.0 since the voice swap of 2026-10-11: the stock library voice reads at its own pace (`prosody.speed`
+ * 1.0 in `scripts/tts.py`), so nothing is stretched. Raise it only to shorten the cut.
  */
-export const TEMPO = 1.05;
+export const TEMPO = 1.0;
 /** Frames (at 30 fps) held after the last word of the close. */
 const TAIL = 60;
 
