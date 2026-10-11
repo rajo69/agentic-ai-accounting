@@ -172,16 +172,33 @@ def _pdf_url_allowed(url: str) -> bool:
     return path.is_relative_to(TEMPLATES_DIR.resolve())
 
 
-def _pdf_url_fetcher(url: str, *args, **kwargs):
-    """WeasyPrint URL fetcher that refuses anything :func:`_pdf_url_allowed` rejects."""
+def _check_pdf_url(url: str) -> None:
     if not _pdf_url_allowed(url):
         raise ValueError(f"PDF resource blocked: {url[:80]}")
+
+
+def _make_pdf_url_fetcher():
+    """A WeasyPrint URL fetcher that refuses anything :func:`_pdf_url_allowed` rejects.
+
+    WeasyPrint skips a refused resource with a warning; the PDF still renders.
+    """
     try:
         from weasyprint.urls import URLFetcher  # WeasyPrint >= 68
-    except ImportError:
+    except ImportError:  # older releases take a plain callable
         from weasyprint import default_url_fetcher
-        return default_url_fetcher(url, *args, **kwargs)
-    return URLFetcher(allowed_protocols={"data", "file"}).fetch(url)
+
+        def fetch(url, *args, **kwargs):
+            _check_pdf_url(url)
+            return default_url_fetcher(url, *args, **kwargs)
+
+        return fetch
+
+    class RestrictedURLFetcher(URLFetcher):
+        def fetch(self, url, headers=None):
+            _check_pdf_url(url)
+            return super().fetch(url, headers)
+
+    return RestrictedURLFetcher(allowed_protocols={"data", "file"})
 
 
 def _render_html(
@@ -209,7 +226,7 @@ def _render_html(
 def _html_to_pdf_sync(html: str) -> bytes:
     """Sync WeasyPrint call — run via asyncio.to_thread."""
     from weasyprint import HTML
-    return HTML(string=html, url_fetcher=_pdf_url_fetcher).write_pdf()
+    return HTML(string=html, url_fetcher=_make_pdf_url_fetcher()).write_pdf()
 
 
 # ── Public entry point ────────────────────────────────────────────────────────

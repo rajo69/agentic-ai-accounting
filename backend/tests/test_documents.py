@@ -244,22 +244,25 @@ def test_other_templates_escape_untrusted_text(template):
     assert "<img" not in html
 
 
-@pytest.mark.parametrize("url", [
+_BLOCKED_URLS = [
     "file:///etc/passwd",
     "file:///C:/Windows/win.ini",
     "http://169.254.169.254/latest/meta-data/",
     "https://example.com/tracker.png",
     "ftp://example.com/x",
-])
-def test_pdf_url_fetcher_blocks_everything_but_data_and_templates(url):
-    from app.services.document_service import _pdf_url_allowed, _pdf_url_fetcher
+]
+
+
+@pytest.mark.parametrize("url", _BLOCKED_URLS)
+def test_pdf_urls_blocked_except_data_and_templates(url):
+    from app.services.document_service import _check_pdf_url, _pdf_url_allowed
 
     assert not _pdf_url_allowed(url)
     with pytest.raises(ValueError):
-        _pdf_url_fetcher(url)
+        _check_pdf_url(url)
 
 
-def test_pdf_url_fetcher_allows_data_uris_and_template_files():
+def test_pdf_urls_allowed_for_data_uris_and_template_files():
     from app.services.document_service import TEMPLATES_DIR, _pdf_url_allowed
 
     assert _pdf_url_allowed("data:image/png;base64,iVBORw0KGgo=")
@@ -267,16 +270,36 @@ def test_pdf_url_fetcher_allows_data_uris_and_template_files():
     assert not _pdf_url_allowed((TEMPLATES_DIR / ".." / "core" / "config.py").resolve().as_uri())
 
 
-def test_html_to_pdf_passes_the_restricted_fetcher():
+def test_html_to_pdf_uses_a_restricted_url_fetcher():
+    """WeasyPrint >= 68 needs a URLFetcher subclass (it reads `_fail_on_errors` off the fetcher)."""
     import sys
+    import types
 
-    from app.services.document_service import _html_to_pdf_sync, _pdf_url_fetcher
+    from app.services.document_service import _html_to_pdf_sync
+
+    class FakeURLFetcher:
+        _fail_on_errors = False
+
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
+        def fetch(self, url, headers=None):
+            return ("fetched", url)
 
     fake_weasyprint = MagicMock()
     fake_weasyprint.HTML.return_value.write_pdf.return_value = b"%PDF"
-    with patch.dict(sys.modules, {"weasyprint": fake_weasyprint}):
+    fake_urls = types.SimpleNamespace(URLFetcher=FakeURLFetcher)
+    with patch.dict(sys.modules, {"weasyprint": fake_weasyprint, "weasyprint.urls": fake_urls}):
         assert _html_to_pdf_sync("<p>x</p>") == b"%PDF"
-    fake_weasyprint.HTML.assert_called_once_with(string="<p>x</p>", url_fetcher=_pdf_url_fetcher)
+
+    fetcher = fake_weasyprint.HTML.call_args.kwargs["url_fetcher"]
+    assert fake_weasyprint.HTML.call_args.kwargs["string"] == "<p>x</p>"
+    assert isinstance(fetcher, FakeURLFetcher)
+    assert fetcher.kwargs["allowed_protocols"] == {"data", "file"}
+    assert fetcher.fetch("data:,x") == ("fetched", "data:,x")
+    for url in _BLOCKED_URLS:
+        with pytest.raises(ValueError):
+            fetcher.fetch(url)
 
 
 def test_real_pdf_render_blocks_local_files():
@@ -287,15 +310,16 @@ def test_real_pdf_render_blocks_local_files():
         pytest.skip("WeasyPrint needs Pango and Cairo")
     from app.services import document_service
 
-    requested = []
-    real_fetcher = document_service._pdf_url_fetcher
+    checked = []
+    real_check = document_service._check_pdf_url
 
-    def spy(url, *args, **kwargs):
-        requested.append(url)
-        return real_fetcher(url, *args, **kwargs)
+    def spy(url):
+        checked.append(url)
+        real_check(url)
 
     html = '<p>ok</p><img src="file:///etc/passwd"><img src="http://169.254.169.254/x.png">'
-    with patch.object(document_service, "_pdf_url_fetcher", spy):
+    with patch.object(document_service, "_check_pdf_url", spy):
         pdf = document_service._html_to_pdf_sync(html)
     assert pdf.startswith(b"%PDF")
-    assert "file:///etc/passwd" in requested
+    assert "file:///etc/passwd" in checked
+    assert "http://169.254.169.254/x.png" in checked

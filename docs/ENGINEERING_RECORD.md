@@ -169,7 +169,10 @@ write scopes requested on the consent screen and never used. **Decision.** For e
 failed first, then the smallest fix: negate the whole SPEND family in one helper shared by both sync paths; treat
 `a == b` and `b == c` as shoulders with membership 1 at the edge; return the chart's own code and name from a pure
 validation function; turn autoescaping on and give WeasyPrint a fetcher that serves only `data:` URIs and the
-templates folder (exercised end to end in CI, where Pango is installed); request read-only scopes. **Outcome.** 24 new
+templates folder; request read-only scopes. The fetcher was first a plain function, which passed every local test;
+rendering in a Linux container against WeasyPrint 70 (what an unpinned rebuild now installs) showed that release reads
+an attribute off the fetcher and crashes the whole PDF the moment one resource is refused, so it became a
+`URLFetcher` subclass, with the plain function kept for older releases (both checked end to end, on 70 and 66). **Outcome.** 24 new
 tests, no API change, and four bullets fewer under known limitations. Two things the code cannot do by itself:
 statement lines already stored with the wrong sign need a one-off update (transactions correct themselves on a full
 re-sync), and existing audit rows keep the risk label they were given.
