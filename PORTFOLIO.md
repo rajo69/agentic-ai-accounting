@@ -1,18 +1,18 @@
-# AI Accountant: one-page summary for recruiters
+# AI Accountant: one-page summary
 
-**What it is.** A deployed, open-source review console for UK small businesses and the bookkeepers who serve them. Xero's AI codes the books; this app sits after it and before the sign-off, proposing a category for every transaction with written reasoning, a confidence tier and a risk flag, matching bank transactions to invoices and payments, drafting the quarter's management letter, and recording every AI proposal and every human decision in an audit trail. Full story: [README, Part 1](README.md#part-1-the-product).
+**What it is.** A deployed, open-source review console for UK small businesses and the bookkeepers who serve them. Xero's AI codes the books; this app sits after it and before the sign-off, proposing a category for every transaction with written reasoning, a confidence tier and a risk flag, matching bank transactions to invoices and payments, drafting the quarter's management letter, and recording every AI proposal and every human decision in an audit trail. Full story: [README](README.md#who-it-is-for-and-why-it-exists).
 
 **Who built it.** [Rajarshi Nandi](https://www.linkedin.com/in/rajarshi-nandi/), solo, March to October 2026. Backend, AI pipeline, frontend, demo mode, deployment, evaluation, documentation and a published self-review. GitHub: [rajo69/agentic-ai-accounting](https://github.com/rajo69/agentic-ai-accounting).
 
-**See it in two minutes.** [Launch the demo](https://agentic-ai-accounting.vercel.app/demo) (synthetic company, runs in the browser, no account). The two-minute video is in production and will be linked from the README.
+**See it in two minutes.** [Launch the demo](https://agentic-ai-accounting.vercel.app/demo) (synthetic company, runs in the browser, no account) or [watch the 2-minute video](https://youtu.be/icLQG596Ctg).
 
-## What it demonstrates, by role
+## What it demonstrates
 
-| Role | Evidence in the repository |
+| Area | Evidence in the repository |
 |---|---|
-| Software engineering | A FastAPI service with 34 routes, async SQLAlchemy, Alembic migrations, a hand-written Xero OAuth2 adapter (token refresh, encryption, rate-limit backoff, incremental sync, HMAC webhooks), a Next.js 14 console, 93 tests in CI with a pgvector service container, and a production incident handled and written up. [Architecture](README.md#architecture) · [Engineering record](README.md#engineering-record) |
-| AI engineering | LangGraph workflows calling Claude through Instructor (structured output, validation, retry); Haiku-first routing with Sonnet escalation and a full audit row; pgvector precedent retrieval so corrections become few-shot examples; an eval harness with hard gates, caching and a budget guard; a frank account of what the eval does not measure yet. [AI engineering decisions](README.md#ai-engineering-decisions) · [Evaluation](README.md#evaluation) |
-| Data science | Fixture design by difficulty tier, confidence calibration tables, acceptance gates, a provenance rule for every published number, a glass-box fuzzy risk engine with eight readable rules, and open questions on per-organisation calibration, explanation utility and active review selection. [Evaluation](README.md#evaluation) · [Explainability](README.md#explainability-and-risk-scoring) |
+| Backend, integration and delivery | A FastAPI service with 34 routes, async SQLAlchemy, Alembic migrations, a hand-written Xero OAuth2 adapter (token refresh, encryption, rate-limit backoff, incremental sync, HMAC webhooks), a Next.js 14 console, 93 tests in CI with a pgvector service container, and a production incident handled and written up. [Architecture](README.md#architecture) · [Engineering record](README.md#engineering-record) |
+| LLM pipeline | LangGraph workflows calling Claude through Instructor (structured output, validation, retry); Haiku-first routing with Sonnet escalation and a full audit row; pgvector precedent retrieval so corrections become few-shot examples; an eval harness with hard gates, caching and a budget guard; a frank account of what the eval does not measure yet. [Design decisions](README.md#design-decisions-and-trade-offs) · [Evaluation](README.md#evaluation) |
+| Evaluation and risk scoring | Fixture design by difficulty tier, confidence calibration tables, acceptance gates, a provenance rule for every published number, a glass-box fuzzy risk engine with eight readable rules, and open questions on per-organisation calibration, explanation utility and active review selection. [Evaluation](README.md#evaluation) · [Explainability](README.md#explainability-and-risk-scoring) |
 
 ## Facts you can check
 
@@ -23,7 +23,7 @@
 | 50 synthetic eval fixtures (31 easy, 15 medium, 4 hard), 20 chart codes, gates enforced by the runner | `backend/evals/` |
 | One audit row per AI decision and per human action, with model, confidence and reasoning | `backend/app/models/database.py`, `agents/categoriser.py` |
 | Money is `NUMERIC(12,2)` and `Decimal` in the data layer (presentation JSON casts to float) | models and migrations |
-| Six-lens self-review: 106 findings, 14 high, 0 critical, top eight published with status | [README](README.md#what-a-six-lens-review-found-2026-10-10) |
+| Six-lens self-review: 106 findings, 14 high, 0 critical, top eight published with status | [Self-review](docs/SELF_REVIEW.md) |
 | No accuracy or cost figure without a committed provenance file | [Evaluation](README.md#evaluation) |
 
 ## What is real, what is demo, what is planned

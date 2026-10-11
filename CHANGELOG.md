@@ -1,0 +1,9 @@
+# Changelog
+
+- **2026-10-11** README restructured by topic, with an at-a-glance block, a design-decisions table and a known-limitations section; the self-review findings moved to `docs/SELF_REVIEW.md` and this changelog out of the README. Launch video (#6): a Remotion composition with synthesised narration, word-timed captions and a generated music bed, embedded in the README and published on YouTube.
+- **2026-10-10** README rewritten product-first; LICENSE added; privacy policy corrected; price constants and tier counts fixed; unverifiable accuracy and cost figures removed; architecture document split into current and historical. Demo follow-up (#4): jobs queue behind the first import and every pipeline action has work. Backend pin (#3): SQLAlchemy below 2.1 after the 2.1 release broke start-up. Launch (#2): design system, landing page rebuilt, browser-only demo mode, console restyle.
+- **2026-08-03** Response headers adjusted so the landing page can be embedded by the portfolio site.
+- **2026-04-17** Documentation audit (#1): reconciliation described as LLM-free throughout; line counts corrected.
+- **2026-04-13** Tiered model routing (Haiku first, Sonnet on low confidence; audit row records both). Scope regression fixed: `accounting.payments.read` replaces the deprecated broad scope that a Payments-sync commit had reintroduced.
+- **2026-04-12** v0.2.x series: Fernet token encryption, Redis cache, Xero webhooks, multi-user with owner and member roles, profit-and-loss and VAT templates, Payments sync, Sentry, incremental sync with `If-Modified-Since`, background jobs with polling, per-organisation rate limits, first-run onboarding, team page with Resend invitations, frontend error boundary.
+- **2026-03-22 to 2026-03-24** Initial build: FastAPI and SQLAlchemy scaffold, Xero OAuth and sync, categorisation and reconciliation graphs, document generation, fuzzy risk engine, Next.js console, CI, deployment.
