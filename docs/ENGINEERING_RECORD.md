@@ -37,8 +37,9 @@ over one `AsyncSession` and runs five tasks concurrently under a semaphore, whic
 **Problem.** The first classifier split the model's text; any preamble ("Sure, here is...") produced a wrong category
 without an error. **Decision.** `instructor[anthropic]`: tool use forces a `CategoryPrediction` Pydantic model and
 invalid output retries. **Outcome.** The model became the contract. The review later showed the contract is not yet
-tight enough at the domain boundary (validation accepts code or name; the name string is persisted), which is why
-native structured outputs with chart-constrained values are on the roadmap.
+tight enough at the domain boundary (validation accepted code or name and persisted the model's name string; since
+October a match stores the chart's own name), which is why native structured outputs with chart-constrained values
+are on the roadmap.
 
 ### Xero's OAuth scope scheme changed under the build
 **Problem.** Apps created after 2 March 2026 must use granular scopes; the broad `accounting.transactions.read`
@@ -109,7 +110,7 @@ that a documentation fix needs the same verification as a code fix, which is wha
 
 ### A six-lens review of my own repository
 **Problem.** CI was green at HEAD and nobody had checked whether the published behaviour matched the code.
-**Decision.** Six parallel review passes (security and tenancy, backend correctness, AI engineering, frontend,
+**Decision.** Six parallel review passes, run as Claude Code agents (security and tenancy, backend correctness, AI engineering, frontend,
 documentation honesty, toolchain) under one evidence standard: file and line, quoted code, severity, known or new.
 Every high finding re-read in source; the numerical ones reproduced. **Outcome.** 106 findings, 14 high, 0 critical,
 about 70% not previously known. The ones that mattered most: the EBM explainer had never produced output for
@@ -157,3 +158,21 @@ bed is generated in numpy on the beat grid; each voice beat is levelled under a 
 trimmed to -16 LUFS inside the composition, measured with ffmpeg's EBU R128 pass. **Outcome.** A reproducible
 1080p60 film that re-renders from the script. The owner's cloned voice was tried first and replaced the same day by a
 library voice for quality; because nothing was hand-cut, the swap cost one regeneration and one render.
+
+### Fixing the cheap findings instead of listing them
+(2026-10-11.) **Problem.** The self-review left five defects that were small to fix but sat in the README as known
+limitations: `SPEND-TRANSFER`, `SPEND-OVERPAYMENT` and `SPEND-PREPAYMENT` bank transactions stored as money in (only
+the exact type `SPEND` was negated); the fuzzy shoulder sets returning zero at their own edge, so the riskiest
+possible input fired no rule and defaulted to "medium"; validation persisting the model's paraphrased account name;
+PDF templates rendering Xero and model text with autoescaping off and WeasyPrint free to fetch any URL; and three
+write scopes requested on the consent screen and never used. **Decision.** For each, a characterisation test that
+failed first, then the smallest fix: negate the whole SPEND family in one helper shared by both sync paths; treat
+`a == b` and `b == c` as shoulders with membership 1 at the edge; return the chart's own code and name from a pure
+validation function; turn autoescaping on and give WeasyPrint a fetcher that serves only `data:` URIs and the
+templates folder; request read-only scopes. The fetcher was first a plain function, which passed every local test;
+rendering in a Linux container against WeasyPrint 70 (what an unpinned rebuild now installs) showed that release reads
+an attribute off the fetcher and crashes the whole PDF the moment one resource is refused, so it became a
+`URLFetcher` subclass, with the plain function kept for older releases (both checked end to end, on 70 and 66). **Outcome.** 24 new
+tests, no API change, and four bullets fewer under known limitations. Two things the code cannot do by itself:
+statement lines already stored with the wrong sign need a one-off update (transactions correct themselves on a full
+re-sync), and existing audit rows keep the risk label they were given.

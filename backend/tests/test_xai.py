@@ -107,3 +107,37 @@ def test_llm_fallback_explain():
     assert result["explanation_text"] == "Online retailer purchase"
     for f in result["top_features"]:
         assert "name" in f and "value" in f and "contribution" in f
+
+
+# ── Shoulder membership functions (self-review fix) ──────────────────────────
+
+
+def test_tri_mf_left_shoulder_is_full_at_its_edge():
+    # "low" (0, 0, 0.4): an input of exactly 0 is fully low, not outside the set.
+    assert _tri_mf(0.0, 0.0, 0.4, 0.0) == 1.0
+    assert _tri_mf(0.0, 0.0, 0.4, 0.2) == 0.5
+    assert _tri_mf(0.0, 0.0, 0.4, 0.4) == 0.0
+
+
+def test_tri_mf_right_shoulder_is_full_at_its_edge():
+    # "high" (0.6, 1, 1): an input of exactly 1 is fully high.
+    assert _tri_mf(0.6, 1.0, 1.0, 1.0) == 1.0
+    assert _tri_mf(0.6, 1.0, 1.0, 0.8) == pytest.approx(0.5)
+    assert _tri_mf(0.6, 1.0, 1.0, 0.6) == 0.0
+
+
+def test_most_extreme_inputs_score_high():
+    """Maximum deviation from a rare vendor at an unusual time is the riskiest case there is."""
+    result = compute_risk_score(amount_deviation=1.0, vendor_frequency=0.0, time_pattern=0.0)
+    assert result["risk_label"] == "high"
+
+
+def test_most_ordinary_inputs_score_low():
+    """No deviation, a frequent vendor and normal timing is the safest case there is."""
+    result = compute_risk_score(amount_deviation=0.0, vendor_frequency=1.0, time_pattern=1.0)
+    assert result["risk_label"] == "low"
+
+
+def test_out_of_range_inputs_clamp_to_the_extremes():
+    result = compute_risk_score(amount_deviation=5.0, vendor_frequency=-1.0, time_pattern=-1.0)
+    assert result["risk_label"] == "high"

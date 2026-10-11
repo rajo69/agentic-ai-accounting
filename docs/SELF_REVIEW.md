@@ -2,23 +2,26 @@
 
 In October 2026 I ran six parallel review passes over the repository: security and tenancy, backend correctness, AI
 engineering, frontend, documentation honesty, and toolchain. All six used one evidence standard: file and line, quoted
-code, severity, and whether the plan already knew. Every high finding was re-read in source, and the numerical ones
-were reproduced. The pass produced 106 findings, 14 high and none critical, about 70% of them not previously known. A
+code, severity, and whether the plan already knew. The passes ran as parallel Claude Code agents; every high finding
+was then re-read in source and the numerical ones reproduced before being recorded, and I decided which findings to
+accept and what to fix first. The pass produced 106 findings, 14 high and none critical, about 70% of them not previously known. A
 66-row claim ledger graded every public statement TRUE, PARTLY, FALSE or UNVERIFIABLE; the README rewrite of
 2026-10-10 resolved every FALSE and PARTLY row.
 
-## Top findings and where they stand (2026-10-10)
+## Top findings and where they stand (updated 2026-10-11)
 
 | Finding | Status |
 |---|---|
 | VAT summary arithmetic wrong by construction (rate applied to gross; unknown tax types default to 20%) | Open; figures labelled indicative; fix in roadmap phases 0 and 5 |
-| `SPEND-TRANSFER`, `-OVERPAYMENT`, `-PREPAYMENT` stored positive (only exact `SPEND` is negated) | Open; roadmap phase 0 characterisation test and hotfix |
+| `SPEND-TRANSFER`, `-OVERPAYMENT`, `-PREPAYMENT` stored positive (only exact `SPEND` is negated) | Fixed with tests on both sync paths (2026-10-11); rows already stored correct themselves on a full re-sync, except statement lines, which need a one-off update |
 | One `AsyncSession` shared by five concurrent graph tasks in both batch runners | Open; roadmap phase 3 |
-| Categoriser persists the model's category name string; validation passes on code or name | Open; roadmap phase 4 (chart-constrained structured outputs) |
-| Fuzzy membership returns zero at the clamped extremes, so saturated inputs default to "medium" | Open; roadmap phase 0 test and phase 8 |
+| Categoriser persists the model's category name string; validation passes on code or name | Fixed with tests (2026-10-11): a match on code or name now stores the chart's own code and name. A prediction that matches nothing still goes to review with the model's text; chart-constrained structured outputs remain roadmap phase 4 |
+| Fuzzy membership returns zero at the clamped extremes, so saturated inputs default to "medium" | Fixed with tests (2026-10-11): shoulder sets are full at their edge, so the most extreme inputs score high and the most ordinary low |
 | EBM explanations never executed for three or more categories; placeholder bars were shown | UI gated on the real model type; EBM retirement in roadmap phase 8 |
 | Identity: any Xero login to a tenant gets the owner session; invited members cannot sign in | Open; roadmap phase 2 |
 | Public numbers unverifiable and mutually inconsistent; privacy notice denied a data flow that happens | Fixed in the README, PORTFOLIO.md, the evals README and the privacy page (2026-10-10) |
+| PDF templates render untrusted text without autoescaping, and WeasyPrint may fetch any URL | Fixed with tests (2026-10-11): autoescaping on, and a URL fetcher that serves only `data:` URIs and the templates folder |
+| The consent screen requests three write scopes the app never uses | Fixed (2026-10-11): read-only scopes, guarded by a test |
 
 ## Reading the findings as a whole
 

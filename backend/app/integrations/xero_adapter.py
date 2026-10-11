@@ -22,14 +22,12 @@ XERO_AUTH_URL = "https://login.xero.com/identity/connect/authorize"
 XERO_TOKEN_URL = "https://identity.xero.com/connect/token"
 XERO_CONNECTIONS_URL = "https://api.xero.com/connections"
 XERO_API_BASE = "https://api.xero.com/api.xro/2.0"
+# Read-only: the app never writes to Xero (invariant 10), so it asks for no write scopes.
 XERO_SCOPES = (
     "openid profile email offline_access "
     "accounting.banktransactions.read "
-    "accounting.banktransactions "
     "accounting.invoices.read "
-    "accounting.invoices "
     "accounting.contacts.read "
-    "accounting.contacts "
     "accounting.settings.read "
     "accounting.payments.read"
 )
@@ -47,6 +45,18 @@ def _parse_xero_date(date_str: Optional[str]):
         return datetime.fromisoformat(date_str.rstrip("Z")).date()
     except ValueError:
         return None
+
+
+def _signed_bank_amount(item: dict) -> Decimal:
+    """BankTransaction total with money out negative (invariant 7).
+
+    Xero returns positive totals; every type in the SPEND family (SPEND,
+    SPEND-TRANSFER, SPEND-OVERPAYMENT, SPEND-PREPAYMENT) is money out.
+    """
+    amount = Decimal(str(item.get("Total", 0)))
+    if str(item.get("Type", "")).startswith("SPEND"):
+        amount = -abs(amount)
+    return amount
 
 
 class XeroAdapter:
@@ -302,10 +312,8 @@ class XeroAdapter:
                             or "Unknown"
                         )
 
-                    # SPEND transactions are negative
-                    amount = Decimal(str(item.get("Total", 0)))
-                    if item.get("Type") == "SPEND":
-                        amount = -abs(amount)
+                    # SPEND-family transactions are negative
+                    amount = _signed_bank_amount(item)
 
                     result = await db.execute(
                         select(Transaction).where(Transaction.xero_id == xero_id)
@@ -498,9 +506,7 @@ class XeroAdapter:
                         or item.get("Contact", {}).get("Name")
                         or "Unknown"
                     )
-                    amount = Decimal(str(item.get("Total", 0)))
-                    if item.get("Type") == "SPEND":
-                        amount = -abs(amount)
+                    amount = _signed_bank_amount(item)
 
                     result = await db.execute(
                         select(BankStatement).where(BankStatement.xero_id == xero_id)
