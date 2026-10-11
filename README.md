@@ -65,7 +65,7 @@ Also: a small team per practice with owner and member roles, and GDPR export and
 
 [![AI Accountant: the review layer for AI-categorised Xero books (2-minute video)](docs/media/video-thumbnail.png)](https://youtu.be/icLQG596Ctg)
 
-**With your own Xero**, from the [live app](https://agentic-ai-accounting.vercel.app) (sign-in is not yet hardened; see [known limitations](#known-limitations-and-next-steps)): the consent screen asks for read-only access to bank transactions, invoices, contacts, payments and settings. Transaction details, which can include payee names, are sent to Anthropic for categorisation; tokens are stored encrypted; you can export or erase everything and disconnect from Xero's connected-apps settings. The [privacy policy](https://agentic-ai-accounting.vercel.app/privacy) lists every processor.
+**The live app** at [agentic-ai-accounting.vercel.app](https://agentic-ai-accounting.vercel.app) is the deployed build behind the demo: the same console, talking to the FastAPI service and to Xero through OAuth2 instead of to an in-browser fake. Its sign-in is not hardened yet (see [known limitations](#known-limitations-and-next-steps)), so the demo is the way to try it, and real books belong on your own copy: [run it locally](#run-it-locally) with your own Xero app and Anthropic key. Either way, the consent screen asks for read-only access to bank transactions, invoices, contacts, payments and settings; transaction details, which can include payee names, are sent to Anthropic for categorisation; tokens are stored encrypted; and an organisation's data can be exported or erased. The [privacy policy](https://agentic-ai-accounting.vercel.app/privacy) lists every processor.
 
 ## Architecture
 
