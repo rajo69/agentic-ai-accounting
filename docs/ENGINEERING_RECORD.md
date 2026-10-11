@@ -127,8 +127,8 @@ replay of the real components; a browser-only demo mode behind the frontend's si
 from the eval fixtures (fifty transactions, 32 statement lines), with the reconciler's scoring ported line for line
 and checked against RapidFuzz to four decimal places, simulated jobs, PDFs rendered once from the real templates, and
 a banner on every screen; real-app logic untouched (markup and classes only, verified by diff review). **Outcome.**
-Anyone can click through the whole review loop without an account; the Xero login still works; zero requests leave
-the browser in demo mode (verified in headless Chrome against production).
+Anyone can click through the whole review loop without an account; the Xero login still works; in demo mode no
+request reaches the API or Xero (verified in headless Chrome against production).
 
 ### A dependency release took the API down for an afternoon
 [f517426](https://github.com/rajo69/agentic-ai-accounting/commit/f517426) (2026-10-10, PR #3). **Problem.** Merging
