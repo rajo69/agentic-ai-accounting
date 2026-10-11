@@ -7,10 +7,12 @@
 [![Demo](https://img.shields.io/badge/demo-no%20account%20needed-success)](https://agentic-ai-accounting.vercel.app/demo)
 
 **[Launch the demo →](https://agentic-ai-accounting.vercel.app/demo)** (a synthetic company, runs in your browser, no account)
-&nbsp;·&nbsp; **Watch the 2-minute video** (in production, October 2026; the link lands here)
+&nbsp;·&nbsp; **[Watch the 2-minute video →](https://youtu.be/icLQG596Ctg)** (YouTube, 1080p, chapters in the description)
 &nbsp;·&nbsp; [Live app](https://agentic-ai-accounting.vercel.app) (connect your own Xero)
 
-![Thirty seconds of the demo: import, categorise, open a transaction, read the reasoning and risk rules, approve](docs/media/demo.gif)
+https://github.com/user-attachments/assets/431b5bd4-40b8-466a-8d86-a41dfa1e11d9
+
+<sup>The launch video (2:14, 720p copy; the 1080p version with chapters is [on YouTube](https://youtu.be/icLQG596Ctg)). It is code: a Remotion composition in [`video/`](video/).</sup>
 
 **Contents.** Part 1, the product: [who it is for](#who-it-is-for) · [the problem](#the-problem) · [what it does](#what-it-does) · [how a review goes](#how-a-review-goes) · [why it is useful](#why-it-is-useful) · [try it](#try-it) · [status](#status-and-direction).
 Part 2, the engineering: [60-second version](#for-hiring-managers-the-60-second-version) · [architecture](#architecture) · [AI engineering decisions](#ai-engineering-decisions) · [evaluation](#evaluation) · [explainability](#explainability-and-risk-scoring) · [security and privacy](#security-privacy-and-xero-terms) · [engineering record](#engineering-record) · [review findings](#what-a-six-lens-review-found-2026-10-10) · [roadmap](#production-roadmap) · [running locally](#running-locally) · [tests](#tests) · [structure](#project-structure) · [changelog](#changelog).
@@ -71,11 +73,15 @@ No accuracy or time-saved figures appear in this repository. They will, when a r
 
 ## Try it
 
+![Thirty seconds of the demo: import, categorise, open a transaction, read the reasoning and risk rules, approve](docs/media/demo.gif)
+
 **The demo** at [agentic-ai-accounting.vercel.app/demo](https://agentic-ai-accounting.vercel.app/demo) opens the console on a synthetic company, "Harlow & Finch Ltd", with fifty transactions and a quarter's statement lines. Everything runs in your browser: the reasoning, risk flags and match scores are replayed from fixtures and pre-written drafts, jobs are simulated, the PDFs were rendered once from the real templates, and nothing is sent to a server or written to Xero. A banner says so on every screen. Add `?skip_onboarding=1` to start with the quarter already imported.
 
 **Connect your own Xero** from the [live app](https://agentic-ai-accounting.vercel.app). The consent screen asks for read access to bank transactions, invoices, contacts, payments and settings (it also currently requests write permissions the app never uses; removing them is on the roadmap). Transaction details, which can include payee names, are sent to Anthropic for categorisation. Tokens are stored encrypted. You can export or erase everything, and disconnect the app from your Xero organisation's connected-apps settings. The [privacy policy](https://agentic-ai-accounting.vercel.app/privacy) lists every processor.
 
-**The video** is a two-minute product and engineering walkthrough, in production as of October 2026. The link will go at the top of this page.
+**The video** is a two-minute product and engineering walkthrough, playable at the top of this page or [on YouTube](https://youtu.be/icLQG596Ctg) with chapters. It is code, not a screen recording: a Remotion composition in [`video/`](video/), timed to the measured narration word by word, with the product footage drawn from the landing page's own scene components and a music bed generated in Python; [`video/README.md`](video/README.md) says how it was made.
+
+[![AI Accountant: the review layer for AI-coded Xero books (2-minute demo)](docs/media/video-thumbnail.png)](https://youtu.be/icLQG596Ctg)
 
 ## Status and direction
 
