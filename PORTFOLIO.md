@@ -19,7 +19,7 @@
 | Fact | Where |
 |---|---|
 | 34 API routes, matching the live OpenAPI document | `backend/app/api/v1/`, `/openapi.json` on the deployed API |
-| 93 tests in 12 files, run on every push with migrations against Postgres | `backend/tests/`, `.github/workflows/ci.yml` |
+| 117 tests in 12 files, run on every push with migrations against Postgres | `backend/tests/`, `.github/workflows/ci.yml` |
 | 50 synthetic eval fixtures (31 easy, 15 medium, 4 hard), 20 chart codes, gates enforced by the runner | `backend/evals/` |
 | One audit row per AI decision and per human action, with model, confidence and reasoning | `backend/app/models/database.py`, `agents/categoriser.py` |
 | Money is `NUMERIC(12,2)` and `Decimal` in the data layer (presentation JSON casts to float) | models and migrations |

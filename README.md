@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/431b5bd4-40b8-466a-8d86-a41dfa1e11d9
 - **What it does** proposes and explains a category for every transaction, matches bank transactions to invoices and payments, drafts the quarter's management letter, and keeps an audit trail of every AI proposal and every human decision.
 - **AI** Claude Haiku 4.5, escalating to Sonnet 4.6 when unsure · structured output through Instructor and Pydantic · LangGraph workflows · pgvector retrieval of the firm's own past decisions · an offline eval harness with pass/fail gates · risk flags from eight readable fuzzy-logic rules.
 - **Stack** Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL 16 with pgvector, Redis, Alembic · Next.js 14, TypeScript, Tailwind · Docker, GitHub Actions, Vercel, Railway.
-- **Size** 34 API routes, 8 tables, 6 migrations, 93 backend tests run in CI.
+- **Size** 34 API routes, 8 tables, 6 migrations, 117 backend tests run in CI.
 - **Status** deployed and open source (MIT); built solo by [Rajarshi Nandi](https://www.linkedin.com/in/rajarshi-nandi/), March to October 2026; not taking real clients.
 
 ## Who it is for and why it exists
@@ -82,7 +82,7 @@ A Next.js console talks to a FastAPI service; a LangGraph categoriser and the do
 | Retrieval | pgvector in the same Postgres; `all-MiniLM-L6-v2` embeddings (384 dimensions) computed in-process |
 | Data | PostgreSQL 16, eight tables, six migrations, `NUMERIC(12,2)` and `Decimal` for money; Redis for cache and webhook debounce, optional |
 | Documents | Figures in Python, narrative via Instructor, Jinja2 templates rendered to PDF by WeasyPrint |
-| Operations | GitHub Actions (pgvector service container, migrations, 93 tests, type check, lint), per-organisation rate limits, background jobs tracked in Postgres, optional Sentry |
+| Operations | GitHub Actions (pgvector service container, migrations, 117 tests, type check, lint), per-organisation rate limits, background jobs tracked in Postgres, optional Sentry |
 
 **Boundaries the code keeps.** In the application, model calls happen only in `services/` and `agents/`, never in routes. Xero is reached only through `integrations/xero_adapter.py`, and nothing is written back to Xero. Every AI decision and every human review decision (approve, correct, reject, confirm, match, unmatch) writes an audit row. Model output is always structured, never parsed from free text. The organisation always comes from the session, never from model output.
 
@@ -168,8 +168,8 @@ Problems that needed judgement, in brief. The long form, with commit links, is i
 - **Parsing model text produced wrong categories without raising.** Replaced with Instructor, so a Pydantic model is the contract and invalid output retries instead of persisting.
 - **Xero's Demo Company bank lines are invisible to the API.** Added a Payments source with deduplication against invoices, and wrote down the consequence: on live data the reconciler matches bank transactions to invoices and payments, not to statement lines.
 - **A dependency release took the API down for an afternoon.** SQLAlchemy 2.1 shipped, the unpinned range resolved to it, and `postgresql://` now defaulted to a driver the image lacked. Pinned, redeployed, verified; the structural fix (a lockfile) is on the roadmap.
-- **The cheap findings were fixed, not just listed.** Five defects from the self-review, each pinned first by a test that failed: spend subtypes stored as money in, a risk engine that scored the most extreme inputs "medium", validation that stored the model's paraphrase instead of the chart's account name, PDF templates that rendered untrusted text unescaped with an open URL fetcher, and three write scopes the app never used.
 - **A green test suite hid real bugs, so I reviewed my own code.** Six parallel review passes, run as Claude Code agents under one evidence standard (file, line, quoted code, severity), produced 106 findings, 14 high, none critical; the numerical ones were reproduced before being recorded. Method and top findings: [`docs/SELF_REVIEW.md`](docs/SELF_REVIEW.md).
+- **The cheap findings were fixed, not just listed.** Five defects from the self-review, each pinned first by a test that failed: spend subtypes stored as money in, a risk engine that scored the most extreme inputs "medium", validation that stored the model's paraphrase instead of the chart's account name, PDF templates that rendered untrusted text unescaped with an open URL fetcher, and three write scopes the app never used.
 - **The demo had to be honest and complete at once.** A fake server behind `apiFetch` answers every endpoint the console calls from a seed generated from the eval fixtures; every action does visible work from every entry point; no request reaches the API or Xero (checked in headless Chrome against production).
 - **The launch video is code.** Script first, narration synthesised per beat, every word timed with whisper; every visual event starts on its sentence and every caption on its spoken word; product footage is the landing page's own components. Swapping the narrator's voice cost one regeneration and one render. See [`video/README.md`](video/README.md).
 
@@ -211,7 +211,7 @@ npm run dev                               # http://localhost:3000, with NEXT_PUB
 
 The Xero app needs the redirect URI `http://localhost:8000/auth/xero/callback`. WeasyPrint needs Cairo and Pango for PDFs. Everything in `backend/.env.example` is the complete set; Sentry, Resend and the webhook key are optional.
 
-**Tests.** `cd backend && pytest -q` runs 93 tests in 12 files offline, with Xero, Anthropic and the database session mocked; `cd frontend && npx tsc --noEmit && npm run lint && npm run build` checks the frontend. CI starts a pgvector Postgres service, applies the migrations, runs the backend suite, then the frontend type check and lint.
+**Tests.** `cd backend && pytest -q` runs 117 tests in 12 files offline, with Xero, Anthropic and the database session mocked (one end-to-end PDF render skips where Pango is missing); `cd frontend && npx tsc --noEmit && npm run lint && npm run build` checks the frontend. CI starts a pgvector Postgres service, applies the migrations, runs the backend suite, then the frontend type check and lint.
 
 <details>
 <summary><strong>Repository map</strong></summary>
@@ -228,7 +228,7 @@ backend/
     models/          SQLAlchemy models, Pydantic schemas
     templates/       management_letter.html, profit_loss.html, vat_summary.html
   alembic/           six migrations
-  tests/             twelve files, 93 tests
+  tests/             twelve files, 117 tests
   evals/             harness, fixtures (50 transactions, 20 accounts), cost tracker, cache
 frontend/src/
   app/               landing, dashboard, transactions, reconciliation, documents, team, settings, demo, privacy, auth/callback
