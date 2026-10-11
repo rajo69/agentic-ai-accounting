@@ -20,10 +20,10 @@ node scripts/stills.mjs --scale 0.5 70 830    # PNG stills of chosen frames -> o
   sentences), synthesises each beat with a stock Fish Audio library voice ("Sleepless historian", free S2.1 Pro
   backend, plain delivery) into `public/vo/<beat>.mp3` (local only); `scripts/level.py` then levels each beat, and the
   measured lengths go into `src/vo-manifest.json` (committed). `src/timing.ts` turns the manifest into beat start
-  frames; every visual event in every section is keyed to the start of the beat whose sentence describes it. The
+  frames; visual events are keyed to the start of the beat whose sentence describes it, or to a spoken word (below). The
   composition builds and renders without the audio files; with them present it adds one `<Audio>` per beat
   (`TEMPO` = 1.0: the voice plays at its own pace, nothing is stretched). Word timings (`scripts/words.py`, faster-whisper, committed as `src/vo-words.json`)
-  place the kinetic type and the captions on the spoken word.
+  place the captions, the kinetic type and the events of the problem and product sections on the spoken word.
 - **Product footage is the product's own components.** The landing page's four clock-driven scenes were ported to
   `src/scenes/` with inline styles (`src/kit/primitives.tsx` mirrors `ui/*`), drawn inside the app shell at 1200 x 675
   and scaled into a 1520 px frame. A camera (`src/kit/camera.tsx`) zooms towards each click, Screen-Studio style, and a
@@ -65,8 +65,9 @@ chapters, tags) is in `PUBLISH.md`.
 The whole film is a Remotion composition, so every frame is reproducible from this folder plus the voice files. The
 script was locked first (`script.md`, 21 beats, about 315 words) and synthesised beat by beat with a stock Fish Audio
 library voice ("Sleepless historian", Fish's free backend, plain delivery; the owner's cloned take was replaced for
-quality on 2026-10-11 and is kept locally under `video/bin/`), then levelled beat by beat; whisper then measured where each word falls, and the composition keys every visual event to those word times,
-so picture, voice and caption stay in sync without hand-tuning. The opening borrows the grammar of a music-only SaaS
+quality on 2026-10-11 and is kept locally under `video/bin/`), then levelled beat by beat; whisper then measured where each word falls; captions, kinetic type and the problem and product sections key to
+those word times and everything else to the start of its beat, so picture, voice and caption stay in sync without
+hand-tuning. The opening borrows the grammar of a music-only SaaS
 ad the owner chose as a reference (`STYLE-REF.md`: kinetic words, a tilted ledger, a count-up); the product section
 is the landing page's own scene components driven by frame inside one console frame with a Screen-Studio-style camera
 and an eased cursor; the engineering half is quiet type on the dark canvas (`RULES.md`). The music is synthesised in

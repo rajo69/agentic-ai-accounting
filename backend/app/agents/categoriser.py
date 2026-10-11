@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # Primary (cheap, fast) model — pinned for eval reproducibility.
 LLM_MODEL = "claude-haiku-4-5-20251001"
-# Escalation (stronger, ~3.75× per-token cost; see evals/cost_tracker.py) model
+# Escalation (stronger, ~3× per-token cost: $3/$15 vs $1/$5 per MTok) model
 # — alias so quality patches flow in.
 LLM_MODEL_ESCALATION = "claude-sonnet-4-6"
 # Escalate when the primary can't auto-accept. Tied to the 0.85 auto-accept
@@ -50,6 +50,34 @@ class CategoryPrediction(BaseModel):
     category_name: str
     confidence: float
     reasoning: str
+
+
+def _validate_prediction(prediction: dict, chart_of_accounts: list[dict]) -> dict:
+    """Check a prediction against the chart and return it in the chart's own terms.
+
+    The model may return a valid code with a paraphrased name, or a valid name
+    with a wrong code. A match on either is accepted (the code wins when both
+    match different accounts), and the stored code and name are the chart's,
+    so `Transaction.category` always holds a real account name. No match, or a
+    confidence outside [0, 1], zeroes the confidence so `decide` routes the
+    transaction to human review.
+    """
+    confidence = prediction.get("confidence", 0.0)
+    by_code = {a["code"]: a for a in chart_of_accounts if a.get("code")}
+    by_name = {a["name"]: a for a in chart_of_accounts}
+    account = by_code.get(prediction["category_code"]) or by_name.get(prediction["category_name"])
+
+    if account is None or not 0.0 <= confidence <= 1.0:
+        return {
+            **prediction,
+            "confidence": 0.0,
+            "reasoning": "validation failed: predicted account not in chart of accounts",
+        }
+    return {
+        **prediction,
+        "category_code": account.get("code") or prediction["category_code"],
+        "category_name": account["name"],
+    }
 
 
 def build_categoriser_graph(db: AsyncSession):
@@ -171,25 +199,10 @@ def build_categoriser_graph(db: AsyncSession):
         if not prediction:
             return {"status": "validated"}
 
-        valid_codes = {a["code"] for a in state["chart_of_accounts"] if a.get("code")}
-        valid_names = {a["name"] for a in state["chart_of_accounts"]}
-        confidence = prediction.get("confidence", 0.0)
-
-        code_ok = prediction["category_code"] in valid_codes
-        name_ok = prediction["category_name"] in valid_names
-        confidence_ok = 0.0 <= confidence <= 1.0
-
-        if not (code_ok or name_ok) or not confidence_ok:
-            return {
-                "prediction": {
-                    **prediction,
-                    "confidence": 0.0,
-                    "reasoning": "validation failed: predicted account not in chart of accounts",
-                },
-                "status": "validated",
-            }
-
-        return {"status": "validated"}
+        return {
+            "prediction": _validate_prediction(prediction, state["chart_of_accounts"]),
+            "status": "validated",
+        }
 
     async def decide(state: CategoriserState) -> dict:
         prediction = state.get("prediction")

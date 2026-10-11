@@ -27,7 +27,14 @@ logger = logging.getLogger(__name__)
 
 
 def _tri_mf(a: float, b: float, c: float, x: float) -> float:
-    """Evaluate a triangular membership function at x."""
+    """Evaluate a triangular membership function at x.
+
+    ``a == b`` is a left shoulder and ``b == c`` a right shoulder: membership is
+    1 at that edge, so a clamped input of exactly 0 or 1 still belongs to its
+    extreme term instead of falling outside every set.
+    """
+    if (a == b and x <= a) or (b == c and x >= c):
+        return 1.0
     if x <= a or x >= c:
         return 0.0
     if x <= b:

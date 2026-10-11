@@ -191,3 +191,135 @@ async def test_generate_document_happy_path():
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/pdf"
     assert response.content == fake_pdf
+
+
+# ── Unit tests: untrusted text in PDFs (self-review fix) ─────────────────────
+
+_EVIL = '<script>alert(1)</script><img src="file:///etc/passwd">'
+
+
+def test_render_html_escapes_transaction_and_narrative_text():
+    """Descriptions come from Xero and narratives from the model: neither may inject markup."""
+    figures = _calculate_figures(
+        [_FakeTx(1000.00, cat="Sales"), _FakeTx(-300.00, description=_EVIL, cat=_EVIL)],
+        date(2026, 1, 1),
+        date(2026, 3, 31),
+    )
+    narrative = ManagementLetterNarrative(
+        executive_summary=_EVIL,
+        income_analysis="Income & expenses held steady.",
+        expense_analysis="ok",
+        cash_flow_observations="ok",
+        recommendations="ok",
+    )
+    html = _render_html(figures, narrative, _EVIL, date(2026, 1, 1), date(2026, 3, 31))
+    assert "<script>" not in html
+    assert "<img" not in html
+    assert "&lt;script&gt;" in html
+    assert "Income &amp; expenses held steady." in html
+
+
+@pytest.mark.parametrize("template", ["profit_loss.html", "vat_summary.html"])
+def test_other_templates_escape_untrusted_text(template):
+    from app.services.document_service import _template_env
+
+    narrative = MagicMock()
+    for field in ("overview", "income_commentary", "expense_commentary", "outlook",
+                  "output_vat_commentary", "input_vat_commentary", "recommendations"):
+        setattr(narrative, field, _EVIL)
+    figures = {
+        "income_categories": [{"name": _EVIL, "amount": 1.0}],
+        "expense_categories": [{"name": _EVIL, "amount": 1.0}],
+        "rate_breakdown": [{"rate": _EVIL, "net_sales": 1.0, "output_vat": 0.2,
+                            "net_purchases": 1.0, "input_vat": 0.2}],
+        "total_income": 1.0, "total_expenses": 1.0, "net": 0.0,
+        "output_vat": 0.2, "input_vat": 0.2, "net_vat": 0.0, "net_vat_label": "owed to HMRC",
+    }
+    html = _template_env().get_template(template).render(
+        figures=figures, narrative=narrative, fmt_money=lambda v: f"£{v}",
+        organisation_name=_EVIL, period_start="1 January 2026", period_end="31 March 2026",
+        generated_at="now", net_positive=True,
+    )
+    assert "<script>" not in html
+    assert "<img" not in html
+
+
+_BLOCKED_URLS = [
+    "file:///etc/passwd",
+    "file:///C:/Windows/win.ini",
+    "http://169.254.169.254/latest/meta-data/",
+    "https://example.com/tracker.png",
+    "ftp://example.com/x",
+]
+
+
+@pytest.mark.parametrize("url", _BLOCKED_URLS)
+def test_pdf_urls_blocked_except_data_and_templates(url):
+    from app.services.document_service import _check_pdf_url, _pdf_url_allowed
+
+    assert not _pdf_url_allowed(url)
+    with pytest.raises(ValueError):
+        _check_pdf_url(url)
+
+
+def test_pdf_urls_allowed_for_data_uris_and_template_files():
+    from app.services.document_service import TEMPLATES_DIR, _pdf_url_allowed
+
+    assert _pdf_url_allowed("data:image/png;base64,iVBORw0KGgo=")
+    assert _pdf_url_allowed((TEMPLATES_DIR / "logo.png").resolve().as_uri())
+    assert not _pdf_url_allowed((TEMPLATES_DIR / ".." / "core" / "config.py").resolve().as_uri())
+
+
+def test_html_to_pdf_uses_a_restricted_url_fetcher():
+    """WeasyPrint >= 68 needs a URLFetcher subclass (it reads `_fail_on_errors` off the fetcher)."""
+    import sys
+    import types
+
+    from app.services.document_service import _html_to_pdf_sync
+
+    class FakeURLFetcher:
+        _fail_on_errors = False
+
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
+        def fetch(self, url, headers=None):
+            return ("fetched", url)
+
+    fake_weasyprint = MagicMock()
+    fake_weasyprint.HTML.return_value.write_pdf.return_value = b"%PDF"
+    fake_urls = types.SimpleNamespace(URLFetcher=FakeURLFetcher)
+    with patch.dict(sys.modules, {"weasyprint": fake_weasyprint, "weasyprint.urls": fake_urls}):
+        assert _html_to_pdf_sync("<p>x</p>") == b"%PDF"
+
+    fetcher = fake_weasyprint.HTML.call_args.kwargs["url_fetcher"]
+    assert fake_weasyprint.HTML.call_args.kwargs["string"] == "<p>x</p>"
+    assert isinstance(fetcher, FakeURLFetcher)
+    assert fetcher.kwargs["allowed_protocols"] == {"data", "file"}
+    assert fetcher.fetch("data:,x") == ("fetched", "data:,x")
+    for url in _BLOCKED_URLS:
+        with pytest.raises(ValueError):
+            fetcher.fetch(url)
+
+
+def test_real_pdf_render_blocks_local_files():
+    """End to end with WeasyPrint (skipped where Pango/Cairo are missing; CI installs them)."""
+    try:
+        import weasyprint  # noqa: F401
+    except (ImportError, OSError):
+        pytest.skip("WeasyPrint needs Pango and Cairo")
+    from app.services import document_service
+
+    checked = []
+    real_check = document_service._check_pdf_url
+
+    def spy(url):
+        checked.append(url)
+        real_check(url)
+
+    html = '<p>ok</p><img src="file:///etc/passwd"><img src="http://169.254.169.254/x.png">'
+    with patch.object(document_service, "_check_pdf_url", spy):
+        pdf = document_service._html_to_pdf_sync(html)
+    assert pdf.startswith(b"%PDF")
+    assert "file:///etc/passwd" in checked
+    assert "http://169.254.169.254/x.png" in checked
