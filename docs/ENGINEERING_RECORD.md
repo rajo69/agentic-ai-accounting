@@ -145,3 +145,15 @@ for Categorise or Reconcile to do. **Decision.** Jobs queue behind an in-flight 
 completes; the populated state leaves a mixed batch for both actions; document figures use the planned categories so
 rows always match the static PDFs. **Outcome.** A principle for the demo: from every entry point, every action shows
 something happening, even where the real backend would correctly report zero.
+
+### The launch video is code
+[4ca6fb7](https://github.com/rajo69/agentic-ai-accounting/commit/4ca6fb7) (2026-10-11, PR #6). **Problem.** A
+two-minute launch video for the README and the landing page, with no budget, no screen recordings that go stale with
+the next UI change, and nothing on screen that the repository cannot verify. **Decision.** A Remotion composition in
+[`video/`](../video/): the script is locked first and synthesised beat by beat (Fish Audio, free tier); whisper
+measures where every word falls; every visual event is keyed to a word time, so picture, narration and captions stay
+in sync without hand-tuning. Product footage is the landing page's own scene components driven by frame; the music
+bed is generated in numpy on the beat grid; each voice beat is levelled under a lookahead limiter and the mix is
+trimmed to -16 LUFS inside the composition, measured with ffmpeg's EBU R128 pass. **Outcome.** A reproducible
+1080p60 film that re-renders from the script. The owner's cloned voice was tried first and replaced the same day by a
+library voice for quality; because nothing was hand-cut, the swap cost one regeneration and one render.

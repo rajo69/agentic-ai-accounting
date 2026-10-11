@@ -47,3 +47,11 @@ SETUP.txt
 # OS
 .DS_Store
 Thumbs.db
+
+# Launch video project (S7/S8): dependencies, renders, clips and voice-overs stay local
+video/node_modules/
+video/out/
+video/public/clips/
+video/public/vo/
+video/public/music/
+video/bin/
