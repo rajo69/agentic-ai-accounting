@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 320" width="880" height="320" role="img" aria-label="Next.js on Vercel talks to FastAPI on Railway, which runs LangGraph graphs calling Claude through Instructor, stores the books, pgvector precedents and the audit log in Postgres, and syncs Xero through OAuth2.">
+  <defs>
+    <style>
+      .bg { fill: #09090c; }
+      .node { fill: #101014; stroke: #26262e; stroke-width: 1; }
+      .edge { fill: none; stroke: #35353f; stroke-width: 1.5; }
+      .label { fill: #ebebf0; font: 500 14px ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif; }
+      .sub { fill: #92939d; font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .title { fill: #66676f; font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.08em; }
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="880" height="320" rx="12"/>
+  <text class="title" x="20" y="24">AI ACCOUNTANT · CURRENT ARCHITECTURE · 2026-10</text>
+  <path class="edge" d="M192 160 H252"/>
+  <path class="edge" d="M424 160 C460 160 450 68 484 68"/>
+  <path class="edge" d="M656 68 H688"/>
+  <path class="edge" d="M424 160 H484"/>
+  <path class="edge" d="M424 160 C460 160 450 252 484 252"/>
+  <path class="edge" d="M570 96 V132" stroke-dasharray="4 4"/>
+  <g><rect class="node" x="20" y="132" width="172" height="56" rx="8"/><text class="label" x="36" y="156">Next.js 14</text><text class="sub" x="36" y="174">Vercel · app, landing, demo</text></g>
+  <g><rect class="node" x="252" y="132" width="172" height="56" rx="8"/><text class="label" x="268" y="156">FastAPI</text><text class="sub" x="268" y="174">Railway · 34 routes · JWT</text></g>
+  <g><rect class="node" x="484" y="40" width="172" height="56" rx="8"/><text class="label" x="500" y="64">LangGraph</text><text class="sub" x="500" y="82">categorise · reconcile</text></g>
+  <g><rect class="node" x="688" y="40" width="172" height="56" rx="8"/><text class="label" x="704" y="64">Claude via Instructor</text><text class="sub" x="704" y="82">Haiku 4.5 → Sonnet 4.6</text></g>
+  <g><rect class="node" x="484" y="132" width="172" height="56" rx="8"/><text class="label" x="500" y="156">Postgres 16</text><text class="sub" x="500" y="174">pgvector · audit log · jobs</text></g>
+  <g><rect class="node" x="484" y="224" width="172" height="56" rx="8"/><text class="label" x="500" y="248">Xero API</text><text class="sub" x="500" y="266">OAuth2 · incremental sync · webhooks</text></g>
+  <text class="sub" x="688" y="156">Redis (cache, debounce)</text>
+  <text class="sub" x="688" y="174">Sentry (errors) · Resend (invites)</text>
+  <text class="sub" x="688" y="252">MiniLM embeddings run in-process</text>
+  <text class="sub" x="688" y="270">WeasyPrint renders the PDFs</text>
+</svg>

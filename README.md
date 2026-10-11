@@ -1,1281 +1,263 @@
-# AI Accountant: Agentic AI for Accounting Workflows
+# AI Accountant
 
-![CI](https://github.com/rajo69/agentic-ai-accounting/actions/workflows/ci.yml/badge.svg)
+**The review layer for Xero books that AI already coded.** Every transaction gets a proposed category with written reasoning, a confidence tier and a risk flag. You decide. Every decision is recorded.
 
-> **Looking for a quick engineering overview?** See [PORTFOLIO.md](PORTFOLIO.md) for a 5-minute read focused on AI engineering patterns, evaluation results, and production concerns. The README below is the full technical documentation.
+[![CI](https://github.com/rajo69/agentic-ai-accounting/actions/workflows/ci.yml/badge.svg)](https://github.com/rajo69/agentic-ai-accounting/actions/workflows/ci.yml)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-informational)](LICENSE)
+[![Demo](https://img.shields.io/badge/demo-no%20account%20needed-success)](https://agentic-ai-accounting.vercel.app/demo)
 
-A production-grade AI assistant for UK accountants built on top of **Xero**. It automates the three most time-consuming manual tasks in a small accounting practice: transaction categorisation, bank reconciliation, and management letter drafting. Every AI decision is transparent, auditable, and correctable by the human in the loop.
+**[Launch the demo →](https://agentic-ai-accounting.vercel.app/demo)** (a synthetic company, runs in your browser, no account)
+&nbsp;·&nbsp; **Watch the 2-minute video** (in production, October 2026; the link lands here)
+&nbsp;·&nbsp; [Live app](https://agentic-ai-accounting.vercel.app) (connect your own Xero)
 
-Connect your Xero Account and use it : [Click Here](https://agentic-ai-accounting.vercel.app)
+![Thirty seconds of the demo: import, categorise, open a transaction, read the reasoning and risk rules, approve](docs/media/demo.gif)
 
-**Try the demo (no account needed):** [agentic-ai-accounting.vercel.app/demo](https://agentic-ai-accounting.vercel.app/demo) opens the console on a synthetic company. Everything in the demo runs in your browser: the categorisation reasoning, risk flags and match scores are replayed from fixtures and pre-written drafts, no model is called, nothing is sent to a server, and nothing is written to Xero. The live pipeline behind "Connect Xero" is the real thing.
-
----
-
-## Contents
-
-- [The problem](#the-problem)
-- [What it does](#what-it-does)
-- [Architecture](#architecture)
-- [How each feature works](#how-each-feature-works)
-- [Tech stack](#tech-stack)
-- [Database schema](#database-schema)
-- [API reference](#api-reference)
-- [Evaluation framework](#evaluation-framework)
-- [Running locally](#running-locally)
-- [Tests](#tests)
-- [Cost model](#cost-model)
-- [Deployment](#deployment)
-- [GDPR compliance](#gdpr-compliance)
-- [Research foundations](#research-foundations)
-- [Open research questions](#open-research-questions)
-- [Engineering challenges](#engineering-challenges-encountered-during-the-build)
+**Contents.** Part 1, the product: [who it is for](#who-it-is-for) · [the problem](#the-problem) · [what it does](#what-it-does) · [how a review goes](#how-a-review-goes) · [why it is useful](#why-it-is-useful) · [try it](#try-it) · [status](#status-and-direction).
+Part 2, the engineering: [60-second version](#for-hiring-managers-the-60-second-version) · [architecture](#architecture) · [AI engineering decisions](#ai-engineering-decisions) · [evaluation](#evaluation) · [explainability](#explainability-and-risk-scoring) · [security and privacy](#security-privacy-and-xero-terms) · [engineering record](#engineering-record) · [review findings](#what-a-six-lens-review-found-2026-10-10) · [roadmap](#production-roadmap) · [running locally](#running-locally) · [tests](#tests) · [structure](#project-structure) · [changelog](#changelog).
 
 ---
+
+# Part 1: the product
+
+## Who it is for
+
+I built this for the people in the UK who do their own books on Xero: sole traders, freelancers, one-van and two-desk businesses, and the bookkeepers and small accountancy practices who look after dozens of them. The person I had in mind is a self-employed electrician at the kitchen table on a Sunday evening, two days before a quarterly update is due, scrolling through three months of bank lines that Xero's AI has already coded, trying to work out which of the hundred green ticks they should not trust. And the accountant with forty of those clients, who has to sign each quarter knowing that whatever the software got wrong is now their professional problem.
+
+Since 6 April 2026, sole traders and landlords with qualifying income of £50,000 or more have been inside Making Tax Digital for Income Tax: a summary of income and expenses goes to HMRC every quarter, not once a year, and the threshold falls to £30,000 in April 2027 and £20,000 in April 2028. VAT-registered businesses have reported quarterly for years. Quarter-end review has gone from an annual chore to a four-times-a-year habit for a lot of people who never wanted one.
 
 ## The problem
 
-UK accounting firms spend a significant portion of each working week on tasks that are mechanical but error-prone:
+Xero's own AI, JAX, now categorises and reconciles bank transactions automatically; Xero says it reconciles with 97% accuracy. That is good news and it changes the job. The books are no longer written by hand; they are written by a model, and the work left for the human is to find the three lines in a hundred that are wrong, and to be able to show later who decided what.
 
-- **Transaction categorisation**: Matching hundreds of bank transactions to the right chart-of-accounts code. Every transaction must be correct because errors compound into the final accounts.
-- **Bank reconciliation**: Cross-referencing bank statement lines with transaction records one by one, hunting for matching amounts and dates.
-- **Management letters**: Writing quarterly commentary from scratch, turning raw figures into narrative that clients can act on.
+Nothing in the software helps with that part. Review is manual, undocumented, and costs the same effort whether the books are 90% right or 99% right, because you still have to look at every line to find the ones that matter. A green tick with no reasoning is not evidence. An audit trail that says "AI did it" is not an audit trail.
 
-These are exactly the tasks where AI can save hours, provided the AI is transparent enough that a professional accountant can trust and verify its decisions. An AI tool that says "category: Office Supplies" with no justification is not useful to someone with professional liability for the accounts they sign.
-
-This project is a full-stack implementation of a solution to that problem: an agentic AI system that categorises, reconciles, and writes, but always shows its working.
-
----
+AI Accountant sits after Xero's AI and before the sign-off. It does not try to be a better autopilot. It tries to make the review short, evidenced and recorded.
 
 ## What it does
 
-| Feature | How it works |
-|---|---|
-| **Transaction categorisation** | LangGraph agent classifies Xero transactions against the chart of accounts using Claude and pgvector few-shot examples drawn from the firm's own history. High-confidence results are applied automatically; uncertain results are surfaced for human review. |
-| **Bank reconciliation** | Algorithmic LangGraph agent matches bank statement lines to transactions by scoring amount, date, and description similarity. Both the matching decision and the human-readable explanation are deterministic (no LLM); the explanation is produced by a fixed template over the match scores. An LLM rewrite of the explanation is tracked as open work. |
-| **Document generation** | RAG pipeline computes financial figures in pure Python (no LLM), retrieves relevant transaction context via pgvector, then uses Claude and Instructor to write structured narrative sections. WeasyPrint renders the result as a professional A4 PDF. Three templates: Management Letter, Profit & Loss, and VAT Return Summary. |
-| **Explainable AI** | Every AI decision stores feature importances (InterpretML EBM), a custom Mamdani fuzzy logic risk score, and the LLM's own reasoning; all in an immutable audit log. |
-| **Xero integration** | Full OAuth2 flow, automatic token refresh, rate-limit backoff, incremental sync, and real-time webhook receiver for push-based updates. OAuth tokens encrypted at rest with Fernet. |
-| **Few-shot learning from corrections** | When an accountant corrects a categorisation, the transaction is re-embedded and becomes a training example for future predictions. No fine-tuning required. |
+Everything below is in the code and runs against a connected Xero organisation; nothing here is a mock-up.
+
+1. **Connects to Xero** with OAuth2 and syncs the chart of accounts, bank transactions, invoices and payments, incrementally after the first pull.
+2. **Proposes a category for every uncategorised transaction**, using the firm's own confirmed decisions as precedents, with a confidence score, written reasoning and a tier: auto-accept, suggested, or needs review.
+3. **Explains each decision**: the reasoning, which model made the call (a fast model first, escalated to a stronger one when it is unsure), and a readable risk flag from eight plain-language rules such as unusual amount, unseen vendor and odd timing.
+
+![A transaction opened in the review console: the proposed category, confidence, reasoning, the risk rules that fired and the audit trail](docs/media/explanation-panel.png)
+
+4. **Matches unreconciled bank transactions to invoice and payment records** on amount, date and description, with scored candidates, and sends ambiguous matches to review. Statement-line import from CSV or OFX is planned; the Xero API does not expose bank-feed lines.
+5. **Drafts a management letter** from the actual figures, plus a profit and loss and a VAT summary with period figures labelled indicative, rendered as PDFs.
+
+![Reconciliation: a statement line with its scored candidates and a confirm action](docs/media/reconciliation.png)
+
+6. **Records every AI proposal and every human approve, correct or reject** in an audit trail with the model, the confidence and the reasoning.
+7. **Supports a small team per practice**, and GDPR export and erasure of everything held about an organisation.
+
+## How a review goes
+
+1. Connect Xero and sync the quarter.
+2. Run categorisation. The dashboard shows what needs attention and what was auto-accepted.
+3. Open a transaction. Read the reasoning and the risk flags. Approve, correct or reject; a correction becomes a precedent for the next similar transaction.
+4. Reconcile. Confirm the suggested matches, resolve the ambiguous ones.
+5. Draft the management letter from the figures as they now stand.
+6. Sign off. The audit trail answers "who decided what, and why".
+
+## Why it is useful
+
+- **Attention goes to the uncertain cases**, not to all of them. The tiers say where to look.
+- **Every proposal arrives with its reasoning**, so the review question becomes "do I agree?" instead of "what happened here?".
+- **Corrections improve future proposals** without any model being trained on the client's data; the firm's own decisions are retrieved as examples.
+- **The audit trail exists before anyone asks for it.** Model, confidence, reasoning and the human decision, one row each.
+
+No accuracy or time-saved figures appear in this repository. They will, when a reproducible evaluation is committed with its provenance (see [evaluation](#evaluation)).
+
+## Try it
+
+**The demo** at [agentic-ai-accounting.vercel.app/demo](https://agentic-ai-accounting.vercel.app/demo) opens the console on a synthetic company, "Harlow & Finch Ltd", with fifty transactions and a quarter's statement lines. Everything runs in your browser: the reasoning, risk flags and match scores are replayed from fixtures and pre-written drafts, jobs are simulated, the PDFs were rendered once from the real templates, and nothing is sent to a server or written to Xero. A banner says so on every screen. Add `?skip_onboarding=1` to start with the quarter already imported.
+
+**Connect your own Xero** from the [live app](https://agentic-ai-accounting.vercel.app). The consent screen asks for read access to bank transactions, invoices, contacts, payments and settings (it also currently requests write permissions the app never uses; removing them is on the roadmap). Transaction details, which can include payee names, are sent to Anthropic for categorisation. Tokens are stored encrypted. You can export or erase everything, and disconnect the app from your Xero organisation's connected-apps settings. The [privacy policy](https://agentic-ai-accounting.vercel.app/privacy) lists every processor.
+
+**The video** is a two-minute product and engineering walkthrough, in production as of October 2026. The link will go at the top of this page.
+
+## Status and direction
+
+A solo portfolio project by [Rajarshi Nandi](https://www.linkedin.com/in/rajarshi-nandi/), deployed on Vercel and Railway, open source under the MIT licence. It was built between March and October 2026, first as a product, then audited and documented as the work sample it now is. It is not a registered accountancy service and is not taking real clients.
+
+Planned and not built: review findings with cited HMRC guidance, drafted client queries, CSV/OFX statement import, and the production-hardening work listed in the [roadmap](docs/PRODUCTION_ROADMAP.md). The present categorisation and reconciliation workflows are LangGraph state machines, not autonomous agents; the agentic review is roadmap.
 
 ---
+
+# Part 2: the engineering
+
+## For hiring managers: the 60-second version
+
+I built the whole thing end to end: the Xero OAuth and sync adapter, the LangGraph categorisation and reconciliation workflows calling Claude through Instructor, the pgvector precedent retrieval, the audit trail, the eval harness, the FastAPI API with its tests and CI, the Next.js console, the browser-only demo mode, and the deployment. Then I ran a six-lens review of my own code and published what it found instead of hiding it.
+
+The three hardest problems: (1) **making the model's output trustworthy at the boundary**: structured output via Pydantic with validation against the chart of accounts, confidence tiers that route uncertain cases to a human, and a fuzzy risk layer whose rules an accountant can read; (2) **working against a platform that keeps moving**: Xero changed its OAuth scope scheme mid-build, its API hides bank-feed lines, and a dependency release later took production down for an afternoon; (3) **telling the truth about measurement**: the harness measured a different prompt than production, the published numbers could not be reproduced, so I removed them and wrote down what a real evaluation needs.
+
+What I would do next, in order: pin the current behaviour with characterisation tests against a real database, put every model call through one gateway with cost and telemetry, make the eval replay the production graph and commit a baseline with provenance, then build the review-findings engine on top. The [roadmap](docs/PRODUCTION_ROADMAP.md) has the full sequence.
+
+| If you are hiring for | Start with |
+|---|---|
+| Software engineering | [Architecture](#architecture), the Xero adapter and auth story in [security](#security-privacy-and-xero-terms), the [engineering record](#engineering-record), [tests](#tests) and CI |
+| AI engineering | [AI engineering decisions](#ai-engineering-decisions), [evaluation](#evaluation), the guardrail and cost items in the [review findings](#what-a-six-lens-review-found-2026-10-10) |
+| Data science | [Evaluation](#evaluation) (fixture design, tiers, calibration, gates, provenance), [explainability and risk scoring](#explainability-and-risk-scoring), the open questions at the end of that section |
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    Browser["Browser / API Client"]
+![System diagram: Next.js on Vercel, FastAPI on Railway, LangGraph workflows calling Claude via Instructor, Postgres with pgvector and the audit log, Xero through OAuth2](docs/media/architecture.svg)
 
-    subgraph Vercel["Vercel"]
-        Frontend["Next.js 14\nLanding · Dashboard · Transactions · Reconciliation · Documents"]
-    end
-
-    subgraph Railway["Railway"]
-        subgraph FastAPI["FastAPI"]
-            Routes["API Routes\n/auth · /sync · /categorise · /reconcile · /documents"]
-
-            subgraph SvcLayer["Service Layer"]
-                XA["XeroAdapter"]
-                ES["EmbeddingService"]
-                DS["DocumentService"]
-            end
-
-            subgraph AgentLayer["LangGraph Agents"]
-                CA["CategoriserAgent"]
-                RA["ReconcilerAgent"]
-            end
-
-            subgraph XAILayer["XAI Engine"]
-                EBM["EBM Explainer"]
-                Fuzzy["Mamdani Fuzzy Risk Scorer"]
-            end
-        end
-
-        DB[("PostgreSQL 16\n+ pgvector\nRedis")]
-    end
-
-    Claude["Anthropic Claude API"]
-    Xero["Xero API\nOAuth2 + REST"]
-
-    Browser -->|HTTPS| Frontend
-    Frontend -->|REST / JSON| Routes
-    Routes --> SvcLayer
-    Routes --> AgentLayer
-    Routes --> XAILayer
-    FastAPI --> DB
-    CA --> Claude
-    RA --> Claude
-    DS --> Claude
-    XA --> Xero
-```
-
----
-
-### Data flow: transaction categorisation
-
-```mermaid
-flowchart TD
-    XeroAPI["Xero API"]
-    TxTable["transactions table\nstatus: uncategorised"]
-    Agent["CategoriserAgent\nLangGraph"]
-    pgv["pgvector\n5 nearest categorised examples\ncosine similarity"]
-    ClaudeAPI["Claude API\nclassify + structured reasoning"]
-    Audit["AuditLog\nevery decision\nfull XAI payload stored as JSONB"]
-    Auto["auto_categorised\nwritten to DB immediately"]
-    Suggested["suggested\nshown with Accept / Reject buttons"]
-    Review["needs_review\nflagged for human\nno guess shown"]
-
-    XeroAPI -->|sync| TxTable
-    TxTable --> Agent
-    Agent <-->|few-shot lookup| pgv
-    Agent <-->|CategoryPrediction| ClaudeAPI
-    Agent -->|always| Audit
-    Agent -->|confidence above 0.85| Auto
-    Agent -->|confidence 0.50 to 0.85| Suggested
-    Agent -->|confidence below 0.50| Review
-```
-
----
-
-## How each feature works
-
-### 1. Xero data sync
-
-`integrations/xero_adapter.py` handles the entire Xero relationship:
-
-- **OAuth2 flow**: Redirects the user to Xero, receives the auth code, exchanges it for access and refresh tokens, and stores them against the `Organisation` record.
-- **Token lifecycle**: Access tokens expire after 30 minutes. `_ensure_valid_token()` detects expiry with a 60-second buffer and silently refreshes before every API call.
-- **Three sync methods**: `sync_accounts()` (chart of accounts), `sync_transactions()` (bank transactions), `sync_bank_statements()`. Each upserts on `xero_id` so reruns are idempotent.
-- **Rate-limit backoff**: Xero allows 60 requests per minute. `_get_with_retry()` catches HTTP 429 and waits 60 seconds before retrying, up to 3 attempts.
-- **Date parsing**: Xero returns dates in two formats: `/Date(1234567890000+0000)/` (Unix ms with offset) and ISO 8601. Both are handled.
-
-The adapter was built with raw `httpx` rather than the official `xero-python` SDK. The SDK wraps synchronous `requests` and requires additional adapters in an async context. Direct httpx is easier to test (mock `AsyncClient`), easier to debug, and gives full control over token management.
-
----
-
-### 2. Transaction categorisation agent
-
-`agents/categoriser.py`: a five-node LangGraph graph.
-
-#### Graph structure
-
-```mermaid
-flowchart LR
-    FC["fetch_context"] --> CL["classify"] --> VA["validate"] --> DE["decide"] --> EX["explain"]
-```
-
-**Node 1: fetch_context**
-
-Loads the chart of accounts from the database and queries pgvector for the 5 most similar previously categorised transactions using cosine similarity:
-
-```sql
-ORDER BY embedding <=> $query_embedding LIMIT 5
-```
-
-These become the few-shot examples in the classification prompt.
-
-**Node 2: classify**
-
-Builds a structured prompt containing:
-- The transaction to classify (date, amount, description, reference)
-- The full chart of accounts (code and name)
-- The 5 similar examples with their confirmed categories
-
-Calls Claude via `instructor[anthropic]`, forcing output into:
-
-```python
-class CategoryPrediction(BaseModel):
-    category_code: str
-    category_name: str
-    confidence: float      # range 0.0 to 1.0
-    reasoning: str         # plain English explanation
-```
-
-Claude is never trusted to return parseable free text. Instructor uses Anthropic's tool-use feature to guarantee structured output, with automatic retry on Pydantic validation failure.
-
-The node implements **tiered model routing**: the primary call is Claude Haiku (pinned, cheap, fast). If the returned confidence is below the `ESCALATION_THRESHOLD` (0.85 — the same threshold used for auto-accept in node 4), the same prompt is retried with Claude Sonnet 4.6, which has stronger reasoning on ambiguous cases. Sonnet's answer replaces Haiku's only when the escalation call succeeds; if Sonnet errors, Haiku's original prediction is kept (no prediction is ever lost). The model that actually produced the final answer is recorded in `AuditLog.ai_model`; the escalation flag, primary-call confidence, and threshold are stored in `ai_decision_data` for auditability. See [Tiered model routing](#tiered-model-routing-cost-aware-escalation) below for the design reasoning.
-
-**Node 3: validate**
-
-Checks two things:
-1. Does `category_code` exist in the chart of accounts?
-2. Is `confidence` in the range `[0.0, 1.0]`?
-
-If either check fails, confidence is set to 0 and the reasoning is overwritten with "validation failed". The decision node will then flag this transaction for human review rather than making a bad auto-categorisation.
-
-**Node 4: decide**
-
-Applies confidence thresholds:
-
-| Confidence | Status | What happens |
+| Layer | Choice | Why |
 |---|---|---|
-| Above 0.85 | `auto_categorised` | Written to DB immediately; no human needed |
-| 0.50 to 0.85 | `suggested` | Shown to accountant with Accept/Reject buttons |
-| Below 0.50 | `needs_review` | Flagged; no suggestion shown (a confusing low-confidence guess is worse than no guess) |
+| Frontend | Next.js 14 (App Router), TypeScript, Tailwind 3.4, Base UI primitives, framer-motion; Vercel | One codebase for the landing page, the console and the demo; all pages are client components talking to one `apiFetch` choke point |
+| API | FastAPI, Pydantic v2, SQLAlchemy 2.0 async, Alembic; Railway (Docker) | Async end to end; OpenAPI for free; 34 routes (31 under `/api/v1`, two OAuth, one health) |
+| Workflows | LangGraph state machines | Each node is a plain async function over a typed state; testable in isolation; the trace maps one to one onto the audit row |
+| Models | Claude Haiku 4.5 (pinned snapshot) first, Claude Sonnet 4.6 on low confidence and for narratives, through Instructor | Structured output enforced by tool use and Pydantic; cheap model on the common path |
+| Retrieval | pgvector in the same Postgres; `all-MiniLM-L6-v2` embeddings computed in-process (384 dimensions) | No second database and no embedding API; corrections become precedents by re-embedding |
+| Data | PostgreSQL 16, eight tables, six migrations; `NUMERIC(12,2)` and `Decimal` for money; Redis for cache and webhook debounce | Penny errors are trust failures; Redis is optional and the app degrades without it |
+| Documents | Figures in Python, narrative via Instructor, Jinja2 to WeasyPrint | The model never touches the numbers |
+| Operations | Sentry (optional), per-organisation rate limits (slowapi), in-process background jobs tracked in Postgres, GitHub Actions (pgvector service container, WeasyPrint system deps, 93 tests, type check, lint) | Enough to run a beta; see the roadmap for what real users would need |
 
-An `AuditLog` row is written in all cases.
+**One request, from login to audit row.** The browser hits `/auth/xero/connect`; the backend redirects to Xero; the callback exchanges the code for tokens, encrypts them with Fernet, creates or updates the organisation and its owner user, mints a 24-hour HS256 JWT with `org_id` and `user_id`, and queues the first sync job and redirects to the frontend callback, which stores the token and hands the job to the dashboard to poll. A categorisation run is `POST /api/v1/categorise/async`: a `jobs` row, a batch under `asyncio.Semaphore(5)`, and for each transaction the graph in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): fetch the chart and five precedents, classify through Instructor, validate against the chart, decide the tier, explain with the fuzzy rules, write the audit row. The console polls the job, then the reviewer's approve, correct or reject writes its own audit row and a correction re-embeds the transaction.
 
-**Node 5: explain**
+## AI engineering decisions
 
-Calls the XAI engine (see section 4) to compute feature importances and a fuzzy risk score. Both are appended to the `AuditLog.ai_decision_data` JSONB field.
+| Decision | Alternatives considered | Why this one | Evidence | What I learned |
+|---|---|---|---|---|
+| Structured output through Instructor (Anthropic tool use + Pydantic, retry on validation failure) | Free-text parsing (the first version); native structured outputs | The parser silently returned wrong categories whenever the model added preamble; Instructor made the Pydantic model the contract | `backend/app/agents/categoriser.py`, `CategoryPrediction` | Validation must also check the domain: the validate node accepts a code *or* a name, and the name string is what gets persisted. Native structured outputs plus chart-constrained validation is the roadmap fix |
+| Haiku first, Sonnet when Haiku's confidence is below 0.85, Haiku's answer kept if Sonnet fails | Haiku only; Sonnet only | The escalation threshold equals the auto-accept threshold: below it the row goes to a human anyway, so the stronger model either lifts it into auto-accept or gives the reviewer better reasoning | Audit row records `escalated`, `primary_model`, `primary_confidence`, `escalation_threshold` | The design is reasoned, not measured. Haiku-only versus Sonnet-only versus tiered has never been run on the fixtures. Sonnet is about 3× Haiku per token at list price (1.00/5.00 versus 3.00/15.00 per million tokens, October 2026), so the comparison is cheap and is the first live eval on the roadmap |
+| Precedent retrieval from pgvector (five nearest categorised transactions of the same organisation as few-shot examples) | Fine-tuning; a global classifier | Corrections take effect on the next similar transaction with no training, and nothing is trained on client data | `backend/app/services/embedding_service.py` | The query text and the stored text are built differently, there is no similarity cutoff, the index is a sequential scan, and `auto_categorised` rows count as precedents alongside confirmed ones. Memory hygiene is a roadmap item |
+| Eval harness with hard gates (runner exits non-zero) and a budget guard | Ad-hoc spot checks | Gates make "did the prompt change help?" a yes or no | `backend/evals/` | The harness sends its own prompt with no retrieval and no routing, so it measures a prompt, not the shipped agent. Numbers from it were published anyway; they have been removed until a run with provenance is committed |
+| Explainability from readable rules (eight fuzzy rules) rather than feature attributions | Shapley attributions over a surrogate; an EBM on the organisation's data (built as an experiment) | An accountant can read and challenge "amount deviation is high AND vendor is rare"; nobody reviews a Shapley value | `backend/app/xai/fuzzy_engine.py` | The EBM experiment never produced output for three or more categories (a `float()` on a per-class array raised and was swallowed), and it trains on Xero data, which the developer terms forbid. It is being retired; the console only shows feature bars when the glass-box model actually produced them |
+| Audit row per AI decision and per human decision, with model, confidence, reasoning and risk payload | Logging | The product's claim is "who decided what, and why"; it has to be a table, not a log line | `audit_logs` schema | "Immutable" was overstated: the explain node attaches its payload in a second write and erasure deletes rows. Append-only is enforced by convention today, at the database level on the roadmap |
+| Cost tracking in the harness (token counts, list prices, `--budget` abort) | None | AI cost per transaction is the unit economics of the product | `backend/evals/cost_tracker.py` | A documentation fix once replaced a wrong ratio with a wronger one (nearly four times) by dividing a stale price table. Prices now carry their check date |
+| Untrusted text handling: none yet | Sanitiser, guard classifier, output validation | Not built | Transaction descriptions from Xero go straight into the prompt, and the model's self-reported confidence is the auto-accept gate | A manipulated description can steer a decision; the roadmap's security phase (OWASP LLM mapping, sanitiser, tool tiers, red-team suite) exists because of this |
 
-#### Few-shot learning from corrections
+## Evaluation
 
-When an accountant corrects a categorisation via `POST /transactions/{id}/correct`, the transaction is re-embedded and the new embedding is stored. The next time a similar transaction arrives, the corrected version appears in `similar_examples`; the vector store acts as the training set. No fine-tuning, no retraining, no separate pipeline.
+The harness in `backend/evals/` runs fifty hand-written synthetic UK SME transactions (no Xero API data) against twenty chart-of-accounts codes, split 31 easy, 15 medium, 4 hard, and reports accuracy by tier, per-category F1 and precision/recall, a confidence calibration table (accuracy by confidence bucket) and cost. It enforces gates and exits non-zero when one is missed: overall at least 80%, easy tier at least 95%, auto-accept bucket at least 90%. Responses are cached on disk keyed by model and prompt so reruns are free; a `--budget` flag aborts before a live run that would exceed it.
 
-#### Batch runner
+What it does not do yet, said plainly: it evaluates its own prompt rather than replaying the production graph (no precedent retrieval, no routing); the hard tier has four items, which is a smoke test, not a measurement; and the gates run in the runner, not in CI. No accuracy figure is published here. The rule I adopted in October 2026 is that every number needs a committed provenance file (commit, fixture version, prompt version, model id, date) next to it, and none exists yet. The first measured run, and the Haiku-only versus Sonnet-only versus tiered comparison, are the opening steps of the [roadmap](docs/PRODUCTION_ROADMAP.md).
 
-`categorise_batch()` fetches all uncategorised transactions and processes them concurrently with `asyncio.Semaphore(5)`, keeping Claude API costs predictable and preventing runaway parallel requests.
+## Explainability and risk scoring
 
-#### Tiered model routing (cost-aware escalation)
+Three things sit behind the explanation panel, and it matters which is which.
 
-Two models are used inside the classify node:
+- **The model's reasoning** is the `reasoning` field of the structured output: a sentence or two of the model's own justification. It is useful to a reviewer and it is not a guarantee of anything.
+- **The risk flag is glass-box.** A small Mamdani-style fuzzy inference engine, written from scratch so every line is auditable, takes three normalised inputs (amount deviation from the category's history, vendor frequency, weekday/weekend timing), applies eight rules written in plain language, and produces a risk score, a label (low, medium, high) and the list of rules that fired. The defuzzification is a simplified centroid over term representatives, not a full integral. The review found that the triangular membership helper returns zero at the clamped extremes, so a saturated input (the largest outlier from a never-seen vendor) fires no rule and defaults to "medium"; the fix is on the roadmap and the finding is left visible here because it is exactly the kind of boundary bug a risk engine must not have.
+- **Feature importances are disabled in practice.** An Explainable Boosting Machine was meant to train once fifty labelled rows existed. It never worked for multiclass data, and it trains on Xero data, which the developer terms forbid. The console shows feature bars only when that model actually produced them, which today is never.
 
-| Role | Model | Reason for choice |
-|---|---|---|
-| Primary | `claude-haiku-4-5-20251001` (pinned) | Cheap (~$0.0013/call), fast, sufficient for the majority of transactions where the few-shot RAG context is strong. Pinned so eval runs stay reproducible. |
-| Escalation | `claude-sonnet-4-6` (aliased) | ~3.75× the per-token cost (see `cost_tracker.py` pricing) but stronger on ambiguous cases. Aliased because narrative-quality model updates from Anthropic should flow in automatically; narrative generation is not in the eval harness, so version drift is acceptable there. |
+Open questions this build raised and did not answer: whether confidence should be calibrated per organisation (Platt, isotonic or conformal, with little labelled data per firm); whether explanations change reviewers' decisions at all, measured by review time and correction rate; and whether choosing review candidates actively (sparse regions of the embedding space, decision boundaries) reduces corrections compared with the current arrival order.
 
-The escalation rule:
+## Security, privacy and Xero terms
 
-```python
-# Pseudocode of what classify does
-primary = haiku(prompt)
-if primary.confidence < 0.85:
-    try:
-        chosen = sonnet(prompt)   # Sonnet gets to overturn Haiku
-    except Exception:
-        chosen = primary          # Sonnet failure → keep Haiku
-else:
-    chosen = primary
-```
+**What holds.** Every authenticated operation is scoped to the organisation from the session (29 of 29 checked in the review). Xero tokens are Fernet-encrypted at rest. Webhooks are verified with HMAC-SHA256 and `compare_digest`. The JWT algorithm is pinned both ways. The app never writes to Xero. No secret has ever been committed. The frontend has no XSS sinks or open redirects. Rate limits are keyed per organisation with `Retry-After`. GDPR export excludes tokens and embeddings; erasure deletes in FK-safe order and invalidates the session.
 
-**Why the threshold is exactly 0.85.** It is the same threshold the `decide` node uses for auto-accept. Escalating at this boundary lets Sonnet push a borderline prediction into the auto-accept band when it can; below the threshold there is no point escalating because the result is surfaced to a human either way (who would prefer Sonnet's reasoning to Haiku's lower-confidence answer).
+**What does not, yet.** The session JWT travels in the redirect URL and lives in `localStorage`; the OAuth `state` is a constant and there is no PKCE; any Xero login to a tenant receives the owner's session and invited members cannot sign in; untrusted transaction text is rendered without autoescaping into HTML that WeasyPrint processes with all URL protocols allowed; the consent screen requests three write scopes the app never uses; the invite endpoint allows email enumeration. Each has a phase in the [roadmap](docs/PRODUCTION_ROADMAP.md).
 
-**Why not escalate everything.** Running Sonnet on every transaction would multiply total categorisation cost by ~3.75× (per the per-token pricing ratio in `backend/evals/cost_tracker.py`) for no measurable quality gain on the easy tier (Haiku already scores 93.5% on easy, and easy transactions generally produce `confidence > 0.85`). Escalation targets exactly the transactions where the extra spend is most likely to matter: the medium and hard tiers.
+**Third parties and data.** Anthropic receives transaction date, amount, description (which can include payee and customer names), reference, the chart of accounts and a few precedents for categorisation, and aggregated figures for narratives. Railway hosts the API and database (region to be confirmed). Vercel hosts the frontend. Sentry receives error reports tagged with the organisation id and name when enabled. Resend receives invitation emails. The [privacy policy](https://agentic-ai-accounting.vercel.app/privacy) says the same.
 
-**Audit trail.** Every categorisation records both models in the audit log: `ai_model` is whichever model actually produced the final answer; `ai_decision_data` carries `escalated` (bool), `primary_model`, `primary_confidence`, and `escalation_threshold`. This keeps the decision fully reconstructible after the fact.
+**Xero developer terms.** API data may not be used to train, fine-tune, adapt or enhance AI models (clause 7(b)(i)), and may not be passed to a third party without the user's consent (7(b)(ii)). Nothing here is trained on Xero data except the EBM experiment, which is being retired; precedent retrieval is in-context and is kept behind a flag on the roadmap until Xero confirms its reading; evaluation data is synthetic. A consent flow before the first model call is a roadmap item.
 
-**Asymmetric pinning policy.** Haiku is pinned to a dated release because it runs in the evaluation loop and on the high-volume auto-categorisation path — reproducibility across eval runs matters. Sonnet is left on the bare model alias because it runs only in document narrative generation and in tiered escalation, neither of which is currently in the eval harness. If narrative generation is added to the evals, the Sonnet pin should follow.
+## Engineering record
 
-**Known limitation.** As of this writing, the tiered routing has not been directly measured against a Haiku-only or Sonnet-only run on the 50-fixture eval set. The design is derived from the existing per-model accuracy data (Haiku: 88% overall, 93.5% easy, 75% hard) and the published relative strength of Sonnet on reasoning-heavy tasks. A live comparison run producing the full table below is in the Open Research Questions section.
+Ten problems that needed judgement, three lines each. The long form with commit links is in [`docs/ENGINEERING_RECORD.md`](docs/ENGINEERING_RECORD.md).
 
-| Configuration | Overall | Easy | Medium | Hard | Est. cost / 1k txns |
-|---|---|---|---|---|---|
-| Haiku only (baseline) | 88.0% | 93.5% | 80.0% | 75.0% | ~$1.30 |
-| Sonnet only | — | — | — | — | ~$4.70 |
-| Tiered (Haiku primary, Sonnet escalate at conf < 0.85) | — | — | — | — | ~$1.30–$2.50 |
+1. **Xero changed its OAuth scope scheme while I was building.** Apps created after 2 March 2026 must use granular scopes; the broad ones returned `unauthorized_client`. Found the working names by testing against the token endpoint; a later commit silently reintroduced the broad scope to reach `/Payments`, which I caught by cross-checking git history against Xero's scope-to-resource table (`accounting.payments.read` is the one that covers payments).
+2. **A CORS "improvement" took the production dashboard down in a loop.** Restricting origins to a default that did not match Vercel made every `fetch` throw a `TypeError` with no HTTP status; the dashboard read that as "Xero not connected" while OAuth (a redirect, immune to CORS) kept working. Diagnosed by distinguishing a browser-level CORS failure from a 401, fixed with a wildcard origin and `allow_credentials=False`, correct for bearer tokens.
+3. **Anthropic has no embeddings endpoint.** The design assumed one provider for both. Split the concerns: local MiniLM embeddings (384 dimensions, in-process, offloaded with `asyncio.to_thread`) and an Alembic migration shrinking the vector column from the OpenAI size.
+4. **Parsing model text silently produced wrong categories.** Any preamble broke the string splitting without raising. Replaced with Instructor so a Pydantic model is the contract and invalid output retries instead of persisting.
+5. **LangGraph nodes needed a database session without putting it in the state.** State must stay serialisable for checkpointing. `build_categoriser_graph(db)` closes over the session; the nodes are nested functions.
+6. **Xero's Demo Company bank lines are invisible to the API.** They live in a bank-feed layer the Accounting API cannot read. Added the `/Payments` source with deduplication against invoices, and later wrote down the consequence honestly: on live data the reconciler matches bank transactions to invoice and payment records, not to statement lines.
+7. **CI needed pgvector and a C library.** The default Postgres image lacks the extension and WeasyPrint needs Cairo and Pango. `pgvector/pgvector:pg16` as the service container, an `apt-get` step, migrations before tests; and the tests themselves moved from patching a helper that did not exist to `app.dependency_overrides`, with 401 (not 404) as the correct expectation for every auth failure.
+8. **A dependency release took production down for an afternoon.** SQLAlchemy 2.1 shipped, the unpinned range resolved to it, and `postgresql://` URLs now default to psycopg 3, which the image does not install. Pinned below 2.1; the real lesson is the missing lockfile, now a roadmap item.
+9. **A six-lens review of my own code found bugs a green test suite could not.** The EBM path had never executed for multiclass data (reproduced numerically), the fuzzy shoulders return zero at the clamps, five concurrent graph tasks share one `AsyncSession`, and the VAT summary multiplies gross amounts by the rate instead of the VAT fraction. Published, not patched quietly, because the tests mock the session and the database and could not have caught any of it.
+10. **The demo had to be honest and complete at the same time.** A fake server behind the frontend's single `apiFetch` choke point answers all twenty endpoints from a seed generated from the eval fixtures; the reconciler's scoring was ported line for line and checked against RapidFuzz to four decimal places; every action does visible work from every entry point, and a banner says it is synthetic on every screen.
 
-The Haiku-only row is from the current live eval. The other two rows are deliberately left as `—` pending a budgeted live comparison run. Reproduction command in [Running evals](#running-evals).
+## What a six-lens review found (2026-10-10)
 
----
+In October 2026 I ran six parallel review passes over the repository (security and tenancy, backend correctness, AI engineering, frontend, documentation honesty, toolchain) under one evidence standard: file and line, quoted code, severity, and whether the plan already knew. 106 findings, 14 high, none critical. The top eight and where they stand:
 
-### 3. Bank reconciliation agent
-
-`agents/reconciler.py`: a five-node LangGraph graph. No LLM is used anywhere in the pipeline — not in the matching decision, and not in the explanation. The explanation is produced by a fixed f-string template over the match scores (`reconciler.py:174-198`). An LLM rewrite of the explanation is tracked as open work.
-
-#### Graph structure
-
-```mermaid
-flowchart LR
-    FC["find_candidates"] --> SC["score_candidates"] --> DE["decide"] --> EX["explain"] --> SA["save"]
-```
-
-**Node 1: find_candidates**
-
-Queries the transactions table for candidates where:
-- Amount is within £0.01 of the bank statement amount (Decimal comparison, no float)
-- Date is within 7 days of the bank statement date
-- Same `organisation_id`
-
-Returns up to 10 candidates.
-
-**Node 2: score_candidates**
-
-Scores each candidate on three signals:
-
-```
-combined_score = (amount_score × 0.5) + (date_score × 0.2) + (description_score × 0.3)
-
-amount_score:
-  1.0  <- exact Decimal match
-  0.8  <- within 1%
-  0.0  <- otherwise
-
-date_score:
-  1.0  <- same day
-  max(0.0, 1.0 - days_difference × 0.15)
-
-description_score:
-  RapidFuzz.token_sort_ratio(a, b) / 100
-```
-
-**Why these weights**: Amount is the strongest signal in UK bank reconciliation. An exact match with a close date is nearly always correct. Date is down-weighted because Xero transactions are sometimes backdated. Description similarity is useful for disambiguation but unreliable alone because bank descriptions vary by institution.
-
-**Why `token_sort_ratio`**: Bank descriptions often contain the same words in different order ("TESCO STORES UK" vs "UK STORES TESCO"). `token_sort_ratio` sorts tokens before comparing, making it robust to word-order variation.
-
-**Node 3: decide**
-
-Applies thresholds:
-
-| Score | Status |
+| Finding | Status |
 |---|---|
-| Above 0.9 | `auto_matched` |
-| 0.6 to 0.9 | `suggested` |
-| Below 0.6 or two candidates within 0.05 of each other | `needs_review` |
-
-**Node 4: explain**
-
-Calls Claude to write one sentence: *"Matched to TESCO STORES on 14 Mar: amount matches exactly (£52.40), same day, description 87% similar."* This is the only LLM call in the reconciliation pipeline.
-
-**Node 5: save**
-
-Updates `BankStatement.matched_transaction_id`, `match_confidence`, and `match_status`. Writes `AuditLog`.
-
----
-
-### 4. Explainable AI stack
-
-`xai/explainer.py` and `xai/fuzzy_engine.py`
-
-Every categorisation decision receives three layers of explanation, all stored in `AuditLog.ai_decision_data`:
-
-#### Layer 1: LLM reasoning (always present)
-
-Claude's `reasoning` field from the `CategoryPrediction` output. Plain English: *"This is likely a software subscription based on the ADOBE description, the £47.99 recurring amount, and the fact that 3 similar transactions have been categorised as Computer Equipment and Software."*
-
-#### Layer 2: InterpretML EBM feature importances
-
-Once 50 or more labelled transactions exist in the organisation, an Explainable Boosting Machine is trained on five features:
-
-| Feature | How it is computed |
-|---|---|
-| `amount` | Absolute transaction value |
-| `day_of_week` | Integer 0 to 6 |
-| `description_length` | Character count of description |
-| `vendor_frequency` | Count of transactions with a matching description prefix |
-| `category_history_count` | Count of confirmed transactions in the predicted category |
-
-EBM was chosen over a standard boosted tree because its predictions are additive by feature; each feature's contribution to the final score is directly readable and visualisable as a bar chart. It is a glass-box model.
-
-Below 50 samples, the fallback is Layer 1 (the LLM's own reasoning text).
-
-#### Layer 3: Mamdani fuzzy risk score (always present)
-
-A custom Mamdani-style fuzzy inference system with triangular membership functions and centroid defuzzification, implemented from scratch in `fuzzy_engine.py` without an external fuzzy library. The implementation is self-contained so the inference logic can be audited and modified directly.
-
-**Three input variables** (all normalised to the range [0, 1]):
-
-| Variable | What it measures |
-|---|---|
-| `amount_deviation` | How far the amount deviates from the category average (z-score normalised) |
-| `vendor_frequency` | How often this vendor appears in transaction history |
-| `time_pattern` | Whether the transaction date is a weekday (0.9) or weekend (0.3) |
-
-**Eight rules**:
-
-```
-IF amount_deviation IS high AND vendor_frequency IS rare     -> risk IS high
-IF amount_deviation IS high AND vendor_frequency IS frequent -> risk IS medium
-IF amount_deviation IS low  AND vendor_frequency IS frequent -> risk IS low
-IF amount_deviation IS low  AND vendor_frequency IS rare     -> risk IS medium
-IF amount_deviation IS medium                                -> risk IS medium
-IF time_pattern IS unusual  AND vendor_frequency IS rare     -> risk IS high
-IF time_pattern IS normal   AND amount_deviation IS low      -> risk IS low
-IF amount_deviation IS high AND time_pattern IS unusual      -> risk IS high
-```
-
-**Why fuzzy logic over a neural anomaly detector**: Fuzzy rules are human-readable, deterministic (same input produces same output always), and transparent. An accountant can review and challenge the rules directly. A neural anomaly detector would be a black box. For an accounting tool where professional trust is the product, interpretability beats marginal accuracy gains.
-
-**Output**: `risk_score` in [0, 1], `risk_label` in {low, medium, high}, and the list of fired rules in plain English; shown directly in the UI so the accountant understands exactly why a transaction was flagged.
-
----
-
-### 5. Document generation
-
-`services/document_service.py`
-
-Follows a strict separation between computation and language:
-
-**Step 1: Calculate figures (pure Python, no LLM)**
-```
-total_income, total_expenses, net_profit_or_loss
-top_5_expense_categories (by spend)
-largest_5_transactions
-transaction_count, period_start, period_end
-```
-
-**Step 2: Retrieve context (pgvector)**
-
-Semantic search over transactions for the period to find patterns and notable items relevant to the narrative.
-
-**Step 3: Generate narrative (Claude via Instructor)**
-
-The prompt contains all computed figures and vector-retrieved context. Claude writes five structured sections:
-
-```python
-class DocumentNarrative(BaseModel):
-    executive_summary: str
-    income_analysis: str
-    expense_analysis: str
-    cash_flow_observations: str
-    recommendations: str
-```
-
-The LLM never touches the numbers directly; it writes around figures that have already been computed and verified in Python.
-
-**Step 4: Render PDF (Jinja2 and WeasyPrint)**
-
-A Jinja2 HTML template is populated with figures and narrative, then rendered to A4 PDF with WeasyPrint. Includes page numbers, professional typography, and an "AI-Assisted Draft" watermark footer. WeasyPrint was chosen over Puppeteer (too heavy for a Python backend) and ReportLab (requires programmatic x/y layout; HTML/CSS is far more natural for structured documents).
-
----
-
-### 6. Authentication and session management
-
-`app/core/session.py`, `app/api/v1/auth.py`, `frontend/src/app/auth/callback/page.tsx`, `frontend/src/middleware.ts`
-
-The auth flow is split across four files and two runtimes.
-
-**Step 1: OAuth2 and JWT creation**
-
-The user visits `/auth/xero/connect`, which issues a browser redirect to Xero's authorisation page. After the user grants access, Xero posts back to `/auth/xero/callback?code=...`. The backend exchanges the code for Xero tokens, creates or updates the `Organisation` row, then mints a JWT (HS256, 24-hour expiry) containing `org_id` and `org_name`. It redirects the browser to `{FRONTEND_URL}/auth/callback?token=<jwt>`, passing the token as a URL query parameter.
-
-**Step 2: Token storage on the frontend**
-
-The frontend `/auth/callback` page reads the token from the query string, writes it to `localStorage` as `session_token`, sets a lightweight `has_session=1` cookie (a plain presence flag, not the JWT itself), and redirects to `/dashboard`.
-
-**Step 3: Authenticated API calls**
-
-`frontend/src/lib/api.ts` reads `session_token` from `localStorage` and attaches it as a `Bearer` token on every `Authorization` header. The `get_current_org` dependency in `app/core/session.py` decodes and validates the JWT, looks up the `Organisation` by `org_id`, and returns it to the route handler. A missing, expired, or malformed token always produces HTTP 401 and never 404.
-
-**Step 4: Client-side route protection**
-
-`frontend/src/middleware.ts` intercepts navigation to `/dashboard`, `/transactions`, `/reconciliation`, and `/documents`. If the `has_session` cookie is absent it redirects to `/` before Next.js renders the page. This is a UX convenience to prevent a blank flash on unauthenticated load; it is not the security boundary. The security boundary is the JWT check on the backend.
-
-**Logout**
-
-`POST /api/v1/auth/logout` simply acknowledges the request. The token is client-side only; the browser clears `session_token` from `localStorage` and lets the `has_session` cookie expire. There is no server-side revocation list.
-
----
-
-## Tech stack
-
-### Backend
-
-| Component | Choice | Why |
-|---|---|---|
-| Framework | FastAPI 0.115 | Async-native from day one; automatic OpenAPI docs; Pydantic v2 on every boundary |
-| ORM | SQLAlchemy 2.0 (async) | pgvector support; Alembic migrations; typed `mapped_column` style |
-| Database | PostgreSQL 16 + pgvector | Single DB handles both relational and vector queries; no separate vector database needed at this scale |
-| Migrations | Alembic | Schema versioning; production startup runs `alembic upgrade head` automatically |
-| AI agents | LangGraph | Explicit state machine; each node is a pure function, testable in isolation, state transitions are auditable |
-| LLM | Anthropic Claude | Strong instruction-following for structured output; Haiku is extremely cost-efficient for high-volume categorisation |
-| Structured output | Instructor + Pydantic v2 | Guarantees typed LLM output via Anthropic tool-use; never parses free text |
-| Embeddings | sentence-transformers/all-MiniLM-L6-v2 | 384-dim, runs locally, zero API cost; sufficient for semantic similarity on short transaction descriptions |
-| XAI | InterpretML (EBM), custom Mamdani fuzzy inference | Glass-box models; outputs are directly interpretable without post-hoc approximation |
-| String matching | RapidFuzz | C-extension reimplementation of fuzzywuzzy; 10 to 100x faster, no GPL licence issues |
-| PDF | WeasyPrint + Jinja2 | HTML/CSS authoring is natural for structured documents; pure Python, no Chromium dependency |
-| HTTP client | httpx (async) | Async-native with identical sync API; HTTP/2 support; standard for modern async Python |
-| Auth | JWT + Xero OAuth2 | JWT carries `user_id` + `org_id`; multi-user with owner/member roles |
-| Cache | Redis | Dashboard summary cache (60s TTL); webhook sync debounce; graceful fallback if unavailable |
-| Token encryption | Fernet (from cryptography) | Xero OAuth tokens encrypted at rest with `enc::` prefix for backwards compatibility |
-| Observability | Sentry SDK (FastAPI/Starlette/SQLAlchemy integrations) | Error tracking and 10% perf sampling; graceful no-op without `SENTRY_DSN` |
-| Rate limiting | slowapi | Per-organisation limits keyed on JWT `org_id`; in-memory storage (upgradable to Redis) |
-| Transactional email | Resend (via httpx) | Team invitation emails; graceful no-op without `RESEND_API_KEY` |
-
-### Frontend
-
-| Component | Choice |
-|---|---|
-| Framework | Next.js 14 (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS 3 |
-| Components | shadcn/ui |
-| Animation | Framer Motion |
-| Notifications | Sonner (toast) |
-| Icons | lucide-react |
-
-### Infrastructure
-
-| Component | Choice |
-|---|---|
-| Local dev | Docker Compose (PostgreSQL 16 + pgvector, Redis 7) |
-| Backend hosting | Railway (Docker, auto-deploy on push) |
-| Frontend hosting | Vercel (Next.js, auto-deploy on push) |
-| Container | Python 3.12-slim multi-stage, WeasyPrint system deps pre-installed |
-
----
-
-## Database schema
-
-Eight tables. All data queries are scoped by `organisation_id`; there is no route that returns data across organisations.
-
-```
-organisations
-  id (UUID PK)
-  name, xero_tenant_id (UNIQUE)
-  xero_access_token, xero_refresh_token, xero_token_expires_at   <- Fernet-encrypted at rest
-  last_sync_at, created_at, updated_at
-
-users                              <- multi-user support within an organisation
-  id (UUID PK), organisation_id (FK)
-  email (UNIQUE), name
-  role                             <- owner | member
-  created_at
-
-accounts                           <- chart of accounts, synced from Xero
-  id, organisation_id (FK)
-  xero_id (UNIQUE), code, name, type, tax_type
-
-transactions
-  id, organisation_id (FK), account_id (FK nullable)
-  xero_id (UNIQUE)
-  date, amount (NUMERIC 12,2), description, reference
-  category, category_confidence (NUMERIC 5,4)
-  categorisation_status            <- uncategorised | auto_categorised | suggested | confirmed | rejected
-  is_reconciled (BOOLEAN)
-  embedding (Vector 384)           <- pgvector, used for few-shot lookup
-  [INDEX: date, categorisation_status]
-
-bank_statements
-  id, organisation_id (FK)
-  xero_id (UNIQUE)
-  date, amount, description, reference
-  matched_transaction_id (FK nullable)
-  match_confidence (NUMERIC 5,4)
-  match_status                     <- unmatched | auto_matched | suggested | confirmed
-  [INDEX: match_status]
-
-audit_logs                         <- append-only, no update or delete routes
-  id, organisation_id (FK)
-  action, entity_type, entity_id
-  old_value, new_value (JSONB)     <- full entity snapshots before and after
-  ai_model, ai_confidence, ai_explanation
-  ai_decision_data (JSONB)         <- full XAI payload: features, risk score, fired rules
-  created_at
-  [INDEX: (entity_type, entity_id)]
-
-generated_documents
-  id, organisation_id (FK)
-  template, period_start, period_end
-  ai_model, figures (JSONB)
-  generated_at
-
-jobs                               <- background job tracking
-  id, organisation_id (FK)
-  kind                             <- categorise | reconcile | sync | document
-  status                           <- queued | running | completed | failed
-  progress_current, progress_total
-  result (JSONB), error, params (JSONB)
-  created_at, updated_at, completed_at
-  [INDEX: (organisation_id, status), created_at]
-```
-
-**Financial amounts are always `NUMERIC(12,2)` / Python `Decimal`.** IEEE 754 float cannot represent 0.1 exactly; a rounding error causing a penny discrepancy in a reconciliation match is a critical bug in an accounting tool. Float is never used for money.
-
-**SPEND transactions are stored as negative amounts.** Consistent with double-entry accounting: the sum of all transactions equals the bank account balance.
-
-**The audit log is append-only.** There is no DELETE or UPDATE route for `audit_logs`. It records the full XAI payload so any decision can be reconstructed, explained, and challenged after the fact; including for GDPR right-to-explanation requests.
-
----
-
-## API reference
-
-### Health
-
-```
-GET  /health                                  Service status (no auth required)
-```
-
-### Auth, team management, and data
-
-```
-GET  /auth/xero/connect                       Redirect to Xero OAuth2
-GET  /auth/xero/callback?code=...             Exchange code for JWT session; creates owner user
-GET  /api/v1/auth/me                          Current user + org (requires JWT)
-POST /api/v1/auth/logout                      Clear session
-GET  /api/v1/auth/team                        List all users in the organisation
-POST /api/v1/auth/invite                      Invite a member (owner only; body: email, name)
-DELETE /api/v1/auth/team/{user_id}            Remove a member (owner only)
-
-POST /api/v1/sync                             Full Xero sync (accounts + transactions + statements)
-GET  /api/v1/sync/status                      Last sync timestamp, row counts
-GET  /api/v1/dashboard/summary                Aggregate stats (cached 60s in Redis)
-```
-
-### Webhooks
-
-```
-POST /api/v1/webhooks/xero                    Xero webhook receiver (HMAC-SHA256 signature verification)
-```
-
-### Background jobs
-
-```
-POST /api/v1/categorise/async                 Submit categorisation as a background job
-POST /api/v1/reconcile/async                  Submit reconciliation as a background job
-POST /api/v1/documents/generate/async         Submit document generation as a background job
-GET  /api/v1/jobs/{job_id}                    Poll job status (returns queued | running | completed | failed)
-GET  /api/v1/jobs                             List recent jobs (filter by kind/status)
-```
-
-### Categorisation
-
-```
-POST /api/v1/categorise                       Batch-categorise all uncategorised transactions
-GET  /api/v1/transactions                     List (paginated, filter by status/date/search)
-GET  /api/v1/transactions/{id}                Single transaction + audit history
-POST /api/v1/transactions/{id}/approve        Accept suggested category
-POST /api/v1/transactions/{id}/correct        Override with correct category; re-embeds transaction
-POST /api/v1/transactions/{id}/reject         Reject suggestion; reset to uncategorised
-GET  /api/v1/transactions/{id}/explanation    Full XAI package
-```
-
-### Reconciliation
-
-```
-POST /api/v1/reconcile                        Batch-reconcile all unmatched bank statements
-GET  /api/v1/bank-statements                  List (paginated, filter by match_status/date)
-GET  /api/v1/bank-statements/{id}             Single statement + candidates + scores + audit
-POST /api/v1/bank-statements/{id}/confirm     Accept suggested match
-POST /api/v1/bank-statements/{id}/unmatch     Remove a match
-POST /api/v1/bank-statements/{id}/match       Manually match to a specific transaction_id
-```
-
-### Documents
-
-```
-POST /api/v1/documents/generate               Generate PDF (body: template, period_start, period_end)
-GET  /api/v1/documents                        List previously generated documents
-
-Supported templates: management_letter, profit_loss, vat_summary
-```
-
-### GDPR
-
-```
-GET    /api/v1/gdpr/export   Export all organisation data as JSON (Articles 15 and 20)
-DELETE /api/v1/gdpr/erase    Permanently delete all organisation data  (Article 17)
-```
-
-Both endpoints require a valid JWT. The export excludes Xero OAuth tokens (credentials, not personal data) and raw embedding vectors (binary, not human-readable). The erase endpoint deletes rows in FK-safe order and the caller's session becomes invalid immediately.
-
-### Explanations
-
-```
-GET  /api/v1/transactions/{id}/explanation
-
-Response:
-{
-  "prediction": { "category_code", "category_name", "confidence", "reasoning" },
-  "top_features": [{ "name", "value", "contribution" }],
-  "model_type": "ebm" or "llm",
-  "risk_score": 0.0 to 1.0,
-  "risk_label": "low" or "medium" or "high",
-  "fired_rules": ["IF amount deviation IS high AND...", ...],
-  "input_values": { "amount_deviation", "vendor_frequency", "time_pattern" },
-  "audit_trail": [{ "action", "created_at", "ai_model", "ai_confidence" }]
-}
-```
-
----
-
-## Evaluation framework
-
-`backend/evals/` contains a dedicated evaluation harness for the categorisation agent, independent of the application test suite.
-
-### Fixture set
-
-`fixtures/transactions.json` contains 50 labelled UK SME bank transactions:
-- **31 easy**: Unambiguous (HMRC payments, well-known SaaS, payroll runs)
-- **15 medium**: Require context (professional memberships, dual-category spends, inter-company transfers)
-- **4 hard**: Industry-specific, balance-sheet vs P&L edge cases, unfamiliar vendors
-
-`fixtures/accounts.json` contains 20 standard UK chart-of-accounts codes.
-
-### Running evals
-
-```bash
-cd backend
-
-# Dry run: rule-based mock, zero API cost
-python -m evals.eval_runner --mode mock
-
-# Live run with response caching (real API on first run, free on reruns)
-python -m evals.eval_runner --mode live --budget 0.05
-
-# Model comparison — these two runs populate the two baseline rows in the
-# tiered-routing comparison table (section "Tiered model routing" above).
-python -m evals.eval_runner --mode live --model claude-haiku-4-5-20251001 --budget 0.05
-python -m evals.eval_runner --mode live --model claude-sonnet-4-6 --budget 0.50
-
-# Quick smoke test
-python -m evals.eval_runner --mode live --limit 10 --budget 0.01
-```
-
-**Note on the tiered row.** The eval runner passes one model to `classify` per run; it does not execute the production tiered-routing logic. Once the two baseline runs above are cached, the tiered-routing accuracy can be computed compositely: for each fixture, take Haiku's prediction if `confidence >= 0.85`, otherwise Sonnet's. The eval cache makes this a free operation after the initial budgeted runs. A small composite script is the cleanest place for this — it has not been added yet because running the two live baselines is a prerequisite.
-
-### Sample output
-
-```
-Overall accuracy: 88.0% (44/50)
-
-By difficulty:
-  easy   : 93.5% (29/31)  ████████████████████
-  medium : 80.0% (12/15)  ████████████████
-  hard   : 75.0%  (3/4)   ███████████████
-
-Confidence calibration:
-  high   (>0.85) : acc=95.0% (40 transactions)  <- auto-accept threshold
-  medium (0.5 to 0.85): acc=71.4% ( 7 transactions) <- shown to accountant
-  low    (<0.5)  : acc=33.3% ( 3 transactions)  <- flagged for review
-
-Per-category F1:
-  404 Computer Equipment & Software : F1=0.95
-  820 Tax & Statutory Payments      : F1=1.00
-  ...
-```
-
-### Acceptance criteria
-
-The runner enforces these thresholds and exits with code 1 if any are missed:
-
-| Metric | Minimum | Target | Enforced |
-|---|---|---|---|
-| Overall accuracy | 80% | 90%+ | ✅ |
-| Easy tier accuracy (31 transactions) | 95% | 100% | ✅ |
-| Auto-accept accuracy (conf > 0.85) | 90% | 95% | ✅ |
-| Cost per transaction | < $0.01 | < $0.005 | No |
-| F1 on core categories (HMRC, payroll, software) | 0.90 | 0.95+ | No |
-
-### Cost controls
-
-- `cost_tracker.py` counts tokens and enforces a `--budget` hard limit before the run starts
-- `response_cache.py` caches responses to disk keyed by `SHA-256(model + prompt)`. All reruns against unchanged fixtures cost $0
-- Default eval model is `claude-haiku-4-5-20251001` (approximately 3.75× cheaper per token than Sonnet, per `cost_tracker.py` pricing). Switch to Sonnet only for pre-deployment quality checks
-
----
+| VAT summary arithmetic wrong by construction (rate applied to gross; unknown tax types default to 20%) | Open; figures labelled indicative; fix in roadmap phase 0 and 5 |
+| `SPEND-TRANSFER`, `-OVERPAYMENT`, `-PREPAYMENT` stored positive (only exact `SPEND` is negated) | Open; roadmap phase 0 characterisation test and hotfix |
+| One `AsyncSession` shared by five concurrent graph tasks in both batch runners | Open; roadmap phase 3 |
+| Categoriser persists the model's category name string; validation passes on code or name | Open; roadmap phase 4 (chart-constrained structured outputs) |
+| Fuzzy membership returns zero at the clamped extremes, so saturated inputs default to "medium" | Open; roadmap phase 0 test and phase 8 |
+| EBM explanations never executed for three or more categories; placeholder bars were shown | UI gated on the real model type; EBM retirement in roadmap phase 8 |
+| Identity: any Xero login to a tenant gets the owner session; invited members cannot sign in | Open; roadmap phase 2 |
+| Public numbers unverifiable and mutually inconsistent; privacy notice denied a data flow that happens | Fixed in this README, PORTFOLIO.md, the evals README and the privacy page (2026-10-10) |
+
+The full list is private working material; the headline items are summarised in the roadmap. Reading the findings as a whole: the plumbing (tenancy, audit, money types, adapter boundary, migrations, CI) held up; the defects sat in the product's own differentiators, which is where I would have least wanted them and where a reviewer should look first.
+
+## Production roadmap
+
+What I would do before real client data, in order: pin current behaviour with tests against a real database and harden CI; one LLM gateway with cost and telemetry, a prompt registry, an eval that replays production, and a committed baseline with provenance; identity and tenancy (Sign in with Xero, memberships, row-level security, HttpOnly sessions, consent); reliability (durable jobs, per-task sessions, resilience, backups); LLM core v2 (native structured outputs, measured routing and caching, calibration); then the review layer itself (HMRC knowledge retrieval with citations, a findings engine with a planted-error eval, CSV/OFX import), guardrails, the agentic reviewer, evidence-based explanations, an MCP server. Each phase, its reasoning and the constraints it works under are in [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md). Planned, not built.
 
 ## Running locally
 
-**Prerequisites**: Docker Desktop, Python 3.12, Node.js 18+
+Prerequisites: Docker Desktop, Python 3.12 (CI uses 3.12; the project declares 3.11 or later), Node 20.
 
 ```bash
-# 1. Clone and start the database
-git clone <repo>
-docker-compose up -d          # PostgreSQL 16 + pgvector, Redis
+git clone https://github.com/rajo69/agentic-ai-accounting
+cd agentic-ai-accounting
+docker compose up -d                      # Postgres 16 with pgvector, Redis 7
 
-# 2. Backend
 cd backend
-cp .env.example .env
-# Edit .env: fill in XERO_CLIENT_ID, XERO_CLIENT_SECRET, ANTHROPIC_API_KEY
-
-pip install -e ".[dev,ai,docs]"
+cp .env.example .env                      # fill in XERO_CLIENT_ID, XERO_CLIENT_SECRET, ANTHROPIC_API_KEY
+pip install -e ".[dev,ai,docs]"           # sentence-transformers pulls PyTorch (large); MiniLM weights download on first embed
 alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 
-# 3. Frontend
-cd frontend
+cd ../frontend
 npm install
-npm run dev                   # http://localhost:3000
+npm run dev                               # http://localhost:3000; set NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-Environment variables (`backend/.env`):
-
-```
-DATABASE_URL=postgresql+asyncpg://aiaccountant:localdev123@localhost:5432/aiaccountant
-DATABASE_URL_SYNC=postgresql://aiaccountant:localdev123@localhost:5432/aiaccountant
-REDIS_URL=redis://localhost:6379
-SECRET_KEY=change-me-in-production
-XERO_CLIENT_ID=
-XERO_CLIENT_SECRET=
-XERO_REDIRECT_URI=http://localhost:8000/auth/xero/callback
-XERO_WEBHOOK_KEY=                                                    # optional; from Xero developer portal
-ANTHROPIC_API_KEY=
-FRONTEND_URL=http://localhost:3000
-SENTRY_DSN=                                                          # optional; from sentry.io project settings
-ENVIRONMENT=development                                              # development | production
-```
-
----
+The Xero app needs a redirect URI of `http://localhost:8000/auth/xero/callback`. WeasyPrint needs its system libraries (Cairo, Pango) for PDF generation; the demo mode needs none of this and runs with the frontend alone. The variables in `backend/.env.example` are the complete set; Sentry, Resend and the webhook key are optional and the app runs without them.
 
 ## Tests
 
 ```bash
-cd backend
-
-pytest -x -v                          # full test suite
-pytest tests/test_health.py           # health endpoint
-pytest tests/test_xero_integration.py # OAuth mock, sync methods
-pytest tests/test_categorise.py       # categorisation agent (mocked Claude)
-pytest tests/test_reconcile.py        # reconciliation scoring + Decimal edge cases
-pytest tests/test_documents.py        # document generation
-pytest tests/test_xai.py              # fuzzy engine + EBM explainer
-pytest tests/test_encryption.py      # Fernet token encryption + legacy fallback
-pytest tests/test_webhooks.py        # Xero webhook signature verification
-
-cd frontend
-npm run lint
-npx tsc --noEmit
+cd backend && pytest -q                         # 93 tests in 12 files; Xero and Anthropic are mocked, runs offline
+cd backend && python -m evals.eval_runner --mode mock   # harness smoke run, no API calls
+cd frontend && npx tsc --noEmit && npm run lint && npm run build
 ```
 
-The test suite mocks all external API calls (Xero, Anthropic) so tests run offline without credentials.
-
----
-
-## Cost model
-
-### Per-operation costs
-
-| Operation | Model | Approx. cost |
-|---|---|---|
-| Transaction categorisation — primary only | Claude Haiku | ~$0.0013 |
-| Transaction categorisation — Sonnet escalation (only when Haiku confidence < 0.85) | Claude Sonnet | ~$0.0047 additional |
-| Transaction categorisation — blended expected cost (est.) | Haiku + occasional Sonnet | ~$0.0013–$0.0025 |
-| Reconciliation explanation | Deterministic template (no LLM) | $0.00 |
-| Management letter | Claude Sonnet | ~$0.011 |
-| Embeddings | sentence-transformers (local) | $0.00 |
-
-Blended cost assumes roughly 10–25% of transactions fall below the 0.85 confidence threshold and trigger an escalation call. The exact ratio will shift per organisation as the pgvector few-shot store grows — firms with more labelled history will hit fewer escalations.
-
-### At scale
-
-| Customers | Transactions per month | API cost per month |
-|---|---|---|
-| 5 (beta) | 1,000 | ~$0.52 |
-| 20 | 4,000 | ~$2.06 |
-| 100 | 20,000 | ~$10.30 |
-
-At 100 customers paying £49 per month, API cost is under 0.2% of revenue.
-
-### Cost optimisation mechanisms
-
-1. **Tiered model routing**: every categorisation starts on Haiku; Sonnet is only invoked when Haiku's confidence falls below the auto-accept threshold. Confident-easy transactions never pay Sonnet cost. See [Tiered model routing](#tiered-model-routing-cost-aware-escalation).
-2. **Auto-categorisation reduces volume**: as the pgvector few-shot store grows, more transactions hit the above-0.85 threshold and are categorised without prompting. Cost per new transaction trends toward zero as patterns repeat.
-3. **Reconciliation uses no LLM at all**: matching is deterministic scoring; the explanation is a fixed template. Zero per-reconciliation inference cost.
-4. **Eval caching**: `response_cache.py` makes all eval reruns free after the first run.
-5. **Concurrency cap**: `asyncio.Semaphore(5)` in `categorise_batch()` prevents runaway parallel API calls.
-6. **Embeddings computed once**: stored in the `embedding` column and reused until a correction triggers re-embedding.
-
----
-
-## Deployment
-
-### Backend to Railway
-
-```
-# Railway reads this from Procfile:
-web: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
-```
-
-Railway auto-provisions PostgreSQL 16 with pgvector and Redis. Set `ANTHROPIC_API_KEY`, `XERO_CLIENT_ID`, `XERO_CLIENT_SECRET`, `XERO_REDIRECT_URI`, and `SECRET_KEY` in the Railway dashboard. `DATABASE_URL` and `REDIS_URL` are injected automatically.
-
-### Frontend to Vercel
-
-Connect the repository to Vercel, set `NEXT_PUBLIC_API_URL` to the Railway backend URL, and deploy. Auto-deploy on push to `main`.
-
-After deploying, update `XERO_REDIRECT_URI` in Railway and in the Xero Developer Portal to `https://yourdomain.com/auth/xero/callback`.
-
-### Migrations in production
-
-Alembic runs as part of the startup command; the server will not start if there are pending migrations, which prevents schema drift between deployments.
-
----
-
-## GDPR compliance
-
-The product handles financial data on behalf of UK accounting firms. The following table maps each relevant GDPR data-subject right to the code that fulfils it.
-
-| Right | GDPR Article | How it is implemented |
-|---|---|---|
-| Right of access | Article 15 | `GET /api/v1/gdpr/export` returns all stored data as structured JSON |
-| Right to data portability | Article 20 | Same endpoint; response is machine-readable JSON suitable for import into another system |
-| Right to erasure | Article 17 | `DELETE /api/v1/gdpr/erase` deletes all org rows in FK-safe order; session invalidated immediately |
-| Right to explanation | Article 22 | Every AI decision stores its full reasoning in `AuditLog.ai_decision_data`; surfaced via `GET /api/v1/transactions/{id}/explanation` |
-| Data minimisation | Article 5(1)(c) | Xero OAuth tokens are excluded from exports; embedding vectors are excluded as derived, non-personal data |
-| Security of processing | Article 32 | All data routes require Bearer JWT scoped to `organisation_id`; CORS restricts allowed HTTP methods and headers |
-
-**Known gaps before production use**: There is no automated data retention policy; old audit logs are retained indefinitely.
-
----
-
-## Research foundations
-
-The AI and XAI components in this project are grounded in established research. The following references document the academic basis for the key techniques.
-
-**Fuzzy logic inference (XAI risk scoring)**
-
-Mamdani, E.H. and Assilian, S. (1975). An experiment in linguistic synthesis with a fuzzy logic controller. *International Journal of Man-Machine Studies*, 7(1), pp.1-13.
-
-The fuzzy risk engine in `xai/fuzzy_engine.py` implements Mamdani-style min-AND inference with centroid defuzzification, as described in this paper. The rule base is intentionally human-readable so domain experts can challenge and revise it without ML expertise. The membership function shapes and rule weights were chosen heuristically based on domain knowledge; formally deriving and empirically validating them against labelled risk outcomes is an open research question that a structured academic collaboration would address.
-
-**Explainability in AI systems**
-
-Hagras, H. (2018). Toward human-understandable, explainable AI. *Computer*, 51(9), pp.28-36.
-
-Provides the theoretical framing for why interpretability must be designed in from the start rather than approximated after the fact. This informed the decision to use glass-box models (EBM, fuzzy logic) rather than post-hoc explanation of black-box models.
-
-**Explainable Boosting Machine (feature importances)**
-
-Lou, Y., Caruana, R. and Gehrke, J. (2012). Intelligible models for classification and regression. *Proceedings of the 18th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, pp.150-158.
-
-EBM is the model class used in `xai/explainer.py` for feature importance once 50 or more labelled transactions are available. Its additive structure means each feature's contribution to the final prediction is directly readable without approximation.
-
-**Shapley value theory (feature attribution)**
-
-Lundberg, S.M. and Lee, S.I. (2017). A unified approach to interpreting model predictions. *Advances in Neural Information Processing Systems*, 30.
-
-Provides the theoretical basis for the feature attribution design. EBM was chosen in part because its additive structure gives each feature a directly interpretable contribution that shares the consistency and local accuracy guarantees of Shapley values, without requiring a separate post-hoc attribution step. SHAP is not called directly; the choice of EBM as the glass-box model is informed by this work.
-
-**Retrieval-augmented generation (document generation)**
-
-Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., Kuttler, H., Lewis, M., Yih, W., Rocktaschel, T., Riedel, S. and Kiela, D. (2020). Retrieval-augmented generation for knowledge-intensive NLP tasks. *Advances in Neural Information Processing Systems*, 33.
-
-The management letter pipeline (`services/document_service.py`) follows the RAG pattern: retrieve relevant transaction context via pgvector similarity search, then condition the generative model on that retrieved context rather than relying on parametric memory alone.
-
-**Sentence embeddings (semantic similarity search)**
-
-Reimers, N. and Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using siamese BERT-networks. In *Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)*, pp. 3982-3992.
-
-The `sentence-transformers/all-MiniLM-L6-v2` checkpoint used in `services/embedding_service.py` is built on the Sentence-BERT framework introduced in this paper. Applying siamese network structures to a transformer encoder produces fixed-size sentence embeddings where cosine distance correlates with semantic similarity, making nearest-neighbour lookup practical at inference time. These 384-dimensional embeddings are stored in the `transactions.embedding` pgvector column and queried to retrieve the five most semantically similar categorised transactions as few-shot examples for each new classification.
-
-**In-context learning and few-shot prompting**
-
-Brown, T.B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J.D., Dhariwal, P., Neelakantan, A., Shyam, P., Sastry, G., Askell, A., Agarwal, S., Herbert-Voss, A., Krueger, G., Henighan, T., Child, R., Ramesh, A., Ziegler, D., Wu, J., Winter, C., Hesse, C., Chen, M., Sigler, E., Litwin, M., Gray, S., Chess, B., Clark, J., Berner, C., McCandlish, S., Radford, A., Sutskever, I. and Amodei, D. (2020). Language models are few-shot learners. *Advances in Neural Information Processing Systems*, 33.
-
-The categorisation agent relies on in-context learning: the prompt includes five semantically retrieved examples of previously categorised transactions from the same organisation, conditioning the model at inference time without any gradient updates or fine-tuning. This approach, central to the GPT-3 findings in this paper, enables the system to adapt to an organisation's specific transaction vocabulary and chart-of-accounts conventions by accumulating corrections in the vector store rather than through a separate retraining pipeline.
-
-**Agentic AI and reasoning-action loops**
-
-Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K. and Cao, Y. (2023). ReAct: Synergizing reasoning and acting in language models. In *Proceedings of the International Conference on Learning Representations (ICLR)*.
-
-The LangGraph graph architecture used for both the categorisation and reconciliation agents follows the principle introduced in this paper: interleaving reasoning steps with observable actions in an explicit, inspectable loop. Each graph node is a distinct, independently testable step (fetch context, classify, validate, decide, explain), making the decision trace auditable at each stage rather than collapsed into a single opaque model call.
-
-**Bank transaction classification**
-
-Toran, L., Van Der Walt, C., Sammarone, A. and Keller, A. (2023). Scalable and weakly supervised bank transaction classification. arXiv preprint arXiv:2305.18430.
-
-Provides directly comparable empirical evidence for the classification task this system addresses. The paper presents a pipeline combining weak supervision, text embeddings, and neural networks to classify bank transactions with minimal manual labelling, reporting that transaction descriptions alone carry sufficient signal for category prediction. The few-shot pgvector approach in this project is a complementary strategy: rather than weak supervision labels, it uses an accountant's own correction history as the labelled set, which grows incrementally with use.
-
----
-
-## Open research questions
-
-The following questions arose from building this system and remain genuinely open in the accounting AI literature. The infrastructure built here makes them tractable to study empirically.
-
-**1. Per-organisation confidence calibration**
-
-The agent uses fixed confidence thresholds (0.85 for auto-accept, 0.50 for suggest). These were chosen from the evaluation fixture set, which represents a generalised UK SME. In practice, different accounting firms have different transaction patterns: a construction firm with irregular project-based payments will have a different confidence distribution from a retail business with high-frequency card transactions. The open question is whether thresholds should be calibrated per organisation, and if so, what method (Platt scaling, isotonic regression, conformal prediction) produces the best-calibrated scores across firm types with limited labelled data.
-
-**2. Explanation utility: do explanations change human decisions?**
-
-The system generates three layers of explanation for every AI decision: LLM reasoning text, EBM feature contributions, and a fuzzy risk score. Whether these explanations actually improve accountant decision quality has not been measured. A controlled evaluation comparing review time, correction rate, and confidence of human decisions with and without the explanation panel would establish whether the added complexity is worthwhile, and which layer (text, feature bars, risk badge) carries the most decision-relevant information.
-
-**3. EBM vs LLM fallback: the crossover point**
-
-Below 50 labelled transactions, the system falls back to the LLM's reasoning text for feature attribution. Above 50, it trains an EBM. The threshold of 50 was chosen conservatively; the actual crossover point at which EBM outperforms the LLM fallback in this domain is unknown. A learning curve analysis varying labelled set size from 10 to 500 samples would identify this crossover and inform the cold-start strategy for new client onboarding.
-
-**4. Active learning for human-in-the-loop efficiency**
-
-Currently, human review is triggered passively: transactions below the confidence threshold are surfaced in arrival order. An active learning strategy would instead select transactions for review that would maximally reduce model uncertainty, for example those in sparse regions of the embedding space or near the decision boundary. The question is whether intelligent selection reduces the number of human corrections required to reach a target accuracy, and by how much, compared to passive threshold-based review.
-
-**5. Tiered model routing: where is the true cost/accuracy optimum?**
-
-The production agent escalates from Haiku to Sonnet when Haiku's confidence is below 0.85 (the auto-accept threshold). This is a principled choice but has not been empirically optimised. The open questions are (a) whether the escalation threshold should match the auto-accept threshold or sit slightly higher — say, escalating at < 0.90 so Sonnet can push "already-going-to-auto-accept" Haiku decisions to an even higher-confidence state when the stakes are high; (b) whether the escalation should go to Sonnet at all versus another model (Opus for the hardest fixtures, a fine-tuned Haiku when enough labelled data exists); (c) whether tier decisions should be per-organisation, since an easier-distribution firm may never need Sonnet and a harder-distribution firm may benefit from Opus. A proper answer requires running the two baseline eval modes and a composite tiered analysis (see "Running evals").
-
----
-
-## Engineering challenges encountered during the build
-
-This section documents non-obvious technical problems that arose during construction and how they were resolved. These are real issues that required investigation, not anticipated design decisions.
-
----
-
-### Anthropic has no embeddings endpoint
-
-**Problem**: The original design used OpenAI for both LLM classification and embeddings (`text-embedding-3-small`, 1536 dimensions). Midway through Phase 3, the decision was made to switch to Anthropic Claude as the LLM. Anthropic does not provide an embeddings API.
-
-**Resolution**: Decoupled the two concerns entirely. Embeddings are now handled by `sentence-transformers/all-MiniLM-L6-v2` running locally in-process, producing 384-dimensional vectors at zero API cost. The pgvector column was resized from 1536 to 384 via an Alembic migration. `asyncio.to_thread()` offloads the CPU-bound embedding work from the async event loop. The LLM and embedding concerns are now fully independent and can be swapped separately.
-
----
-
-### LangGraph nodes need database access without polluting graph state
-
-**Problem**: LangGraph nodes are standalone functions that transform a state dict. Each node in the categorisation agent needs an async SQLAlchemy session for database queries. Passing the session through the state dict would pollute it (sessions are not serialisable) and break any future state persistence.
-
-**Resolution**: Used a factory/closure pattern. `build_categoriser_graph(db: AsyncSession)` captures the session in a closure and returns the compiled graph. Each node is a nested function that closes over `db` without it ever appearing in the state dict. The same pattern is used in the reconciliation agent.
-
----
-
-### Single-model categorisation leaves cost/accuracy on the table in both directions
-
-**Problem**: The initial design used Claude Haiku for every categorisation. Haiku scored 88% overall on the 50-fixture eval but only 75% on the hard tier — driven by ambiguous descriptions where Haiku produced low-confidence guesses rather than strong predictions. Switching the whole pipeline to Sonnet would cost ~3.75× per call (per `backend/evals/cost_tracker.py` pricing) for negligible gain on the easy tier (where Haiku already hits 93.5% and confidence is high). Two failure modes at once: overpaying on easy fixtures, under-reasoning on hard ones.
-
-**Resolution**: Implemented tiered model routing in the `classify` node. Haiku runs first; if its confidence is below the 0.85 auto-accept threshold, Sonnet is invoked with the same prompt and its answer replaces Haiku's. On Sonnet failure (API error, timeout), Haiku's original prediction is retained so no transaction is ever left without a result. The audit log records which model produced the final answer, whether escalation fired, the primary-model confidence, and the threshold in effect. The escalation threshold is deliberately the same value as the auto-accept threshold — below it, surfacing Sonnet's stronger reasoning to the human reviewer is always the better choice; above it, Haiku is trusted. Sonnet is left on the bare model alias because narrative-quality model patches from Anthropic should flow in automatically. Haiku stays pinned to a dated release because it is the eval-critical model where reproducibility matters. As of this commit, the end-to-end tiered accuracy has not been measured on a live eval run; a reproduction command is documented in the evals section and the tiered row in the comparison table is explicitly marked as pending.
-
----
-
-### Structured LLM output fails silently without Instructor
-
-**Problem**: The first implementation called Claude and parsed the response with string splitting. This worked on simple cases but failed whenever Claude added preamble text ("Sure, here is the classification..."), changed field ordering, or used slightly different key names. The failures were silent: the parser returned a wrong category rather than raising an error.
-
-**Resolution**: Replaced all free-text parsing with `instructor[anthropic]`. Instructor uses Anthropic's tool-use feature to force the model to return data conforming to a Pydantic model schema. If the output fails validation, Instructor retries automatically. The `CategoryPrediction` model is now the contract between the agent and Claude; any deviation raises a validation error rather than silently producing a bad prediction.
-
----
-
-### Xero OAuth2 scope names changed as a breaking change in March 2026
-
-**Problem**: Xero introduced granular OAuth2 scopes for applications created after 2 March 2026. The original scope list used broad format strings (`accounting.transactions.read`). The application was created on 22 March 2026, so all authorisation attempts returned `unauthorized_client: Invalid scope`.
-
-**Resolution**: Iteratively tested scope name formats against Xero's token endpoint. The colon format (`accounting.transactions:read`) was also incorrect. The working format uses dot notation with specific resource names: `accounting.banktransactions.read`, `accounting.invoices.read`, `accounting.contacts.read`, `accounting.settings.read`. Updated the adapter and documented the breaking change in the decisions log.
-
----
-
-### Python bytecode cache masking live code changes
-
-**Problem**: After updating the OAuth2 scope names in `xero_adapter.py`, the running server continued serving the old (invalid) scopes despite uvicorn's `--reload` flag being active. The behaviour was reproducible: the corrected scope strings were in the source file, but the authorisation URL still contained the old ones.
-
-**Resolution**: Python's `.pyc` bytecode cache files in `__pycache__/` directories preserved the compiled version of the old source. Uvicorn's file watcher detected the modification but the import system served the cached bytecode. Clearing all `__pycache__` directories and restarting the process resolved it. The lesson: `--reload` watches for file changes to trigger restart, but does not invalidate the bytecode cache independently.
-
----
-
-### Naive `LIMIT 1` query returns the wrong organisation in a multi-tenant setup
-
-**Problem**: During local testing with both a seed "Demo Company Ltd" organisation and a real connected "Agentic AI Demo" organisation in the database, the `_get_org()` helper used `SELECT ... LIMIT 1` without ordering or filtering. PostgreSQL's heap scan order is non-deterministic; the query returned the seed org (which had no Xero token) roughly half the time, causing every Xero API call to fail with a 400 error.
-
-**Resolution**: Added `WHERE xero_access_token IS NOT NULL` to all `_get_org()` calls across route files. This ensures the query always returns the live connected organisation regardless of row storage order. A longer-term fix (scoping by JWT-derived organisation_id) is part of the Phase 8 auth work.
-
----
-
-### Xero Demo Company bank statement data is not accessible via the Accounting API
-
-**Problem**: The Xero UK Demo Company shows 29 bank statement lines in the reconciliation UI. The expectation was that `GET /BankTransactions` would return these. It returns zero results, as do `GET /Invoices` and `GET /Payments`.
-
-**Resolution**: The Demo Company's bank statement lines are loaded via Xero's internal bank feed layer, which is separate from the Accounting API layer that third-party apps can access. They are visible in the UI but cannot be retrieved programmatically. The resolution was to create actual `BankTransactions` via the Xero UI (Spend Money entries) and use local seed data for AI pipeline validation rather than expecting the bank feed to be API-accessible.
-
----
-
-### shadcn v4 installs Tailwind v4 CSS-first config into a Tailwind v3 project
-
-**Problem**: `npx shadcn@latest init` installed shadcn v4, which assumes Tailwind CSS v4's CSS-first configuration (no `tailwind.config.ts`, all configuration in `globals.css` via `@import "tw-animate-css"` and `@import "shadcn/tailwind.css"`). The project was scaffolded with `create-next-app@14`, which generates a Tailwind v3 setup. The two approaches are incompatible and the build failed immediately.
-
-**Resolution**: Rewrote `globals.css` to use standard Tailwind v3 directives (`@tailwind base`, `@tailwind components`, `@tailwind utilities`) with HSL CSS custom properties for all colour tokens. Rewrote `tailwind.config.ts` to map all shadcn colour tokens (`background`, `primary`, `border`, `ring`, etc.) to `hsl(var(--token-name))`. All shadcn components then work as expected against the v3 config.
-
----
-
-### Next.js frontend initialised its own git repository inside the monorepo
-
-**Problem**: `create-next-app` ran `git init` inside `frontend/`, creating a nested repository. When staged to the outer repo, Git treated `frontend/` as a submodule reference (mode `160000`) rather than tracking its files. The commit showed `frontend` as a single line with no contents; all frontend source was invisible in the repository.
-
-**Resolution**: Removed `frontend/.git`, ran `git rm --cached frontend` to deregister the gitlink entry from the outer index, then re-added all frontend files as regular tracked files with `git add frontend/`. The outer repository now owns all frontend source directly with no submodule relationship.
-
----
-
-### Decimal and float type mixing in reconciliation scoring
-
-**Problem**: The reconciliation scoring pipeline mixes two numeric types: financial amounts from the database are `Decimal` (required for financial accuracy), while RapidFuzz returns similarity ratios as `float` in the range 0 to 100. Naive combination causes either a `TypeError` or silent precision loss depending on Python's coercion rules.
-
-**Resolution**: Maintained a strict type boundary. All amount comparisons use `Decimal` arithmetic exclusively. The scoring formula converts amounts to `float` only for the final weighted sum (which is a statistical score, not a financial amount and carries no monetary meaning). The rule: financial data stays `Decimal`, ML scores stay `float`, and the two never mix in a financial calculation.
-
----
-
-### GitHub Actions CI requires a pgvector-enabled PostgreSQL and native WeasyPrint dependencies
-
-**Problem**: Standard GitHub Actions PostgreSQL service images do not include the pgvector extension. WeasyPrint requires system-level C libraries (Cairo, Pango, GLib, font packages) that are not present in a default Ubuntu runner. Both blockers produced CI failures that were not reproducible locally (where Docker and system libraries were already in place).
-
-**Resolution**: Replaced the default `postgres` service image with `pgvector/pgvector:pg16`, which ships with the extension pre-installed. Added an `apt-get install` step to the CI job for WeasyPrint's system dependencies before installing Python packages. Ran `alembic upgrade head` inside the CI job to apply schema migrations before pytest executes. These three steps together make the CI environment match the local development environment structurally.
-
----
-
-### FastAPI `dependency_overrides` is the correct test mechanism; `unittest.mock.patch` is not
-
-**Problem**: Integration tests were using `patch("app.api.v1.documents._get_org", ...)` to mock authentication. The routes use `Depends(get_current_org)` from a shared session module; there is no `_get_org` attribute on the route module. The tests raised `AttributeError` in CI. A secondary problem: tests expected HTTP 404 for unauthenticated requests, but `get_current_org` raises `401` for all auth failures (no token, bad token, org not in database) before any database lookup that could produce a 404.
-
-**Resolution**: Replaced all `patch(...)` calls with `app.dependency_overrides[get_current_org] = lambda: fake_org`, using `try/finally` to clean up overrides after each test. For "no auth" tests, the correct assertion is `status_code == 401`; no mock_db setup is needed because the 401 fires before the database is touched. For "resource not found" tests (where auth succeeds but the record does not exist), both `get_current_org` and `get_db` must be overridden separately.
-
----
-
-### Tightening CORS to an explicit origin silently broke all API calls in production
-
-**Problem**: CORS was changed from `allow_origins=["*"]` to `allow_origins=[settings.frontend_url]` as a security improvement. `settings.frontend_url` defaults to `"http://localhost:3000"` when the environment variable is not set. In production the Vercel frontend has a different origin, so the browser's preflight check rejected every API call before it left the browser. The `fetch()` call threw a `TypeError` (no HTTP response, no status code), the dashboard's `catch` block set `error=true`, and the "Xero not connected" screen appeared. OAuth still worked because OAuth uses browser navigation (server-side redirect), not `fetch`, so CORS does not apply. This created a loop: connect Xero, get redirected back to the dashboard, see "not connected", connect again.
-
-**Resolution**: Reverted to `allow_origins=["*"]` with `allow_credentials=False`. Bearer-token authentication does not use cookies, so `allow_credentials=False` is both correct and required when using a wildcard origin. The key diagnostic insight was distinguishing between a CORS failure (a browser-level `TypeError`, no HTTP status visible to application code) and an authentication failure (HTTP 401, handled by the app).
-
----
-
-## Limitations
-
-These are genuine current limitations, not caveats to dismiss:
-
-**Categorisation accuracy depends on history volume.** The few-shot pgvector lookup improves as the accountant corrects predictions and the vector store grows. A brand-new organisation with zero labelled transactions gets only chart-of-accounts context; accuracy will be lower until approximately 50 confirmed transactions exist. The eval framework's acceptance criteria account for this, but new users should expect a short calibration period.
-
-**Confidence thresholds are not calibrated per client.** The 0.85 and 0.50 thresholds were chosen based on the evaluation fixture set. Different firms have different transaction patterns, and a threshold that works well for a retail client may be too aggressive for a construction firm with irregular payments. Threshold tuning per organisation is planned but not implemented.
-
-**Fuzzy risk scoring uses heuristic input normalisation.** `vendor_frequency` is normalised by dividing raw count by 20 (i.e., 20 or more appearances = "frequent"). This cap is arbitrary and may not fit all organisation sizes. A firm with 5,000 transactions per month will have different frequency distributions than one with 200.
-
-**JWT is stored in localStorage, not a secure httpOnly cookie.** The session token is written to `localStorage` in the browser, making it accessible to JavaScript and therefore to any XSS payload. For MVP with a limited beta audience this is an acceptable trade-off. Before handling regulated client data, the auth flow should be updated to store the token in a `Secure; HttpOnly; SameSite=Strict` cookie and remove it from `localStorage` entirely.
-
-**EBM requires 50 or more labelled samples.** Below this threshold, Layer 2 (feature importance) falls back to the LLM's reasoning text. New organisations will rely solely on Layers 1 and 3 (LLM reasoning and fuzzy risk) until sufficient data accumulates.
-
-**PDF rendering is CPU-intensive.** WeasyPrint renders HTML to PDF synchronously. For large management letters it can take 2 to 5 seconds. This is acceptable for an on-demand operation but would block the event loop if called frequently. It should be moved to a background worker before scaling.
-
-**No QuickBooks integration yet.** The XeroAdapter is the only accounting platform integration. The architecture is designed to accommodate additional adapters (the data models are platform-agnostic), but QuickBooks OAuth2 and API mapping is not implemented.
-
-**Tiered model routing has not been measured end-to-end on a live eval.** The `classify` node escalates from Haiku to Sonnet on low-confidence predictions, and the design is derived from the existing per-model accuracy data. A live comparison (Haiku-only vs Sonnet-only vs composite tiered) across the full 50-fixture set is documented and reproducible but not yet run — the two baseline rows and the tiered row in the comparison table are explicitly marked pending. The production code is correct and safe (failures fall back to Haiku, no transaction goes unanswered); the measurement is what's missing.
-
----
-
-## Future work
-
-Items scoped out of the current build, ordered by likely priority:
-
-| Item | Status |
-|---|---|
-| Token encryption at rest | **Done** — Fernet encryption with backwards-compatible `enc::` prefix |
-| Redis caching | **Done** — Dashboard summary cached 60s; webhook debounce |
-| Xero webhooks | **Done** — Real-time sync via HMAC-SHA256 signed webhook receiver |
-| Multi-user within an organisation | **Done** — User model with owner/member roles; invite, list, remove endpoints |
-| Additional document templates | **Done** — Profit & Loss and VAT Return Summary added |
-| Incremental Xero sync (`If-Modified-Since`) | **Done** — `last_sync_at` drives incremental pulls; HTTP 304 handled |
-| Error tracking and observability | **Done** — Sentry SDK with FastAPI / SQLAlchemy integrations |
-| Background PDF rendering | **Done** — in-process async tasks with DB-tracked job state and polling |
-| Rate limiting to cap Claude costs | **Done** — slowapi with per-organisation limits on expensive endpoints |
-| First-run onboarding | **Done** — OAuth callback auto-triggers a sync job; dashboard polls and shows progress |
-| Team management UI and invite emails | **Done** — `/team` page with invite/remove; Resend-backed emails |
-| Frontend error boundary | **Done** — graceful fallback UI for render-time React errors |
-| Tiered model routing (Haiku primary, Sonnet escalate on low confidence) | **Done** — implemented in `classify` node; audit log carries model-used + escalation flag |
-| Live eval of tiered routing vs Haiku-only and Sonnet-only | Pending budget for the two baseline live runs; reproduction command documented |
-| Per-organisation confidence threshold tuning | Requires sufficient data to calibrate; post-beta |
-| QuickBooks adapter | Second platform; same architecture, different OAuth2 flow |
-| Stripe billing integration | Post-beta; add when users confirm willingness to pay |
-| Background PDF rendering | Needed at scale; move WeasyPrint to Celery worker |
-| GDPR formal compliance audit | Basic data export and erasure endpoints are implemented; formal ICO registration and DPA review are post-revenue |
-| Fine-tuning on categorisation corrections | Potential accuracy improvement; expensive; evaluate after sufficient data |
-
----
-
-## Absolute invariants
-
-Rules that must survive refactoring and new contributors:
-
-| Rule | Reason |
-|---|---|
-| `Decimal` for all money (`NUMERIC(12,2)` in DB) | Float rounding causes penny errors in reconciliation; a critical trust failure |
-| Every AI decision writes to `AuditLog` | Professional accountability; GDPR right to explanation |
-| LLM calls only in `services/` or `agents/` | Routes must never call Claude directly |
-| Xero calls only via `XeroAdapter` | Centralised token refresh, rate limiting, retry logic |
-| Structured LLM output via Instructor | Never parse free text from LLM |
-| Tests before commit | Minimum: one happy-path test per new endpoint or service method |
-| SPEND transactions stored as negative | Consistent with double-entry accounting |
-| Confidence thresholds are not hardcoded | Will need tuning per customer; keep them configurable |
-
----
+CI runs the backend suite against a pgvector Postgres service with migrations applied, then the frontend type check and lint. Known limitation, from the review: the unit tests mock the database session, so they never exercise Postgres; the tenant-isolation, batch-concurrency and VAT-arithmetic findings were all invisible to them. A database-backed test layer is roadmap phase 0.
 
 ## Project structure
 
 ```
-.
-├── docker-compose.yml               PostgreSQL 16 + pgvector, Redis
-├── docs/
-│   └── ARCHITECTURE.md             Full design rationale and tech decisions
-└── backend/
-    ├── pyproject.toml
-    ├── Dockerfile
-    ├── Procfile                     Railway deployment command
-    ├── alembic/                     6 migrations (schema, embedding resize, documents, users, jobs)
-    └── app/
-        ├── main.py                  FastAPI app, routers, CORS, lifespan
-        ├── core/                    config, database, session/JWT, encryption, cache,
-        │                            observability (Sentry), jobs (background tasks),
-        │                            rate_limit (per-org slowapi), email (Resend)
-        ├── models/                  SQLAlchemy models + Pydantic v2 schemas
-        ├── integrations/            xero_adapter.py
-        ├── services/                embedding_service.py, document_service.py
-        ├── agents/                  categoriser.py, reconciler.py (LangGraph)
-        ├── xai/                     explainer.py (EBM), fuzzy_engine.py (custom Mamdani)
-        ├── api/v1/                  health, auth, sync, dashboard, categorise,
-        │                            reconcile, documents, explanations, gdpr, webhooks, jobs
-        ├── templates/               management_letter.html, profit_loss.html,
-        │                            vat_summary.html (Jinja2 + WeasyPrint)
-        └── tests/ + evals/          test suite + evaluation harness
-frontend/
-    └── src/
-        ├── middleware.ts            Next.js route protection (redirects to / if has_session cookie absent)
-        ├── app/                     page.tsx (landing), dashboard, transactions,
-        │                            reconciliation, documents, team, auth/callback, privacy
-        ├── components/              app-shell, sidebar, aurora, explanation-panel,
-        │                            error-boundary, gradient-text, fluid-glass-button, shadcn/ui
-        └── lib/                     api.ts (fetch wrapper + types), utils.ts
+backend/
+  app/
+    api/v1/          auth, sync, dashboard, categorise, reconcile, documents, explanations, gdpr, webhooks, jobs
+    agents/          categoriser.py, reconciler.py (LangGraph)
+    services/        embedding_service.py, document_service.py
+    integrations/    xero_adapter.py
+    xai/             fuzzy_engine.py, explainer.py (EBM experiment)
+    core/            config, database, session (JWT), encryption, cache, jobs, rate_limit, observability, email
+    models/          SQLAlchemy models, Pydantic schemas
+    templates/       management_letter.html, profit_loss.html, vat_summary.html
+  alembic/           six migrations
+  tests/             twelve files, 93 tests
+  evals/             harness, fixtures (50 transactions, 20 accounts), cost tracker, cache
+frontend/src/
+  app/               landing, dashboard, transactions, reconciliation, documents, team, settings, demo, privacy, auth/callback
+  components/        app shell, sidebar, explanation panel, landing/*, app/*, ui/*
+  demo/              fake server, seed, store, jobs, reconciler port
+  lib/               api.ts (apiFetch and types), motion presets
+docs/                ARCHITECTURE.md, PRODUCTION_ROADMAP.md, ENGINEERING_RECORD.md, media/, history/
 ```
-
----
 
 ## Changelog
 
-### v0.2.8 — 2026-04-12
-
-**Tiered model routing in the categorisation agent** — The `classify` node now escalates from Claude Haiku to Claude Sonnet 4.6 when the primary prediction's confidence is below the 0.85 auto-accept threshold. Escalation runs the same prompt against the stronger model and its answer replaces Haiku's. If the escalation call errors, Haiku's original prediction is retained (no transaction goes unanswered). The audit log now records `ai_model` as whichever model produced the final prediction, and `ai_decision_data` carries the new keys `escalated` (bool), `primary_model`, `primary_confidence`, and `escalation_threshold` so every decision is reconstructible.
-
-The rationale is cost-aware: Haiku is ~3.75× cheaper per token than Sonnet (per `backend/evals/cost_tracker.py` pricing) and sufficient on the easy tier (93.5% accuracy), so the common case pays Haiku pricing; only borderline predictions pay Sonnet pricing. Blended expected cost per categorisation is ~$0.0013–$0.0025 depending on escalation rate, versus a flat ~$0.0047 if the whole pipeline ran on Sonnet.
-
-The asymmetric model-pinning policy is documented explicitly: Haiku is pinned to `claude-haiku-4-5-20251001` because it is in the eval-critical and auto-categorise paths where reproducibility matters; Sonnet is left on the bare alias `claude-sonnet-4-6` because it runs only in narrative generation and as the escalation model, and benefits from flowing-in quality patches. The policy is called out in the "Tiered model routing" section of the README.
-
-All 93 existing tests pass without modification — the tiered-routing change is internal to `classify` and does not alter the node's state contract. A live eval of tiered vs Haiku-only vs Sonnet-only is pending; reproduction command and a comparison-table scaffold are in the README evals section.
-
-### v0.2.7 — 2026-04-12
-
-**Frontend error boundary** — New `ErrorBoundary` component in `src/components/error-boundary.tsx` wraps the authenticated app content in `AppShell`. Render-time React errors that would previously crash the whole page to a blank screen now surface a graceful fallback with "Try again" and "Refresh page" buttons. The error message is shown in development for quick debugging; hidden in production so end users don't see stack traces. The boundary catches only render-time errors by design (React's documented behaviour); async/event handler errors are still handled at the call site with try/catch plus toasts.
-
-### v0.2.6 — 2026-04-12
-
-**Team management UI and invite emails** — New `/team` page in the frontend lists all users in the organisation with their role (owner or member), join date, and email. Owners see an "Invite member" button that opens a small form to enter name and email. On submit, a `POST /api/v1/auth/invite` creates the member record and sends an invitation email via Resend (HTML + plain text). Owners can remove members they're not themselves; the owner cannot be removed. New "Team" link added to the sidebar. Email sending is best-effort: if `RESEND_API_KEY` is not set or Resend is down, the invite still succeeds — the email is just skipped with a warning log.
-
-### v0.2.5 — 2026-04-12
-
-**First-run onboarding** — When a new organisation completes Xero OAuth, the callback now auto-submits an initial sync as a background job and passes the `job_id` through to the frontend via a query parameter. The auth callback page stashes it in `sessionStorage`, and the dashboard polls the job on first load, displaying "Importing your Xero data…" with progress updates and a success toast when done. The first-run banner switches to a "Setting up your account…" state while the sync runs. If the auto-sync fails, the user sees a clear toast and the manual Sync button still works. Only triggers on first connection (`last_sync_at is None`), so existing orgs aren't disturbed.
-
-### v0.2.4 — 2026-04-12
-
-**Per-organisation rate limiting** — The expensive endpoints (`POST /sync`, `POST /categorise`, `POST /reconcile`, `POST /documents/generate`, and their `/async` variants) now enforce rate limits keyed on the Bearer token's `org_id`. Limits are tuned to allow legitimate testing while preventing runaway Claude API costs from a buggy client or retry storm.
-
-Limits applied:
-- `POST /sync`: 5/minute (Xero already rate limits at 60/min upstream)
-- `POST /categorise` and `/async`: 5/minute, 120/hour
-- `POST /reconcile` and `/async`: 5/minute, 120/hour
-- `POST /documents/generate` and `/async`: 3/minute, 30/hour
-
-A clean 429 response with `Retry-After: 60` header and a JSON body explaining the limit is returned when exceeded. Unauthenticated requests (e.g. the webhook endpoint) fall back to per-IP keying. Currently uses in-memory storage — upgrade path to Redis backend is one line in `app/core/rate_limit.py` if the app scales to multiple Railway replicas.
-
-### v0.2.3 — 2026-04-12
-
-**Background jobs for long-running operations** — New `jobs` table and `POST /api/v1/{categorise,reconcile,documents/generate}/async` endpoints. These return a `{job_id}` immediately and run the work in an `asyncio.create_task` with its own DB session; clients poll `GET /api/v1/jobs/{id}` for status. A startup hook marks any jobs stuck in `running` state from a previous process as `failed` with a clear error message, so restarts don't leave clients polling forever. Old synchronous endpoints are retained for backwards compatibility. Dashboard frontend migrated to the async endpoints with a 1.5-second polling interval. No new Railway services or job queue infrastructure required — all state lives in Postgres.
-
-### v0.2.2 — 2026-04-12
-
-**Sentry error tracking** — New `app/core/observability.py` integrates Sentry SDK with FastAPI, Starlette, and SQLAlchemy. Every authenticated request tags the active `org_id` and `org_name` on subsequent events. Xero sync and webhook background failures are explicitly captured with context. 10% transaction sampling for performance monitoring. Fully no-op if `SENTRY_DSN` is not configured — no crash, no overhead.
-
-**Incremental Xero sync** — `full_sync()` now uses the `If-Modified-Since` HTTP header with the previous `last_sync_at` as the cutoff. Xero returns only records modified since the last successful sync. First sync still pulls everything; subsequent syncs drop from minutes to seconds for large organisations. `last_sync_at` is only updated on success, so interrupted syncs safely resume from the previous checkpoint. `_get_with_retry` handles HTTP 304 Not Modified gracefully.
-
-### v0.2.1 — 2026-04-12
-
-**Xero Payments endpoint sync** — Added a third data source alongside `BankTransactions` and `Invoices`: the `GET /Payments` endpoint. This captures payment records against invoices and bills that the Xero Demo Company (and many real organisations) store as bank feed items — previously these were invisible to the Accounting API and the sync returned 0 transactions. Deduplicates against already-synced invoice records to prevent double-counting. Added the `accounting.transactions.read` OAuth scope; users who connected before this release need to reconnect Xero.
-
-### v0.2.0 — 2026-04-12
-
-Five production-readiness improvements, all backwards-compatible with the existing deployed app.
-
-**Token encryption** — Xero OAuth access and refresh tokens are now Fernet-encrypted at rest in the database. Uses an `enc::` prefix to distinguish encrypted values from legacy plaintext, so existing tokens continue to work and get encrypted on next refresh. Key is derived from `SECRET_KEY` via SHA-256.
-
-**Redis caching** — Dashboard summary endpoint is cached for 60 seconds per organisation, invalidated automatically after sync, categorise, or reconcile operations. The cache layer degrades gracefully: if Redis is unavailable or the package is not installed, the app works identically without caching.
-
-**Xero webhooks** — New `POST /api/v1/webhooks/xero` endpoint receives push notifications from Xero when bank transactions change. Validates the HMAC-SHA256 signature against `XERO_WEBHOOK_KEY`, then triggers a background sync for the affected organisation. Debounced via Redis to prevent multiple syncs within 60 seconds.
-
-**Multi-user support** — New `users` table with `owner` and `member` roles. The Xero OAuth callback creates an owner user automatically. JWT now carries `user_id` alongside `org_id`. New endpoints: `GET /api/v1/auth/team`, `POST /api/v1/auth/invite` (owner only), `DELETE /api/v1/auth/team/{id}` (owner only). Old tokens without `user_id` fall back to the org owner for backwards compatibility. GDPR export and erase updated to include user records.
-
-**Extra document templates** — Added Profit & Loss statement and VAT Return Summary alongside the existing Management Letter. Each template has its own figure calculator (pure Python) and LLM narrative model (Claude Sonnet via Instructor). The frontend documents page now shows a template selector. VAT calculations use account tax types from Xero to split by UK VAT rate.
-
----
+- **2026-10-10** README rewritten product-first; LICENSE added; privacy policy corrected; price constants and tier counts fixed; unverifiable accuracy and cost figures removed; architecture document split into current and historical. Demo follow-up (#4): jobs queue behind the first import and every pipeline action has work. Backend pin (#3): SQLAlchemy below 2.1 after the 2.1 release broke start-up. Launch (#2): design system, landing page rebuilt, browser-only demo mode, console restyle.
+- **2026-08-03** Response headers adjusted so the landing page can be embedded by the portfolio site.
+- **2026-04-17** Documentation audit (#1): reconciliation described as LLM-free throughout; line counts corrected.
+- **2026-04-13** Tiered model routing (Haiku first, Sonnet on low confidence; audit row records both). Scope regression fixed: `accounting.payments.read` replaces the deprecated broad scope that a Payments-sync commit had reintroduced.
+- **2026-04-12** v0.2.x series: Fernet token encryption, Redis cache, Xero webhooks, multi-user with owner and member roles, profit-and-loss and VAT templates, Payments sync, Sentry, incremental sync with `If-Modified-Since`, background jobs with polling, per-organisation rate limits, first-run onboarding, team page with Resend invitations, frontend error boundary.
+- **2026-03-22 to 2026-03-24** Initial build: FastAPI and SQLAlchemy scaffold, Xero OAuth and sync, categorisation and reconciliation graphs, document generation, fuzzy risk engine, Next.js console, CI, deployment.
 
 ## Licence
 
-MIT
+MIT. See [LICENSE](LICENSE). Copyright (c) 2026 Rajarshi Nandi.
