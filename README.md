@@ -61,6 +61,10 @@ Also: a small team per practice with owner and member roles, and GDPR export and
 
 **The demo** at [agentic-ai-accounting.vercel.app/demo](https://agentic-ai-accounting.vercel.app/demo) opens the console on a synthetic company, "Harlow & Finch Ltd", with fifty transactions and a quarter's statement lines. It runs entirely in your browser: reasoning and risk flags are replayed from fixtures, match scores are computed by a browser port of the reconciler, jobs are simulated, the PDFs were rendered once from the real templates, and nothing reaches the API or Xero. A banner says so on every screen. Add `?skip_onboarding=1` to start with the quarter already imported.
 
+**The video** is a two-minute product and engineering walkthrough, playable at the top of this page or [on YouTube](https://youtu.be/icLQG596Ctg) with chapters. It is generated from code, a Remotion composition in [`video/`](video/); [`video/README.md`](video/README.md) says how it was made.
+
+[![AI Accountant: the review layer for AI-categorised Xero books (2-minute video)](docs/media/video-thumbnail.png)](https://youtu.be/icLQG596Ctg)
+
 **With your own Xero**, from the [live app](https://agentic-ai-accounting.vercel.app) (sign-in is not yet hardened; see [known limitations](#known-limitations-and-next-steps)): the consent screen asks for read access to bank transactions, invoices, contacts, payments and settings, and currently also three write scopes the app never uses. Transaction details, which can include payee names, are sent to Anthropic for categorisation; tokens are stored encrypted; you can export or erase everything and disconnect from Xero's connected-apps settings. The [privacy policy](https://agentic-ai-accounting.vercel.app/privacy) lists every processor.
 
 ## Architecture
