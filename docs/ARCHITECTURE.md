@@ -52,7 +52,7 @@ not built.
 
 ## Known gaps
 
-The [README](../README.md#what-a-six-lens-review-found-2026-10-10) lists what the October 2026 review found, and the
+The [self-review](SELF_REVIEW.md) lists what the October 2026 review found, and the
 [production roadmap](PRODUCTION_ROADMAP.md) says what would change before real client data: a single LLM gateway with
 cost and telemetry, per-task database sessions in batch runs, durable jobs, row-level security, Sign in with Xero
 with memberships, eval replay gates in CI, guardrails for untrusted text, and an MCP server over the same tool
