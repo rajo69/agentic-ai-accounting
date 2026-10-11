@@ -44,6 +44,10 @@ music bed generated in Python. Nothing on screen is a number that cannot be veri
 AI accounting, Xero, Making Tax Digital, MTD, bookkeeping review, LLM, Claude, LangGraph, FastAPI, Next.js, Remotion,
 portfolio project, AI engineering
 
+## Published
+
+https://youtu.be/icLQG596Ctg (public, uploaded by the owner as a Premiere on 2026-10-11; title as above).
+
 ## After the upload (owner)
 
 1. Record the URL here and in the README video section (`docs/media/video-thumbnail.png` links to it).
