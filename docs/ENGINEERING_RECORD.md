@@ -110,7 +110,7 @@ that a documentation fix needs the same verification as a code fix, which is wha
 
 ### A six-lens review of my own repository
 **Problem.** CI was green at HEAD and nobody had checked whether the published behaviour matched the code.
-**Decision.** Six parallel review passes (security and tenancy, backend correctness, AI engineering, frontend,
+**Decision.** Six parallel review passes, run as Claude Code agents (security and tenancy, backend correctness, AI engineering, frontend,
 documentation honesty, toolchain) under one evidence standard: file and line, quoted code, severity, known or new.
 Every high finding re-read in source; the numerical ones reproduced. **Outcome.** 106 findings, 14 high, 0 critical,
 about 70% not previously known. The ones that mattered most: the EBM explainer had never produced output for

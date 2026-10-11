@@ -1,5 +1,6 @@
 # Changelog
 
+- **2026-10-11** How it was built: a statement of what Claude Code did and what the author did, in the README's About section, with the self-review and engineering record saying the review passes ran as Claude Code agents. `video/README.md` no longer contradicts itself about word-keyed and beat-keyed visuals.
 - **2026-10-11** README: the live app is described as the deployed build behind the demo, no longer offered as a place to connect real books while its sign-in is unhardened; real books go on a local copy.
 - **2026-10-11** Self-review quick wins, each with a test that failed first: every SPEND-family bank transaction stored as money out; fuzzy shoulder sets full at their edge, so extreme inputs score high or low instead of medium; validation stores the chart's own account code and name; PDF templates autoescape and WeasyPrint may load only `data:` URIs and template files; the Xero consent screen asks for read-only scopes.
 - **2026-10-11** README restructured by topic, with an at-a-glance block, a design-decisions table and a known-limitations section; the self-review findings moved to `docs/SELF_REVIEW.md` and this changelog out of the README. Launch video (#6): a Remotion composition with synthesised narration, word-timed captions and a generated music bed, embedded in the README and published on YouTube.
