@@ -2,8 +2,9 @@
 
 In October 2026 I ran six parallel review passes over the repository: security and tenancy, backend correctness, AI
 engineering, frontend, documentation honesty, and toolchain. All six used one evidence standard: file and line, quoted
-code, severity, and whether the plan already knew. Every high finding was re-read in source, and the numerical ones
-were reproduced. The pass produced 106 findings, 14 high and none critical, about 70% of them not previously known. A
+code, severity, and whether the plan already knew. The passes ran as parallel Claude Code agents; every high finding
+was then re-read in source and the numerical ones reproduced before being recorded, and I decided which findings to
+accept and what to fix first. The pass produced 106 findings, 14 high and none critical, about 70% of them not previously known. A
 66-row claim ledger graded every public statement TRUE, PARTLY, FALSE or UNVERIFIABLE; the README rewrite of
 2026-10-10 resolved every FALSE and PARTLY row.
 
