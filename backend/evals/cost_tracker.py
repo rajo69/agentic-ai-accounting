@@ -19,21 +19,21 @@ from typing import Optional
 
 
 # ---------------------------------------------------------------------------
-# Pricing table — update when Anthropic changes pricing
+# Pricing table: Anthropic list prices per million tokens, checked 2026-10-10.
 # https://www.anthropic.com/pricing
 # ---------------------------------------------------------------------------
 PRICING = {
     "claude-haiku-4-5-20251001": {
-        "input_per_1m": 0.80,
-        "output_per_1m": 4.00,
+        "input_per_1m": 1.00,
+        "output_per_1m": 5.00,
     },
     "claude-sonnet-4-6": {
         "input_per_1m": 3.00,
         "output_per_1m": 15.00,
     },
     "claude-opus-4-6": {
-        "input_per_1m": 15.00,
-        "output_per_1m": 75.00,
+        "input_per_1m": 5.00,
+        "output_per_1m": 25.00,
     },
 }
 
