@@ -16,13 +16,13 @@ export default function PrivacyPage() {
         </Link>
 
         <h1 className="mt-12 text-h2 text-foreground">Privacy policy.</h1>
-        <p className="mt-2 font-mono text-xs text-muted-foreground">Last updated 10 October 2026</p>
+        <p className="mt-2 font-mono text-xs text-muted-foreground">Last updated 11 October 2026</p>
 
         <h2 className={h2}>Who this is</h2>
         <p className={p}>AI Accountant is a portfolio project run by one developer, Rajarshi Nandi. It is not a registered accountancy service. This page describes what the live app does with data when you connect a Xero organisation. The demo at <code className={code}>/demo</code> uses a synthetic company and runs entirely in your browser: nothing is sent to a server and nothing is written to Xero.</p>
 
         <h2 className={h2}>What we collect</h2>
-        <p className={p}>When you connect Xero, the app reads your chart of accounts, bank transactions, invoices and payments through the Xero API and stores them in a PostgreSQL database hosted on Railway. Transaction descriptions can include the names of the people and businesses you pay or are paid by. The Xero consent screen currently asks for read and write permissions on bank transactions, invoices and contacts; the app only ever reads, and never writes anything back to Xero. Removing the unused write permissions is on the roadmap.</p>
+        <p className={p}>When you connect Xero, the app reads your chart of accounts, bank transactions, invoices and payments through the Xero API and stores them in a PostgreSQL database hosted on Railway. Transaction descriptions can include the names of the people and businesses you pay or are paid by. The Xero consent screen asks for read-only access; the app never writes anything back to Xero. Connections made before 11 October 2026 were also granted write permissions on bank transactions, invoices and contacts that the app never used; disconnecting the app in Xero&apos;s connected-apps settings removes them.</p>
 
         <h2 className={h2}>How we use it</h2>
         <p className={p}>To propose a category, the date, amount, description, reference, your chart of accounts and a few of your own previously categorised transactions are sent to Anthropic&apos;s Claude API. Descriptions may include payee and customer names, so personal data can reach Anthropic in that step. To draft a management letter, aggregated figures (totals, top categories, largest transactions) are sent to the same API. Reconciliation runs locally with no AI service. The explainability layer can fit a small interpretable model on your organisation&apos;s own categorised transactions once fifty exist; that model is being retired because Xero&apos;s developer terms forbid training models on API data.</p>

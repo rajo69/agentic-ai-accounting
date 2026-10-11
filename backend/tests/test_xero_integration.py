@@ -176,3 +176,91 @@ def test_sync_status_route_registered():
     assert "/api/v1/sync" in paths
     assert "/api/v1/sync/status" in paths
     assert "/api/v1/dashboard/summary" in paths
+
+
+# ---------------------------------------------------------------------------
+# Self-review fixes: SPEND subtypes and requested scopes
+# ---------------------------------------------------------------------------
+
+# Every BankTransaction type Xero documents; the SPEND family is money out.
+_BANK_TX_TYPES = {
+    "SPEND": Decimal("-10.00"),
+    "SPEND-TRANSFER": Decimal("-20.00"),
+    "SPEND-OVERPAYMENT": Decimal("-30.00"),
+    "SPEND-PREPAYMENT": Decimal("-40.00"),
+    "RECEIVE": Decimal("50.00"),
+    "RECEIVE-TRANSFER": Decimal("60.00"),
+    "RECEIVE-OVERPAYMENT": Decimal("70.00"),
+    "RECEIVE-PREPAYMENT": Decimal("80.00"),
+}
+
+
+def _bank_tx_items() -> list[dict]:
+    return [
+        {
+            "BankTransactionID": f"bt-{tx_type}",
+            "Type": tx_type,
+            "Status": "AUTHORISED",
+            "Date": "/Date(1767225600000+0000)/",
+            "Total": float(abs(expected)),
+            "Reference": tx_type,
+            "LineItems": [{"Description": tx_type}],
+        }
+        for tx_type, expected in _BANK_TX_TYPES.items()
+    ]
+
+
+def _mock_sync_db() -> AsyncMock:
+    db = AsyncMock()
+    no_result = MagicMock()
+    no_result.scalar_one_or_none.return_value = None
+    db.execute = AsyncMock(return_value=no_result)
+    db.commit = AsyncMock()
+    db.add = MagicMock()
+    return db
+
+
+async def _fake_get(self, client, url, headers, params=None):
+    if url.endswith("/BankTransactions") and params.get("page") == 1:
+        return {"BankTransactions": _bank_tx_items()}
+    return {}
+
+
+@pytest.mark.asyncio
+async def test_sync_transactions_stores_every_spend_subtype_negative():
+    """SPEND-TRANSFER, SPEND-OVERPAYMENT and SPEND-PREPAYMENT are money out too (invariant 7)."""
+    db = _mock_sync_db()
+    with patch("app.integrations.xero_adapter.XeroAdapter._ensure_valid_token", return_value="tok"), \
+         patch("app.integrations.xero_adapter.XeroAdapter._get_with_retry", new=_fake_get):
+        await XeroAdapter(_make_org()).sync_transactions(db)
+
+    stored = {call.args[0].reference: call.args[0].amount for call in db.add.call_args_list}
+    assert stored == _BANK_TX_TYPES
+
+
+@pytest.mark.asyncio
+async def test_sync_bank_statements_stores_every_spend_subtype_negative():
+    db = _mock_sync_db()
+    with patch("app.integrations.xero_adapter.XeroAdapter._ensure_valid_token", return_value="tok"), \
+         patch("app.integrations.xero_adapter.XeroAdapter._get_with_retry", new=_fake_get):
+        await XeroAdapter(_make_org()).sync_bank_statements(db)
+
+    stored = {call.args[0].reference: call.args[0].amount for call in db.add.call_args_list}
+    assert stored == _BANK_TX_TYPES
+
+
+def test_requested_scopes_are_read_only():
+    """The app never writes to Xero, so it must not ask for write access."""
+    from app.integrations.xero_adapter import XERO_SCOPES
+
+    scopes = set(XERO_SCOPES.split())
+    accounting = {s for s in scopes if s.startswith("accounting.")}
+    assert accounting and all(s.endswith(".read") for s in accounting)
+    assert {
+        "accounting.banktransactions.read",
+        "accounting.invoices.read",
+        "accounting.contacts.read",
+        "accounting.settings.read",
+        "accounting.payments.read",
+        "offline_access",
+    } <= scopes

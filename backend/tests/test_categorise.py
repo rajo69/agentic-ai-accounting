@@ -200,3 +200,56 @@ async def test_reject_transaction_resets_to_uncategorised():
     assert tx.category is None
     assert tx.category_confidence is None
     mock_db.commit.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# Self-review fix: validation stores the chart's own name and code
+# ---------------------------------------------------------------------------
+
+_CHART = [
+    {"code": "400", "name": "Advertising"},
+    {"code": "429", "name": "General Expenses"},
+]
+
+
+def _prediction(code: str, name: str, confidence: float = 0.9) -> dict:
+    return {"category_code": code, "category_name": name, "confidence": confidence, "reasoning": "r"}
+
+
+def test_validate_replaces_a_paraphrased_name_with_the_chart_name():
+    from app.agents.categoriser import _validate_prediction
+
+    out = _validate_prediction(_prediction("400", "Advertising & Marketing"), _CHART)
+    assert out["category_code"] == "400"
+    assert out["category_name"] == "Advertising"
+    assert out["confidence"] == 0.9
+
+
+def test_validate_fills_the_code_when_only_the_name_matches():
+    from app.agents.categoriser import _validate_prediction
+
+    out = _validate_prediction(_prediction("999", "General Expenses"), _CHART)
+    assert out["category_code"] == "429"
+    assert out["category_name"] == "General Expenses"
+
+
+def test_validate_trusts_the_code_when_code_and_name_disagree():
+    from app.agents.categoriser import _validate_prediction
+
+    out = _validate_prediction(_prediction("400", "General Expenses"), _CHART)
+    assert (out["category_code"], out["category_name"]) == ("400", "Advertising")
+
+
+def test_validate_zeroes_confidence_when_nothing_matches():
+    from app.agents.categoriser import _validate_prediction
+
+    out = _validate_prediction(_prediction("999", "Crypto"), _CHART)
+    assert out["confidence"] == 0.0
+    assert out["category_name"] == "Crypto"
+    assert out["reasoning"].startswith("validation failed")
+
+
+def test_validate_zeroes_confidence_out_of_range():
+    from app.agents.categoriser import _validate_prediction
+
+    assert _validate_prediction(_prediction("400", "Advertising", 1.4), _CHART)["confidence"] == 0.0

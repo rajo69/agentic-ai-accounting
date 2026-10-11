@@ -1,6 +1,8 @@
 """Document generation service: financial figures + LLM narrative + WeasyPrint PDF."""
 import asyncio
 import logging
+import urllib.parse
+import urllib.request
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
@@ -9,7 +11,7 @@ from typing import Optional
 
 import instructor
 from anthropic import AsyncAnthropic
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -145,6 +147,43 @@ def _fmt_pct(value: float) -> str:
     return f"{value:.1f}%"
 
 
+# ── Rendering: untrusted text in, escaped HTML and a sandboxed PDF out ──────
+# Descriptions and contact names come from Xero and narratives from the model,
+# so every template value is escaped and the PDF renderer may only load data:
+# URIs and files in the templates directory (no network, no other local files).
+
+_TEMPLATE_ENV = Environment(
+    loader=FileSystemLoader(str(TEMPLATES_DIR)),
+    autoescape=select_autoescape(["html"]),
+)
+
+
+def _template_env() -> Environment:
+    return _TEMPLATE_ENV
+
+
+def _pdf_url_allowed(url: str) -> bool:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme == "data":
+        return True
+    if parsed.scheme != "file" or parsed.netloc not in ("", "localhost"):
+        return False
+    path = Path(urllib.request.url2pathname(parsed.path)).resolve()
+    return path.is_relative_to(TEMPLATES_DIR.resolve())
+
+
+def _pdf_url_fetcher(url: str, *args, **kwargs):
+    """WeasyPrint URL fetcher that refuses anything :func:`_pdf_url_allowed` rejects."""
+    if not _pdf_url_allowed(url):
+        raise ValueError(f"PDF resource blocked: {url[:80]}")
+    try:
+        from weasyprint.urls import URLFetcher  # WeasyPrint >= 68
+    except ImportError:
+        from weasyprint import default_url_fetcher
+        return default_url_fetcher(url, *args, **kwargs)
+    return URLFetcher(allowed_protocols={"data", "file"}).fetch(url)
+
+
 def _render_html(
     figures: dict,
     narrative: ManagementLetterNarrative,
@@ -152,11 +191,7 @@ def _render_html(
     period_start: date,
     period_end: date,
 ) -> str:
-    env = Environment(
-        loader=FileSystemLoader(str(TEMPLATES_DIR)),
-        autoescape=False,
-    )
-    template = env.get_template("management_letter.html")
+    template = _template_env().get_template("management_letter.html")
     return template.render(
         figures=figures,
         narrative=narrative,
@@ -174,7 +209,7 @@ def _render_html(
 def _html_to_pdf_sync(html: str) -> bytes:
     """Sync WeasyPrint call — run via asyncio.to_thread."""
     from weasyprint import HTML
-    return HTML(string=html).write_pdf()
+    return HTML(string=html, url_fetcher=_pdf_url_fetcher).write_pdf()
 
 
 # ── Public entry point ────────────────────────────────────────────────────────
@@ -355,8 +390,7 @@ async def generate_profit_loss(
     figures = _calculate_pnl_figures(transactions, period_start, period_end)
     narrative = await _generate_pnl_narrative(figures, org.name)
 
-    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=False)
-    template = env.get_template("profit_loss.html")
+    template = _template_env().get_template("profit_loss.html")
     html = template.render(
         figures=figures,
         narrative=narrative,
@@ -521,8 +555,7 @@ async def generate_vat_summary(
     figures = _calculate_vat_figures(transactions, accounts, period_start, period_end)
     narrative = await _generate_vat_narrative(figures, org.name)
 
-    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=False)
-    template = env.get_template("vat_summary.html")
+    template = _template_env().get_template("vat_summary.html")
     html = template.render(
         figures=figures,
         narrative=narrative,
