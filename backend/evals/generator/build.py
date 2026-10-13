@@ -1,4 +1,4 @@
-"""Build the ledgerline dataset: `py -3.13 -m evals.generator.build --mode pilot|full [--seed N] [--out DIR]`.
+"""Build the bookbench dataset: `py -3.13 -m evals.generator.build --mode pilot|full [--seed N] [--out DIR]`.
 
 No network, no model calls. Deterministic: one seeded random.Random per stage, sorted iteration everywhere, and a
 fixed `created` date, so the same seed gives byte-identical files.
@@ -283,7 +283,7 @@ def generate(seed: int, n_uk: int, n_us: int, pilot: bool, retrieval: str = "min
             jitems.append(it)
         rng.shuffle(jitems)
         for i, it in enumerate(jitems, 1):
-            it["item_id"] = f"ll-{jur.lower()}-{i:04d}"
+            it["item_id"] = f"bb-{jur.lower()}-{i:04d}"
         items.extend(sorted(jitems, key=lambda x: x["item_id"]))
         history.extend(hist_rows)
     if embedder:
@@ -479,7 +479,7 @@ def review_sheet(items: list[dict], history: list[dict], firms: dict) -> str:
     for r in history:
         hist_by_firm[r["firm_id"]].append(r)
     out = [
-        "# Pilot review sheet (ledgerline, draft)",
+        "# Pilot review sheet (bookbench, draft)",
         "",
         f"Canary: `{CANARY}`. Generator {GENERATOR_VERSION}; guides {GUIDE_VERSION['UK']} and {GUIDE_VERSION['US']}.",
         "Every gold label below was produced by a rule function of the generator from the draft guides; no model wrote",
@@ -578,7 +578,7 @@ def build(seed: int, mode: str, n_uk: int | None, n_us: int | None, out: Path, s
     inputs = [DRAFT_DIR / n for n in ("guide_uk.md", "guide_us.md", "chart_uk.json", "chart_us.json")]
     manifest = {
         "canary": CANARY,
-        "dataset": "ledgerline",
+        "dataset": "bookbench",
         "mode": mode,
         "seed": seed,
         "counts": {"items": len(items), "UK": n_uk, "US": n_us, "history_rows": len(history)},

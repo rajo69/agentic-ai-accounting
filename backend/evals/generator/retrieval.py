@@ -8,7 +8,7 @@
   ties broken by row_id, so ranks do not depend on float noise.
 - Row ids: `provisional_row_ids` mirrors build.py, so the history builder's A12 (b) check ranks rows exactly as the
   final check does.
-- Cache: `evals/.cache/ledgerline_minilm.json` maps sha256(text) to the float32 vector (base64). A vector is computed
+- Cache: `evals/.cache/bookbench_minilm.json` maps sha256(text) to the float32 vector (base64). A vector is computed
   once and reused forever, so reruns are byte identical whatever else is in the batch.
 """
 
@@ -24,7 +24,7 @@ from .constants import BACKEND_DIR
 
 MODEL_NAME = "all-MiniLM-L6-v2"
 TOP_K = 5
-CACHE_PATH = BACKEND_DIR / "evals" / ".cache" / "ledgerline_minilm.json"
+CACHE_PATH = BACKEND_DIR / "evals" / ".cache" / "bookbench_minilm.json"
 
 
 def doc_text(row: dict) -> str:

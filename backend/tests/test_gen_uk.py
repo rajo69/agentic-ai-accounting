@@ -31,7 +31,7 @@ def _lines(*rows):
 
 
 # (rule_id, firm_id, facts, amount, expected label): one hand case per new or changed UK rule in guide v0.2, same
-# shape as CASES in test_ledgerline_generator.py.
+# shape as CASES in test_bookbench_generator.py.
 CASES_UK_V02 = [
     ("UK-R011", "uk-03", {}, "-1500.00", "980"),
     ("UK-R019", "uk-02", {"split_lines": _lines(("200", "656.00", "gross_sales"), ("404", "-16.00", "processor_fee"))},

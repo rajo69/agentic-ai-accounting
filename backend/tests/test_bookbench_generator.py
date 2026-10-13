@@ -1,4 +1,4 @@
-"""Tests for the ledgerline eval dataset generator (backend/evals/generator). No network, no model calls."""
+"""Tests for the bookbench eval dataset generator (backend/evals/generator). No network, no model calls."""
 
 from __future__ import annotations
 

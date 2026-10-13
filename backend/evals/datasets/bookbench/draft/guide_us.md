@@ -1,6 +1,6 @@
 # Labelling guide US, v0.2 (draft, not frozen)
 
-Dataset: `ledgerline` (working name). Chart: `chart_us.json` (`chart_id` `us_schedule_c_v0`, 42 accounts, 41 bank-hit).
+Dataset: `bookbench` (renamed from `ledgerline` on 2026-10-13, decision A1). Chart: `chart_us.json` (`chart_id` `us_schedule_c_v0_2`, S corp overlay `us_schedule_c_v0_2_s_corp`; 42 accounts, 41 bank-hit).
 Status: version 0.2-draft (change log in section 8), written 2026-10-13 by Claude Code from the IRS sources in section 7; the candidate audits every rule
 (gate G2) before freeze. Nothing here is tax advice; it is a coding standard for a synthetic evaluation set.
 
