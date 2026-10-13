@@ -90,9 +90,9 @@ DESCRIPTOR = {
 # writes a code or a chart account name (R2).
 INVOICE_CONCEPT = {
     "sales": [
-        "Invoice {inv}: {item}. This order was [recharged to your customer], so it [counts as turnover]",
+        "Invoice {inv}: {item}. This charge was [recharged to your customer], so it [counts as revenue]",
         "{item}, inv {inv}. [Customer funded]: please [show it as income], not a cost",
-        "INV {inv} {item}. [Pass-through cost], [part of your takings]",
+        "INV {inv} {item}. [Pass-through cost], [it belongs with your receipts]",
         "{item} (inv {inv}) [billed on behalf of your client]; [treat as revenue], not a cost",
         "Invoice {inv}. {item}. [Resale item]: [record against your income]",
         "inv {inv}, {item}. [Rechargeable in full]; [this is your revenue], not an expense",
