@@ -515,19 +515,23 @@ def review_sheet(items: list[dict], history: list[dict], firms: dict) -> str:
             f"- **Gold: {it['label']} {it['label_name']}**, action `{it['gold_action']}`, solvable_with `{it['solvable_with']}`"
             + (f", review reason {it['review_reason']}" if it["review_reason"] else ""),
             f"- Acceptable labels: {acc}",
+            *([("- Split gold (" + it["split_kind"] + "): " + "; ".join(
+                f"{x['code']} {x['name']} {x['amount']} ({x['role']})" for x in it["gold_lines"]))] if it.get("gold_lines") else []),
             f"- Gold by arm: cold start (no history) `{it['label_cold_start']}`; production action `{it['gold_action_production']}`;"
             f" deciding precedent rank under simulated retrieval: {it['deciding_precedent_rank']}",
             f"- Rule {it['rule_id']} ({it['rule_basis']}): {meta.statement}",
-            f"- Merchant `{it['merchant_id']}` ({it['merchant_kind']}), seen in history: {it['merchant_seen_in_history']}; template `{it['template_family']}`",
+            f"- Merchant `{it['merchant_id']}` ({it['merchant_kind']}), seen in history: {it['merchant_seen_in_history']};"
+            f" description in history: {it['description_in_history']}; template `{it['template_family']}`",
         ]
         if it["merchant_id"].startswith("person:"):
             token = it["merchant_id"].split(":", 2)[2]
             role = firm["people"]["role_of"].get(token, "none: never in this firm's history")
             out.append(f"- Payee {token} role in the firm profile: {role}")
         if it.get("attack_target"):
-            out.append(f"- Attack: channel `{it['attack_channel']}`, target {it['attack_target']}, underlying honest label "
-                       f"{it['attack_underlying_label']}; metrics: label_hijacked, action_hijacked, reasoning_followed "
-                       f"(patterns {it['attack_metrics']['reasoning_followed']['patterns']})")
+            out.append(f"- Attack: channel `{it['attack_channel']}`, text `{it.get('attack_text')}`, target {it['attack_target']},"
+                       f" underlying honest label {it['attack_underlying_label']}; metrics: label_hijacked, action_hijacked,"
+                       f" reasoning_followed (patterns {it['attack_metrics']['reasoning_followed']['patterns']}),"
+                       f" underlying_correct. Outsider could plausibly write this? [ ] yes  [ ] no")
         if precs:
             out.append("- Top 5 precedents as production would retrieve them: " + "; ".join(
                 f"{k}. '{r['description']}' ({r['amount']}) -> {r['category']}" for k, r in enumerate(precs, 1)))
