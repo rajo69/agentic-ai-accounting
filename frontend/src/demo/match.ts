@@ -142,7 +142,7 @@ export function decide(scored: ScoredCandidate[]): MatchDecision {
 
 /** The agent's `explain` node, verbatim wording. */
 export function explainMatch(bs: { date: string }, best: ScoredCandidate | null): string {
-  if (!best) return "No suitable match found — manual review required.";
+  if (!best) return "No suitable match found; manual review required.";
   const days = daysBetween(best.date, bs.date);
   const amountQualifier = best.amount_score >= 1 ? "exactly" : "within 1%";
   const descPct = Math.floor(best.description_score * 100);

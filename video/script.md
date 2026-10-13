@@ -14,7 +14,7 @@ per beat, 250 to 280 words total, the product shown doing real work rather than 
 
 Visual grammar: one console frame that never cuts within the product section (states morph in place, content swaps
 behind a 120 ms opacity dip); Screen-Studio-style camera (zoom 1.3 to 1.4x towards the click, 700 ms out-expo, hold,
-return) and an eased synthetic cursor with a 150 ms press; the aurora only behind the title and the close.
+return) and an eased animated cursor with a 150 ms press; the aurora only behind the title and the close.
 
 | id | visual | camera |
 |---|---|---|

@@ -54,7 +54,7 @@ export function Camera({ keys, t, width, height, children }: { keys: CameraKey[]
 }
 
 /**
- * A synthetic cursor: keyframes are places it arrives at; it leaves the previous place `ms` before
+ * An animated cursor: keyframes are places it arrives at; it leaves the previous place `ms` before
  * `at` and eases in (out-quart, so it decelerates into the target like a hand). `click` marks a press:
  * the arrow dips to 0.9 for 150 ms. The cursor hides before its first key and after `hideAt`.
  */
