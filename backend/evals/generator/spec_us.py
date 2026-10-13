@@ -2,6 +2,12 @@
 
 Brand merchants link to `sources/brands_us.json`. Every other name is invented; government payees (IRS, state
 revenue agencies, USPS) use kind `government`. All dates are in tax year 2025 (guide_us.md).
+
+v0.2: account 720 Other business expenses (Part V) for staff parties (US-R014), de minimis capital purchases at
+electing firms (US-R050) and contract late-performance penalties (US-R194); consumables stay 670 (D62 P2).
+F8: `amount_mode="fixed"` on rent, loan instalments, phone and internet lines, monthly software, insurance premiums,
+vehicle leases and the monthly bookkeeping fee; `amount_mode="round"` on loan proceeds. Loan, lease, policy and
+utility account references use the {K<n>} token, so they stay constant per firm and payee.
 """
 
 from __future__ import annotations
@@ -42,12 +48,15 @@ _SAAS = [
     ("us-quickbooks", ["QuickBooks", "Intuit"], ["INTUIT *QBooks Online CL.INTUIT.COM CA", "INTUIT *"], ["QuickBooks Online", "Bookkeeping software"], "30.00", "90.00"),
     ("us-amazon-web-services", ["Amazon Web Services", "AWS"], ["AWS EMEA SARL", "Amazon web services aws.amazon.co WA"], ["Cloud hosting"], "4.00", "160.00"),
 ]
+# Usage-billed services vary month to month; every other plan is a fixed monthly subscription (F8).
+_USAGE_BILLED = {"us-twilio", "us-amazon-web-services"}
 for bid, contacts, narrs, lines, lo, hi in _SAAS:
-    MERCHANTS.append(B(bid, contacts, narrs, [U("software", "spend", lo, hi, "705", "US-R150", lines, routine=True)]))
+    MERCHANTS.append(B(bid, contacts, narrs, [U("software", "spend", lo, hi, "705", "US-R150", lines, routine=True,
+                                                 amount_mode="range" if bid in _USAGE_BILLED else "fixed")]))
 
 MERCHANTS += [
-    B("us-mailchimp", ["Mailchimp"], ["MAILCHIMP    MISC MAILCHIMP.COM GA"], [U("email_marketing", "spend", "13.00", "120.00", "705", "US-R151", ["Email newsletter platform", "Mailchimp Standard"], routine=True)]),
-    B("us-constant-contact", ["Constant Contact"], ["EIG CONSTANTCONTACT.CO 855-2295506 MA"], [U("email_marketing", "spend", "12.00", "90.00", "705", "US-R151", ["Email marketing plan"], routine=True)]),
+    B("us-mailchimp", ["Mailchimp"], ["MAILCHIMP    MISC MAILCHIMP.COM GA"], [U("email_marketing", "spend", "13.00", "120.00", "705", "US-R151", ["Email newsletter platform", "Mailchimp Standard"], routine=True, amount_mode="fixed")]),
+    B("us-constant-contact", ["Constant Contact"], ["EIG CONSTANTCONTACT.CO 855-2295506 MA"], [U("email_marketing", "spend", "12.00", "90.00", "705", "US-R151", ["Email marketing plan"], routine=True, amount_mode="fixed")]),
     B("us-meta-platforms", ["Meta Ads", "Facebook Ads"], ["FACEBK {A10} Menlo Park CA"], [U("ads", "spend", "20.00", "600.00", "600", "US-R001", ["Facebook ads", "Instagram boost campaign"], routine=True, facts={"account": "600"})]),
     B("us-google-ads", ["Google Ads"], ["GOOGLE *ADS{N10} cc@google.com CA"], [U("ads", "spend", "25.00", "800.00", "600", "US-R001", ["Search ads", "Google Ads campaign"], routine=True, facts={"account": "600"})]),
     B("us-yelp", ["Yelp"], ["YELP INC {N8}"], [U("ads", "spend", "50.00", "450.00", "600", "US-R001", ["Yelp ads", "Local ads package"], routine=True, facts={"account": "600"})]),
@@ -73,7 +82,7 @@ MERCHANTS += [
     *[B(bid, contacts, narrs, [
         U("job_materials", "spend", "15.00", "900.00", "500", "US-R053", ["Materials, job {N4}", "Pipe and fittings", "Lumber for job {N4}", ""], hooks=["US-R053"], only={"trades": ["construction", "trades"]}),
         U("consumables", "spend", "8.00", "220.00", "670", "US-R054", ["Shop rags and cleaner", "Work gloves and tape", "Cleaning supplies"], needs_line=True, routine=True, only={"trades": ["construction", "trades", "crafts", "catering", "retail"]}),
-        U("equipment", "spend", "120.00", "4800.00", "670", "US-R050", ["Miter saw", "Pressure washer", "Generator", "Compressor"], needs_line=True, hooks=["US-R050", "US-R051"]),
+        U("equipment", "spend", "120.00", "4800.00", "720", "US-R050", ["Miter saw", "Pressure washer", "Generator", "Compressor"], needs_line=True, hooks=["US-R050", "US-R051"], only={"trades": ["construction", "trades", "crafts", "catering", "retail"]}),
     ], category="diy_hardware_trade") for bid, contacts, narrs in [
         ("us-the-home-depot", ["The Home Depot", "Home Depot"], ["THE HOME DEPOT #{N4} {CITY} {ST}", "THE HOME DEPOT PRO"]),
         ("us-lowe-s", ["Lowe's"], ["LOWES #{N5}*"]),
@@ -94,7 +103,7 @@ MERCHANTS += [
     ]],
     # Electronics
     *[B(bid, contacts, narrs, [
-        U("equipment", "spend", "150.00", "4200.00", "670", "US-R050", lines, needs_line=True, hooks=["US-R050", "US-R051"]),
+        U("equipment", "spend", "150.00", "4200.00", "720", "US-R050", lines, needs_line=True, hooks=["US-R050", "US-R051"]),
     ], category="electronics_it") for bid, contacts, narrs, lines in [
         ("us-dell", ["Dell"], ["DELL MARKETING L.P."], ["Laptop for client work", "Workstation and monitors", "Docking station and monitor"]),
         ("us-best-buy", ["Best Buy"], ["BEST BUY {N8}"], ["Laptop", "Camera body", "Monitor"]),
@@ -124,16 +133,16 @@ MERCHANTS += [
         ("us-big-o-tires", ["Big O Tires"], ["BIG O TIRES {N3}"], ["Tire repair"]),
     ]],
     *[B(bid, contacts, narrs, [
-        U("auto_insurance", "spend", "60.00", "260.00", "605", "US-R041", ["Truck insurance", "Auto policy", ""], hooks=["US-R041", "US-R043"], only={"vehicle": True}),
-    ], fmt="US-ACH", refs=["{N9}"]) for bid, contacts, narrs in [
+        U("auto_insurance", "spend", "60.00", "260.00", "605", "US-R041", ["Truck insurance", "Auto policy", ""], hooks=["US-R041", "US-R043"], only={"vehicle": True}, amount_mode="fixed"),
+    ], fmt="US-ACH", refs=["{K9}"]) for bid, contacts, narrs in [
         ("us-geico", ["GEICO"], ["GEICO DES:PREM COLL ID:{N9}"]),
         ("us-progressive", ["Progressive"], ["PROGRESSIVE INS DES:INS PREM"]),
         ("us-allstate", ["Allstate"], ["ALLSTATE DES:INS PREM ID:{N8}"]),
     ]],
     # Business insurance
     *[B(bid, contacts, narrs, [
-        U("business_insurance", "spend", "35.00", "480.00", "625", "US-R170", ["General liability premium", "Business owner's policy", "Workers comp premium", "Professional liability"], routine=True, needs_line=True),
-    ], fmt="US-ACH", refs=["POL{N8}"]) for bid, contacts, narrs in [
+        U("business_insurance", "spend", "35.00", "480.00", "625", "US-R170", ["General liability premium", "Business owner's policy", "Workers comp premium", "Professional liability"], routine=True, needs_line=True, amount_mode="fixed"),
+    ], fmt="US-ACH", refs=["POL{K8}"]) for bid, contacts, narrs in [
         ("us-hiscox", ["Hiscox"], ["HISCOX INC DES:PREMIUM"]),
         ("us-next-insurance", ["Next Insurance"], ["NEXT INSURANCE DES:PREMIUM"]),
         ("us-the-hartford", ["The Hartford"], ["THE HARTFORD DES:NWTBPREM"]),
@@ -141,21 +150,21 @@ MERCHANTS += [
         ("us-liberty-mutual", ["Liberty Mutual"], ["LIBERTY MUTUAL DES:PREM"]),
     ]],
     B("us-state-farm", ["State Farm"], ["STATE FARM RO {N2} SFPP"], [
-        U("business_insurance", "spend", "40.00", "300.00", "625", "US-R170", ["Business liability policy"], routine=True, needs_line=True),
-        U("auto_insurance", "spend", "70.00", "240.00", "605", "US-R041", ["Truck insurance", ""], hooks=["US-R041", "US-R043"], only={"vehicle": True}),
-    ], fmt="US-ACH", refs=["{N10}"]),
+        U("business_insurance", "spend", "40.00", "300.00", "625", "US-R170", ["Business liability policy"], routine=True, needs_line=True, amount_mode="fixed"),
+        U("auto_insurance", "spend", "70.00", "240.00", "605", "US-R041", ["Truck insurance", ""], hooks=["US-R041", "US-R043"], only={"vehicle": True}, amount_mode="fixed"),
+    ], fmt="US-ACH", refs=["{K10}"]),
     B("us-united-healthcare", ["UnitedHealthcare"], ["UHC DES:PREMIUM ID:{N9}"], [
-        U("owner_health", "spend", "320.00", "980.00", "3010", "US-R072", ["Health insurance, owner", ""], ),
-        U("employee_health", "spend", "450.00", "2600.00", "620", "US-R171", ["Group health premium, staff", "Employee health plan"], only={"employer": True}),
-    ], fmt="US-ACH", refs=["GRP{N6}"]),
+        U("owner_health", "spend", "320.00", "980.00", "3010", "US-R072", ["Health insurance, owner", ""], amount_mode="fixed"),
+        U("employee_health", "spend", "450.00", "2600.00", "620", "US-R171", ["Group health premium, staff", "Employee health plan"], only={"employer": True}, amount_mode="fixed"),
+    ], fmt="US-ACH", refs=["GRP{K6}"]),
     B("us-nationwide", ["Nationwide"], ["NATIONWIDE LIFE DES:PREM"], [
-        U("life_insurance", "spend", "25.00", "140.00", "3010", "US-R074", ["Life insurance", ""], ),
-    ], fmt="US-ACH", refs=["{N9}"]),
+        U("life_insurance", "spend", "25.00", "140.00", "3010", "US-R074", ["Life insurance", ""], amount_mode="fixed"),
+    ], fmt="US-ACH", refs=["{K9}"]),
     # Telecom and utilities
     *[B(bid, contacts, narrs, [
-        U("business_line", "spend", lo, hi, "690", "US-R061", ["Business internet", "Shop phone line", "Business mobile plan"], needs_line=True, facts={"line_type": "business"}),
-        U("residential", "spend", lo, hi, "3010", "US-R061", ["Home landline", ""], facts={"line_type": "residential"}),
-    ], fmt="US-ACH", refs=["{N10}"]) for bid, contacts, narrs, lo, hi in [
+        U("business_line", "spend", lo, hi, "690", "US-R061", ["Business internet", "Shop phone line", "Business mobile plan"], needs_line=True, facts={"line_type": "business"}, amount_mode="fixed"),
+        U("residential", "spend", lo, hi, "3010", "US-R061", ["Home landline", ""], facts={"line_type": "residential"}, amount_mode="fixed", refs=["{N10}"]),
+    ], fmt="US-ACH", refs=["{K10}"]) for bid, contacts, narrs, lo, hi in [
         ("us-at-and-t", ["AT&T"], ["AT&T PAYMENT 800-288-2020 TX"], "35.00", "180.00"),
         ("us-verizon", ["Verizon"], ["VERIZON ONEPOS {N6} 800-922-0204 FL"], "40.00", "190.00"),
         ("us-t-mobile", ["T-Mobile"], ["T-MOBILE PCS SVC DES:AUTOPAY"], "30.00", "160.00"),
@@ -165,8 +174,8 @@ MERCHANTS += [
     ]],
     *[B(bid, contacts, narrs, [
         U("premises_utility", "spend", "60.00", "900.00", "690", "US-R190", ["Electric, shop", "Power, warehouse unit", ""], facts={"line_states": True}, hooks=["US-R190"], only={"premises": True}),
-        U("home_utility", "spend", "50.00", "260.00", "3010", "US-R060", ["", "Home electric"], ),
-    ], fmt="US-ACH", refs=["{N10}"]) for bid, contacts, narrs in [
+        U("home_utility", "spend", "50.00", "260.00", "3010", "US-R060", ["", "Home electric"], refs=["{N10}"]),
+    ], fmt="US-ACH", refs=["{K10}"]) for bid, contacts, narrs in [
         ("us-comed", ["ComEd"], ["COMED DES:UTIL PYMT"]),
         ("us-con-edison", ["Con Edison"], ["CON ED OF NY DES:INTELL CK"]),
         ("us-duke-energy", ["Duke Energy"], ["DUKE ENERGY DES:BILL PAY"]),
@@ -262,14 +271,14 @@ for bid, contacts, narrs in _RETAIL_US:
 
 MERCHANTS += [
     *[B(bid, contacts, narrs, [
-        U("gym", "spend", "10.00", "60.00", "3010", "US-R002", ["", "Gym membership"], ),
-    ], fmt="US-ACH", refs=["{N8}"]) for bid, contacts, narrs in [
+        U("gym", "spend", "10.00", "60.00", "3010", "US-R002", ["", "Gym membership"], amount_mode="fixed"),
+    ], fmt="US-ACH", refs=["{K8}"]) for bid, contacts, narrs in [
         ("us-planet-fitness", ["Planet Fitness"], ["PLANET FIT CLUB FEES"]),
         ("us-la-fitness", ["LA Fitness"], ["LA FITNESS DES:DUES"]),
     ]],
     *[B(bid, contacts, narrs, [
-        U("storage_rent", "spend", "60.00", "420.00", "660", "US-R062", ["Storage unit rent", "Storage, equipment", ""], routine=True),
-    ], fmt="US-ACH", refs=["{N8}"]) for bid, contacts, narrs in [
+        U("storage_rent", "spend", "60.00", "420.00", "660", "US-R062", ["Storage unit rent", "Storage, equipment", ""], routine=True, amount_mode="fixed"),
+    ], fmt="US-ACH", refs=["{K8}"]) for bid, contacts, narrs in [
         ("us-public-storage", ["Public Storage"], ["PUBLIC STORAGE {N5}"]),
         ("us-extra-space-storage", ["Extra Space Storage"], ["EXTRA SPACE {N4}"]),
         ("us-cubesmart", ["CubeSmart"], ["CUBESMART {N4}"]),
@@ -295,7 +304,7 @@ MERCHANTS += [
         U("seller_fees", "spend", "5.00", "160.00", "610", "US-R123", ["eBay final value fees"], routine=True, only={"goods": True}),
     ], fmt="US-ACH", refs=["{N9}"]),
     B("us-shopify", ["Shopify"], ["SHOPIFY* {N9}"], [
-        U("software", "spend", "29.00", "120.00", "705", "US-R150", ["Shopify plan", "Online store subscription"], routine=True),
+        U("software", "spend", "29.00", "120.00", "705", "US-R150", ["Shopify plan", "Online store subscription"], routine=True, amount_mode="fixed"),
     ]),
     B("us-venmo", ["Venmo"], ["VENMO PAYMENT {N10}"], [
         U("p2p_out", "spend", "40.00", "900.00", "NEEDS_REVIEW", "US-R141", [""], fmt="US-P2P"),
@@ -340,11 +349,36 @@ for bid, contacts, short in _BANKS_US:
         U("interest_earned", "receive", "0.10", "45.00", "410", "US-R192", ["Interest", ""], routine=True, narratives=["INTEREST PAYMENT", "INTEREST EARNED"], fmt="US-INT"),
         U("loc_interest", "spend", "8.00", "240.00", "635", "US-R101", ["Line of credit interest", ""], routine=True, narratives=["LOC INTEREST CHARGE", "LINE OF CREDIT INTEREST"], fmt="US-FEE"),
         U("card_payment", "spend", "150.00", "4200.00", "2000", "US-R110", ["Card payment", ""], hooks=["US-R110"], narratives=["ONLINE PAYMENT TO CARD ...{N4}", short + " CRCARDPMT DES:CRCARDPMT"], fmt="US-ACH", refs=["CC PMT"]),
-        U("loan_proceeds", "receive", "5000.00", "60000.00", "2300", "US-R100", ["SBA loan proceeds", "Term loan funding"], narratives=[short + " LOAN DISB"], fmt="US-ACH", refs=["LN {N8}"]),
-        U("loan_payment", "spend", "250.00", "2200.00", "NEEDS_REVIEW", "US-R103", ["Loan payment", ""], narratives=[short + " LOAN PMT"], fmt="US-ACH", refs=["LN {N8}"]),
+        U("loan_proceeds", "receive", "5000.00", "60000.00", "2300", "US-R100", ["SBA loan proceeds", "Term loan funding"], narratives=[short + " LOAN DISB"], fmt="US-ACH", refs=["LN {K8}"], amount_mode="round"),
+        U("loan_payment", "spend", "250.00", "2200.00", "NEEDS_REVIEW", "US-R103", ["Loan payment", ""], narratives=[short + " LOAN PMT"], fmt="US-ACH", refs=["LN {K8}"], amount_mode="fixed"),
         U("personal_interest", "spend", "15.00", "160.00", "3010", "US-R104", ["Interest, personal card", "Personal loan interest"], needs_line=True, narratives=[short + " INTEREST CHARGE PERSONAL"], fmt="US-ACH", refs=["{N8}"]),
-        U("loan_principal", "spend", "500.00", "9000.00", "2300", "US-R101", ["Principal-only payment, term loan", "Extra principal payment"], needs_line=True, facts={"principal_only": True}, narratives=[short + " LOAN PRIN PMT"], fmt="US-ACH", refs=["LN {N8}"]),
+        U("loan_principal", "spend", "500.00", "9000.00", "2300", "US-R101", ["Principal-only payment, term loan", "Extra principal payment"], needs_line=True, facts={"principal_only": True}, narratives=[short + " LOAN PRIN PMT"], fmt="US-ACH", refs=["LN {K8}"]),
     ], category="bank"))
+
+# US-R194: a penalty the contract sets for late or missed performance, paid to the customer (not a refund of the
+# price, which is US-R130, and not a government fine, which is US-R086). Wording follows the firm's kind of work.
+_PENALTY_KINDS = [
+    ("late_completion_penalty", ("construction", "trades"),
+     ["Liquidated damages, late completion per contract", "Late completion penalty per contract"]),
+    ("late_delivery_penalty", ("crafts", "retail", "catering"),
+     ["Late delivery penalty per contract", "Penalty for late order delivery per agreement"]),
+    ("missed_deadline_penalty", ("creative", "professional"),
+     ["Penalty for missed contract deadline", "Late deliverable penalty per agreement"]),
+]
+
+
+PENALTY_USES = tuple(k for k, _, _ in _PENALTY_KINDS)
+
+
+def _penalty_uses(slug: str) -> list[dict]:
+    out = []
+    for use, trades, lines in _PENALTY_KINDS:
+        fit = [t for t in CUSTOMER_TRADES[slug] if t in trades]
+        if fit:
+            out.append(U(use, "spend", "100.00", "2400.00", "720", "US-R194", lines, needs_line=True,
+                         refs=["CONTRACT {K6}", "PO {N5}"], only={"trades": fit}))
+    return out
+
 
 # Invented merchants, customers, government payees.
 MERCHANTS += [
@@ -361,35 +395,36 @@ MERCHANTS += [
         U("contract_labor", "spend", "250.00", "3500.00", "615", "US-R160", ["Website build, freelance", "Freelance design work"], needs_line=True),
     ], refs=["PWS-{N4}"]),
     I("riverside-tax-and-bookkeeping", "Riverside Tax and Bookkeeping", ["Riverside Tax and Bookkeeping"], ["RIVERSIDE TAX & BKPG"], [
-        U("professional", "spend", "120.00", "1800.00", "640", "US-R161", ["Monthly bookkeeping", "Business tax return", "Quarterly review"], routine=True),
+        U("bookkeeping_fee", "spend", "150.00", "650.00", "640", "US-R161", ["Monthly bookkeeping", "Bookkeeping, {MMM}"], routine=True, amount_mode="fixed"),
+        U("professional", "spend", "250.00", "1800.00", "640", "US-R161", ["Business tax return", "Quarterly review"], routine=True),
         U("personal_return", "spend", "200.00", "600.00", "3010", "US-R161", ["Personal return for owner only", "Owner 1040, personal"], needs_line=True, facts={"personal_return": True}),
     ], refs=["INV {N4}"]),
     I("hollis-park-legal", "Hollis Park Legal Group", ["Hollis Park Legal Group"], ["HOLLIS PARK LEGAL"], [
         U("professional", "spend", "250.00", "4200.00", "640", "US-R161", ["Contract review", "Collections letter, unpaid invoice", "LLC operating agreement update"], routine=True),
     ], refs=["HPL{N5}"]),
     I("harbor-lane-coworking", "Harbor Lane Coworking", ["Harbor Lane Coworking"], ["HARBOR LANE COWORK"], [
-        U("rent", "spend", "250.00", "1200.00", "660", "US-R062", ["Desk membership", "Private office rent {MMM}"], routine=True),
-    ], refs=["HLC{N5}"]),
+        U("rent", "spend", "250.00", "1200.00", "660", "US-R062", ["Desk membership", "Private office rent {MMM}"], routine=True, amount_mode="fixed"),
+    ], refs=["HLC{K5}"]),
     I("maplewood-commercial", "Maplewood Commercial Properties LLC", ["Maplewood Commercial Properties LLC"], ["MAPLEWOOD COMMERCIAL"], [
-        U("rent", "spend", "1200.00", "5200.00", "660", "US-R062", ["Shop rent {MMM}", "Warehouse rent", "Lease payment, unit {N2}"], routine=True),
-    ], refs=["LEASE {N4}"]),
+        U("rent", "spend", "1200.00", "5200.00", "660", "US-R062", ["Shop rent {MMM}", "Warehouse rent", "Lease payment, unit {K2}"], routine=True, amount_mode="fixed"),
+    ], refs=["LEASE {K4}"]),
     I("oak-terrace-apartments", "Oak Terrace Apartments LLC", ["Oak Terrace Apartments LLC"], ["OAK TERRACE APTS"], [
-        U("home_rent", "spend", "900.00", "2400.00", "3010", "US-R060", ["", "Rent"], ),
-    ], refs=["UNIT {N3}"]),
+        U("home_rent", "spend", "900.00", "2400.00", "3010", "US-R060", ["", "Rent"], amount_mode="fixed"),
+    ], refs=["UNIT {K3}"]),
     I("cedar-valley-savings", "Cedar Valley Savings Bank", ["Cedar Valley Savings Bank"], ["CEDAR VALLEY SVGS"], [
         U("mortgage_interest", "spend", "300.00", "2400.00", "630", "US-R102", ["Mortgage interest, shop building", "Commercial mortgage interest"], needs_line=True, hooks=["US-R102"]),
-    ], refs=["MTG {N8}"]),
+    ], refs=["MTG {K8}"]),
     I("granite-peak-lending", "Granite Peak Business Lending", ["Granite Peak Business Lending"], ["GRANITE PEAK LENDING"], [
-        U("loan_proceeds", "receive", "8000.00", "75000.00", "2300", "US-R100", ["Equipment loan funding", "Loan proceeds"], refs=["LN {N8}"]),
-        U("loan_payment", "spend", "300.00", "2600.00", "NEEDS_REVIEW", "US-R103", ["Loan payment", ""], refs=["LN {N8}"]),
-        U("vehicle_loan", "receive", "12000.00", "48000.00", "2300", "US-R045", ["Truck loan funding", "Vehicle loan proceeds"], needs_line=True, refs=["VL {N8}"]),
+        U("loan_proceeds", "receive", "8000.00", "75000.00", "2300", "US-R100", ["Equipment loan funding", "Loan proceeds"], refs=["LN {K8}"], amount_mode="round"),
+        U("loan_payment", "spend", "300.00", "2600.00", "NEEDS_REVIEW", "US-R103", ["Loan payment", ""], refs=["LN {K8}"], amount_mode="fixed"),
+        U("vehicle_loan", "receive", "12000.00", "48000.00", "2300", "US-R045", ["Truck loan funding", "Vehicle loan proceeds"], needs_line=True, refs=["VL {N8}"], amount_mode="round"),
     ]),
     I("ridgeline-auto-sales", "Ridgeline Auto Sales", ["Ridgeline Auto Sales"], ["RIDGELINE AUTO SALES"], [
         U("vehicle_purchase", "spend", "6000.00", "42000.00", "1510", "US-R045", ["Work truck purchase", "Cargo van purchase", "Down payment, work truck"], needs_line=True),
     ], fmt="US-WIRE", refs=["VIN {A6}"]),
     I("pinecrest-auto-leasing", "Pinecrest Auto Leasing", ["Pinecrest Auto Leasing"], ["PINECREST AUTO LEASE"], [
-        U("vehicle_lease", "spend", "280.00", "760.00", "655", "US-R044", ["Truck lease payment", "Van lease {MMM}", ""], hooks=["US-R044", "US-R043"], only={"vehicle": True}),
-    ], refs=["LSE{N7}"]),
+        U("vehicle_lease", "spend", "280.00", "760.00", "655", "US-R044", ["Truck lease payment", "Van lease {MMM}", ""], hooks=["US-R044", "US-R043"], only={"vehicle": True}, amount_mode="fixed"),
+    ], refs=["LSE{K7}"]),
     I("golden-basket-gift-co", "Golden Basket Gift Co", ["Golden Basket Gift Co"], ["GOLDEN BASKET GIFT"], [
         U("client_gift", "spend", "40.00", "420.00", "715", "US-R020", ["Holiday gift baskets for clients", "Thank you basket, client referral"], needs_line=True, facts={"stated": True}),
     ], fmt="US-CARD"),
@@ -418,11 +453,11 @@ MERCHANTS += [
         U("stadium_package", "spend", "180.00", "900.00", "790", "US-R013", ["Suite package with food and drinks, client"], needs_line=True, facts={"separately_stated": False}),
     ], fmt="US-CARD"),
     I("copper-bell-tavern", "Copper Bell Tavern", ["Copper Bell Tavern"], ["TST* COPPER BELL TAVERN"], _food_uses_us("20.00", "260.00") + [
-        U("staff_party", "spend", "250.00", "1800.00", "620", "US-R014", ["Team holiday party", "Staff summer picnic catering"], needs_line=True, only={"employer": True}),
+        U("staff_party", "spend", "250.00", "1800.00", "720", "US-R014", ["Team holiday party", "Staff summer picnic catering"], needs_line=True, only={"employer": True}),
     ], fmt="US-CARD", category="food_drink"),
     I("blue-heron-bistro", "Blue Heron Bistro", ["Blue Heron Bistro"], ["SQ *BLUE HERON BISTRO"], _food_uses_us("18.00", "220.00"), fmt="US-CARD", category="food_drink"),
     I("prairie-smoke-bbq", "Prairie Smoke BBQ", ["Prairie Smoke BBQ"], ["TST* PRAIRIE SMOKE BBQ"], _food_uses_us("15.00", "380.00") + [
-        U("staff_party", "spend", "250.00", "1500.00", "620", "US-R014", ["Crew appreciation lunch", "Team holiday party catering"], needs_line=True, only={"employer": True}),
+        U("staff_party", "spend", "250.00", "1500.00", "720", "US-R014", ["Staff summer picnic, crew and families", "Team holiday party catering"], needs_line=True, only={"employer": True}),
     ], fmt="US-CARD", category="food_drink"),
     I("riverbend-food-pantry", "Riverbend Food Pantry", ["Riverbend Food Pantry"], ["RIVERBEND FOOD PANTRY"], [
         U("donation", "spend", "25.00", "500.00", "3010", "US-R180", ["Donation", "Year end donation"], routine=True, only={"entity": ["sole_prop", "smllc"]}),
@@ -448,6 +483,7 @@ MERCHANTS += [
     *[I(slug, name, [name], [narr], [
         U("customer_receipt", "receive", lo, hi, "400", "US-R001", ["Invoice {INV}", "Payment, invoice {INV}", ""], routine=True, facts={"account": "400"}, refs=["{INV}", "INV {N4}"], only={"trades": CUSTOMER_TRADES[slug]}),
         U("customer_refund", "spend", "25.00", "600.00", "405", "US-R130", ["Refund to customer, {INV}", "Partial refund, damaged order"], needs_line=True, refs=["REFUND {N4}"], only={"trades": CUSTOMER_TRADES[slug]}),
+        *_penalty_uses(slug),
     ], category="customer") for slug, name, narr, lo, hi in [
         ("silver-birch-dental", "Silver Birch Dental Group", "SILVER BIRCH DENTAL", "200.00", "4800.00"),
         ("prairie-wind-realty", "Prairie Wind Realty", "PRAIRIE WIND REALTY", "150.00", "3600.00"),
@@ -525,6 +561,13 @@ FIRMS = {
     "us-10": ("Copperline HVAC Inc", "test", _p("s_corp", "238220", "Plumbing, heating, and air-conditioning contractors", "NM", "Las Cruces", sector="construction", vehicle="actual", sales_tax="seller_imposed", payroll="us-gusto", employees=3, inventory=True, premises=True)),
     "us-11": ("Riverstone Bookkeeping LLC", "dev", _p("smllc", "541219", "Other accounting services", "MN", "Duluth", sector="professional", processors=["us-stripe"], home_office="simplified_method")),
     "us-12": ("Maple and Moss Floral Studio", "test", _p("sole_prop", "459310", "Florists", "NC", "Asheville", sector="retail", vehicle="actual", sales_recording="processor_gross", sales_tax="collects_buyer_imposed", processors=["us-square"], inventory=True, premises=True, gaps=["sales_recording"])),
+    # v0.2 (choice S6): 18 firms, dev 7 and test 11; 6 processor_gross and 12 bank_deposit_net, both in each split.
+    "us-13": ("Quarry Lane Pressure Washing", "dev", _p("sole_prop", "561790", "Other services to buildings and dwellings", "MO", "Springfield", sector="trades", vehicle="actual", processors=["us-square"])),
+    "us-14": ("Gristmill Hill Soap Works LLC", "dev", _p("smllc", "325620", "Toilet preparation manufacturing", "PA", "Lancaster", sector="crafts", sales_recording="processor_gross", sales_tax="collects_buyer_imposed", processors=["us-stripe"], inventory=True, home_office="simplified_method")),
+    "us-15": ("Larkspur Network Solutions Inc", "test", _p("s_corp", "541512", "Computer systems design services", "WI", "Eau Claire", sector="professional", vehicle="standard_mileage", payroll="us-adp", employees=2, processors=["us-stripe"], premises=True)),
+    "us-16": ("Sagebrush Skillet Food Truck", "test", _p("sole_prop", "722330", "Mobile food services", "UT", "Ogden", sector="catering", vehicle="actual", sales_recording="processor_gross", sales_tax="collects_buyer_imposed", payroll="us-gusto", employees=1, processors=["us-square"], inventory=True)),
+    "us-17": ("Juniper Reel Video LLC", "test", _p("smllc", "512110", "Motion picture and video production", "ID", "Boise", sector="creative", vehicle="standard_mileage", processors=["us-paypal"], home_office="simplified_method", contractors=1)),
+    "us-18": ("Kinnick Hill Handyman Services", "test", _p("sole_prop", "238990", "All other specialty trade contractors", "ME", "Bangor", sector="trades", vehicle="actual", de_minimis=False, card="none", contractors=1)),
 }
 
 STATE_REVENUE = {
@@ -540,4 +583,12 @@ STATE_REVENUE = {
     "NM": ("New Mexico Taxation and Revenue", "NM TAXATION REV"),
     "MN": ("Minnesota Department of Revenue", "MN DEPT OF REV"),
     "NC": ("North Carolina Department of Revenue", "NC DEPT REVENUE"),
+    "MO": ("Missouri Department of Revenue", "MO DEPT OF REV"),
+    "PA": ("Pennsylvania Department of Revenue", "PA DEPT REVENUE"),
+    "WI": ("Wisconsin Department of Revenue", "WI DEPT REVENUE"),
+    "UT": ("Utah State Tax Commission", "UT STATE TAX COMM"),
+    "ID": ("Idaho State Tax Commission", "ID STATE TAX COMM"),
+    "ME": ("Maine Revenue Services", "MAINE REVENUE SVCS"),
 }
+# States with no individual income tax on wages and business income in 2025: no owner estimate or refund there.
+NO_PERSONAL_INCOME_TAX = {"AK", "FL", "NV", "NH", "SD", "TN", "TX", "WA", "WY"}

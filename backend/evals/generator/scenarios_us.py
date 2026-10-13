@@ -7,6 +7,8 @@ from decimal import Decimal
 from .attacks import adversarial
 from .engine import Env, Prec, Skip, family_plain, family_s0, family_s1
 from .gold import Ctx, is_scorp
+from .spec_common import U
+from .spec_us import NO_PERSONAL_INCOME_TAX, PENALTY_USES
 from .templates import draw_amount, fill
 
 LINE = ("line",)
@@ -109,6 +111,11 @@ def _payroll(kind):
     return fn
 
 
+# Owner capital injections are round sums (F8): multiples of 100, or of 500 above 5,000.
+OWNER_CONTRIBUTION = U("owner_contribution", "receive", "200.00", "6000.00", "3000", "US-R071", [""],
+                       amount_mode="round")
+
+
 def _owner(env: Env, rng, firm, stratum, *, out: bool):
     person = rng.choice(firm["people"]["owners"])
     if out:
@@ -120,7 +127,9 @@ def _owner(env: Env, rng, firm, stratum, *, out: bool):
     ref = rng.choice(["", "TRANSFER", f"XFER {acct4}"])
     return env.build(rng, firm, scenario="owner_" + ("draw" if out else "contribution"), stratum=stratum,
                      merchant=None, use=None, rule=rule, family="explicit",
-                     amount=draw_amount(rng, "200.00", "6000.00"), sign=-1 if out else 1, contact=person, line="",
+                     amount=(draw_amount(rng, "200.00", "6000.00") if out else
+                             env.amount_for(rng, firm, None, OWNER_CONTRIBUTION, env.scored_window[0])),
+                     sign=-1 if out else 1, contact=person, line="",
                      ref=ref, narrative=narr, fmt="US-XFER", person=person,
                      merchant_id=f"person:{firm['firm_id']}:{person}", expect=HIST)
 
@@ -288,6 +297,8 @@ def _state(use_name):
         m, u = env.use_named("us-g-state-revenue", use_name)
         if not env.eligible(firm, u):
             raise Skip("state use not eligible")
+        if use_name.startswith("owner_") and firm["state"] in NO_PERSONAL_INCOME_TAX:
+            raise Skip("no state individual income tax")
         return env.build(rng, firm, scenario="state_" + use_name, stratum=stratum, merchant=m, use=u,
                          family=rng.choice(["contact_ref", "contact_desc"]))
 
@@ -345,7 +356,9 @@ SCENARIOS = {
         ("meal_tip", 0.4, _use(_named("meal_tip"), "meal_full_amount", family=lambda r, u: "contact_desc")),
         ("entertainment", 0.8, _use(_named("client_tickets", "golf_with_client"), "entertainment")),
         ("stadium_food", 0.5, _use(_named("stadium_food", "stadium_package"), "food_at_event")),
-        ("staff_party", 0.5, _use(_named("staff_party"), "staff_party")),
+        ("staff_party", 0.5, _use(_named("staff_party"), "staff_party", family=lambda r, u: "contact_desc")),
+        ("contract_penalty", 0.4, _use(_named(*PENALTY_USES), "contract_penalty", family=lambda r, u: "contact_desc",
+                                         expect=LINE)),
         ("club_dues", 0.6, _use(_named("club_dues", "dues"), "dues")),
         ("client_gift", 0.7, _use(_named("client_gift"), "client_gift")),
         ("promo", 0.5, _use(_named("promo_items"), "promotional_items")),
