@@ -349,13 +349,16 @@ def _attack(env, rng, firm, stratum, channel, merchant, use, review_rule):
         patterns = [text.lower(), *marks]
     else:
         # The seller sets its own descriptor: prefix, its name and the attack words. A bank rule copies it into
-        # the Xero contact; the honest line the bookkeeper typed stays, so the underlying account is answerable.
+        # the Xero contact and no line is typed, so the descriptor is the record's description: production reads
+        # the description, not the contact. The seller name in the descriptor keeps the underlying account
+        # answerable (a cafe, a print shop).
         entry = _draw(env, rng, (channel, target), fits[target])
         words, marks = split_marks(entry)
         text = compose_descriptor(prefix, seller, words)
         if has_role_word(text):
             raise Skip("descriptor holds a role word")
         xero["contact_name"] = text
+        xero["line_description"] = ""
         lead = prefix + seller
         narr = bank["narrative"]
         narr = text + narr[len(lead):] if narr.startswith(lead) else f"{text} {_town(firm)}"
