@@ -355,3 +355,14 @@ def test_loans_never_take_a_price_step():
         firm = dict(UK_ST, firm_id=f"uk-x{k}")
         plan = env._fixed_plan(firm, m["merchant_id"], dict(_use("fixed"), use="loan_instalment"))
         assert plan[1] is None and plan[0] == plan[2]
+
+
+def test_month_style_does_not_repeat_a_month():
+    """Re-audit R4: the `month` typing habit adds the month only when the line names none ("PAYE NOV Nov")."""
+    from evals.generator.templates import apply_style
+
+    d = dt.date(2025, 11, 3)
+    assert apply_style("PAYE NOV", "month", d) == "PAYE NOV"
+    assert apply_style("Rent for September", "month", d) == "Rent for September"
+    assert apply_style("Search ads", "month", d) == "Search ads Nov"
+    assert apply_style("Junk removal", "month", d) == "Junk removal Nov"

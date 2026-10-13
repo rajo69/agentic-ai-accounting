@@ -371,18 +371,19 @@ def test_subcontract_scenario_states_gross_status_at_a_contractor():
             assert d.gold.label == "321" and "gross" in d.xero["line_description"].casefold()
 
 
-def test_no_lookalike_receipt_payer_is_a_bare_transaction_word(full):
-    """F4: a lookalike receipt (posted by precedent) names a numbered payer; bare TRANSFER, BGC, DEPOSIT and the
-    like are only NR-6 review items."""
+def test_receipts_name_the_payer(full):
+    """F4, re-audit R4: a Faster Payment credit shows the remitter. A lookalike receipt (posted by precedent) comes
+    from one of the firm's known private clients; an NR-6 receipt from a person the books have never seen."""
     items, _, _ = full
-    assert scenarios_uk.BARE_RECEIPT_WORDS >= {"TRANSFER", "CREDIT", "BGC", "DEPOSIT", "INWARD PAYMENT",
-                                               "PAYMENT RECEIVED"}
-    assert all("{N" in p for p in scenarios_uk.LOOKALIKE_RECEIPT_REFS)
-    la = [i for i in items if i["scenario"] == "lookalike_receipt"]
-    assert la
-    for it in la:
-        payer = it["record"]["xero"]["contact_name"]
-        assert payer not in scenarios_uk.BARE_RECEIPT_WORDS and any(c.isdigit() for c in payer), it["item_id"]
+    kinds = {"lookalike_receipt": "clients", "unexplained_receipt": "unknown_pool"}
+    seen = Counter()
+    for it in items:
+        if it["scenario"] in kinds:
+            payer = it["record"]["xero"]["contact_name"]
+            assert payer in UK[it["firm_id"]]["people"][kinds[it["scenario"]]], it["item_id"]
+            assert payer.casefold() in it["record"]["description"].casefold(), it["item_id"]
+            seen[it["scenario"]] += 1
+    assert set(seen) == set(kinds), seen
 
 
 def test_payee_tokens_never_start_with_a_brand_word(full):
@@ -543,3 +544,20 @@ def test_entity_role_memos_and_meals_fit_the_firm(full):
         if it["scenario"] == "supplier_refund":
             # F5: the refund memo names the payee (or is empty, so the description is the payee).
             assert it["record"]["xero"]["contact_name"].casefold() in desc, it["item_id"]
+
+
+def test_retail_precedent_account_fits_the_retailer(full):
+    """Re-audit R4: a retailer precedent is food stock only for a caterer at a grocer or wholesaler, never
+    stationery at a garden centre."""
+    items, _, _ = full
+    seen = 0
+    for it in items:
+        if it["scenario"] != "retailer_precedent":
+            continue
+        mid, trade = it["merchant_id"], UK[it["firm_id"]]["trade"]["tag"]
+        if mid == "uk-i-bramblewood-garden-centre":
+            assert it["label"] == "429", it["item_id"]
+        if it["label"] == "310":
+            assert trade == "catering", it["item_id"]
+        seen += 1
+    assert seen

@@ -3796,7 +3796,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -6510,7 +6510,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -7314,7 +7314,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -12298,7 +12298,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -13139,7 +13139,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -15395,7 +15395,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -16608,7 +16608,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -17382,7 +17382,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -18473,7 +18473,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -18707,7 +18707,7 @@
       "Business broadband",
       "Office phone line",
       "Business mobile plan",
-      "Fibre broadband, unit"
+      "Fibre broadband"
      ],
      "narratives": null,
      "needs_line": true,
@@ -21168,7 +21168,7 @@
    "merchant_id": "uk-g-ico",
    "name": "Information Commissioner's Office",
    "narratives": [
-    "ICO {A2}{N6}"
+    "ICO ZB{N6}"
    ],
    "policy_hooks": [],
    "raw_contact_names": [],
@@ -23495,7 +23495,7 @@
       "Shop window posters"
      ],
      "narratives": null,
-     "needs_line": false,
+     "needs_line": true,
      "only": {},
      "policy_hooks": [],
      "reference_patterns": null,
@@ -26628,12 +26628,18 @@
      "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
-      "Chef whites and aprons",
       "Hi-vis and hard hats"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "trades": [
+       "construction",
+       "trades",
+       "manufacturing",
+       "transport"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": true,
@@ -26642,6 +26648,41 @@
      ],
      "typical_direction": "spend",
      "use": "workwear"
+    },
+    {
+     "amount_choices": null,
+     "amount_mode": "range",
+     "amount_range": [
+      "25.00",
+      "180.00"
+     ],
+     "bank_format": null,
+     "default_code": "429",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "429",
+      "uk_xero_default_v0_2_st": "429"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Chef whites and aprons"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "trades": [
+       "catering"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R062"
+     ],
+     "typical_direction": "spend",
+     "use": "workwear_kitchen"
     },
     {
      "amount_choices": null,

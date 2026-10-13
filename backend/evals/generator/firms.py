@@ -59,6 +59,7 @@ def _people(firm_id: str, entity: str, employees: int, subcontractors: int, land
     subs = rest[:subcontractors]
     rest = rest[subcontractors:]
     land = [rest.pop(0)] if landlord else []
+    clients, rest = rest[-3:], rest[:-3]
     role = {"limited_company": "director", "s_corp": "officer"}.get(entity, "owner")
     role_of = {t: role for t in owners}
     role_of.update({t: "employee" for t in emp})
@@ -71,6 +72,7 @@ def _people(firm_id: str, entity: str, employees: int, subcontractors: int, land
         "subcontractors": subs,
         "landlord": land[0] if land else None,
         "unknown_pool": rest,  # never appear in history: used for NEEDS_REVIEW person payees
+        "clients": clients,  # private clients who pay by bank transfer under their own name (re-audit R4)
         "role_of": role_of,
     }
 

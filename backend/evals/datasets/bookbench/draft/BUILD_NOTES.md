@@ -266,3 +266,40 @@ integration by the coordinator (D56 as amended by D59 S4). All on local commits 
   phrases; a regex solves split items once the statement figures are present (choice S2); `underlying_correct` is
   scored only on payer-reference and invoice-capture attacks, because a card descriptor's seller name rarely settles
   the honest account.
+
+## 7. Pre-review audits, rounds 4 and 5 (2026-10-13, generator 0.2.0-draft)
+
+Two more read-only checks before the owner's pilot review (D68), each with two agents (UK and US halves). Reports:
+`.claude/plan/eval-dataset/audit/round4/` and `round5/`. Each flag is marked clear or judgement.
+
+### 7.1 Round 4 (pilot at 96d79f6) and its fixes
+- Found: D4 5 clear (all UK; 3 from one cause, salary off the pay day), D6 0 clear, label 1 clear (US cold-start arm).
+- Fixed by cause (D69): one pay day per person (`Env.pay_day`, rolled to the working day before), shared by history
+  and scored salary and rent items; a deciding precedent for a payee with a monthly stream takes over one month's row
+  (date, amount and the row's own reference) instead of adding a second payment, and no supporting precedents are
+  written for such payees; retail precedent accounts by retailer kind; UK lookalike and NR-6 receipts name the payer
+  (new `people.clients` pool for known private clients, `unknown_pool` for NR-6); memo-stated US personal items set
+  `line_states`; recurring borderlines from rounds 3 and 4 (phone line and broadband wording, subcontractor dinner,
+  chamber dues, ICO numbers, doubled month words, workwear and "ingredients" by trade, mixed S corp pay booked apart).
+
+### 7.2 Round 5 (regenerated pilot) and what is left
+- Found: D4 1 clear (UK, a reversal precedent copying `UNPAID DD` onto the phone bill row it took over), 23 judgement;
+  D6 1 clear (UK, `HALDEN PRINT` alone cannot separate 400 from 461), 1 judgement; label 1 clear (US commercial
+  mortgage interest, cold-start arm only), 4 judgement.
+- Fixed: the taken-over row keeps its own reference; Halden's marketing print always shows its line. The second
+  replaced bb-uk-0035 with a grant receipt from `WESTSHIRE GROWTH H` and changed bb-uk-0031; no other item changed.
+- Not fixed now, on purpose: the US mortgage `line_states` fix and a grant `needs_line` fix each reshuffle a whole
+  half of the pilot, which would void the round 5 audit. Both wait for the post-review regeneration (D8): bb-us-0022
+  (cold-start arm should be 630, line) and bb-uk-0035 (a growth hub receipt at a consultancy could be a sale).
+- Judgement causes for the owner (details in round5 reports): scored items for monthly payees drawn off the stream's
+  day and amount (bb-us-0022, bb-us-0029, bb-uk-0005); lone history rows for payees that should be monthly; shop
+  towns drawn at random; lenders and credit unions as customers; trade fit of some precedent lines; wireline
+  carriers outside their service area; card endings not tied to `card4`; the guide's N4 example against US-R130;
+  customer receipts citing US-R001.
+
+### 7.3 Dry run after both rounds (default seed, real retrieval)
+- 1,000 items (UK 500, US 500), 2,568 history rows; strata exactly at quota; production gold post 845, review 155.
+- Deciding precedent rank for line+history items: 1 (287), 2 (4), 3 (2), 4 (1); no retrieval downgrades.
+- Baselines (test, overall / headline): copy_top1 0.465 / 0.489 (S2 0.978), tfidf 0.508 / 0.495, copy_exact
+  0.325 / 0.289, majority 0.150 / 0.105.
+- Suite: 524 passed, 1 skipped. Rebuild byte-identical.

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import calendar
 import datetime as dt
 import random
 from collections import defaultdict
@@ -105,6 +106,34 @@ class Env:
 
     def is_working_day(self, d: dt.date) -> bool:
         return d.weekday() < 5 and d.isoformat() not in BANK_HOLIDAYS[self.jur]
+
+    def pay_day(self, firm: dict, name: str) -> int:
+        """The one day of the month a person is paid (salary, rent), the same in history and in scored items."""
+        return random.Random(f"{self.seed}:payday:{firm['firm_id']}:{name}").randint(1, 28)
+
+    def pay_date(self, year: int, month: int, day: int) -> dt.date:
+        """A person's pay date in one month: on a weekend or bank holiday, payroll and rent go out the working day
+        before (re-audit R4), or the working day after when that would fall in the previous month."""
+        first = dt.date(year, month, min(day, calendar.monthrange(year, month)[1]))
+        d = first
+        while not self.is_working_day(d):
+            d -= dt.timedelta(days=1)
+        if d.month != month:
+            d = first
+            while not self.is_working_day(d):
+                d += dt.timedelta(days=1)
+        return d
+
+    def pay_dates(self, firm: dict, name: str, window) -> list[dt.date]:
+        """Every pay date of a person inside `window`."""
+        a, b = window
+        day, out, y, mo = self.pay_day(firm, name), [], a.year, a.month
+        while (y, mo) <= (b.year, b.month):
+            d = self.pay_date(y, mo, day)
+            if a <= d <= b:
+                out.append(d)
+            y, mo = (y + 1, 1) if mo == 12 else (y, mo + 1)
+        return out
 
     @staticmethod
     def fmt_for(merchant: dict | None, use: dict | None, fmt: str | None = None, jurisdiction: str = "UK") -> str:
@@ -263,8 +292,9 @@ class Env:
         forbid: list[str] | None = None,
         expect: tuple[str, ...] | None = None,
         auto_precedent: bool = True,
+        date: dt.date | None = None,
     ) -> Draft:
-        date = self.date_in(rng, self.scored_window, self.fmt_for(merchant, use, fmt, self.jur))
+        date = date or self.date_in(rng, self.scored_window, self.fmt_for(merchant, use, fmt, self.jur))
         fctx = self.fill_ctx(firm, date, person, use=use, rng=rng)
         if amount is None:
             amount = self.amount_for(rng, firm, merchant, use, date)

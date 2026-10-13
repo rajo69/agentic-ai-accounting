@@ -40,6 +40,8 @@ def apply_style(line: str, style: str, date: dt.date) -> str:
     if style == "lower":
         return line.lower().replace(",", "")
     if style == "month":
+        if any(w.upper() in MONTH_WORDS for w in re.findall(r"[A-Za-z]+", line)):
+            return line  # the line already names a month ("PAYE NOV" stays as typed, re-audit R4)
         return f"{line} {MONTHS[date.month - 1].title()}"
     if style == "slash":
         return line.replace(", ", " / ")
@@ -49,6 +51,7 @@ def apply_style(line: str, style: str, date: dt.date) -> str:
 
 
 MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+MONTH_WORDS = frozenset(MONTHS) | {"SEPT"} | {dt.date(2000, m, 1).strftime("%B").upper() for m in range(1, 13)}
 
 
 def money(value: Decimal) -> str:

@@ -168,8 +168,8 @@ MERCHANTS += [
     ], fmt="US-ACH", refs=["{K9}"]),
     # Telecom and utilities
     *[B(bid, contacts, narrs, [
-        U("business_line", "spend", lo, hi, "690", "US-R061", ["Business internet", "Shop phone line", "Business mobile plan"], needs_line=True, facts={"line_type": "business"}, amount_mode="fixed"),
-        U("residential", "spend", lo, hi, "3010", "US-R061", ["Home landline", ""], facts={"line_type": "residential"}, amount_mode="fixed", refs=["{N10}"]),
+        U("business_line", "spend", lo, hi, "690", "US-R061", ["Business internet", "Business phone line", "Business mobile plan"], needs_line=True, facts={"line_type": "business", "line_states": True}, amount_mode="fixed"),
+        U("residential", "spend", lo, hi, "3010", "US-R061", ["Home landline", ""], facts={"line_type": "residential", "line_states": True}, amount_mode="fixed", refs=["{N10}"]),
     ], fmt="US-ACH", refs=["{K10}"]) for bid, contacts, narrs, lo, hi in [
         ("us-at-and-t", ["AT&T"], ["AT&T PAYMENT 800-288-2020 TX"], "35.00", "180.00"),
         ("us-verizon", ["Verizon"], ["VERIZON ONEPOS {N6} 800-922-0204 FL"], "40.00", "190.00"),
@@ -243,7 +243,7 @@ _FOOD_US = [
     ("us-grubhub", ["Grubhub"], ["GRUBHUB{A10} 8775851085 NY"], "15.00", "95.00", "delivery"),
 ]
 _CLIENT_MEAL_LINES = {
-    "restaurant": ["Lunch with client re proposal", "Dinner with subcontractor, project review",
+    "restaurant": ["Lunch with client re proposal", "Dinner with client, project review",
                    "Client dinner, project kickoff"],
     "coffee": ["Coffee with prospective client", "Coffee meeting with client"],
 }
@@ -354,11 +354,11 @@ MERCHANTS += [
         ("us-paychex", ["Paychex"], "PAYCHEX INC. DES:PAYROLL", "PAYCHEX TPS DES:TAXES", "PAYCHEX EIB DES:INVOICE"),
     ] for narrs in [[n_net]]],
     B("us-h-and-r-block", ["H&R Block"], ["H&R BLOCK {N5}"], [
-        U("personal_return", "spend", "90.00", "450.00", "3010", "US-R161", ["Personal tax return prep", "Owner 1040 preparation"], needs_line=True, facts={"personal_return": True}),
+        U("personal_return", "spend", "90.00", "450.00", "3010", "US-R161", ["Personal tax return prep", "Owner 1040 preparation"], needs_line=True, facts={"personal_return": True, "line_states": True}),
         U("business_return", "spend", "200.00", "900.00", "640", "US-R161", ["Schedule C preparation", "Business tax return prep"], needs_line=True, routine=True),
     ]),
     B("us-liberty-tax", ["Liberty Tax"], ["LIBERTY TAX {N4}"], [
-        U("personal_return", "spend", "80.00", "350.00", "3010", "US-R161", ["Personal return, owner"], needs_line=True, facts={"personal_return": True}),
+        U("personal_return", "spend", "80.00", "350.00", "3010", "US-R161", ["Personal return, owner"], needs_line=True, facts={"personal_return": True, "line_states": True}),
     ]),
 ]
 
@@ -484,7 +484,7 @@ MERCHANTS += [
     I("riverside-tax-and-bookkeeping", "Riverside Tax and Bookkeeping", ["Riverside Tax and Bookkeeping"], ["RIVERSIDE TAX & BKPG"], [
         U("bookkeeping_fee", "spend", "150.00", "650.00", "640", "US-R161", ["Monthly bookkeeping", "Bookkeeping, {MMM}"], routine=True, amount_mode="fixed"),
         U("professional", "spend", "250.00", "1800.00", "640", "US-R161", ["Business tax return", "Quarterly review"], routine=True),
-        U("personal_return", "spend", "200.00", "600.00", "3010", "US-R161", ["Personal return for owner only", "Owner 1040, personal"], needs_line=True, facts={"personal_return": True}),
+        U("personal_return", "spend", "200.00", "600.00", "3010", "US-R161", ["Personal return for owner only", "Owner 1040, personal"], needs_line=True, facts={"personal_return": True, "line_states": True}),
     ], refs=["INV {N4}"]),
     I("hollis-park-legal", "Hollis Park Legal Group", ["Hollis Park Legal Group"], ["HOLLIS PARK LEGAL"], [
         U("professional", "spend", "250.00", "4200.00", "640", "US-R161", ["Contract review", "Collections letter, unpaid invoice", "Customer terms and conditions review"], routine=True),
@@ -531,7 +531,7 @@ MERCHANTS += [
         U("dues", "spend", "120.00", "650.00", "710", "US-R015", ["Builders association annual dues", "Trade association membership dues"], routine=True, facts={"club": False}, only={"trades": ["construction", "trades"]}),
     ]),
     I("chamber-of-commerce-maple-ridge", "Maple Ridge Chamber of Commerce", ["Maple Ridge Chamber of Commerce"], ["MAPLE RIDGE CHAMBER"], [
-        U("dues", "spend", "150.00", "500.00", "710", "US-R191", ["Chamber of commerce membership", "Annual chamber dues"], routine=True),
+        U("dues", "spend", "150.00", "500.00", "710", "US-R191", ["Chamber of commerce membership", "Annual chamber dues"], routine=True, amount_mode="whole"),
     ]),
     I("summit-continuing-ed", "Summit Continuing Education", ["Summit Continuing Education"], ["SUMMIT CONT ED"], [
         U("course", "spend", "90.00", "650.00", "710", "US-R191", ["Continuing education course", "License renewal CE hours", "Bookkeeping certificate course"], routine=True),
@@ -592,13 +592,13 @@ MERCHANTS += [
         U("estimate_no_form", "spend", "400.00", "8000.00", "3010", "US-R080", [""], refs=["", "{N15}"], only={"payroll": "none"}),
         U("payroll_deposit", "spend", "300.00", "6500.00", "2200", "US-R083", ["941 deposit", "Form 941 tax deposit"], needs_line=True, only={"payroll_any": True}),
         U("ambiguous", "spend", "300.00", "6000.00", "NEEDS_REVIEW", "US-R082", [""], refs=["", "{N15}"], only={"payroll_any": True}),
-        U("personal_penalty", "spend", "40.00", "600.00", "3010", "US-R086", ["Penalty on personal 1040 balance", "Late payment penalty, owner 1040"], needs_line=True, facts={"personal_tax_penalty": True}),
+        U("personal_penalty", "spend", "40.00", "600.00", "3010", "US-R086", ["Penalty on personal 1040 balance", "Late payment penalty, owner 1040"], needs_line=True, facts={"personal_tax_penalty": True, "line_states": True}),
     ], kind="government", category="government"),
     I("state-revenue", "State Department of Revenue", ["{STATE_REV}"], ["{STATE_REV_SHORT} DES:TAX PYMT"], [
         U("sales_tax", "spend", "120.00", "4800.00", "2100", "US-R091", ["Sales tax return {MMM}", "Sales and use tax"], only={"sales_tax": "collects_buyer_imposed"}, refs=["SALES TAX {N8}", "ST {N9}"]),
         U("gross_receipts_tax", "spend", "150.00", "3800.00", "675", "US-R092", ["Gross receipts tax", "GRT return"], only={"sales_tax": "seller_imposed"}, refs=["GRT {N9}"]),
-        U("owner_estimate", "spend", "200.00", "3000.00", "3010", "US-R081", ["Individual estimated tax", ""], refs=["IND EST {N8}"]),
-        U("owner_refund", "receive", "60.00", "1800.00", "3000", "US-R081", ["Individual income tax refund", ""], refs=["IND REFUND {N8}"]),
+        U("owner_estimate", "spend", "200.00", "3000.00", "3010", "US-R081", ["Individual estimated tax", ""], facts={"line_states": True}, refs=["IND EST {N8}"]),
+        U("owner_refund", "receive", "60.00", "1800.00", "3000", "US-R081", ["Individual income tax refund", ""], facts={"line_states": True}, refs=["IND REFUND {N8}"]),
     ], kind="government", category="government"),
     I("city-licensing", "City Business Licensing Office", ["City of {CITY_NAME}"], ["CITY OF {CITY_UP} LICENSE"], [
         U("licence", "spend", "50.00", "650.00", "675", "US-R085", ["Business license renewal", "Annual business license", "City business license fee"], routine=True),
@@ -709,14 +709,18 @@ def payroll_people(firm: dict) -> list[tuple[str, tuple[str, str]]]:
     return out + [(e, staff) for e in ppl["employees"]]
 
 
-def payroll_amount(env, firm: dict, merchant: dict, kind: str, date) -> Decimal:
-    """Unsigned net pay (`kind="net"`) or payroll tax (`kind="tax"`) of one pay run on `date`.
+def payroll_amount(env, firm: dict, merchant: dict, kind: str, date, who: str | None = None) -> Decimal:
+    """Unsigned net pay (`kind="net"`) or payroll tax (`kind="tax"`) of one pay run on `date`; `who` ("officer" or
+    "staff") keeps only that part of the net pay, for an S corp that books officers and staff apart.
 
     Each person's net pay follows the engine's fixed plan (`Env._fixed_plan`, seeded by run, firm, provider and
     person), so it is constant per firm with at most one price step. The plan is read, not logged: the F8 log keys
     on catalogue uses. History rows for the payroll provider should call this too, so they agree with the items.
     """
     people = payroll_people(firm)
+    if who is not None:
+        officers = set(firm["people"]["owners"]) if firm["entity_type"] == "s_corp" else set()
+        people = [(n, r) for n, r in people if (n in officers) == (who == "officer")]
     if not people:
         raise ValueError(f"{firm['firm_id']} has nobody on the payroll")
     net = Decimal("0.00")
