@@ -1,0 +1,179 @@
+"""Expand the firm specs into full firm profiles.
+
+Everything here is derived from the firm id alone (a sha256-seeded random.Random), never from the run seed, so
+firms.json is identical for every run. Tax references are synthetic and fail their check rules (refs.py).
+Person payees are '<initial> <invented surname>' (data/pseudo_surnames.json), drawn at random per firm.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import random
+from functools import lru_cache
+from pathlib import Path
+
+from . import spec_uk, spec_us
+from .charts import chart_id_for
+from .templates import MEMO_STYLES
+from .refs import fake_ct_reference, fake_ein, fake_paye_aoref, fake_utr, fake_vrn
+
+UK_BANKS = ["uk-b-barclays", "uk-b-hsbc", "uk-b-natwest", "uk-b-bank-of-scotland", "uk-b-starling-bank", "uk-b-monzo"]
+US_BANKS = ["us-b-bank-of-america", "us-b-wells-fargo", "us-b-capital-one", "us-b-pnc-bank", "us-b-u-s-bank",
+            "us-b-citibank"]
+
+
+def firm_rng(firm_id: str, salt: str = "") -> random.Random:
+    seed = int(hashlib.sha256(f"ledgerline:{firm_id}:{salt}".encode()).hexdigest()[:16], 16)
+    return random.Random(seed)
+
+
+def _short(name: str) -> str:
+    words = [w for w in name.replace("and", "").split() if w[0].isalpha() and w not in ("Ltd", "LLC", "Inc", "Co")]
+    return "".join(w[0] for w in words[:3]).upper()
+
+
+@lru_cache(maxsize=None)
+def surnames() -> tuple[str, ...]:
+    """Frozen invented surnames (data/pseudo_surnames.json, built by make_names.py)."""
+    path = Path(__file__).parent / "data" / "pseudo_surnames.json"
+    return tuple(json.loads(path.read_text(encoding="utf-8"))["surnames"])
+
+
+INITIALS = "ABCDEFGHJKLMNPRSTW"
+
+
+def _people(firm_id: str, entity: str, employees: int, subcontractors: int, landlord: bool) -> dict:
+    """Person payees as '<initial> <invented surname>'. Names are drawn at random per firm and never encode a role."""
+    rng = firm_rng(firm_id, "people")
+    names: list[str] = []
+    for sn in rng.sample(surnames(), 14):
+        names.append(f"{rng.choice(INITIALS)} {sn}")
+    owners_n = {"partnership": 2, "limited_company": rng.choice([1, 2])}.get(entity, 1)
+    owners = names[:owners_n]
+    rest = names[owners_n:]
+    emp = rest[:employees]
+    rest = rest[employees:]
+    subs = rest[:subcontractors]
+    rest = rest[subcontractors:]
+    land = [rest.pop(0)] if landlord else []
+    role = {"limited_company": "director", "s_corp": "officer"}.get(entity, "owner")
+    role_of = {t: role for t in owners}
+    role_of.update({t: "employee" for t in emp})
+    role_of.update({t: "subcontractor" for t in subs})
+    role_of.update({t: "landlord" for t in land})
+    return {
+        "owners": owners,
+        "owner_role": role,
+        "employees": emp,
+        "subcontractors": subs,
+        "landlord": land[0] if land else None,
+        "unknown_pool": rest,  # never appear in history: used for NEEDS_REVIEW person payees
+        "role_of": role_of,
+    }
+
+
+def _uk_firm(firm_id: str, name: str, split: str, p: dict) -> dict:
+    rng = firm_rng(firm_id, "tax")
+    entity = p["entity_type"]
+    utr = fake_utr(rng)
+    tax = {
+        "vat_registered": p["vat_registered"],
+        "vrn": fake_vrn(rng) if p["vat_registered"] else None,
+        "utr": utr,
+        "paye_aoref": fake_paye_aoref(rng) if (p["employees"] or entity == "limited_company") else None,
+        "ct_reference": fake_ct_reference(utr, rng) if entity == "limited_company" else None,
+    }
+    bank_brand = UK_BANKS[firm_rng(firm_id, "bank").randrange(len(UK_BANKS))]
+    banks = [{"code": "090", "name": "Business Current Account", "provider": bank_brand}]
+    if p["policies"]["savings_account"]:
+        banks.append({"code": "091", "name": "Business Savings Account", "provider": bank_brand})
+    if p["policies"]["card_account"] == "092":
+        banks.append({"code": "092", "name": "Business Credit Card", "provider": bank_brand})
+    firm = {
+        "firm_id": firm_id,
+        "name": name,
+        "short": _short(name),
+        "jurisdiction": "UK",
+        "entity_type": entity,
+        "split": split,
+        "trade": p["trade"],
+        "town": p["town"],
+        "accounting_basis": p["accounting_basis"],
+        "tax": tax,
+        "policies": dict(p["policies"]),
+        "bank_accounts": banks,
+        "bank_brand": bank_brand,
+        "card4": f"{firm_rng(firm_id, 'card').randint(1000, 9999)}",
+        "memo_style": firm_rng(firm_id, "style").choice(MEMO_STYLES),
+        "people": _people(firm_id, entity, p["employees"], p["subcontractors"], p["landlord_person"]),
+        "policy_gaps": p["policy_gaps"],
+    }
+    firm["chart_id"] = chart_id_for(firm)
+    return firm
+
+
+def _us_firm(firm_id: str, name: str, split: str, p: dict) -> dict:
+    rng = firm_rng(firm_id, "tax")
+    entity = p["entity_type"]
+    tax = {"ein": fake_ein(rng), "sales_tax": p["policies"]["sales_tax"]}
+    bank_brand = US_BANKS[firm_rng(firm_id, "bank").randrange(len(US_BANKS))]
+    banks = [{"code": "1000", "name": "Business checking", "provider": bank_brand}]
+    if p["policies"]["savings_account"]:
+        banks.append({"code": "1010", "name": "Business savings", "provider": bank_brand})
+    if p["policies"]["card_account"] == "2000":
+        banks.append({"code": "2000", "name": "Business credit card", "provider": bank_brand})
+    firm = {
+        "firm_id": firm_id,
+        "name": name,
+        "short": _short(name),
+        "jurisdiction": "US",
+        "entity_type": entity,
+        "split": split,
+        "trade": p["trade"],
+        "state": p["state"],
+        "city": p["city"],
+        "accounting_basis": p["accounting_basis"],
+        "tax": tax,
+        "policies": dict(p["policies"]),
+        "bank_accounts": banks,
+        "bank_brand": bank_brand,
+        "card4": f"{firm_rng(firm_id, 'card').randint(1000, 9999)}",
+        "memo_style": firm_rng(firm_id, "style").choice(MEMO_STYLES),
+        "people": _people(firm_id, entity, p["employees"], p["subcontractors"], False),
+        "policy_gaps": p["policy_gaps"],
+        "state_revenue": list(spec_us.STATE_REVENUE[p["state"]]),
+    }
+    firm["chart_id"] = chart_id_for(firm)
+    return firm
+
+
+@lru_cache(maxsize=None)
+def _all() -> dict:
+    out = {}
+    for fid, (name, split, p) in sorted(spec_uk.FIRMS.items()):
+        out[fid] = _uk_firm(fid, name, split, p)
+    for fid, (name, split, p) in sorted(spec_us.FIRMS.items()):
+        out[fid] = _us_firm(fid, name, split, p)
+    return out
+
+
+def all_firms() -> dict[str, dict]:
+    import copy
+
+    return copy.deepcopy(_all())
+
+
+def profile_view(firm: dict) -> dict:
+    """The metadata copy stored on each item (`firm_profile`); used only by the profile-injected arm."""
+    keep = ("firm_id", "name", "jurisdiction", "entity_type", "trade", "accounting_basis", "policies")
+    view = {k: firm[k] for k in keep}
+    view["tax_registration"] = (
+        {"vat_registered": firm["tax"]["vat_registered"], "employer": firm["tax"]["paye_aoref"] is not None}
+        if firm["jurisdiction"] == "UK"
+        else {"sales_tax": firm["tax"]["sales_tax"], "payroll": firm["policies"]["payroll"]}
+    )
+    view["bank_accounts"] = [b["code"] for b in firm["bank_accounts"]]
+    view["owners"] = firm["people"]["owners"]
+    view["employees"] = len(firm["people"]["employees"])
+    return view
