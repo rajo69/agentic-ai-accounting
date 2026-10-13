@@ -55,7 +55,7 @@ import re
 from collections import Counter
 from decimal import Decimal
 
-from . import spec_us, splits
+from . import spec_uk, spec_us, splits
 from .charts import account_name, firm_accounts, in_chart
 from .constants import WORKING_DAY_FORMATS
 from .engine import RULES, Env, Prec, _payee_only_ok
@@ -317,6 +317,10 @@ class HistoryBuilder:
         kind = self._payroll_kind(m, u)
         if kind:
             return abs(Decimal(spec_us.payroll_amount(self.env, self.firm, m, kind, date)))
+        before = getattr(spec_uk, "CS01_FEE_BEFORE", None) if self.jur == "UK" else None
+        if before and m is not None and m["merchant_id"] == "uk-g-companies-house" and u["use"] == "confirmation" \
+                and date.isoformat() < before[1]:
+            return Decimal(before[0])  # R10: the confirmation statement fee in force on that date
         return self.env.amount_for(self.rng, self.firm, m, u, date)
 
     def _render_use(self, m: dict, u: dict, line_pat: str) -> dict:
@@ -392,7 +396,7 @@ class HistoryBuilder:
 
     def person_row(self, name: str, label: str, ref: str, source: str, *, sign: int, lo: str, hi: str,
                    merchant_id: str | None = None, rule_id: str | None = None, date: dt.date | None = None,
-                   use: str | None = None, line: str = "") -> dict | None:
+                   use: str | None = None, line: str = "", role: str | None = None) -> dict | None:
         """A payment to or from a person. `use` makes the amount fixed per person under that pseudo-use name (rent,
         salary), keyed on the person's merchant id as the person scenarios key it."""
         rng = self.rng
@@ -404,6 +408,10 @@ class HistoryBuilder:
             contact = f"{surname} {initial}" if surname else name
         mode = "round" if label in CAPITAL_CODES and sign > 0 else ("fixed" if use else "range")
         pseudo_use = {"use": use or f"person:{label}", "amount_range": [lo, hi], "amount_mode": mode}
+        shared = getattr(spec_uk, "PERSON_FIXED_UK", None) if self.jur == "UK" else None
+        if use and role and shared and role in shared:
+            # The scored person items' plan (scenarios_uk.person_amount): same pseudo-use, same person key.
+            pseudo_use = shared[role]
         fmt = "UK-FPO" if self.jur == "UK" else "US-XFER"
         for _attempt in range(1 if date else 6):
             d = date or self._date(fmt)
@@ -418,14 +426,14 @@ class HistoryBuilder:
         return None
 
     def person_stream(self, name: str, label: str, ref: str, source: str, *, sign: int, lo: str, hi: str,
-                      use: str, rule_id: str | None, line: str = "") -> int:
+                      use: str, rule_id: str | None, line: str = "", role: str | None = None) -> int:
         """Monthly payments to one person (salary, rent) on one day of the month, one fixed amount. A salary line
         (`Salary {MMM}`) is what a payroll bank rule types; rent to a landlord shows the landlord's name."""
         fmt = "UK-FPO" if self.jur == "UK" else "US-XFER"
         n = 0
         for d in self._month_dates(self.rng.randint(1, 28), fmt):
             n += self.person_row(name, label, ref, source, sign=sign, lo=lo, hi=hi, rule_id=rule_id, date=d,
-                                 use=use, line=line) is not None
+                                 use=use, line=line, role=role) is not None
         return n
 
     def own_row(self, label: str, source: str, sign: int) -> None:
@@ -606,7 +614,8 @@ class HistoryBuilder:
         else the scored amount times 0.7 to 1.3 and never equal to it. Owner capital injections are round (R14),
         and the amount keeps the rule's label (F9: no precedent across the de minimis or capitalisation threshold)."""
         mode = (u or {}).get("amount_mode", "range")
-        if u is not None and (mode != "range" or self._payroll_kind(m, u)):
+        tariff = u is not None and u["amount_range"][0] == u["amount_range"][1]
+        if u is not None and (mode != "range" or tariff or self._payroll_kind(m, u)):
             return self._amount(m, u, date)
         base = Decimal(p.amount or "100.00")
         if p.label in CAPITAL_CODES and p.sign > 0:
@@ -891,7 +900,7 @@ class HistoryBuilder:
             elif uk:
                 # Directors draw one fixed net salary a month (R9, R18); the loan account shows separately.
                 self.person_stream(t, "478", "SALARY", "entity", sign=-1, lo="700.00", hi="1100.00", use="salary",
-                                   rule_id="UK-R006", line=self.salary_line(director=True))
+                                   rule_id="UK-R006", line=self.salary_line(director=True), role="director")
                 self.person_row(t, "835", "TFR", "entity", sign=-1, lo="200.00", hi="3000.00", rule_id="UK-R003")
             elif ent == "s_corp":
                 for _ in range(2):
@@ -906,7 +915,8 @@ class HistoryBuilder:
         if uk:
             for t in ppl["employees"]:
                 self.person_stream(t, "477", "SALARY {MMM}", "entity", sign=-1, lo="600.00", hi="2600.00",
-                                   use="salary", rule_id="UK-R006", line=self.salary_line(director=False))
+                                   use="salary", rule_id="UK-R006", line=self.salary_line(director=False),
+                                   role="employee")
             if not cis.get("contractor"):
                 # A CIS contractor's subcontractor payments are the CIS rows in cis_rows.
                 for t in ppl["subcontractors"]:
@@ -915,7 +925,7 @@ class HistoryBuilder:
             if ppl["landlord"]:
                 # The firm's one landlord (R5): same pseudo-use key as the person scenarios ("rent", 450 to 1600).
                 self.person_stream(ppl["landlord"], "469", "RENT {MMM}", "entity", sign=-1, lo="450.00",
-                                   hi="1600.00", use="rent", rule_id="UK-R048")
+                                   hi="1600.00", use="rent", rule_id="UK-R048", role="landlord")
             if ent == "limited_company":
                 m = self.env.by_id["uk-g-hmrc-cumbernauld"]
                 u = next(x for x in m["uses"] if x["use"] == "corporation_tax")
