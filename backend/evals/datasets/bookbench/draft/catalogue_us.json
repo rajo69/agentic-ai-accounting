@@ -1337,7 +1337,7 @@
    ],
    "uses": [
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -1372,7 +1372,7 @@
      "use": "service_fee"
     },
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -2044,7 +2044,7 @@
    ],
    "uses": [
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -2079,7 +2079,7 @@
      "use": "service_fee"
     },
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -2701,7 +2701,7 @@
    ],
    "uses": [
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -2736,7 +2736,7 @@
      "use": "service_fee"
     },
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -8741,7 +8741,7 @@
    ],
    "uses": [
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -8776,7 +8776,7 @@
      "use": "service_fee"
     },
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -11642,7 +11642,7 @@
    ],
    "uses": [
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -11677,7 +11677,7 @@
      "use": "service_fee"
     },
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -12936,7 +12936,7 @@
    ],
    "uses": [
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"
@@ -12971,7 +12971,7 @@
      "use": "service_fee"
     },
     {
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "5.00",
       "35.00"

@@ -21290,7 +21290,6 @@
        "catering",
        "education",
        "health",
-       "services",
        "construction"
       ]
      },
@@ -21337,7 +21336,6 @@
        "catering",
        "education",
        "health",
-       "services",
        "construction"
       ]
      },
@@ -23358,7 +23356,7 @@
       "Free range eggs, kitchen"
      ],
      "narratives": null,
-     "needs_line": false,
+     "needs_line": true,
      "only": {
       "trades": [
        "catering"
@@ -24375,7 +24373,6 @@
        "health",
        "trades",
        "construction",
-       "services",
        "catering"
       ]
      },
@@ -24422,7 +24419,6 @@
        "health",
        "trades",
        "construction",
-       "services",
        "catering"
       ]
      },
@@ -25978,7 +25974,6 @@
        "construction",
        "trades",
        "professional",
-       "services",
        "manufacturing"
       ]
      },
@@ -26025,7 +26020,6 @@
        "construction",
        "trades",
        "professional",
-       "services",
        "manufacturing"
       ]
      },
@@ -26431,7 +26425,7 @@
       "Branded hi-vis vests"
      ],
      "narratives": null,
-     "needs_line": false,
+     "needs_line": true,
      "only": {
       "trades": [
        "construction",

@@ -44,15 +44,17 @@ _ACCOUNTING_SW = [
 
 MERCHANTS: list[dict] = []
 CUSTOMER_REFS = ["{INV}", "{INV} thanks", "paid {INV}", "{FIRMREF}", "{FIRMREF} thanks"]
+# Which firms (by trade tag) each business customer plausibly buys from. The `services` firm is a personal service
+# (dog grooming), so only the holiday lets buy from it (re-audit R3, N4).
 CUSTOMER_TRADES = {
     "kestrel-print-co": ["creative", "professional", "events", "education", "crafts"],
     "ashcombe-dental": ["construction", "trades", "professional", "health", "creative", "manufacturing"],
     "fairhaven-cafe": ["catering", "crafts", "retail", "creative", "trades"],
-    "moorside-veterinary": ["health", "trades", "construction", "services", "catering"],
+    "moorside-veterinary": ["health", "trades", "construction", "catering"],
     "elmstead-academy-trust": ["education", "catering", "construction", "trades", "events", "creative"],
-    "rookwood-estates": ["construction", "trades", "professional", "services", "manufacturing"],
+    "rookwood-estates": ["construction", "trades", "professional", "manufacturing"],
     "pennant-engineering": ["manufacturing", "construction", "trades", "professional", "transport"],
-    "bluebell-day-nursery": ["catering", "education", "health", "services", "construction"],
+    "bluebell-day-nursery": ["catering", "education", "health", "construction"],
     "tidewater-marine": ["manufacturing", "trades", "transport", "professional", "events"],
     "lakeview-holiday-lets": ["services", "catering", "trades", "creative", "beauty", "events", "transport", "retail", "crafts"],
 }
@@ -762,12 +764,16 @@ _SMALL_SELLERS = [
      "event_hire", "30.00", "380.00", "310", "UK-R055",
      ["Table linen hire for event", "Glassware hire, client event", "Chair covers hire, wedding job"], {"service": True}),
 ]
+# Sellers whose account turns on the purpose (UK-R062 workwear needs a work context; a farm shop sells kitchen stock or
+# groceries): their records always carry the typed line (re-audit R3, D6 small-seller pattern).
+_SELLERS_NEEDING_LINE = {"threadmoor-embroidery", "hollowmere-farm-shop"}
 for slug, name, proc, short, long, trades, use, lo, hi, code, rule, lines, facts in _SMALL_SELLERS:
     prefix = SMALL_SELLER_PREFIX[proc]
     # The card name fits the 22-character descriptor field; prefix plus the short part leaves 6 or more free.
     assert len(prefix + long) <= 22 and len(prefix + short) <= 16, (long, short)
     seller = I(slug, name, [name, prefix + long], [prefix + long, prefix + long + " {TOWN}"], [
-        U(use, "spend", lo, hi, code, rule, lines, facts=dict(facts), routine=True, only={"trades": trades}),
+        U(use, "spend", lo, hi, code, rule, lines, facts=dict(facts), routine=True, only={"trades": trades},
+          needs_line=slug in _SELLERS_NEEDING_LINE),
     ], fmt="UK-DEB", category="small_seller", raw=[prefix + long])
     seller["processor"] = proc
     seller["descriptor"] = prefix + short

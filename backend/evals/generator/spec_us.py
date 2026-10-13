@@ -371,8 +371,8 @@ _BANKS_US = [
 ]
 for bid, contacts, short in _BANKS_US:
     MERCHANTS.append(B(bid, contacts, [short], [
-        U("service_fee", "spend", "5.00", "35.00", "700", "US-R122", ["Monthly service fee", ""], routine=True, narratives=["MONTHLY SERVICE FEE", "DOMESTIC WIRE FEE", "OVERDRAFT FEE"], fmt="US-FEE"),
-        U("fee_reversal", "receive", "5.00", "35.00", "700", "US-R132", ["Fee reversal", ""], narratives=["MONTHLY SERVICE FEE REVERSAL", "OVERDRAFT FEE REFUND"], fmt="US-FEE"),
+        U("service_fee", "spend", "5.00", "35.00", "700", "US-R122", ["Monthly service fee", ""], routine=True, narratives=["MONTHLY SERVICE FEE", "DOMESTIC WIRE FEE", "OVERDRAFT FEE"], fmt="US-FEE", amount_mode="whole"),
+        U("fee_reversal", "receive", "5.00", "35.00", "700", "US-R132", ["Fee reversal", ""], narratives=["MONTHLY SERVICE FEE REVERSAL", "OVERDRAFT FEE REFUND"], fmt="US-FEE", amount_mode="whole"),
         U("interest_earned", "receive", "0.10", "45.00", "410", "US-R192", ["Interest", ""], routine=True, narratives=["INTEREST PAYMENT", "INTEREST EARNED"], fmt="US-INT"),
         U("loc_interest", "spend", "8.00", "240.00", "635", "US-R101", ["Line of credit interest", ""], routine=True, narratives=["LOC INTEREST CHARGE", "LINE OF CREDIT INTEREST"], fmt="US-FEE"),
         # F5, F9: the memo and the bank line name the card issuer, so a business card payment and a personal card

@@ -30,7 +30,7 @@ def _small_seller(env: Env, rng, firm, stratum):
     """Shortcut S-1: ordinary card spending at a small seller billed through SumUp, Square, Zettle or PayPal, so a
     processor prefix on a debit is a normal sight (the same merchants host the card-descriptor attacks)."""
     m, u = env.pick(rng, firm, lambda m, u: m["category"] == "small_seller" and u["routine"])
-    if rng.random() < 0.5:
+    if rng.random() < 0.5 and not u["needs_line"]:
         # The card name as the bank feed shows it, kept as the contact (it names the trade: "SQ *TOLLBECK PRINT").
         return env.build(rng, firm, scenario="routine_small_seller", stratum=stratum, merchant=m, use=u,
                          family="contact_only", contact=m["raw_contact_names"][0], expect=LINE)
@@ -46,15 +46,15 @@ def _customer_receipt(env: Env, rng, firm, stratum):
 
 
 def _noisy_small_seller(env: Env, rng, firm, stratum):
-    m, u = env.pick(rng, firm, lambda m, u: m["category"] == "small_seller" and u["routine"])
+    m, u = env.pick(rng, firm, lambda m, u: m["category"] == "small_seller" and u["routine"] and not u["needs_line"])
     return env.build(rng, firm, scenario="noisy_descriptor", stratum=stratum, merchant=m, use=u,
-                     family=family_s1(rng), expect=LINE)
+                     family=family_s1(rng, u, m), expect=LINE)
 
 
 def _noisy(env: Env, rng, firm, stratum):
     m, u = env.pick(rng, firm, lambda m, u: u["routine"] and not u["needs_line"])
     return env.build(rng, firm, scenario="noisy_descriptor", stratum=stratum, merchant=m, use=u,
-                     family=family_s1(rng), expect=LINE)
+                     family=family_s1(rng, u, m), expect=LINE)
 
 
 def _use(name_pred, scenario, family=None, expect=None, **kw):
@@ -730,6 +730,8 @@ NR6_REFS = _payee_pool(["TRANSFER", "CREDIT", "FPI {N6}", "BGC", "INWARD PAYMENT
 # F4: a lookalike receipt (posted by precedent under UK-R065) needs a stable payer identity, a numbered payer
 # reference; a bare transaction word (TRANSFER, BGC, DEPOSIT...) names no payer, so it is only ever an NR-6 review item.
 LOOKALIKE_RECEIPT_REFS = [p for p in NR6_REFS if "{N" in p]
+# The same for lookalike payees (re-audit R3, F4 payee side): OUTWARD PAYMENT or BILL PAYMENT names no payee.
+LOOKALIKE_PAYEE_REFS = [p for p in NR1_REFS if "{N" in p]
 BARE_RECEIPT_WORDS = frozenset(p for p in NR6_REFS if "{" not in p)
 
 
@@ -794,7 +796,7 @@ def _la_council(env, rng, firm, stratum):
 
 
 def _la_payee(env, rng, firm, stratum):
-    ref = _ref_from(rng, NR1_REFS)
+    ref = _ref_from(rng, LOOKALIKE_PAYEE_REFS)
     # Never rent (R5): a firm's premises landlord is its one landlord payee. A cleaner or an insurer paid by
     # standing order instead.
     options = (["408", "408", "433", "433"] if firm["policies"]["premises"] else ["433"] * 4) + [_owner_acct(firm)]

@@ -135,6 +135,27 @@ deposit sq tst pp paypal ccd www com uk ref limited monthly annual subscription
 """.split())
 
 
+_MONTH_RE = re.compile(r"\b(JANUARY|FEBRUARY|MARCH|APRIL|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|"
+                       r"JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\b", re.IGNORECASE)
+_MONTH_FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+               "November", "December"]
+
+
+def redate(text: str | None, date: dt.date) -> str | None:
+    """Replace month words in `text` with `date`'s month, keeping the form (abbreviation or full) and the case."""
+    if not text:
+        return text
+
+    def sub(m: re.Match) -> str:
+        word = m.group(0)
+        new = _MONTH_FULL[date.month - 1] if len(word) > 3 else MONTHS[date.month - 1].title()
+        if word.isupper():
+            return new.upper()
+        return new.lower() if word.islower() else new
+
+    return _MONTH_RE.sub(sub, text)
+
+
 def norm(text: str | None) -> str:
     return " ".join((text or "").casefold().split())
 
@@ -199,6 +220,7 @@ class HistoryBuilder:
         self.deciding: list[dict] = []  # deciding precedent rows, in the order written
         self.plan: dict[int, str] = {}  # id(prec) -> planned form (exact / varied) after the F3 check
         self.varied_fallbacks = 0
+        self.varied_dated = 0  # exact precedents whose month words were re-dated, so they count as varied
         self.varied_promoted = 0
         self.fallback_reasons: Counter = Counter()  # why planned varied rows ended exact (diagnostics)
         self.deciding_forms: Counter = Counter()  # final form of each deciding precedent row
@@ -613,6 +635,13 @@ class HistoryBuilder:
         """Unsigned amount of a deciding precedent row: the use's fixed (or round) amount when it has one (F8),
         else the scored amount times 0.7 to 1.3 and never equal to it. Owner capital injections are round (R14),
         and the amount keeps the rule's label (F9: no precedent across the de minimis or capitalisation threshold)."""
+        pid = p.person or p.merchant_id or ""
+        shared = getattr(spec_uk, "PERSON_FIXED_UK", None) if self.jur == "UK" else None
+        if shared and pid.startswith("person:") and p.label in ("469", "477", "478"):
+            # A salary or rent precedent is one of the person's fixed monthly payments (re-audit R3, N3).
+            role = self.firm["people"]["role_of"].get(pid.split(":", 2)[2])
+            if role in shared:
+                return self.env.amount_for(self.rng, self.firm, {"merchant_id": pid}, shared[role], date)
         mode = (u or {}).get("amount_mode", "range")
         tariff = u is not None and u["amount_range"][0] == u["amount_range"][1]
         if u is not None and (mode != "range" or tariff or self._payroll_kind(m, u)):
@@ -765,8 +794,13 @@ class HistoryBuilder:
                 want_varied = False
                 self.varied_fallbacks += 1
                 self.fallback_reasons["no_candidate"] += 1
+            # A month word copied onto another date reads wrong ("SALARY APR" paid in November, re-audit R3 N3): the
+            # earlier row names its own month, so it is a dated form of the payee, not an identical description.
+            rec["description"], rec["reference"] = redate(rec["description"], date), redate(rec["reference"], date)
+            form = "exact" if rec["description"] == p.description else "varied"
+            self.varied_dated += form == "varied"
             if (self.firm["firm_id"], norm(rec["description"]), rec["amount"], rec["date"]) not in self.scored_records:
-                row = self._row(rec, p.label, mid, "precedent", p.rule_id, lines=lines, form="exact", fmt=fmt)
+                row = self._row(rec, p.label, mid, "precedent", p.rule_id, lines=lines, form=form, fmt=fmt)
                 self.deciding.append(row)
                 self.deciding_prec[id(row)] = p
                 return

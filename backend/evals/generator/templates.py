@@ -107,15 +107,16 @@ def fill(pattern: str, rng: random.Random, ctx: dict) -> str:
             kr = random.Random(f"{firm['firm_id']}:{ctx.get('merchant_id', '')}:{ctx.get('use', '')}:K")
             return "".join(kr.choice(_ALNUM) for _ in range(k or 8))
         if key == "TOWN":
+            if ctx.get("away_town"):
+                return ctx["away_town"]
             return firm.get("town", "LEEDS") if rng.random() < 0.7 else rng.choice(ctx["towns"])
-        if key == "CITY":
-            return firm.get("city", "").upper()
+        city, state = ctx.get("away_city") or (firm.get("city", ""), firm.get("state", ""))
+        if key in ("CITY", "CITY_UP"):
+            return city.upper()
         if key == "CITY_NAME":
-            return firm.get("city", "")
-        if key == "CITY_UP":
-            return firm.get("city", "").upper()
+            return city
         if key == "ST":
-            return firm.get("state", "")
+            return state
         if key == "STATE_REV":
             return ctx["state_revenue"][0]
         if key == "STATE_REV_SHORT":

@@ -62,7 +62,7 @@ MODES = {"pilot": {"UK": 40, "US": 40}, "full": {"UK": 500, "US": 500}}
 
 # Merchant-use amount behaviour (F8): `range` draws per line, `fixed` is one amount per firm and use (one price step
 # allowed), `round` rounds to 100 (500 above 5,000) for drawdowns and capital injections.
-AMOUNT_MODES = ("range", "fixed", "round")
+AMOUNT_MODES = ("range", "fixed", "round", "whole")
 
 # Split gold (B5, B16; SCHEMA_v0.2 sections 3 and 7).
 SPLIT_KINDS = ("processor_payout", "cis_receipt", "cis_payment")
