@@ -346,3 +346,12 @@ def test_cis_contractors_have_a_rate_per_subcontractor():
             rates = f["people"]["cis_rates"]
             assert set(rates) == (set(f["people"]["subcontractors"]) if f["tax"]["cis"]["contractor"] else set())
             assert set(rates.values()) <= {"0", "20", "30"}
+
+
+def test_loans_never_take_a_price_step():
+    env = _env()
+    m = {"merchant_id": "uk-i-lender"}
+    for k in range(40):
+        firm = dict(UK_ST, firm_id=f"uk-x{k}")
+        plan = env._fixed_plan(firm, m["merchant_id"], dict(_use("fixed"), use="loan_instalment"))
+        assert plan[1] is None and plan[0] == plan[2]

@@ -185,7 +185,10 @@ class Env:
         r = random.Random(f"{self.seed}:fixed:{firm['firm_id']}:{merchant_id}:{use.get('fixed_group') or use['use']}")
         lo, hi = use["amount_range"]
         base = draw_amount(r, lo, hi)
-        if r.random() < 0.35:
+        step_ok = r.random() < 0.35
+        # A credit agreement keeps one instalment for its term (R6): loans, mortgages and leases never step.
+        key = f"{use.get('fixed_group') or ''} {use['use']}"
+        if step_ok and not any(w in key for w in ("loan", "mortgage", "lease", "hire_purchase", "finance")):
             start, end = self.hist_window[0], self.scored_window[1]
             step_date = start + dt.timedelta(days=r.randint(30, (end - start).days - 30))
             stepped = (base * (1 + Decimal(r.randint(2, 10)) / 100)).quantize(Decimal("0.01"))
