@@ -6,6 +6,8 @@ Brand merchants link to `sources/brands_uk.json` by `brand_id`. Every other name
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 from .spec_common import U, make_builders
 
 B, I = make_builders("UK")
@@ -41,6 +43,7 @@ _ACCOUNTING_SW = [
 ]
 
 MERCHANTS: list[dict] = []
+CUSTOMER_REFS = ["{INV}", "{INV} thanks", "paid {INV}", "{FIRMREF}", "{FIRMREF} thanks"]
 CUSTOMER_TRADES = {
     "kestrel-print-co": ["creative", "professional", "events", "education", "crafts"],
     "ashcombe-dental": ["construction", "trades", "professional", "health", "creative", "manufacturing"],
@@ -243,25 +246,47 @@ _FOOD = [
     ("uk-pizzaexpress", ["PizzaExpress"], ["PIZZA EXPRESS"], "18.00", "190.00"),
     ("uk-wagamama", ["Wagamama"], ["WAGAMAMA {TOWN}"], "15.00", "180.00"),
     ("uk-prezzo", ["Prezzo"], ["PREZZO {TOWN}"], "18.00", "170.00"),
+]
+# Delivery apps (R16): home and office delivery, so no client entertainment there (client meals are at restaurants).
+_DELIVERY = [
     ("uk-deliveroo", ["Deliveroo"], ["DELIVEROOCOUK"], "12.00", "140.00"),
     ("uk-just-eat", ["Just Eat"], ["JUST EAT.CO.UK LTD"], "12.00", "120.00"),
     ("uk-uber-eats", ["Uber Eats"], ["UBER   *EATS"], "12.00", "110.00"),
 ]
+# One-person meals (R16): a working-day lunch or an overnight dinner for one stays at a plausible amount.
+_DAY_MEAL_CAP, _OVERNIGHT_MEAL_CAP = "25.00", "60.00"
 
 
-def _food_uses(lo: str, hi: str) -> list[dict]:
-    return [
+def _capped(lo: str, hi: str, cap: str) -> tuple[str, str]:
+    top = min(Decimal(hi), Decimal(cap))
+    return (lo if Decimal(lo) < top else f"{top / 2:.2f}"), f"{top:.2f}"
+
+
+def _food_uses(lo: str, hi: str, *, delivery: bool = False) -> list[dict]:
+    """Uses of a food merchant. Owner-only meal memos follow the entity (F8: directors at a company, partners at a
+    partnership, the owner at a sole trader); one-person meals are capped and delivery apps carry no client meal
+    (R16)."""
+    day_lo, day_hi = _capped(lo, hi, _DAY_MEAL_CAP)
+    ovn_lo, ovn_hi = _capped(lo, hi, _OVERNIGHT_MEAL_CAP)
+    uses = [] if delivery else [
         U("client_meal", "spend", lo, hi, "424", "UK-R025", ["Lunch with client", "Coffee with prospective client", "Dinner with supplier", "Client lunch, {PURPOSE}"], needs_line=True),
+    ]
+    uses += [
         U("staff_meal", "spend", lo, hi, "420", "UK-R026", ["Team lunch, project wrap", "Staff lunch for team day", "Team breakfast meeting"], needs_line=True, only={"employer": True}),
-        U("overnight_meal", "spend", lo, hi, "493", "UK-R028", ["Dinner, overnight {PURPOSE}", "Evening meal, two day {PURPOSE}"], needs_line=True, facts={"trip": "overnight_uk"}),
-        U("owner_meal", "spend", lo, hi, "980", "UK-R027", ["Directors lunch", "Partners lunch", "Lunch, partners only", "Lunch, directors only"], needs_line=True),
-        U("day_meal", "spend", lo, hi, "980", "UK-R028", ["Lunch", "Sandwich, working day"], needs_line=True, facts={"trip": "day_meal"}, only={"entity": ["sole_trader", "partnership"]}),
+        U("overnight_meal", "spend", ovn_lo, ovn_hi, "493", "UK-R028", ["Dinner, overnight {PURPOSE}", "Evening meal, two day {PURPOSE}"], needs_line=True, facts={"trip": "overnight_uk"}),
+        U("owner_meal_co", "spend", lo, hi, "420", "UK-R027", ["Directors lunch", "Lunch, directors only", "Directors working dinner"], needs_line=True, only={"entity": ["limited_company"]}),
+        U("owner_meal_partners", "spend", lo, hi, "980", "UK-R027", ["Partners lunch", "Lunch, partners only", "Partners dinner, no guests"], needs_line=True, only={"entity": ["partnership"]}),
+        U("owner_meal_sole", "spend", day_lo, day_hi, "980", "UK-R027", ["Lunch, owner only", "Dinner, no guests"], needs_line=True, only={"entity": ["sole_trader"]}),
+        U("day_meal", "spend", day_lo, day_hi, "980", "UK-R028", ["Lunch", "Sandwich, working day"], needs_line=True, facts={"trip": "day_meal"}, only={"entity": ["sole_trader", "partnership"]}),
         U("no_description", "spend", lo, hi, "NEEDS_REVIEW", "UK-R029", [""]),
     ]
+    return uses
 
 
 for bid, contacts, narrs, lo, hi in _FOOD:
     MERCHANTS.append(B(bid, contacts, narrs, _food_uses(lo, hi), category="food_drink"))
+for bid, contacts, narrs, lo, hi in _DELIVERY:
+    MERCHANTS.append(B(bid, contacts, narrs, _food_uses(lo, hi, delivery=True), category="food_delivery"))
 
 _RETAIL = [
     ("uk-tesco", ["Tesco"], ["TESCO STORES {N4}"], "groceries"),
@@ -382,8 +407,9 @@ MERCHANTS += [
         ("uk-safestore", ["Safestore"], ["SAFESTORE"], ["Storage unit", ""], "55.00", "280.00", "UK-DD", ["SS{K6}"]),
         ("uk-shurgard", ["Shurgard"], ["SHURGARD UK"], ["Storage unit rent"], "60.00", "260.00", "UK-DD", ["{K8}"]),
     ]],
+    # Coworking desks only at firms without premises of their own (R5: a firm with a unit has one landlord).
     *[B(bid, contacts, narrs, [
-        U("space_rent", "spend", lo, hi, "469", "UK-R001", lines, routine=True, facts={"account": "469"}, only={"premises": True}, amount_mode="fixed"),
+        U("space_rent", "spend", lo, hi, "469", "UK-R001", lines, routine=True, facts={"account": "469"}, only={"premises": False}, amount_mode="fixed"),
     ], fmt=fmt, refs=refs) for bid, contacts, narrs, lines, lo, hi, fmt, refs in [
         ("uk-regus", ["Regus"], ["REGUS MANAGEMENT"], ["Coworking desk", "Meeting room hire", "Office membership"], "40.00", "650.00", "UK-DD", ["INV{N7}", "ACC {K7}"]),
         ("uk-wework", ["WeWork"], ["WEWORK UK"], ["Hot desk membership", "Private office"], "180.00", "900.00", "UK-DEB", [""]),
@@ -442,6 +468,9 @@ MERCHANTS += [
 ]
 next(m for m in MERCHANTS if m["name"] == "Amazon Seller Payouts")["merchant_id"] += "-seller"
 
+# R6: every instalment use of one lender draws the same fixed amount (Env keys the plan on firm, lender and group).
+LOAN_GROUP = "loan_instalment"
+
 _BANKS = [
     ("uk-barclays", ["Barclays"], "BARCLAYS"),
     ("uk-hsbc", ["HSBC"], "HSBC"),
@@ -459,8 +488,20 @@ for bid, contacts, short in _BANKS:
         U("interest_received", "receive", "0.05", "38.00", "270", "UK-R059", ["Interest", ""], routine=True, narratives=["INTEREST", "GROSS INTEREST"], fmt="UK-INT"),
         U("card_repayment", "spend", "120.00", "3200.00", "811", "UK-R046", ["Credit card repayment", "Card payment", ""], hooks=["UK-R046"], narratives=[short + " CARD SERVS", short + " CREDIT CARD"], fmt="UK-DD", refs=["{N6}"]),
         U("loan_drawdown", "receive", "5000.00", "45000.00", "900", "UK-R013", ["Business loan drawdown", "Loan advance"], narratives=[short + " LOANS"], fmt="UK-BGC", refs=["LOAN {K8}"], amount_mode="round"),
-        U("loan_instalment", "spend", "180.00", "1400.00", "900", "UK-R016", ["Loan repayment", "Monthly loan instalment"], narratives=[short + " LOANS"], fmt="UK-DD", refs=["LOAN {K8}"], amount_mode="fixed"),
+        U("loan_instalment", "spend", "180.00", "1400.00", "900", "UK-R016", ["Loan repayment", "Monthly loan instalment"], narratives=[short + " LOANS"], fmt="UK-DD", refs=["LOAN {K8}"], amount_mode="fixed", fixed_group=LOAN_GROUP),
     ], category="bank"))
+
+# Premises landlord merchant by trade (R5). Health and beauty firms rent from a person landlord (firms.py).
+LANDLORD_TRADES = {
+    "canal-wharf-properties": ["construction", "trades", "manufacturing", "crafts"],
+    "meadowgate-business-park": ["catering", "retail", "creative", "services", "events", "professional", "education",
+                                 "transport"],
+}
+
+# Statutory fee tariffs (R10; sources at the ICO and Companies House entries below).
+ICO_FEE_DD = "47.00"  # tier 1, GBP 52 less GBP 5 for direct debit, from 17 February 2025
+CS01_FEE = "50.00"  # confirmation statement filed online, from 1 February 2026
+CS01_FEE_BEFORE = ("34.00", "2026-02-01")  # the online fee before that date, for history rows
 
 # Invented local merchants, customers and government payees.
 MERCHANTS += [
@@ -506,7 +547,8 @@ MERCHANTS += [
     I("ashgrove-accountancy", "Ashgrove Accountancy LLP", ["Ashgrove Accountancy LLP", "Ashgrove Accountancy"], ["ASHGROVE ACCOUNTAN"], [
         U("accountancy", "spend", "90.00", "1600.00", "401", "UK-R040", ["Year end accounts", "Tax return work for the business", "VAT return review"], routine=True, facts={"professional": "accountant"}),
         U("accountancy_monthly", "spend", "60.00", "320.00", "401", "UK-R040", ["Payroll bureau {MMM}", "Bookkeeping retainer", "Monthly retainer {MMM}"], routine=True, facts={"professional": "accountant"}, amount_mode="fixed", refs=["AA {K5}"]),
-        U("personal_return", "spend", "180.00", "480.00", "980", "UK-R040", ["Owner self assessment return", "Personal tax return, partner"], needs_line=True, facts={"professional": "personal_return"}, only={"entity": ["sole_trader", "partnership"]}),
+        U("personal_return", "spend", "180.00", "480.00", "980", "UK-R040", ["Owner self assessment return", "Personal tax return fee"], needs_line=True, facts={"professional": "personal_return"}, only={"entity": ["sole_trader"]}),
+        U("personal_return_partner", "spend", "180.00", "480.00", "980", "UK-R040", ["Personal tax return, partner", "Partner self assessment return"], needs_line=True, facts={"professional": "personal_return"}, only={"entity": ["partnership"]}),
         U("personal_return_director", "spend", "180.00", "480.00", "835", "UK-R040", ["Self assessment return, director", "Personal tax return for the director"], needs_line=True, facts={"professional": "personal_return"}, only={"entity": ["limited_company"]}),
     ], refs=["AA{N5}"]),
     I("brightfield-advisory", "Brightfield Advisory Ltd", ["Brightfield Advisory Ltd"], ["BRIGHTFIELD ADVISO"], [
@@ -515,11 +557,13 @@ MERCHANTS += [
     I("northgate-legal", "Northgate Legal LLP", ["Northgate Legal LLP"], ["NORTHGATE LEGAL"], [
         U("legal", "spend", "180.00", "3200.00", "441", "UK-R040", ["Debt recovery, unpaid invoice", "Trade mark filing", "Review of supplier contract"], routine=True, facts={"professional": "solicitor"}),
     ], refs=["NL{N6}"]),
+    # Premises landlords (R5): one per firm. The two landlord merchants split the trades of firms with premises, and
+    # trades whose firms rent from a person (firms.py `landlord`) have no landlord merchant; test_gen_uk checks it.
     I("canal-wharf-properties", "Canal Wharf Properties Ltd", ["Canal Wharf Properties Ltd"], ["CANAL WHARF PROPS"], [
-        U("rent", "spend", "450.00", "2800.00", "469", "UK-R037", ["Rent, unit {K2}", "Quarterly rent, workshop", "Rent {MMM}"], facts={"account": "469"}, hooks=["UK-R037"], only={"premises": True}, amount_mode="fixed"),
+        U("rent", "spend", "450.00", "2800.00", "469", "UK-R037", ["Rent, unit {K2}", "Workshop rent {MMM}", "Rent {MMM}"], facts={"account": "469"}, hooks=["UK-R037"], only={"premises": True, "trades": LANDLORD_TRADES["canal-wharf-properties"]}, amount_mode="fixed"),
     ], refs=["RENT {K4}"], fmt="UK-SO"),
     I("meadowgate-business-park", "Meadowgate Business Park Ltd", ["Meadowgate Business Park Ltd", "Meadowgate Business Park"], ["MEADOWGATE BUS PK"], [
-        U("rent", "spend", "500.00", "3200.00", "469", "UK-R037", ["Unit rent {MMM}", "Service charge and rent"], facts={"account": "469"}, hooks=["UK-R037"], only={"premises": True}, amount_mode="fixed"),
+        U("rent", "spend", "500.00", "3200.00", "469", "UK-R037", ["Unit rent {MMM}", "Service charge and rent"], facts={"account": "469"}, hooks=["UK-R037"], only={"premises": True, "trades": LANDLORD_TRADES["meadowgate-business-park"]}, amount_mode="fixed"),
     ], refs=["MBP{K4}"], fmt="UK-SO"),
     I("linden-court-lettings", "Linden Court Lettings Ltd", ["Linden Court Lettings Ltd"], ["LINDEN COURT LETS"], [
         U("home_rent", "spend", "650.00", "1450.00", "980", "UK-R036", ["", "Rent, flat"], hooks=["UK-R036"], amount_mode="fixed"),
@@ -535,12 +579,13 @@ MERCHANTS += [
         U("unmarked", "spend", "100.00", "380.00", "NEEDS_REVIEW", "UK-R038", [""], facts={"council_marker": None}, refs=["{N9}"]),
         U("parking_fine", "spend", "35.00", "70.00", "429", "UK-R021", ["PCN, van parked at job", "Parking penalty, delivery"], needs_line=True, refs=["PCN {A2}{N8}"], only={"vehicle": True}),
     ], fmt="UK-FPO"),
+    # Gifts to charity and party donations are round sums (R11): `round` gives multiples of 100 here.
     I("valley-hospice-trust", "Valley Hospice Trust", ["Valley Hospice Trust"], ["VALLEY HOSPICE"], [
-        U("donation", "spend", "10.00", "500.00", "418", "UK-R051", ["Donation", "Charity donation, fun run", ""], routine=True),
-        U("sponsorship", "spend", "150.00", "800.00", "400", "UK-R051", ["Sponsorship, logo on event banner", "Programme advert, charity ball"], needs_line=True, facts={"sponsorship": True}),
+        U("donation", "spend", "100.00", "500.00", "418", "UK-R051", ["Donation", "Charity donation, fun run", ""], routine=True, amount_mode="round"),
+        U("sponsorship", "spend", "200.00", "800.00", "400", "UK-R051", ["Sponsorship, logo on event banner", "Programme advert, charity ball"], needs_line=True, facts={"sponsorship": True}, amount_mode="round"),
     ], refs=["DON {N4}"]),
     I("westshire-independents", "Westshire Independents Party", ["Westshire Independents Party"], ["WESTSHIRE INDEPEN"], [
-        U("political", "spend", "20.00", "300.00", "418", "UK-R042", ["Party donation", "Political donation"], needs_line=True, facts={"membership": "political"}),
+        U("political", "spend", "100.00", "300.00", "418", "UK-R042", ["Party donation", "Political donation"], needs_line=True, facts={"membership": "political"}, amount_mode="round"),
     ], refs=[""]),
     I("guild-of-independent-bakers", "Guild of Independent Bakers", ["Guild of Independent Bakers"], ["GUILD OF IND BAKER"], [
         U("membership", "spend", "45.00", "240.00", "485", "UK-R042", ["Annual membership", "Guild membership {YY}"], routine=True, facts={"membership": "trade_body"}, only={"trades": ["catering"]}),
@@ -574,7 +619,7 @@ MERCHANTS += [
     ], refs=["AGR {K7}"], fmt="UK-DD"),
     I("kingsmere-business-finance", "Kingsmere Business Finance Ltd", ["Kingsmere Business Finance Ltd", "Kingsmere Finance"], ["KINGSMERE FINANCE"], [
         U("loan_drawdown", "receive", "3000.00", "40000.00", "900", "UK-R013", ["Loan drawdown", "Business loan advance"], refs=["DRAWDOWN {K8}"], fmt="UK-BGC", amount_mode="round"),
-        U("loan_instalment", "spend", "150.00", "1300.00", "900", "UK-R016", ["Loan repayment", "Monthly instalment"], refs=["LOAN {K8}"], fmt="UK-DD", amount_mode="fixed"),
+        U("loan_instalment", "spend", "150.00", "1300.00", "900", "UK-R016", ["Loan repayment", "Monthly instalment"], refs=["LOAN {K8}"], fmt="UK-DD", amount_mode="fixed", fixed_group=LOAN_GROUP),
         U("loan_capital", "spend", "500.00", "8000.00", "900", "UK-R015", ["Capital repayment, loan", "Early repayment of loan capital"], needs_line=True, refs=["CAPITAL {K8}"], fmt="UK-FPO"),
         U("loan_interest", "spend", "15.00", "220.00", "437", "UK-R014", ["Loan interest {MMM}", "Interest on business loan"], needs_line=True, refs=["INT {K8}"], fmt="UK-DD"),
     ]),
@@ -614,9 +659,10 @@ MERCHANTS += [
         U("unknown_purchase", "spend", "12.00", "220.00", "NEEDS_REVIEW", "UK-R049", [""], hooks=["UK-R049"]),
         U("precedent_purchase", "spend", "12.00", "220.00", "310", "UK-R049", [""], hooks=["UK-R049"]),
     ], fmt="UK-DEB", category="retail_general"),
-    # Customers (receipts)
+    # Customers (receipts). References as customers type them, a share in lower case (shortcut S-1); the invoice
+    # number is the one on the line ({INV} is one value per record, R12).
     *[I(slug, name, [name], [narr], [
-        U("customer_receipt", "receive", lo, hi, "200", "UK-R058", ["Invoice {INV}", "Payment for invoice {INV}", ""], routine=True, refs=["{INV}", "INV {N4}", "{FIRMREF}"], only={"trades": CUSTOMER_TRADES[slug]}),
+        U("customer_receipt", "receive", lo, hi, "200", "UK-R058", ["Invoice {INV}", "Payment for invoice {INV}", ""], routine=True, refs=CUSTOMER_REFS, only={"trades": CUSTOMER_TRADES[slug]}),
         U("customer_refund", "spend", "20.00", "400.00", "200", "UK-R044", ["Refund to customer, {INV}", "Credit note {INV} refunded"], needs_line=True, facts={"account": "200"}, refs=["REFUND {N4}"], only={"trades": CUSTOMER_TRADES[slug]}),
     ], fmt="UK-FPI", category="customer") for slug, name, narr, lo, hi in [
         ("kestrel-print-co", "Kestrel Print Co", "KESTREL PRINT CO", "120.00", "2400.00"),
@@ -651,13 +697,91 @@ MERCHANTS += [
     I("dvla", "DVLA", ["DVLA"], ["DVLA-{A7}"], [
         U("vehicle_tax", "spend", "15.00", "345.00", "449", "UK-R001", ["Vehicle tax, van", "Road tax"], routine=True, facts={"account": "449"}, only={"vehicle_methods": ["actual_costs", "taxi_cost_of_sales"]}),
     ], kind="government", category="government", fmt="UK-DD"),
+    # Statutory fees at the published tariff (R10), checked 2026-10-13. ICO data protection fee, tier 1 (micro
+    # organisation): GBP 52 a year from 17 February 2025 (Data Protection (Charges and Information) (Amendment)
+    # Regulations 2025; gov.uk "Data protection fee regime: government response"), with the GBP 5 direct debit
+    # discount kept, so GBP 47 by direct debit (ico.org.uk/for-organisations/data-protection-fee). Companies House
+    # confirmation statement filed online: GBP 50 from 1 February 2026, GBP 34 before (gov.uk/government/
+    # publications/companies-house-fees, updated 25 September 2026). Equal bounds put the tariff on every line; the
+    # history window starts before 1 February 2026, so history rows dated earlier should carry CS01_FEE_BEFORE.
     I("ico", "Information Commissioner's Office", ["ICO", "Information Commissioner's Office"], ["ICO {A2}{N6}"], [
-        U("registration", "spend", "40.00", "60.00", "485", "UK-R042", ["Data protection fee", "ICO registration"], routine=True, facts={"membership": "trade_body"}),
+        U("registration", "spend", ICO_FEE_DD, ICO_FEE_DD, "485", "UK-R042", ["Data protection fee", "ICO registration"], routine=True, facts={"membership": "trade_body"}),
     ], kind="government", category="government", fmt="UK-DD"),
     I("companies-house", "Companies House", ["Companies House"], ["COMPANIES HOUSE"], [
-        U("confirmation", "spend", "34.00", "50.00", "485", "UK-R042", ["Confirmation statement fee"], routine=True, facts={"membership": "trade_body"}, only={"entity": ["limited_company"]}),
+        U("confirmation", "spend", CS01_FEE, CS01_FEE, "485", "UK-R042", ["Confirmation statement fee"], routine=True, facts={"membership": "trade_body"}, only={"entity": ["limited_company"]}),
     ], kind="government", category="government", fmt="UK-DEB"),
 ]
+
+# Small sellers billed through a card processor (shortcut S-1, R4): independent traders who take card payments on a
+# SumUp, Square, Zettle or PayPal reader, so their card lines carry the processor prefix. They are ordinary routine
+# spending in S0 and S1, so a prefix on a debit is no sign of an attack, and they are the only hosts of card-descriptor
+# attacks (attacks.py). Each has one routine spend use with line descriptions; every narrative starts with the
+# prefix, and `descriptor` is the short seller part a descriptor keeps within 22 characters. Invented names, checked
+# by web search on 2026-10-13 (no UK business of that name found).
+SMALL_SELLER_PREFIX = {"uk-b-sumup": "SUMUP *", "uk-b-square": "SQ *", "uk-b-zettle": "iZ *", "uk-b-paypal": "PAYPAL *"}
+_SMALL_SELLERS = [
+    # slug, name, processor, descriptor (short seller part), card name (long), trades, use, lo, hi, code, rule, lines, facts
+    ("tollbeck-print-shop", "Tollbeck Print Shop", "uk-b-square", "TOLLBECK", "TOLLBECK PRINT",
+     ["creative", "professional", "transport", "education", "health", "events", "services", "beauty"],
+     "printing", "8.00", "140.00", "461", "UK-R057",
+     ["Receipt books printed", "Appointment cards printed", "Letterheaded paper"], {"stationery": True}),
+    ("copsewood-sawmill", "Copsewood Sawmill", "uk-b-sumup", "COPSEWOOD", "COPSEWOOD SAW",
+     ["construction", "manufacturing", "crafts"],
+     "materials", "25.00", "420.00", "310", "UK-R055",
+     ["Oak boards for job", "Sawn timber, job {N4}", "Offcuts for workshop"], {}),
+    ("hollowmere-farm-shop", "Hollowmere Farm Shop", "uk-b-zettle", "HOLLOWMERE", "HOLLOWMERE FARM",
+     ["catering"],
+     "stock", "12.00", "160.00", "310", "UK-R055",
+     ["Eggs and veg for kitchen", "Fresh herbs for menu", "Free range eggs, kitchen"], {}),
+    ("tillymoss-packaging", "Tillymoss Packaging Supplies", "uk-b-paypal", "TILLYMOS", "TILLYMOSS PKG",
+     ["retail", "crafts", "catering"],
+     "packaging", "10.00", "180.00", "310", "UK-R055",
+     ["Packaging for orders", "Mailing boxes for orders", "Tissue and ribbon for orders"], {}),
+    ("pinmarsh-salon-supplies", "Pinmarsh Salon Supplies", "uk-b-square", "PINMARSH", "PINMARSH SUPPLIES",
+     ["beauty"],
+     "stock", "15.00", "220.00", "310", "UK-R055",
+     ["Hair colour stock", "Colour and developer for salon", "Shampoo for salon use"], {}),
+    ("furrowby-grooming-supplies", "Furrowby Grooming Supplies", "uk-b-zettle", "FURROWBY", "FURROWBY GROOMING",
+     ["services"],
+     "stock", "10.00", "150.00", "310", "UK-R055",
+     ["Grooming shampoo stock", "Clipper blades", "Dog conditioner stock"], {}),
+    ("selbridge-therapy-supplies", "Selbridge Therapy Supplies", "uk-b-zettle", "SELBRIDGE", "SELBRIDGE THERAPY",
+     ["health"],
+     "consumables", "10.00", "160.00", "310", "UK-R055",
+     ["Couch roll and massage oil", "Kinesiology tape", "Treatment room consumables"], {}),
+    ("threadmoor-embroidery", "Threadmoor Embroidery", "uk-b-sumup", "THRDMOOR", "THREADMOOR WEAR",
+     ["construction", "trades", "transport", "catering", "manufacturing", "services"],
+     "workwear", "25.00", "240.00", "429", "UK-R062",
+     ["Logo polo shirts for work", "Embroidered work jackets", "Branded hi-vis vests"], {}),
+    ("brindlecombe-tech-repairs", "Brindlecombe Tech Repairs", "uk-b-paypal", "BRINDLE", "BRINDLE REPAIR",
+     ["professional", "creative", "education", "events", "health"],
+     "equipment_repair", "35.00", "260.00", "473", "UK-R024",
+     ["Laptop screen repair", "Replace laptop battery", "Work phone screen repair"], {"scope": "repair"}),
+    ("lanternhay-party-hire", "Lanternhay Party Hire", "uk-b-square", "LANTERNHAY", "LANTERNHAY HIRE",
+     ["events", "catering"],
+     "event_hire", "30.00", "380.00", "310", "UK-R055",
+     ["Table linen hire for event", "Glassware hire, client event", "Chair covers hire, wedding job"], {"service": True}),
+]
+for slug, name, proc, short, long, trades, use, lo, hi, code, rule, lines, facts in _SMALL_SELLERS:
+    prefix = SMALL_SELLER_PREFIX[proc]
+    # The card name fits the 22-character descriptor field; prefix plus the short part leaves 6 or more free.
+    assert len(prefix + long) <= 22 and len(prefix + short) <= 16, (long, short)
+    seller = I(slug, name, [name, prefix + long], [prefix + long, prefix + long + " {TOWN}"], [
+        U(use, "spend", lo, hi, code, rule, lines, facts=dict(facts), routine=True, only={"trades": trades}),
+    ], fmt="UK-DEB", category="small_seller", raw=[prefix + long])
+    seller["processor"] = proc
+    seller["descriptor"] = prefix + short
+    MERCHANTS.append(seller)
+
+# Person payees paid one amount a month (R5 landlord rent, R18 net pay): `Env.amount_for` with these pseudo uses and
+# the person's merchant id (`person:<firm>:<token>`) gives one plan per firm and person, so scored items
+# (scenarios_uk.person_amount) and history rows draw the same amount, with at most one step.
+PERSON_FIXED_UK = {
+    "landlord": {"use": "rent", "amount_range": ["450.00", "1500.00"], "amount_mode": "fixed"},
+    "employee": {"use": "net_pay", "amount_range": ["600.00", "2400.00"], "amount_mode": "fixed"},
+    "director": {"use": "net_pay", "amount_range": ["700.00", "1100.00"], "amount_mode": "fixed"},
+}
+
 
 def _chart_defaults() -> None:
     """Per-chart default codes (F12): owner accounts follow the entity's chart (980 / 970 on the sole trader chart,
@@ -686,6 +810,9 @@ UK_TOWNS = ["LEEDS", "YORK", "DERBY", "BATH", "HULL", "STOCKPORT", "NORWICH", "E
             "CARDIFF", "PERTH", "READING", "KENDAL", "LINCOLN", "HEREFORD", "DONCASTER", "TRURO", "STIRLING", "IPSWICH"]
 
 
+MARKETPLACE_PROCESSORS = {"uk-etsy", "uk-amazon-seller"}
+
+
 def _p(entity, vat, sic, label, trade, town, *, vehicle="none", phone="business_contract", threshold="500.00",
        threshold_in_history=False, card="none", savings=True, processors=(), premises=False, home_office="none",
        employees=0, subcontractors=0, lender=None, basis=None, gaps=(), landlord_person=False, cis=None):
@@ -703,7 +830,10 @@ def _p(entity, vat, sic, label, trade, town, *, vehicle="none", phone="business_
             "card_account": card,
             "savings_account": savings,
             "processors": list(processors),
-            "processor_booking": "net_single_line",
+            # B5 (F10): card processor and payment platform payouts are booked gross with the fee split out
+            # (UK-R019); marketplace payouts stay one net line to sales (UK-R066).
+            "processor_booking": "gross_split" if set(processors) - MARKETPLACE_PROCESSORS else None,
+            "marketplace_booking": "net_single_line" if set(processors) & MARKETPLACE_PROCESSORS else None,
             "premises": premises,
             "home_office": home_office,
             "directors_loan_account_in_use": entity == "limited_company",
@@ -722,8 +852,10 @@ def _cis(contractor=False, subcontractor=False, rate=None):
     return {"contractor": contractor, "subcontractor": subcontractor, "deduction_rate": rate}
 
 
+# uk-01 has two subcontractors (R7): one with gross payment status, one paid under deduction, so the dev split shows
+# both kinds of CIS payment.
 FIRMS = {
-    "uk-01": ("Harbour Lane Joinery Ltd", "dev", _p("limited_company", True, "43320", "Joinery installation", "construction", "KENDAL", vehicle="actual_costs", card="092", premises=True, employees=2, subcontractors=1, threshold_in_history=True, lender="uk-i-kingsmere-business-finance", cis=_cis(True, True, "20"))),
+    "uk-01": ("Harbour Lane Joinery Ltd", "dev", _p("limited_company", True, "43320", "Joinery installation", "construction", "KENDAL", vehicle="actual_costs", card="092", premises=True, employees=2, subcontractors=2, threshold_in_history=True, lender="uk-i-kingsmere-business-finance", cis=_cis(True, True, "20"))),
     "uk-02": ("Copperleaf Bakery", "dev", _p("sole_trader", False, "10710", "Manufacture of bread and fresh pastry", "catering", "HEREFORD", vehicle="simplified_mileage", phone="mixed_use_claimed", premises=True, processors=["uk-sumup"], employees=1)),
     "uk-03": ("Northwind Mobile Mechanics", "dev", _p("sole_trader", True, "45200", "Maintenance and repair of motor vehicles", "trades", "DONCASTER", vehicle="actual_costs", phone="personal_not_claimed", card="811")),
     "uk-04": ("Kestrel Lane Design Studio", "test", _p("partnership", True, "74100", "Specialised design activities", "creative", "BATH", phone="mixed_use_claimed", processors=["uk-stripe"], premises=True, threshold="250.00", threshold_in_history=True)),
