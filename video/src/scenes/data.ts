@@ -1,5 +1,5 @@
 /**
- * Hard-coded data for the landing product frame. Synthetic UK company, GBP, codes from the
+ * Hard-coded data for the landing product frame. Demo UK company, GBP, codes from the
  * eval fixtures' chart of accounts. Independent of the S3 demo seed on purpose.
  * Risk rule wording follows the eight rules in the fuzzy engine (amount deviation, vendor
  * frequency, time pattern).
