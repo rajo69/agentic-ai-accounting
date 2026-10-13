@@ -52,7 +52,7 @@ function sections(d: DemoSettings): { eyebrow: string; blurb: string; rows: Row[
       eyebrow: "Sync",
       blurb: "How the books reach the console.",
       rows: [
-        { label: "Source", value: <Mono>Xero (synthetic)</Mono> },
+        { label: "Source", value: <Mono>Xero (demo company)</Mono> },
         { label: "Last sync", value: <Mono>{fmtWhen(d.synced_at)}</Mono> },
         { label: "Schedule", value: <Mono>Manual</Mono>, hint: "Run Sync from the dashboard; nothing runs on a timer in the demo." },
         {
@@ -62,7 +62,7 @@ function sections(d: DemoSettings): { eyebrow: string; blurb: string; rows: Row[
         {
           label: "Documents",
           value: <Mono>Pre-rendered for the imported quarter</Mono>,
-          hint: "The three templates are rendered once from the synthetic book with the real document templates; the period picker does not change them in the demo.",
+          hint: "The three templates are rendered once from the demo book with the real document templates; the period picker does not change them in the demo.",
         },
       ],
     },
@@ -88,7 +88,7 @@ function sections(d: DemoSettings): { eyebrow: string; blurb: string; rows: Row[
     },
     {
       eyebrow: "Organisation",
-      blurb: "The synthetic company behind the demo.",
+      blurb: "The company behind the demo.",
       rows: [
         { label: "Name", value: <span className="text-sm text-foreground">{d.org_name}</span> },
         { label: "Reviewer", value: <Mono>{d.reviewer_email}</Mono> },
@@ -125,7 +125,7 @@ export default function SettingsPage() {
         <EmptyState
           icon={<Settings />}
           title="Settings is part of the demo."
-          hint="In this build the policy, sync and privacy settings are shown with the synthetic company only."
+          hint="In this build the policy, sync and privacy settings are shown with the demo company."
         >
           <Button variant="outline" nativeButton={false} render={<Link href="/demo?skip_onboarding=1" />}>
             Open the demo

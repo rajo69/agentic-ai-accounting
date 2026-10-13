@@ -22,7 +22,7 @@ export function Capabilities() {
       <Container className="flex flex-col gap-24 py-24 md:gap-32 md:py-32">
         <CapabilityRow
           title="Categorise with evidence."
-          body="Every uncategorised transaction gets a proposed account code, a confidence score and written reasoning. The firm’s own confirmed decisions are retrieved as precedents, so proposals follow how this practice codes, not a generic chart."
+          body="Every uncategorised transaction gets a proposed account code, a confidence score and written reasoning. The firm’s own categorised transactions are retrieved as precedents, so proposals follow how this practice codes, not a generic chart."
           fact="Precedents come from pgvector, scoped to the organisation"
           mobile={
             <div className={`${panel} overflow-hidden`}>

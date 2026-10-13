@@ -102,7 +102,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
           <LogOut className="size-4 shrink-0" strokeWidth={1.75} />
           {demo ? "Exit demo" : "Sign out"}
         </button>
-        <p className="px-2.5 pt-1 font-mono text-[11px] text-subtle-foreground">v0.2.8 · portfolio build</p>
+        <p className="px-2.5 pt-1 font-mono text-[11px] text-subtle-foreground">v0.2.8</p>
       </div>
     </aside>
   );

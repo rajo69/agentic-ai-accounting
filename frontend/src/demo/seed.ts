@@ -8,7 +8,7 @@ export const ESCALATION_MODEL = SEED.escalation_model;
 export const ESCALATION_THRESHOLD = SEED.escalation_threshold;
 export const RULE_COUNT = SEED.rules.length;
 
-// A synthetic organisation. The name appears on the dashboard and in `auth/me`.
+// The demo organisation. The name appears on the dashboard and in `auth/me`.
 export const ORG_ID = "5d1c7a2e-9b3f-4c6e-a8d2-0f4e6b1c9a73";
 export const ORG_NAME = "Harlow & Finch Ltd";
 export const DEMO_USER = {

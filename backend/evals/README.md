@@ -1,9 +1,9 @@
 # Eval harness
 
-Measures the categorisation prompt on a fixed set of synthetic UK transactions: accuracy by difficulty tier,
-per-category F1, confidence calibration and API cost. It is a harness for the prompt, not a replay of the production
-agent: it sends its own prompt with no precedent retrieval and no model routing. Parity with the production graph
-is on the [roadmap](../../docs/PRODUCTION_ROADMAP.md).
+Measures the categorisation prompt on a fixed set of labelled UK transactions generated with Claude, none taken
+from Xero: accuracy by difficulty tier, per-category F1, confidence calibration and API cost. It is a harness for the
+prompt: it sends its own prompt with no precedent retrieval and no model routing, so a result measures the prompt
+alone.
 
 ## Quick start
 
@@ -13,7 +13,7 @@ cd backend
 # Rule-based mock: no API calls, free. Exercises the harness itself.
 python -m evals.eval_runner --mode mock
 
-# Live run with a hard budget (USD). Responses are cached to disk, so reruns are free.
+# Live run with a budget cap (USD). Responses are cached to disk, so reruns are free.
 python -m evals.eval_runner --mode live --budget 0.10
 
 # Compare models
@@ -41,7 +41,7 @@ The runner also accepts `--mode cached`; it behaves as `mock` and is kept only f
 
 ## Fixtures
 
-`fixtures/transactions.json`: 50 labelled synthetic UK SME bank transactions, written by hand (no Xero API data):
+`fixtures/transactions.json`: 50 labelled UK SME bank transactions, generated with Claude, none taken from Xero:
 
 - 31 easy (unambiguous: HMRC, well-known SaaS, payroll)
 - 15 medium (need context: memberships, dual-purpose spend, inter-account transfers)
@@ -49,19 +49,20 @@ The runner also accepts `--mode cached`; it behaves as `mock` and is kept only f
 
 `fixtures/accounts.json`: 20 UK chart-of-accounts codes.
 
-The hard tier is too small to support a claim on its own; treat the tier split as diagnostic.
+The tier split is diagnostic: the hard tier has four items, so its rate is read alongside the overall figure.
 
 ## Cost
 
 `cost_tracker.py` holds Anthropic list prices per million tokens (checked 2026-10-10): Haiku 4.5 at 1.00 in / 5.00
 out, Sonnet 4.6 at 3.00 / 15.00, Opus 4.6 at 5.00 / 25.00. Sonnet is therefore 3x Haiku per token. Before a live run
 the tracker prints an estimate from assumed token counts (800 in, 150 out per fixture, about USD 0.08 for 50 fixtures
-on Haiku) and aborts if it exceeds `--budget`; recorded cost is the actual token usage after the run.
+on Haiku). During the run it adds up the cost of every recorded call and stops the run as soon as the total passes
+`--budget`.
 
 ## Acceptance gates
 
-The runner exits non-zero when one of the three accuracy gates is missed. Gates are enforced by the runner, not
-yet in CI. The cost row is a target the report shows; it is not enforced.
+The runner exits non-zero when one of the three accuracy gates is missed. Gates are enforced by the runner.
+The cost row is a target the report shows.
 
 | Metric | Minimum | Target | Enforced |
 |---|---|---|---|
@@ -72,9 +73,8 @@ yet in CI. The cost row is a target the report shows; it is not enforced.
 
 ## Results and provenance
 
-Result CSVs are written to `results/` (gitignored). No accuracy figure is published in this repository until a run is
-committed together with its provenance: commit, fixture version, prompt version, model id and date. Earlier
-README figures were removed on 2026-10-10 for that reason.
+Result CSVs are written to `results/` (gitignored). An accuracy figure is published only together with
+its provenance: commit, fixture version, prompt version, model id and date.
 
 ## Files
 

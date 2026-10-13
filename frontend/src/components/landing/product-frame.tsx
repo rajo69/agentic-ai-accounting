@@ -198,7 +198,7 @@ export function ProductFrame() {
           </Tabs>
         </Reveal>
         <p className="mt-4 font-mono text-xs text-muted-foreground">
-          Scripted with synthetic data.<span className="hidden sm:inline"> Hover to pause. Arrow keys switch scenes.</span>
+          A scripted replay of the real components.<span className="hidden sm:inline"> Hover to pause. Arrow keys switch scenes.</span>
         </p>
       </Container>
     </section>

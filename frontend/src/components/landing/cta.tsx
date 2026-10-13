@@ -11,7 +11,7 @@ export function Cta({ connectHref }: { connectHref: string }) {
       <Container className="py-24 md:py-32">
         <SectionHeader
           title="Review the next quarter with evidence."
-          lead="Open the demo with a synthetic company, or connect a Xero organisation."
+          lead="Open the demo, or connect a Xero organisation."
         />
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <ButtonLink href={DEMO_PATH} size="lg">

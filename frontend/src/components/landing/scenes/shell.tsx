@@ -52,7 +52,7 @@ export function Shell({ active, children }: { active: ShellPage; children: React
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex h-8 shrink-0 items-center justify-between border-b border-border bg-surface-2 px-4 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-          <span>Demo with synthetic data · nothing is written to Xero</span>
+          <span>Demo · nothing is written to Xero</span>
           <span className="flex items-center gap-4">
             <span>Reset demo</span>
             <span className="text-foreground">Connect Xero</span>

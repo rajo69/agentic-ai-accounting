@@ -25,7 +25,7 @@ export default function DemoBanner() {
         <StatusChip tone="info" dot={false} className="h-5 px-1.5 text-[10px] uppercase tracking-[0.08em]">
           Demo
         </StatusChip>
-        <span className="truncate">Synthetic company. Nothing leaves your browser; nothing is written to Xero.</span>
+        <span className="truncate">Nothing leaves your browser; nothing is written to Xero.</span>
       </span>
       <span className="flex shrink-0 items-center gap-1">
         <Button
