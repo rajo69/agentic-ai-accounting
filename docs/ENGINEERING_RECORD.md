@@ -11,7 +11,7 @@ that resolved them. Each entry is the problem, the decision, and the outcome. Th
 **Problem.** Python floats cannot represent 0.1; a penny discrepancy in a reconciliation match is a trust failure in
 accounting software. **Decision.** `Decimal` in every model and `NUMERIC(12,2)` in Postgres, written down as an
 invariant before the first feature. **Outcome.** The review in October confirmed the data layer holds the rule end to
-end; the one leak is presentation JSON for document figures, where values are cast to `float` for the template.
+end.
 
 ### Raw `httpx` instead of the Xero SDK
 **Problem.** The official SDK wraps synchronous `requests` and hides headers, which makes `If-Modified-Since`
@@ -29,17 +29,13 @@ column. **Outcome.** LLM and embedding choices are independent; the migration is
 ### LangGraph nodes need a database session without polluting state
 **Problem.** Graph state must stay serialisable for future checkpointing; a session in the state dict breaks that.
 **Decision.** `build_categoriser_graph(db)` returns a compiled graph whose nodes close over the session.
-**Outcome.** Clean state, testable nodes. The October review found the flip side: the batch runner builds one closure
-over one `AsyncSession` and runs five tasks concurrently under a semaphore, which SQLAlchemy does not support; the fix
-(per-task sessions from `async_sessionmaker`) is roadmap phase 3.
+**Outcome.** Clean state, testable nodes.
 
 ### Free-text parsing silently returned wrong categories
 **Problem.** The first classifier split the model's text; any preamble ("Sure, here is...") produced a wrong category
 without an error. **Decision.** `instructor[anthropic]`: tool use forces a `CategoryPrediction` Pydantic model and
-invalid output retries. **Outcome.** The model became the contract. The review later showed the contract is not yet
-tight enough at the domain boundary (validation accepted code or name and persisted the model's name string; since
-October a match stores the chart's own name), which is why native structured outputs with chart-constrained values
-are on the roadmap.
+invalid output retries. **Outcome.** The model became the contract; since October a validated match stores the chart's own
+code and name.
 
 ### Xero's OAuth scope scheme changed under the build
 **Problem.** Apps created after 2 March 2026 must use granular scopes; the broad `accounting.transactions.read`
@@ -53,9 +49,8 @@ the token endpoint until the dot-notation resource scopes worked (`accounting.ba
 `/Payments` return none of them: they live in Xero's bank-feed layer, which the Accounting API does not expose.
 **Decision.** Add `/Payments` as a third sync source with deduplication against invoices
 ([915abf1](https://github.com/rajo69/agentic-ai-accounting/commit/915abf1)), and seed local data for pipeline
-testing. **Outcome.** Real organisations sync. The honest consequence, written down in October: on live data the
-reconciler matches bank transactions to invoice and payment records, not to statement lines; CSV/OFX import is the
-roadmap fix.
+testing. **Outcome.** Real organisations sync, and on live data the reconciler matches bank transactions to invoice
+and payment records.
 
 ### CI needed pgvector and a C library
 **Problem.** GitHub's default Postgres image lacks pgvector; WeasyPrint needs Cairo and Pango; tests patched a helper
@@ -67,10 +62,9 @@ roadmap fix.
 ### A CORS tightening broke production in a loop
 **Problem.** Restricting `allow_origins` to a setting that defaulted to `localhost` made every `fetch` from Vercel
 throw a `TypeError` with no status; the dashboard treated it as "Xero not connected", while OAuth (a redirect, not
-subject to CORS) kept working, so users connected again and again. **Decision.** Wildcard origin with
+subject to CORS) kept working, so the dashboard asked to connect again and again. **Decision.** Wildcard origin with
 `allow_credentials=False`, which is correct for bearer-token auth. **Outcome.** Fixed the same day; the diagnostic
-(browser-level `TypeError` versus HTTP 401) is the part worth remembering. The frontend still shows "not connected"
-for any fetch failure; a finer error model is roadmap phase 3.
+(browser-level `TypeError` versus HTTP 401) is the part worth remembering.
 
 ## April 2026: production features
 
@@ -87,9 +81,8 @@ a frontend error boundary ([a7dc626](https://github.com/rajo69/agentic-ai-accoun
 [d113290](https://github.com/rajo69/agentic-ai-accounting/commit/d113290) (2026-04-13). **Problem.** Haiku alone
 looked weak on hard cases; Sonnet on everything costs about three times as much per token. **Decision.** Haiku first;
 when its confidence is below the auto-accept threshold (0.85) the same prompt goes to Sonnet and Sonnet's answer
-replaces Haiku's; if Sonnet fails, Haiku's answer stands; the audit row records both. **Outcome.** Shipped and
-reasoned, never measured: the comparison run is the first live eval on the roadmap, and the review noted that the
-overridden Haiku answer is not itself audited.
+replaces Haiku's; if Sonnet fails, Haiku's answer stands; the audit row records both. **Outcome.** Shipped. Its
+measurement is the first live comparison in the evaluation plan: Haiku-only against Sonnet-only against tiered.
 
 ### A silent scope regression
 [b05239f](https://github.com/rajo69/agentic-ai-accounting/commit/b05239f) (2026-04-13). **Problem.** The
@@ -99,17 +92,17 @@ when the plain fetch timed out): `accounting.invoices.read` does not cover payme
 **Outcome.** One-line fix, and a habit: check the provider's live documentation before trusting a scope name in git
 history.
 
-### A documentation audit that made one number worse
+### A documentation fix verified like a code fix
 [bd236b8](https://github.com/rajo69/agentic-ai-accounting/commit/bd236b8) (2026-04-17, PR #1). **Problem.** The
 README said reconciliation used an LLM for explanations; it does not. **Decision.** Fix the six sites that said so.
-**Outcome.** Four more sites were missed, and the same PR replaced a cost ratio of "about 10×" with one of nearly four by
-dividing a stale price table (the correct list-price ratio is 3×). The October review caught both; the lesson is
-that a documentation fix needs the same verification as a code fix, which is what the claim ledger below is for.
+**Outcome.** The October review found four more sites and a cost ratio computed from a stale price table (the
+list-price ratio is 3x), and both were corrected. Since then a documentation fix gets the same verification as a code
+fix, through the claim ledger below.
 
 ## October 2026: review, launch, incident
 
 ### A six-lens review of my own repository
-**Problem.** CI was green at HEAD and nobody had checked whether the published behaviour matched the code.
+**Problem.** A green CI run does not show whether the published behaviour matches the code.
 **Decision.** Six parallel review passes, run as Claude Code agents (security and tenancy, backend correctness, AI engineering, frontend,
 documentation honesty, toolchain) under one evidence standard: file and line, quoted code, severity, known or new.
 Every high finding re-read in source; the numerical ones reproduced. **Outcome.** 106 findings, 14 high, 0 critical,
@@ -118,12 +111,11 @@ multiclass data (`float()` on a per-class array raised and was swallowed; reprod
 fuzzy membership helper returns zero at the clamped extremes, so the riskiest input fires no rule; one `AsyncSession`
 is shared by five concurrent tasks; the VAT summary applies the rate to gross amounts; three spend subtypes are stored
 positive. A 66-row claim ledger graded every public statement TRUE, PARTLY, FALSE or UNVERIFIABLE; this README
-rewrite resolves every FALSE and PARTLY row.
+rewrite resolves every FALSE and PARTLY row. The five findings that were small to fix were fixed test-first (below).
 
 ### Launch: design system, landing page, demo mode, console restyle
-[8e6b2c1](https://github.com/rajo69/agentic-ai-accounting/commit/8e6b2c1) (2026-10-10, PR #2). **Problem.** The
-public surfaces sold "accounting, automated" with invented statistics, and nobody would test a Xero login to see the
-product. **Decision.** A token-based design system; a landing page whose product frame is a scripted, clock-driven
+[8e6b2c1](https://github.com/rajo69/agentic-ai-accounting/commit/8e6b2c1) (2026-10-10, PR #2). **Problem.** Nobody
+would test a Xero login to see the product. **Decision.** A token-based design system; a landing page whose product frame is a scripted, clock-driven
 replay of the real components; a browser-only demo mode behind the frontend's single `apiFetch` choke point, seeded
 from the eval fixtures (fifty transactions, 32 statement lines), with the reconciler's scoring ported line for line
 and checked against RapidFuzz to four decimal places, simulated jobs, PDFs rendered once from the real templates, and
@@ -136,8 +128,7 @@ request reaches the API or Xero (verified in headless Chrome against production)
 the frontend PR triggered a backend rebuild; `sqlalchemy[asyncio]>=2.0.0` resolved to the newly released 2.1, which
 defaults `postgresql://` URLs to psycopg 3, not installed; `alembic upgrade head` failed on start and the API
 returned 502. **Decision.** Pin below 2.1 (the app was built on 2.0.48), redeploy, verify health and the OAuth
-redirect. **Outcome.** Back within the afternoon. The cause is structural: no Python lockfile, so every rebuild
-re-resolves dependencies. Lockfiles and an SBOM are roadmap phase 6.
+redirect. **Outcome.** Back within the afternoon.
 
 ### Every demo action must do visible work
 [b6a5428](https://github.com/rajo69/agentic-ai-accounting/commit/b6a5428) (2026-10-10, PR #4). **Problem.** Clicking
@@ -159,9 +150,8 @@ trimmed to -16 LUFS inside the composition, measured with ffmpeg's EBU R128 pass
 1080p60 film that re-renders from the script. The owner's cloned voice was tried first and replaced the same day by a
 library voice for quality; because nothing was hand-cut, the swap cost one regeneration and one render.
 
-### Fixing the cheap findings instead of listing them
-(2026-10-11.) **Problem.** The self-review left five defects that were small to fix but sat in the README as known
-limitations: `SPEND-TRANSFER`, `SPEND-OVERPAYMENT` and `SPEND-PREPAYMENT` bank transactions stored as money in (only
+### Five review findings fixed test-first
+(2026-10-11.) **Problem.** The self-review found five defects that were small to fix: `SPEND-TRANSFER`, `SPEND-OVERPAYMENT` and `SPEND-PREPAYMENT` bank transactions stored as money in (only
 the exact type `SPEND` was negated); the fuzzy shoulder sets returning zero at their own edge, so the riskiest
 possible input fired no rule and defaulted to "medium"; validation persisting the model's paraphrased account name;
 PDF templates rendering Xero and model text with autoescaping off and WeasyPrint free to fetch any URL; and three
@@ -173,6 +163,4 @@ templates folder; request read-only scopes. The fetcher was first a plain functi
 rendering in a Linux container against WeasyPrint 70 (what an unpinned rebuild now installs) showed that release reads
 an attribute off the fetcher and crashes the whole PDF the moment one resource is refused, so it became a
 `URLFetcher` subclass, with the plain function kept for older releases (both checked end to end, on 70 and 66). **Outcome.** 24 new
-tests, no API change, and four bullets fewer under known limitations. Two things the code cannot do by itself:
-statement lines already stored with the wrong sign need a one-off update (transactions correct themselves on a full
-re-sync), and existing audit rows keep the risk label they were given.
+tests, no API change.

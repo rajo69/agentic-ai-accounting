@@ -1,7 +1,7 @@
 """Transactional email via Resend. Silently no-ops if RESEND_API_KEY is unset.
 
 Kept intentionally small: one function, one dependency (httpx, already
-installed). Resend's API is a single HTTP POST — no SDK overhead needed.
+installed). Resend's API is a single HTTP POST, so no SDK is needed.
 """
 import logging
 from typing import Optional
@@ -24,11 +24,11 @@ async def send_email(
     """Send a transactional email via Resend.
 
     Returns True on success, False on failure (or if Resend isn't configured).
-    Never raises — email sending is best-effort; the caller's operation
+    Never raises: email sending is best-effort; the caller's operation
     (e.g. creating an invited user) must not fail because of a mail problem.
     """
     if not settings.resend_api_key:
-        logger.debug("RESEND_API_KEY not set — email to %s skipped", to)
+        logger.debug("RESEND_API_KEY not set; email to %s skipped", to)
         return False
 
     payload = {
@@ -58,7 +58,7 @@ async def send_email(
                 return False
             return True
     except Exception:
-        logger.exception("Email send to %s raised — continuing anyway", to)
+        logger.exception("Email send to %s raised; continuing", to)
         return False
 
 
@@ -76,8 +76,9 @@ def render_invite_email(
   <div style="max-width: 520px; margin: 0 auto; background: white; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
     <h1 style="color: #0f172a; font-size: 20px; margin: 0 0 16px 0;">You're invited to {org_name}</h1>
     <p style="color: #475569; font-size: 14px; line-height: 1.6;">
-      {inviter_name} has invited you to join their organisation on AI Accountant, an AI-powered
-      assistant for UK accountants that automates Xero transaction categorisation and bank reconciliation.
+      {inviter_name} has invited you to join their organisation on AI Accountant, the review layer for
+      Xero books that AI has already categorised: every transaction gets a proposed category with written
+      reasoning, and a person decides.
     </p>
     <div style="margin: 24px 0;">
       <a href="{invite_link}" style="display: inline-block; background: #4f46e5; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">Accept invitation</a>
@@ -91,8 +92,9 @@ def render_invite_email(
 """.strip()
     text = (
         f"You've been invited to join {org_name} on AI Accountant.\n\n"
-        f"{inviter_name} has invited you to join their organisation, an AI-powered assistant "
-        f"for UK accountants that automates Xero transaction categorisation and bank reconciliation.\n\n"
+        f"{inviter_name} has invited you to join their organisation on AI Accountant, the review layer "
+        f"for Xero books that AI has already categorised: every transaction gets a proposed category "
+        f"with written reasoning, and a person decides.\n\n"
         f"Accept the invitation: {invite_link}\n\n"
         f"If you weren't expecting this invitation, you can safely ignore this email."
     )
