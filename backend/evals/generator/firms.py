@@ -15,6 +15,7 @@ from pathlib import Path
 
 from . import spec_uk, spec_us
 from .charts import chart_id_for
+from .constants import FIRM_SEED_SALT
 from .templates import MEMO_STYLES
 from .refs import fake_ct_reference, fake_ein, fake_paye_aoref, fake_utr, fake_vrn
 
@@ -24,7 +25,7 @@ US_BANKS = ["us-b-bank-of-america", "us-b-wells-fargo", "us-b-capital-one", "us-
 
 
 def firm_rng(firm_id: str, salt: str = "") -> random.Random:
-    seed = int(hashlib.sha256(f"ledgerline:{firm_id}:{salt}".encode()).hexdigest()[:16], 16)
+    seed = int(hashlib.sha256(f"{FIRM_SEED_SALT}:{firm_id}:{salt}".encode()).hexdigest()[:16], 16)
     return random.Random(seed)
 
 
@@ -73,6 +74,17 @@ def _people(firm_id: str, entity: str, employees: int, subcontractors: int, land
     }
 
 
+CIS_NONE = {"contractor": False, "subcontractor": False, "deduction_rate": None}
+
+
+def _cis(p: dict) -> dict:
+    """UK CIS status (B16): who deducts, who suffers deductions and at what rate ("0" = gross payment status)."""
+    cis = dict(CIS_NONE, **(p.get("cis") or {}))
+    assert cis["deduction_rate"] in (None, "0", "20", "30"), cis
+    assert not cis["subcontractor"] or cis["deduction_rate"] is not None, cis
+    return cis
+
+
 def _uk_firm(firm_id: str, name: str, split: str, p: dict) -> dict:
     rng = firm_rng(firm_id, "tax")
     entity = p["entity_type"]
@@ -83,6 +95,7 @@ def _uk_firm(firm_id: str, name: str, split: str, p: dict) -> dict:
         "utr": utr,
         "paye_aoref": fake_paye_aoref(rng) if (p["employees"] or entity == "limited_company") else None,
         "ct_reference": fake_ct_reference(utr, rng) if entity == "limited_company" else None,
+        "cis": _cis(p),
     }
     bank_brand = UK_BANKS[firm_rng(firm_id, "bank").randrange(len(UK_BANKS))]
     banks = [{"code": "090", "name": "Business Current Account", "provider": bank_brand}]
@@ -169,7 +182,8 @@ def profile_view(firm: dict) -> dict:
     keep = ("firm_id", "name", "jurisdiction", "entity_type", "trade", "accounting_basis", "policies")
     view = {k: firm[k] for k in keep}
     view["tax_registration"] = (
-        {"vat_registered": firm["tax"]["vat_registered"], "employer": firm["tax"]["paye_aoref"] is not None}
+        {"vat_registered": firm["tax"]["vat_registered"], "employer": firm["tax"]["paye_aoref"] is not None,
+         "cis": firm["tax"]["cis"]}
         if firm["jurisdiction"] == "UK"
         else {"sales_tax": firm["tax"]["sales_tax"], "payroll": firm["policies"]["payroll"]}
     )

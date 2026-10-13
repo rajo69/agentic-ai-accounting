@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from decimal import Decimal
 
 from .charts import is_gold_eligible
-from .constants import NEEDS_REVIEW
+from .constants import NEEDS_REVIEW, SPLIT_KINDS, SPLIT_ROLES
 from .guides import load_rules
 
 
@@ -35,6 +35,9 @@ class Gold:
     rule_source: str
     review_reason: str | None = None
     policy_keys: tuple[str, ...] = ()
+    # Split gold (SCHEMA_v0.2 sections 3 and 7): ((code, signed amount "0.00", role), ...); None for one-line items.
+    lines: tuple[tuple[str, str, str], ...] | None = None
+    split_kind: str | None = None
 
     def as_tuple(self):
         return (
@@ -94,6 +97,48 @@ def make(
         review_reason=reason,
         policy_keys=tuple(policy),
     )
+
+
+def make_split(
+    ctx: Ctx,
+    rule_id: str,
+    lines: list[tuple[str, Decimal, str]],
+    split_kind: str,
+    solvable: str = "line",
+    *,
+    policy: tuple[str, ...] | str = (),
+) -> Gold:
+    """Split gold: several (code, signed amount, role) lines that sum exactly to the record amount (`ctx.amount`).
+
+    Amounts carry the record's sign convention (receive positive, spend negative); a fee or deduction line has the
+    opposite sign. `label` is the line with the largest absolute amount, ties broken by the lower code. A bad split
+    is a generator bug, so it raises ValueError rather than RuleNotApplicable.
+    """
+    if split_kind not in SPLIT_KINDS:
+        raise ValueError(f"{rule_id}: unknown split kind {split_kind}")
+    if len(lines) < 2:
+        raise ValueError(f"{rule_id}: a split needs at least two lines")
+    codes = [c for c, _, _ in lines]
+    if len(set(codes)) != len(codes):
+        raise ValueError(f"{rule_id}: split codes must be distinct")
+    q = Decimal("0.01")
+    norm_lines = []
+    for code, amount, role in lines:
+        if role not in SPLIT_ROLES:
+            raise ValueError(f"{rule_id}: unknown split role {role}")
+        amount = Decimal(amount).quantize(q)
+        if amount == 0:
+            raise ValueError(f"{rule_id}: zero split line")
+        norm_lines.append((code, amount, role))
+    total = Decimal(ctx.amount).quantize(q)
+    if sum(a for _, a, _ in norm_lines) != total:
+        raise ValueError(f"{rule_id}: split lines sum to {sum(a for _, a, _ in norm_lines)}, record is {total}")
+    primary = sorted(norm_lines, key=lambda x: (-abs(x[1]), x[0]))[0][0]
+    for code in codes:
+        if not is_gold_eligible(ctx.firm, code):
+            raise RuleNotApplicable(f"{rule_id}: {code} is not a gold-eligible account for {ctx.firm['firm_id']}")
+    g = make(ctx, rule_id, primary, solvable, policy=policy)
+    return replace(g, lines=tuple((c, f"{a:.2f}", r) for c, a, r in norm_lines), split_kind=split_kind)
 
 
 def is_st(firm: dict) -> bool:
