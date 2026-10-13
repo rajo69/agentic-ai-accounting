@@ -134,7 +134,7 @@ export default function DocumentsPage() {
     if (periodStart > periodEnd) return toast.error("Start date must be before end date");
 
     setGenerating(true);
-    const tid = toast.loading(`Generating ${tmpl.label}… (15–30 seconds)`);
+    const tid = toast.loading(`Generating ${tmpl.label}… (15 to 30 seconds)`);
     try {
       const res = await generateDocument({ template: selectedTemplate, period_start: periodStart, period_end: periodEnd });
       if (!res.ok) { const text = await res.text(); throw new Error(text || `HTTP ${res.status}`); }

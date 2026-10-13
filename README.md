@@ -1,6 +1,6 @@
 # AI Accountant
 
-**The review layer for Xero books that AI has already categorised.** Every transaction gets a proposed category with written reasoning, a confidence tier and a risk flag. A person decides, and every decision is recorded. Deployed, open source.
+**The review layer for Xero books that AI has already categorised.** Every transaction gets a proposed category with written reasoning, a confidence tier and a risk flag. A person decides, and every decision is recorded. Deployed, open source, with a [demo that runs in your browser](https://agentic-ai-accounting.vercel.app/demo).
 
 [![CI](https://github.com/rajo69/agentic-ai-accounting/actions/workflows/ci.yml/badge.svg)](https://github.com/rajo69/agentic-ai-accounting/actions/workflows/ci.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-informational)](LICENSE)

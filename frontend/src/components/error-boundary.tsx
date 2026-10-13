@@ -19,7 +19,7 @@ interface State {
  * doesn't crash the entire page to a blank screen.
  *
  * Scope: render-time errors only (React's documented boundary behaviour).
- * Async errors, event handlers, and errors in effects are NOT caught —
+ * Async errors, event handlers, and errors in effects are NOT caught:
  * those are already handled at the call site with try/catch + toast.
  */
 export default class ErrorBoundary extends Component<Props, State> {
@@ -51,7 +51,7 @@ export default class ErrorBoundary extends Component<Props, State> {
           <div className="text-center max-w-md">
             <h2 className="text-lg font-semibold text-slate-900">Something went wrong</h2>
             <p className="text-sm text-slate-500 mt-1">
-              We hit an unexpected error rendering this page. Try refreshing — if it keeps happening, please let us know.
+              We hit an unexpected error rendering this page. Try refreshing; if it keeps happening, please let us know.
             </p>
             {process.env.NODE_ENV !== "production" && (
               <pre className="mt-4 text-left text-xs bg-slate-100 rounded p-3 overflow-auto max-h-40 text-rose-700">

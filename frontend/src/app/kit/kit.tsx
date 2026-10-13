@@ -67,7 +67,7 @@ const ROWS = [
   { date: "2026-04-03", contact: "Figma Inc", category: "Software subscriptions", status: "suggested", conf: 0.72, amount: "-45.00" },
   { date: "2026-04-03", contact: "Acme Ltd", category: "Sales", status: "confirmed", conf: 0.99, amount: "12,004.19" },
   { date: "2026-04-05", contact: "TfL Travel", category: "Travel", status: "needs_review", conf: 0.41, amount: "-19.60" },
-  { date: "2026-04-06", contact: "Unknown payee", category: "—", status: "uncategorised", conf: null, amount: "-430.00" },
+  { date: "2026-04-06", contact: "Unknown payee", category: "-", status: "uncategorised", conf: null, amount: "-430.00" },
 ];
 
 const EASINGS = [

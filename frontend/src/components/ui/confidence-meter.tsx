@@ -59,7 +59,7 @@ function ConfidenceMeter({
       </div>
       {showValue && (
         <span className="w-9 shrink-0 text-right font-mono text-small tabular-nums text-muted-foreground">
-          {tier === "none" ? "—" : `${pct}%`}
+          {tier === "none" ? "-" : `${pct}%`}
         </span>
       )}
     </div>
