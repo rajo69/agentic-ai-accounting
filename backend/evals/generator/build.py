@@ -12,7 +12,7 @@ import json
 import random
 import statistics
 import sys
-from decimal import Decimal
+from decimal import ROUND_UP, Decimal
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -233,9 +233,11 @@ def generate(seed: int, n_uk: int, n_us: int, pilot: bool, retrieval: str = "min
         for fid in sorted(by_firm):
             hrng = random.Random(f"{seed}:{jur}:history:{fid}")
             precs = [p for d in by_firm[fid] for p in d.precedents]
-            hb = HistoryBuilder(env, env.firms[fid], hrng, scored_records)
+            hb = HistoryBuilder(env, env.firms[fid], hrng, scored_records, embedder=embedder)
             rows = hb.build(precs)
-            gen_stats["varied_fallbacks"] += getattr(hb, "varied_fallbacks", 0)
+            gen_stats[f"{jur}:varied_fallbacks"] += hb.varied_fallbacks
+            for form, k in hb.deciding_forms.items():
+                gen_stats[f"{jur}:deciding_precedents_{form}"] += k
             rows.sort(key=lambda r: (r["date"], r["description"], r["amount"]))
             for i, r in enumerate(rows, 1):
                 r["row_id"] = f"{fid}-h{i:04d}"
@@ -296,7 +298,8 @@ def fixed_ok(amounts: set) -> bool:
     if len(amounts) > 2:
         return False
     lo, hi = sorted(amounts)
-    return hi <= lo * Decimal("1.10")
+    # the stepped amount is rounded to the cent, so allow the bound rounded up to the cent
+    return hi <= (lo * Decimal("1.10")).quantize(Decimal("0.01"), rounding=ROUND_UP)
 
 
 def finish_gold(it: dict) -> None:

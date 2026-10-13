@@ -158,6 +158,7 @@ def test_round_amounts():
 
 def test_fixed_ok():
     assert B.fixed_ok({Decimal("100")}) and B.fixed_ok({Decimal("100"), Decimal("110")})
+    assert B.fixed_ok({Decimal("333.29"), Decimal("366.62")})  # a 10% step rounded to the cent
     assert not B.fixed_ok({Decimal("100"), Decimal("111")}) and not B.fixed_ok({Decimal(1), Decimal(2), Decimal(3)})
 
 
