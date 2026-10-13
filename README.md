@@ -1,6 +1,6 @@
 # AI Accountant
 
-**The review layer for Xero books that AI has already categorised.** Every transaction gets a proposed category with written reasoning, a confidence tier and a risk flag. A person decides, and every decision is recorded. Built solo, deployed, open source.
+**The review layer for Xero books that AI has already categorised.** Every transaction gets a proposed category with written reasoning, a confidence tier and a risk flag. A person decides, and every decision is recorded. Built solo with Claude Code ([how it was built](#about)); deployed, open source.
 
 [![CI](https://github.com/rajo69/agentic-ai-accounting/actions/workflows/ci.yml/badge.svg)](https://github.com/rajo69/agentic-ai-accounting/actions/workflows/ci.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-informational)](LICENSE)
@@ -19,7 +19,7 @@ https://github.com/user-attachments/assets/431b5bd4-40b8-466a-8d86-a41dfa1e11d9
 - **AI** Claude Haiku 4.5, escalating to Sonnet 4.6 when unsure · structured output through Instructor and Pydantic · LangGraph workflows · pgvector retrieval of the firm's own past decisions · an offline eval harness with pass/fail gates · risk flags from eight readable fuzzy-logic rules.
 - **Stack** Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL 16 with pgvector, Redis, Alembic · Next.js 14, TypeScript, Tailwind · Docker, GitHub Actions, Vercel, Railway.
 - **Size** 34 API routes, 8 tables, 6 migrations, 117 backend tests run in CI.
-- **Status** deployed and open source (MIT); built solo by [Rajarshi Nandi](https://www.linkedin.com/in/rajarshi-nandi/), March to October 2026; not taking real clients.
+- **Status** deployed and open source (MIT); built solo by Rajarshi Nandi with Claude Code as the implementer ([how it was built](#about)), March to October 2026; not taking real clients.
 
 ## Who it is for and why it exists
 
