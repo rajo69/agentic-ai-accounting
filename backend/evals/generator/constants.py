@@ -89,6 +89,9 @@ BANK_HOLIDAYS = {
                      "2025-09-01", "2025-10-13", "2025-11-11", "2025-11-27", "2025-12-25"}),
 }
 
+# Uses spent away from the firm's base: their town or city tokens name another place (re-audit R3, N5).
+AWAY_USES = frozenset({"rail", "hotel", "hotel_abroad", "overnight_meal", "day_meal", "lodging", "travel_meal"})
+
 BANNED_CHARS = ("\u2013", "\u2014")
 
 # Field length limits applied to every generated record (contract.md 3.1, r2_uk 3.2, r3_us 3.1).

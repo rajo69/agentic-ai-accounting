@@ -38,6 +38,7 @@ def U(
     narratives: list[str] | None = None,
     amount_mode: str = "range",
     fixed_group: str | None = None,
+    amount_choices: list[str] | None = None,
 ) -> dict:
     """One use of a merchant: what the line is for, its amount range, default code and governing rules.
 
@@ -68,6 +69,7 @@ def U(
         "narratives": narratives,
         "amount_mode": amount_mode,
         "fixed_group": fixed_group,
+        "amount_choices": amount_choices,
     }
 
 

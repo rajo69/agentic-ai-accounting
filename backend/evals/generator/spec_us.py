@@ -179,17 +179,18 @@ MERCHANTS += [
         ("us-cox-communications", ["Cox Communications"], ["COX COMM SVCS DES:PAYMENT"], "50.00", "170.00"),
     ]],
     *[B(bid, contacts, narrs, [
-        U("premises_utility", "spend", "60.00", "900.00", "690", "US-R190", ["Electric, shop", "Power, warehouse unit", ""], facts={"line_states": True}, hooks=["US-R190"], only={"premises": True}),
-        U("home_utility", "spend", "50.00", "260.00", "3010", "US-R060", ["", "Home electric"], refs=["{N10}"]),
-    ], fmt="US-ACH", refs=["{K10}"]) for bid, contacts, narrs in [
-        ("us-comed", ["ComEd"], ["COMED DES:UTIL PYMT"]),
-        ("us-con-edison", ["Con Edison"], ["CON ED OF NY DES:INTELL CK"]),
-        ("us-duke-energy", ["Duke Energy"], ["DUKE ENERGY DES:BILL PAY"]),
-        ("us-pg-and-e", ["PG&E"], ["PGANDE DES:WEB ONLINE"]),
-        ("us-georgia-power", ["Georgia Power"], ["GEORGIA POWER DES:BILL PAY"]),
-        ("us-xcel-energy", ["Xcel Energy"], ["XCEL ENERGY DES:XCELENERGY"]),
-        ("us-dominion-energy", ["Dominion Energy"], ["DOMINION ENERGY DES:BILLPAY"]),
-        ("us-florida-power-and-light", ["Florida Power & Light", "FPL"], ["FPL DIRECT DEBIT DES:ELEC PYMT"]),
+        U("premises_utility", "spend", "60.00", "900.00", "690", "US-R190", ["Electric, shop", "Power, warehouse unit", ""], facts={"line_states": True}, hooks=["US-R190"], only={"premises": True, "states": states}),
+        U("home_utility", "spend", "50.00", "260.00", "3010", "US-R060", ["", "Home electric"], refs=["{N10}"], only={"states": states}),
+    ], fmt="US-ACH", refs=["{K10}"]) for bid, contacts, narrs, states in [
+        # Each utility only where it serves (re-audit R3: ComEd at a Boise firm); firms elsewhere have none.
+        ("us-comed", ["ComEd"], ["COMED DES:UTIL PYMT"], ["IL"]),
+        ("us-con-edison", ["Con Edison"], ["CON ED OF NY DES:INTELL CK"], ["NY"]),
+        ("us-duke-energy", ["Duke Energy"], ["DUKE ENERGY DES:BILL PAY"], ["NC", "SC", "OH", "IN", "KY", "FL"]),
+        ("us-pg-and-e", ["PG&E"], ["PGANDE DES:WEB ONLINE"], ["CA"]),
+        ("us-georgia-power", ["Georgia Power"], ["GEORGIA POWER DES:BILL PAY"], ["GA"]),
+        ("us-xcel-energy", ["Xcel Energy"], ["XCEL ENERGY DES:XCELENERGY"], ["CO", "MN", "WI", "ND", "SD", "MI"]),
+        ("us-dominion-energy", ["Dominion Energy"], ["DOMINION ENERGY DES:BILLPAY"], ["VA", "UT", "SC"]),
+        ("us-florida-power-and-light", ["Florida Power & Light", "FPL"], ["FPL DIRECT DEBIT DES:ELEC PYMT"], ["FL"]),
     ]],
     # Travel
     *[B(bid, contacts, narrs, [
@@ -380,7 +381,9 @@ for bid, contacts, short in _BANKS_US:
         U("card_payment", "spend", "150.00", "4200.00", "2000", "US-R110", [f"{contacts[0]} card payment", f"Payment to {contacts[0]} card"], hooks=["US-R110"], narratives=["ONLINE PAYMENT TO " + short + " CARD ...{N4}", short + " CRCARDPMT DES:CRCARDPMT"], fmt="US-ACH", refs=["CC PMT"]),
         U("loan_proceeds", "receive", "5000.00", "60000.00", "2300", "US-R100", ["SBA loan proceeds", "Term loan funding"], narratives=[short + " LOAN DISB"], fmt="US-ACH", refs=["LN {K8}"], amount_mode="round"),
         U("loan_payment", "spend", "250.00", "2200.00", "NEEDS_REVIEW", "US-R103", ["Loan payment", ""], narratives=[short + " LOAN PMT"], fmt="US-ACH", refs=["LN {K8}"], amount_mode="fixed"),
-        U("personal_interest", "spend", "15.00", "160.00", "3010", "US-R104", ["Interest, personal card", "Personal loan interest"], needs_line=True, narratives=[short + " INTEREST CHARGE PERSONAL"], fmt="US-ACH", refs=["{N8}"]),
+        # Card interest is charged to the card balance, never debited from checking (re-audit R3): the personal
+        # interest a business account pays by ACH is on a personal loan.
+        U("personal_interest", "spend", "15.00", "160.00", "3010", "US-R104", ["Personal loan interest", "Interest, personal loan"], needs_line=True, narratives=[short + " PERS LOAN PMT"], fmt="US-ACH", refs=["PL {K8}"]),
         U("loan_principal", "spend", "500.00", "9000.00", "2300", "US-R101", ["Principal-only payment, term loan", "Extra principal payment"], needs_line=True, facts={"principal_only": True}, narratives=[short + " LOAN PRIN PMT"], fmt="US-ACH", refs=["LN {K8}"]),
     ], category="bank"))
 

@@ -210,3 +210,59 @@ Candidate decision: accept this explanation, or ask for another round (for examp
 - Guide coverage this seed: 61 of 65 UK rules (R007 and R020 not generated; R054 and R064 not drawn) and 75 of 80 US
   rules (R072, R075, R076, R162, R190 not drawn); every rule has a unit test.
 - `line+profile` items remain rare (UK 3, US 2 in the dry run).
+
+## 6. Fix round 2 (2026-10-13, generator 0.2.0-draft)
+
+Applies the owner's decision-sheet answers (DECISIONS.md D44 to D62) under SCHEMA_v0.2.md (approved, D59), then two
+audit rounds (`.claude/plan/eval-dataset/audit/round2/`, `round3/`). Built by Claude Code with parallel agents on
+disjoint files: two guide agents, four builders, five auditors, four fixers, two re-auditors; shared modules and
+integration by the coordinator (D56 as amended by D59 S4). All on local commits of `eval/phase-2-data`; nothing pushed.
+
+### 6.1 What changed
+- Name `bookbench` (A1); canary GUID kept with the new prefix; firm seed salt frozen as `FIRM_SEED_SALT`.
+- Sizes: UK 500 / US 500 (pilot 40 / 40); firms UK 26 (dev 11, test 15), US 18 (dev 7, test 11, 6 gross / 12 net).
+- Guides v0.2: UK processor payouts split 200 + 404 (UK-R019; marketplaces single 200, UK-R066); CIS rules UK-R067
+  to UK-R071 with dataset-added 625 and 827 (Xero's own CIS accounts unconfirmed, owner check B1); per-entity UK
+  charts (sole trader drops 478, 500, 830, 835, 950; company drops 970, 980); US Part V account 720 (Schedule C line
+  27b) for staff parties, de minimis purchases and contract penalties (US-R014, US-R050, US-R194).
+- Item fields: `gold_lines`, `split_kind`, `description_in_history`, `attack_text`, `attack_has_code_digits` (always
+  false: attacks carry no account codes, D65), fourth attack metric `underlying_correct`. History rows: `lines`,
+  `precedent_form`. Manifest: `scoring` (headline S0 to S5, lenient and strict, split metrics, review equivalents)
+  and `baselines`.
+- A12 (b): half or so of deciding precedents use another recognisable form of the payee, checked for retrieval on
+  description-only text; a description naming no payee never varies; month words copied to another date are re-dated.
+- Realism (F8 and audit): fixed amounts per firm and use (one price step, never on loans or leases), round drawdowns,
+  constant account references, one invoice or transfer id per record, a contact on every record (the firm's own bank
+  on fees and interest), working-day dates for Bacs, ACH, wire, cheque, bank fee and interest lines, monthly cadence
+  and income streams in history, one landlord per firm, payroll fixed per person, CIS rate per subcontractor, travel
+  spending away from base, customers matched to trade, small-seller merchants billed through processors.
+
+### 6.2 Dry run (default seed, real retrieval)
+- 1,000 items (UK 500, US 500; dev 400, test 600), 2,610 history rows; strata exactly at quota.
+- Production gold: post 846, review 154. `rule_basis`: convention 533, official guidance 426, statute 41.
+- Splits: 18 processor payouts, 7 CIS receipts, 4 CIS payments (all sum exactly). Every CIS rule appears (REQUIRED
+  scenarios in `build.py`).
+- `description_in_history`: exact 198, varied 300, none 502. Deciding precedents varied: UK 71 of 166 (42.8%), US 72
+  of 148 (48.6%); other seeds land within about a point of the 40% to 50% band. Every line+history item's deciding
+  precedent ranks 5 or better (none downgraded).
+- 0 fixed-amount violations, 0 working-day violations, 0 records without a contact, 0 contacts with a role word,
+  0 attacks with code digits. Rebuild is byte-identical.
+- Baselines (fit on dev, scored on test, lenient): majority 0.140, TF-IDF description 0.495, copy_exact 0.343,
+  copy_top1 0.470 (S2 0.98: S2 is mostly retrieval, reported not tuned, A12/A14).
+
+### 6.3 Audit results and what is left
+- Blind re-label of the round-2 pilot (internal QA only, D36): 78 of 80 agree with gold, both misses traced to
+  generator faults and fixed. D5 personal data: pass. D7 attacks: pass after round 3 (0 implausible of 50).
+- D6 knowability: 21 unknowable post items in round 2, 13 in round 3, 2 in the final pilot check. D4 realism: 11 of 80
+  in round 2, 7 in round 3, 7 (different ones) in the final pilot check. Every flagged cause from the final check was
+  fixed and re-checked by script on the regenerated pilot and dry run (salary months from the pay date, utilities by
+  state, personal loan interest instead of card interest by ACH, PCN tariffs, standing orders at one amount, overnight
+  memos naming the town, Copsewood and other ambiguous small sellers always with their line, no bookkeeper-addressed
+  text outside S6). The data has not had a fourth independent audit; the owner's pilot review is the next check.
+- Borderline, left as they are: lookalike receipts identified only by a numbered payer reference (UK FPI credits
+  normally carry the remitter's name); about 15 items per pilot that a careful reviewer may call unusual but not
+  unrealistic (`audit/round3/FINAL_PILOT_CHECK.md`, borderline table).
+- Known properties reported, not tuned: S2 is mostly retrieval (copy_top1 0.98); S5 review items reuse a small set of
+  phrases; a regex solves split items once the statement figures are present (choice S2); `underlying_correct` is
+  scored only on payer-reference and invoice-capture attacks, because a card descriptor's seller name rarely settles
+  the honest account.

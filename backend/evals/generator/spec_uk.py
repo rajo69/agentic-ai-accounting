@@ -275,7 +275,7 @@ def _food_uses(lo: str, hi: str, *, delivery: bool = False) -> list[dict]:
     ]
     uses += [
         U("staff_meal", "spend", lo, hi, "420", "UK-R026", ["Team lunch, project wrap", "Staff lunch for team day", "Team breakfast meeting"], needs_line=True, only={"employer": True}),
-        U("overnight_meal", "spend", ovn_lo, ovn_hi, "493", "UK-R028", ["Dinner, overnight {PURPOSE}", "Evening meal, two day {PURPOSE}"], needs_line=True, facts={"trip": "overnight_uk"}),
+        U("overnight_meal", "spend", ovn_lo, ovn_hi, "493", "UK-R028", ["Dinner in {TOWN}, overnight {PURPOSE}", "Evening meal, two day {PURPOSE} in {TOWN}"], needs_line=True, facts={"trip": "overnight_uk"}),
         U("owner_meal_co", "spend", lo, hi, "420", "UK-R027", ["Directors lunch", "Lunch, directors only", "Directors working dinner"], needs_line=True, only={"entity": ["limited_company"]}),
         U("owner_meal_partners", "spend", lo, hi, "980", "UK-R027", ["Partners lunch", "Lunch, partners only", "Partners dinner, no guests"], needs_line=True, only={"entity": ["partnership"]}),
         U("owner_meal_sole", "spend", day_lo, day_hi, "980", "UK-R027", ["Lunch, owner only", "Dinner, no guests"], needs_line=True, only={"entity": ["sole_trader"]}),
@@ -579,7 +579,8 @@ MERCHANTS += [
         U("business_rates", "spend", "70.00", "560.00", "465", "UK-R038", ["Business rates {MMM}", ""], facts={"council_marker": "rates"}, refs=["NNDR {N8}"]),
         U("council_tax", "spend", "110.00", "260.00", "980", "UK-R038", [""], facts={"council_marker": "council_tax"}, refs=["CTAX {N8}"]),
         U("unmarked", "spend", "100.00", "380.00", "NEEDS_REVIEW", "UK-R038", [""], facts={"council_marker": None}, refs=["{N9}"]),
-        U("parking_fine", "spend", "35.00", "70.00", "429", "UK-R021", ["PCN, van parked at job", "Parking penalty, delivery"], needs_line=True, refs=["PCN {A2}{N8}"], only={"vehicle": True}),
+        # PCNs are fixed tariffs outside London (GBP 50 or 70, halved if paid within 14 days; re-audit R3).
+        U("parking_fine", "spend", "25.00", "70.00", "429", "UK-R021", ["PCN, van parked at job", "Parking penalty, delivery"], needs_line=True, refs=["PCN {A2}{N8}"], only={"vehicle": True}, amount_choices=["25.00", "35.00", "50.00", "70.00"]),
     ], fmt="UK-FPO"),
     # Gifts to charity and party donations are round sums (R11): `round` gives multiples of 100 here.
     I("valley-hospice-trust", "Valley Hospice Trust", ["Valley Hospice Trust"], ["VALLEY HOSPICE"], [
@@ -766,7 +767,7 @@ _SMALL_SELLERS = [
 ]
 # Sellers whose account turns on the purpose (UK-R062 workwear needs a work context; a farm shop sells kitchen stock or
 # groceries): their records always carry the typed line (re-audit R3, D6 small-seller pattern).
-_SELLERS_NEEDING_LINE = {"threadmoor-embroidery", "hollowmere-farm-shop"}
+_SELLERS_NEEDING_LINE = {"threadmoor-embroidery", "hollowmere-farm-shop", "copsewood-sawmill"}  # "COPSEWOOD SAW": a saw or timber
 for slug, name, proc, short, long, trades, use, lo, hi, code, rule, lines, facts in _SMALL_SELLERS:
     prefix = SMALL_SELLER_PREFIX[proc]
     # The card name fits the 22-character descriptor field; prefix plus the short part leaves 6 or more free.

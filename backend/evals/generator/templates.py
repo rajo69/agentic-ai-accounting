@@ -13,7 +13,7 @@ import re
 import string
 from decimal import Decimal
 
-from .constants import CURRENCY, LIMITS, ROLE_WORDS
+from .constants import AWAY_USES, CURRENCY, LIMITS, ROLE_WORDS
 
 _TOKEN = re.compile(r"\{([A-Z_]+?)(\d*)\}")
 _ALNUM = string.ascii_uppercase + string.digits
@@ -184,6 +184,17 @@ def payee_token(narrative: str, ref: str, amount: Decimal) -> str:
     return "BANK CREDIT" if amount > 0 else "BANK PAYMENT"
 
 
+def _away(rng: random.Random, jurisdiction: str, firm: dict, towns: list[str]) -> dict:
+    """Another town (UK) or another city and state (US) for spending away from base."""
+    if jurisdiction == "UK":
+        others = [t for t in towns if t != firm.get("town")]
+        return {"away_town": rng.choice(others)} if others else {}
+    from .spec_us import FIRMS
+
+    cities = sorted({(p["city"], p["state"]) for _n, _s, p in FIRMS.values() if p["city"] != firm.get("city")})
+    return {"away_city": cities[rng.randrange(len(cities))]} if cities else {}
+
+
 def derive_record(xero: dict) -> dict:
     """The four fields production reads (xero_adapter.py:302-313, categoriser.py:356-362)."""
     description = xero["line_description"] or xero["contact_name"] or xero["reference"] or "Unknown"
@@ -223,6 +234,8 @@ def render(
         "UK-DEB" if jurisdiction == "UK" else "US-CARD"
     )
     ctx = dict(ctx, _memo={})
+    if (use or {}).get("use") in AWAY_USES and not (ctx.get("away_town") or ctx.get("away_city")):
+        ctx.update(_away(rng, jurisdiction, ctx["firm"], ctx.get("towns") or []))
     if merchant:
         ctx.update(merchant_id=merchant["merchant_id"], use=(use or {}).get("use", ""))
     if narrative is None:
