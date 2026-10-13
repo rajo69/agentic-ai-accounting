@@ -254,3 +254,28 @@ def test_manifest_scoring_and_stats(built):
     assert st["records_without_contact"] == 0 and st["contacts_with_role_word"] == 0
     assert st["generation"].get("fixed_amount_violations", 0) == 0
     assert firm_accounts(UK_ST) is not firm_accounts(UK_CO)
+
+
+def test_baselines(built):
+    from evals.generator.baselines import NAMES, compute, correct
+
+    out, items, hist = built
+    st = json.loads((out / "stats.json").read_text(encoding="utf-8"))
+    assert set(st["baselines"]) == set(NAMES)
+    assert st["baselines"]["copy_exact"] is None  # retrieval off: no retrieved_top5
+    tf = st["baselines"]["tfidf_description"]
+    assert 0 <= tf["overall"]["accuracy"] <= 1 and "by_description_in_history" in tf
+    assert compute(items, hist) == st["baselines"]
+    review_item = {"jurisdiction": "UK", "gold_action": "review", "acceptable_labels": []}
+    assert correct(review_item, "850") and correct(review_item, NEEDS_REVIEW) and not correct(review_item, "200")
+
+
+def test_copy_baselines_with_retrieval():
+    from evals.generator.baselines import _copy
+
+    hist = [{"row_id": "f-h1", "description": "Zoom", "category_code": "463"}]
+    items = [{"item_id": "a", "record": {"description": "zoom"}, "retrieved_top5": ["f-h1"]},
+             {"item_id": "b", "record": {"description": "ZOOM.US 888"}, "retrieved_top5": ["f-h1"]},
+             {"item_id": "c", "record": {"description": "x"}, "retrieved_top5": []}]
+    assert _copy(items, hist, exact_only=True) == {"a": "463", "b": NEEDS_REVIEW, "c": NEEDS_REVIEW}
+    assert _copy(items, hist, exact_only=False) == {"a": "463", "b": "463", "c": NEEDS_REVIEW}

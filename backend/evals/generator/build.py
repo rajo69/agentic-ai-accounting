@@ -16,7 +16,7 @@ from decimal import Decimal
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from . import scenarios_uk, scenarios_us, spec_uk, spec_us
+from . import baselines, scenarios_uk, scenarios_us, spec_uk, spec_us
 from .charts import account_name, chart_id_for, class_family
 from .constants import (
     NEEDS_REVIEW, BANNED_CHARS, CANARY, CREATED, DEV_SHARE, DRAFT_DIR, GENERATOR_VERSION, GUIDE_VERSION, HEADLINE_STRATA,
@@ -561,6 +561,7 @@ def build(seed: int, mode: str, n_uk: int | None, n_us: int | None, out: Path, s
     write_jsonl(out / "history.jsonl", history)
     files.append(out / "history.jsonl")
     st = stats(items, history, quotas, gen_stats, firms)
+    st["baselines"] = baselines.compute(items, history)
     write_json(out / "stats.json", st)
     files.append(out / "stats.json")
     if mode == "pilot":
@@ -583,6 +584,8 @@ def build(seed: int, mode: str, n_uk: int | None, n_us: int | None, out: Path, s
         "spec_files": {p.name: sha256(p) for p in spec_files},
         "inputs": {p.name: sha256(p) for p in inputs},
         "scoring": SCORING,
+        "baselines": {"names": list(baselines.NAMES), "fit_on": "dev", "scored_on": "test", "rule": "lenient",
+                      "results_in": "stats.json (internal); per stratum in the dataset card (A14)"},
     }
     write_json(out / "manifest.json", manifest)
     return manifest
