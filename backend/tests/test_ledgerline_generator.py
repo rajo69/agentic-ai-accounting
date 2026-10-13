@@ -16,6 +16,7 @@ from evals.generator.gold import Ctx
 from evals.generator.guides import guide_rule_ids
 from evals.generator.history import norm
 from evals.generator.templates import derive_record
+from tests.test_gen_uk import CASES_UK_V02
 
 FIRMS = all_firms()
 
@@ -38,7 +39,6 @@ CASES = [
     ("UK-R016", "uk-01", {}, "-400.00", "900"),
     ("UK-R017", "uk-03", {}, "-8.50", "404"),
     ("UK-R018", "uk-21", {}, "-12.00", "404"),
-    ("UK-R019", "uk-02", {}, "640.00", "200"),
     ("UK-R021", "uk-01", {}, "-70.00", "429"),
     ("UK-R022", "uk-22", {"asset_kind": "tools"}, "-850.00", "429"),
     ("UK-R023", "uk-01", {}, "-9000.00", "760"),
@@ -172,6 +172,8 @@ CASES = [
     ("US-N4", "us-01", {}, "-40.00", NEEDS_REVIEW),
     ("US-N5", "us-01", {}, "-40.00", NEEDS_REVIEW),
 ]
+# Fix round 2: UK cases for new and changed rules live in test_gen_uk.py (UK-R019 now needs statement figures).
+CASES += CASES_UK_V02
 RULES = {**rules_uk.RULES, **rules_us.RULES}
 
 

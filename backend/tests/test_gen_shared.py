@@ -166,6 +166,7 @@ def test_k_token_is_constant_per_firm_and_merchant():
     a = fill("LOAN {K8}", random.Random(1), ctx)
     assert a == fill("LOAN {K8}", random.Random(2), dict(ctx, date=dt.date(2026, 9, 1))) and len(a) == 13
     assert a != fill("LOAN {K8}", random.Random(1), dict(ctx, merchant_id="uk-i-other"))
+    assert a != fill("LOAN {K8}", random.Random(1), dict(ctx, use="home_line"))
 
 
 # ---------------------------------------------------------------- contacts (F8)

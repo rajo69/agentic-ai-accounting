@@ -93,7 +93,7 @@ def _uk_firm(firm_id: str, name: str, split: str, p: dict) -> dict:
         "vat_registered": p["vat_registered"],
         "vrn": fake_vrn(rng) if p["vat_registered"] else None,
         "utr": utr,
-        "paye_aoref": fake_paye_aoref(rng) if (p["employees"] or entity == "limited_company") else None,
+        "paye_aoref": fake_paye_aoref(rng) if (p["employees"] or entity == "limited_company" or _cis(p)["contractor"]) else None,
         "ct_reference": fake_ct_reference(utr, rng) if entity == "limited_company" else None,
         "cis": _cis(p),
     }

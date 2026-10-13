@@ -91,8 +91,9 @@ def fill(pattern: str, rng: random.Random, ctx: dict) -> str:
         if key == "A":
             return "".join(rng.choice(_ALNUM) for _ in range(k))
         if key == "K":
-            # Constant per firm and merchant (loan and contract account numbers, F8): never changes month to month.
-            kr = random.Random(f"{firm['firm_id']}:{ctx.get('merchant_id', '')}:K")
+            # Constant per firm, merchant and use (loan and contract account numbers, F8): never changes month to
+            # month, and two accounts at one payee (business and home line) get different numbers.
+            kr = random.Random(f"{firm['firm_id']}:{ctx.get('merchant_id', '')}:{ctx.get('use', '')}:K")
             return "".join(kr.choice(_ALNUM) for _ in range(k or 8))
         if key == "TOWN":
             return firm.get("town", "LEEDS") if rng.random() < 0.7 else rng.choice(ctx["towns"])
@@ -210,7 +211,7 @@ def render(
         "UK-DEB" if jurisdiction == "UK" else "US-CARD"
     )
     if merchant:
-        ctx = dict(ctx, merchant_id=merchant["merchant_id"])
+        ctx = dict(ctx, merchant_id=merchant["merchant_id"], use=(use or {}).get("use", ""))
     if narrative is None:
         pats = (use or {}).get("narratives") or (merchant or {}).get("narratives") or [""]
         narrative = fill(rng.choice(pats), rng, ctx)
