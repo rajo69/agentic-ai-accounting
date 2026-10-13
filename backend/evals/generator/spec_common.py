@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from functools import lru_cache
 
-from .constants import CHART_ID, SOURCES_DIR
+from .constants import AMOUNT_MODES, CHART_ID, SOURCES_DIR
 
 
 @lru_cache(maxsize=None)
@@ -36,11 +36,18 @@ def U(
     refs: list[str] | None = None,
     fmt: str | None = None,
     narratives: list[str] | None = None,
+    amount_mode: str = "range",
 ) -> dict:
-    """One use of a merchant: what the line is for, its amount range, default code and governing rules."""
+    """One use of a merchant: what the line is for, its amount range, default code and governing rules.
+
+    `amount_mode` (F8): `range` draws a fresh amount per line; `fixed` keeps one amount per firm for this use (rent,
+    loan instalments, contracts, subscriptions), with at most one price step; `round` rounds to 100 (500 above
+    5,000) for drawdowns and capital injections. `Env.amount_for` applies it.
+    """
     if isinstance(rules, str):
         rules = [rules]
     assert direction in ("spend", "receive")
+    assert amount_mode in AMOUNT_MODES, amount_mode
     return {
         "use": use,
         "direction": direction,
@@ -56,6 +63,7 @@ def U(
         "reference_patterns": refs,
         "bank_format": fmt,
         "narratives": narratives,
+        "amount_mode": amount_mode,
     }
 
 
@@ -73,7 +81,7 @@ def _merchant(
     category: str,
     raw_contacts: list[str] | None,
 ) -> dict:
-    chart_ids = [CHART_ID["UK"]] if jurisdiction == "UK" else [CHART_ID["US"], CHART_ID["US_S_CORP"]]
+    chart_ids = [CHART_ID["UK_ST"], CHART_ID["UK_CO"]] if jurisdiction == "UK" else [CHART_ID["US"], CHART_ID["US_S_CORP"]]
     for u in uses:
         u["default_code_per_chart"] = {cid: u["default_code"] for cid in chart_ids}
         u["typical_direction"] = u["direction"]

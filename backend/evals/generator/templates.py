@@ -13,7 +13,7 @@ import re
 import string
 from decimal import Decimal
 
-from .constants import CURRENCY, LIMITS
+from .constants import CURRENCY, LIMITS, ROLE_WORDS
 
 _TOKEN = re.compile(r"\{([A-Z_]+?)(\d*)\}")
 _ALNUM = string.ascii_uppercase + string.digits
@@ -90,6 +90,10 @@ def fill(pattern: str, rng: random.Random, ctx: dict) -> str:
             return "".join(str(rng.randint(0, 9)) for _ in range(k))
         if key == "A":
             return "".join(rng.choice(_ALNUM) for _ in range(k))
+        if key == "K":
+            # Constant per firm and merchant (loan and contract account numbers, F8): never changes month to month.
+            kr = random.Random(f"{firm['firm_id']}:{ctx.get('merchant_id', '')}:K")
+            return "".join(kr.choice(_ALNUM) for _ in range(k or 8))
         if key == "TOWN":
             return firm.get("town", "LEEDS") if rng.random() < 0.7 else rng.choice(ctx["towns"])
         if key == "CITY":
@@ -153,6 +157,20 @@ def bank_narrative(jurisdiction: str, fmt: str, base: str, ref: str) -> str:
     return _cap(base, LIMITS["narrative_US"])
 
 
+def has_role_word(text: str) -> bool:
+    words = set(re.findall(r"[a-z]+", (text or "").casefold()))
+    return any(w in words for w in ROLE_WORDS)
+
+
+def payee_token(narrative: str, ref: str, amount: Decimal) -> str:
+    """Contact for a record whose source gives none (F8: Xero needs a contact): the payee as the statement shows it."""
+    for cand in (narrative, ref):
+        token = _cap(re.sub(r"\s+", " ", cand or "").strip(), 25)
+        if token and not has_role_word(token):
+            return token
+    return "BANK CREDIT" if amount > 0 else "BANK PAYMENT"
+
+
 def derive_record(xero: dict) -> dict:
     """The four fields production reads (xero_adapter.py:302-313, categoriser.py:356-362)."""
     description = xero["line_description"] or xero["contact_name"] or xero["reference"] or "Unknown"
@@ -191,6 +209,8 @@ def render(
     fmt = fmt or (use or {}).get("bank_format") or (merchant or {}).get("bank_format") or (
         "UK-DEB" if jurisdiction == "UK" else "US-CARD"
     )
+    if merchant:
+        ctx = dict(ctx, merchant_id=merchant["merchant_id"])
     if narrative is None:
         pats = (use or {}).get("narratives") or (merchant or {}).get("narratives") or [""]
         narrative = fill(rng.choice(pats), rng, ctx)
@@ -235,6 +255,8 @@ def render(
         pass  # caller supplied every field verbatim
     else:
         raise ValueError(family)
+    if not xero_contact:
+        xero_contact = payee_token(narrative, ref, amount)
 
     total = abs(amount)
     xero = {
