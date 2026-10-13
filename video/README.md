@@ -26,8 +26,8 @@ node scripts/stills.mjs --scale 0.5 70 830    # PNG stills of chosen frames -> o
   place the captions, the kinetic type and the events of the problem and product sections on the spoken word.
 - **Product footage is the product's own components.** The landing page's four clock-driven scenes were ported to
   `src/scenes/` with inline styles (`src/kit/primitives.tsx` mirrors `ui/*`), drawn inside the app shell at 1200 x 675
-  and scaled into a 1520 px frame. A camera (`src/kit/camera.tsx`) zooms towards each click, Screen-Studio style, and a
-  synthetic cursor eases into its targets with a 150 ms press. One frame, no cuts; pages swap behind a 120 ms dip.
+  and scaled into a 1520 px frame. A camera (`src/kit/camera.tsx`) zooms towards each click, Screen-Studio style, and an
+  animated cursor eases into its targets with a 150 ms press. One frame, no cuts; pages swap behind a 120 ms dip.
 - **The aurora is the landing shader** (`src/kit/aurora.tsx`, raw WebGL 2) with `uTime` driven by the frame, so it is
   deterministic. `remotion.config.ts` sets the ANGLE renderer for headless Chrome.
 - **Captions** are generated from the script (`src/kit/captions.tsx`): sentence and clause splits, each line starting on

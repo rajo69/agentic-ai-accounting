@@ -8,7 +8,7 @@ the product and leave for the engineering record without any manual edit.
 Design (quiet, precise, forward; nothing that competes with the voice):
   92 BPM, D minor loop of four chords (Dm9, Bbmaj9, Fmaj9, Am9), two bars each. Layers: a detuned-saw pad through a
   slowly opening low-pass; a sine sub on the chord root; a triangle pluck on the chord tones with a ping-pong delay;
-  a soft kick on beats one and three; an off-beat filtered-noise tick; a short synthetic reverb on the pad and pluck.
+  a soft kick on beats one and three; an off-beat filtered-noise tick; a short convolution reverb on the pad and pluck.
   Sections (from the beat grid): intro = pad + sub; product = everything; engineering = pad + pluck + sub pulses;
   "What is real" = pad only; close = pad + sub swell. Master soft-clipped and normalised to -18 dBFS RMS; the
   composition's gain curve (`src/music.ts`) ducks it under the voice and fades the end.
