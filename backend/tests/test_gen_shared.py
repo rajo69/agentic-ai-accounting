@@ -334,6 +334,8 @@ def test_payee_only_template_needs_a_single_purpose_payee():
     for i in range(30):
         assert family_s0(random.Random(i), use, bank) == "desc_narrative"
         assert family_plain(random.Random(i), use, bank) == "desc_narrative"
+    with_line = dict(use, line_descriptions=["Interest earned"])
+    assert {family_s0(random.Random(i), with_line, bank) for i in range(30)} == {"contact_desc"}
     one = {"uses": [{"direction": "spend", "default_code": "463"}]}
     assert family_plain(random.Random(0), use, one) in ("contact_only", "contact_ref")
 

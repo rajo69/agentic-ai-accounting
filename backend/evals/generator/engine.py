@@ -335,6 +335,8 @@ def family_s0(rng: random.Random, use: dict, merchant: dict | None = None) -> st
         return "contact_desc"
     if not has_line:
         return rng.choice(["contact_only", "contact_ref"]) if _payee_only_ok(use, merchant) else "desc_narrative"
+    if not _payee_only_ok(use, merchant):
+        return "contact_desc"  # a multi-purpose payee needs its typed line (PNC Bank: interest or a fee)
     roll = rng.random()
     return "contact_desc" if roll < 0.55 else ("contact_only" if roll < 0.85 else "contact_ref")
 
