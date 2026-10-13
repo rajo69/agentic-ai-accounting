@@ -227,6 +227,8 @@ class HistoryBuilder:
         self.sales_rows_written = 0
         self.deciding_prec: dict[int, Prec] = {}  # id(deciding row) -> its precedent
         self.dropped = 0  # rows removed so a deciding precedent stays in the top 5
+        self.streams: dict[tuple[str, str], list[dict]] = {}  # (payee id, account) -> its monthly rows
+        self.replaced = 0  # monthly rows a deciding precedent took over (one bill or pay a month, re-audit R4)
 
     # ------------------------------------------------------------------ dates and formats (R1)
     def _fmt(self, m: dict | None, u: dict | None, fmt: str | None = None) -> str:
@@ -369,7 +371,9 @@ class HistoryBuilder:
             if pool and choice < 0.5:
                 fam = "contact_desc"
             elif label in LABEL_MEMOS and choice < 0.7 and role_ok(" ".join(LABEL_MEMOS[label]), self.firm):
-                memo = rng.choice(LABEL_MEMOS[label])
+                # Only a kitchen buys ingredients (re-audit R4: "Buildbase ingredients" at a plasterer).
+                memo = rng.choice([w for w in LABEL_MEMOS[label]
+                                   if w != "ingredients" or self.firm["trade"]["tag"] == "catering"])
                 fam, line = "contact_desc", f"{fill(rng.choice(m['contact_names']), rng, ctx)} {memo}"
             else:
                 fam = rng.choice(["contact_only", "contact_ref", "desc_narrative"])
@@ -411,7 +415,8 @@ class HistoryBuilder:
                 n = 0
                 for rec in recs:
                     if self._allowed(rec["description"], label, rec["amount"], rec["date"], source):
-                        self._row(rec, label, m["merchant_id"], source, rule_id, fmt=fmt)
+                        row = self._row(rec, label, m["merchant_id"], source, rule_id, fmt=fmt)
+                        self.streams.setdefault((m["merchant_id"], label), []).append(row)
                         n += 1
                 return n
         return 0
@@ -451,11 +456,19 @@ class HistoryBuilder:
                       use: str, rule_id: str | None, line: str = "", role: str | None = None) -> int:
         """Monthly payments to one person (salary, rent) on one day of the month, one fixed amount. A salary line
         (`Salary {MMM}`) is what a payroll bank rule types; rent to a landlord shows the landlord's name."""
-        fmt = "UK-FPO" if self.jur == "UK" else "US-XFER"
+        self.rng.randint(1, 28)  # the day is Env.pay_day now; the draw is kept so later history draws stay put
+        pid = f"person:{self.firm['firm_id']}:{name}"
         n = 0
-        for d in self._month_dates(self.rng.randint(1, 28), fmt):
-            n += self.person_row(name, label, ref, source, sign=sign, lo=lo, hi=hi, rule_id=rule_id, date=d,
-                                 use=use, line=line, role=role) is not None
+        day = self.env.pay_day(self.firm, name)
+        for start, end in self._months():
+            d = self.env.pay_date(start.year, start.month, day)
+            if not start <= d <= end:
+                continue
+            row = self.person_row(name, label, ref, source, sign=sign, lo=lo, hi=hi, rule_id=rule_id, date=d,
+                                  use=use, line=line, role=role)
+            if row is not None:
+                self.streams.setdefault((pid, label), []).append(row)
+                n += 1
         return n
 
     def own_row(self, label: str, source: str, sign: int) -> None:
@@ -771,18 +784,27 @@ class HistoryBuilder:
             self.varied_fallbacks += 1
             self.fallback_reasons["shared_exact"] += 1
         fmt = self._prec_fmt(p, m, u)
+        # A payee billed or paid monthly gets no second payment in a month: the precedent takes over one month's
+        # row, with its date and amount (re-audit R4: second salary, second phone bill, second card payment).
+        live = {id(r) for r in self.rows}
+        stream = [r for r in self.streams.get((mid or "", p.label), []) if id(r) in live and not p.lines]
         for _attempt in range(10):
-            date = self._date(fmt)
+            month = stream[rng.randrange(len(stream))] if stream else None
+            date = dt.date.fromisoformat(month["date"]) if month else self._date(fmt)
             if p.lines:
                 amt = sum(Decimal(a) for _c, a, _r in p.lines)  # the statement figures fix the amount
                 lines = self._lines(p.lines)
+            elif month:
+                amt, lines = Decimal(month["amount"]), None
             else:
                 amt, lines = self._precedent_amount(p, m, u, date) * p.sign, None
+            # A month row taken over keeps its own reference: the scored one can be event-specific ("UNPAID DD" on a
+            # reversal, re-audit R5).
             rec = {"date": date.isoformat(), "amount": money(amt), "description": p.description,
-                   "reference": p.reference}
+                   "reference": month["reference"] if month else p.reference}
             if want_varied:
                 cands = self.varied_candidates(p, date)
-                ref = None if norm(p.reference) == norm(p.description) else p.reference
+                ref = month["reference"] if month else (None if norm(p.reference) == norm(p.description) else p.reference)
                 while cands:
                     desc = cands.pop(0)
                     if (self.firm["firm_id"], norm(desc), rec["amount"], rec["date"]) in self.scored_records:
@@ -792,6 +814,7 @@ class HistoryBuilder:
                     self.varied.append({"row": row, "prec": p, "cands": cands})
                     self.deciding.append(row)
                     self.deciding_prec[id(row)] = p
+                    self._take_over(month)
                     return
                 want_varied = False
                 self.varied_fallbacks += 1
@@ -805,7 +828,16 @@ class HistoryBuilder:
                 row = self._row(rec, p.label, mid, "precedent", p.rule_id, lines=lines, form=form, fmt=fmt)
                 self.deciding.append(row)
                 self.deciding_prec[id(row)] = p
+                self._take_over(month)
                 return
+
+    def _take_over(self, month: dict | None) -> None:
+        """Remove the monthly row a deciding precedent replaced (`streams` keeps it; readers filter on live rows)."""
+        if month is None:
+            return
+        self.rows = [r for r in self.rows if r is not month]
+        self.row_fmt.pop(id(month), None)
+        self.replaced += 1
 
     def _to_exact(self, entry: dict) -> None:
         row, p = entry["row"], entry["prec"]
@@ -1031,7 +1063,12 @@ class HistoryBuilder:
                     labs = ["695"]
                 m, u = self.env.use_named(prov, "net_pay")
                 for lab in labs:
-                    self.merchant_stream(m, u, lab, "policy", "US-R075" if lab == "696" else "US-R084")
+                    # Officers and staff booked apart each carry their own pay, not the whole run (re-audit R4).
+                    part = None
+                    if len(labs) > 1:
+                        who = "officer" if lab == "696" else "staff"
+                        part = spec_us.payroll_amount(self.env, self.firm, m, "net", self.env.hist_window[0], who)
+                    self.merchant_stream(m, u, lab, "policy", "US-R075" if lab == "696" else "US-R084", amount=part)
                 m, u = self.env.use_named(prov, "payroll_tax")
                 tax = None if self._payroll_kind(m, u) else self._payroll_share(("695", "696"), 30, 45)
                 self.merchant_stream(m, u, "2200", "policy", "US-R083", amount=tax)
@@ -1227,6 +1264,8 @@ class HistoryBuilder:
             if p.description:
                 self.identical_row(p)
                 continue
+            if (p.person or p.merchant_id or "", p.label) in self.streams:
+                continue  # the payee's monthly rows already show it at this account; no extra bill (re-audit R4)
             for _ in range(p.count):
                 m, u = self._catalogue_use(p)
                 if p.split_kind and self._split_precedent(p, m, u):

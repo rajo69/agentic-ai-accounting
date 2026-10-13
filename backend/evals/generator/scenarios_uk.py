@@ -109,9 +109,17 @@ def _motor_policy(env, rng, firm, stratum):
                      family=rng.choice(["contact_only", "contact_desc"]), expect=HIST)
 
 
+def _retail_account(firm: dict, m: dict) -> str:
+    """The account a firm's earlier purchases at a retailer went to (re-audit R4: not stationery at a garden centre):
+    food stock for a caterer at a grocer or wholesaler, office supplies at a general retailer, else general costs."""
+    if m.get("category") in ("retail_groceries", "retail_wholesale"):
+        return "310" if firm["trade"]["tag"] == "catering" else "429"
+    return "429" if m["merchant_id"] == "uk-i-bramblewood-garden-centre" else "461"
+
+
 def _retail_precedent(env, rng, firm, stratum):
     m, u = env.pick(rng, firm, lambda m, u: u["use"] == "precedent_purchase", need_free=True)
-    label = "310" if firm["trade"]["tag"] == "catering" else "461"
+    label = _retail_account(firm, m)
     return env.build(rng, firm, scenario="retailer_precedent", stratum=stratum, merchant=m, use=u,
                      family=rng.choice(["contact_only", "raw_contact"]), facts={"precedent": True, "account": label},
                      expect=("line+history",))
@@ -191,15 +199,20 @@ def _person_role(env: Env, rng, firm, stratum):
         raise Skip("no people with roles")
     token, role, rule, refs = options[rng.randrange(len(options))]
     ref = _sub_ref(env, rng, firm, refs)
-    # Invoices from a subcontractor vary; rent and net pay are one amount a month per person (R5, R18).
-    amount = draw_amount(rng, "250.00", "2400.00") if role == "subcontractor" else None
-    date = _peek_date(env, rng, "UK-FPO")
-    if amount is None:
+    # Invoices from a subcontractor vary; rent and net pay are one amount a month per person (R5, R18), paid on the
+    # person's pay day as in history (re-audit R4).
+    if role == "subcontractor":
+        amount = draw_amount(rng, "250.00", "2400.00")
+        date = _peek_date(env, rng, "UK-FPO")
+        when = None
+    else:
+        dates = env.pay_dates(firm, token, env.scored_window)
+        date = when = dates[rng.randrange(len(dates))]
         amount = person_amount(env, rng, firm, token, role, date)
     return env.build(rng, firm, scenario=f"person_{role}", stratum=stratum, merchant=None, use=None, rule=rule,
                      facts={"role": role}, family="explicit", amount=amount, sign=-1,
                      contact=token, line="", ref=_with_week(redate(ref, date), date), narrative=token.upper(), fmt="UK-FPO",
-                     person=token, merchant_id=f"person:{firm['firm_id']}:{token}", expect=HIST)
+                     person=token, merchant_id=f"person:{firm['firm_id']}:{token}", expect=HIST, date=when)
 
 
 def _household(env, rng, firm, stratum):
@@ -728,12 +741,9 @@ NR1_REFS = _payee_pool(["PAYMENT {N4}", "BILL PAYMENT", "ONLINE PMT {N4}", "SO {
                         "PAYEE {N4}", "REF {N6}", "MOBILE PMT {N4}"])
 NR6_REFS = _payee_pool(["TRANSFER", "CREDIT", "FPI {N6}", "BGC", "INWARD PAYMENT", "FASTER PMT {N6}", "DEPOSIT",
                         "CR {N6}", "PAYMENT RECEIVED"])
-# F4: a lookalike receipt (posted by precedent under UK-R065) needs a stable payer identity, a numbered payer
-# reference; a bare transaction word (TRANSFER, BGC, DEPOSIT...) names no payer, so it is only ever an NR-6 review item.
-LOOKALIKE_RECEIPT_REFS = [p for p in NR6_REFS if "{N" in p]
-# The same for lookalike payees (re-audit R3, F4 payee side): OUTWARD PAYMENT or BILL PAYMENT names no payee.
+# F4 payee side (re-audit R3): a lookalike payee needs a numbered payee reference; OUTWARD PAYMENT or BILL PAYMENT
+# names no payee.
 LOOKALIKE_PAYEE_REFS = [p for p in NR1_REFS if "{N" in p]
-BARE_RECEIPT_WORDS = frozenset(p for p in NR6_REFS if "{" not in p)
 
 
 def _ref_from(rng, pool):
@@ -749,10 +759,13 @@ def _unknown_counterparty(env, rng, firm, stratum):
 
 
 def _unexplained_receipt(env, rng, firm, stratum):
-    ref = _ref_from(rng, NR6_REFS)
+    # A Faster Payment credit always shows the remitter's name (re-audit R4): here a person the books have never seen.
+    token = rng.choice(firm["people"]["unknown_pool"])
+    pid = f"person:{firm['firm_id']}:{token}"
     return env.build(rng, firm, scenario="unexplained_receipt", stratum=stratum, merchant=None, use=None,
                      rule="UK-NR-6", family="explicit", amount=draw_amount(rng, "250.00", "6000.00"), sign=1,
-                     contact="", line="", ref=ref, narrative="", fmt="UK-FPI", merchant_id=f"payer:{firm['firm_id']}:{ref}")
+                     contact=token, line="", ref=_ref_from(rng, NR6_REFS), narrative=token.upper(), fmt="UK-FPI",
+                     person=token, merchant_id=pid, forbid=[pid])
 
 
 # ---------------------------------------------------------------- S0 contrastive lookalikes (fix round 1)
@@ -811,13 +824,14 @@ def _la_payee(env, rng, firm, stratum):
 
 
 def _la_receipt(env, rng, firm, stratum):
-    ref = _ref_from(rng, LOOKALIKE_RECEIPT_REFS)
-    label = "200" if rng.random() < 0.8 else ("970" if is_st(firm) else "835")
+    # The NR-6 surface (a person's name and a bare reference), but a private client the books already know: the
+    # firm's history holds a confirmed sale from the same name (F4, re-audit R4).
+    token = rng.choice(firm["people"]["clients"])
     return env.build(rng, firm, scenario="lookalike_receipt", stratum=stratum, merchant=None, use=None,
-                     rule="UK-R065", facts={"account": label}, family="explicit",
-                     amount=draw_amount(rng, "250.00", "5000.00"), sign=1, contact="", line="", ref=ref,
-                     narrative="", fmt="UK-FPI", merchant_id=f"payer:{firm['firm_id']}:{ref}",
-                     expect=("line+history",))
+                     rule="UK-R065", facts={"account": "200"}, family="explicit",
+                     amount=draw_amount(rng, "250.00", "5000.00"), sign=1, contact=token, line="",
+                     ref=_ref_from(rng, NR6_REFS), narrative=token.upper(), fmt="UK-FPI", person=token,
+                     merchant_id=f"person:{firm['firm_id']}:{token}", expect=("line+history",))
 
 
 def _la_director_phone(env, rng, firm, stratum):
@@ -979,7 +993,7 @@ SCENARIOS = {
             ("people_costs", *_group([
                 ("training", 0.6, _use(lambda m, u: u["use"] in ("training", "private_course", "learning"),
                                        "training")),
-                ("workwear", 0.6, _use(lambda m, u: u["use"] in ("workwear", "everyday_clothes"), "clothing")),
+                ("workwear", 0.6, _use(lambda m, u: u["use"] in ("workwear", "workwear_kitchen", "everyday_clothes"), "clothing")),
                 ("mileage", 0.5, _mileage),
                 ("employee_medical", 0.3, _use_named("employee_medical", "employee_medical")),
             ])),

@@ -1027,12 +1027,13 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "business"
      },
      "fixed_group": null,
      "line_descriptions": [
       "Business internet",
-      "Shop phone line",
+      "Business phone line",
       "Business mobile plan"
      ],
      "narratives": null,
@@ -1062,6 +1063,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "residential"
      },
      "fixed_group": null,
@@ -3717,12 +3719,13 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "business"
      },
      "fixed_group": null,
      "line_descriptions": [
       "Business internet",
-      "Shop phone line",
+      "Business phone line",
       "Business mobile plan"
      ],
      "narratives": null,
@@ -3752,6 +3755,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "residential"
      },
      "fixed_group": null,
@@ -6337,6 +6341,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "personal_return": true
      },
      "fixed_group": null,
@@ -7354,6 +7359,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "personal_return": true
      },
      "fixed_group": null,
@@ -9987,12 +9993,13 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "business"
      },
      "fixed_group": null,
      "line_descriptions": [
       "Business internet",
-      "Shop phone line",
+      "Business phone line",
       "Business mobile plan"
      ],
      "narratives": null,
@@ -10022,6 +10029,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "residential"
      },
      "fixed_group": null,
@@ -10913,12 +10921,13 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "business"
      },
      "fixed_group": null,
      "line_descriptions": [
       "Business internet",
-      "Shop phone line",
+      "Business phone line",
       "Business mobile plan"
      ],
      "narratives": null,
@@ -10948,6 +10957,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "residential"
      },
      "fixed_group": null,
@@ -11148,7 +11158,7 @@
      "fixed_group": null,
      "line_descriptions": [
       "Lunch with client re proposal",
-      "Dinner with subcontractor, project review",
+      "Dinner with client, project review",
       "Client dinner, project kickoff"
      ],
      "narratives": null,
@@ -12818,12 +12828,13 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "business"
      },
      "fixed_group": null,
      "line_descriptions": [
       "Business internet",
-      "Shop phone line",
+      "Business phone line",
       "Business mobile plan"
      ],
      "narratives": null,
@@ -12853,6 +12864,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "residential"
      },
      "fixed_group": null,
@@ -13991,12 +14003,13 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "business"
      },
      "fixed_group": null,
      "line_descriptions": [
       "Business internet",
-      "Shop phone line",
+      "Business phone line",
       "Business mobile plan"
      ],
      "narratives": null,
@@ -14026,6 +14039,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "line_type": "residential"
      },
      "fixed_group": null,
@@ -14497,6 +14511,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "personal_tax_penalty": true
      },
      "fixed_group": null,
@@ -14630,7 +14645,9 @@
       "us_schedule_c_v0_2_s_corp": "3010"
      },
      "direction": "spend",
-     "facts": {},
+     "facts": {
+      "line_states": true
+     },
      "fixed_group": null,
      "line_descriptions": [
       "Individual estimated tax",
@@ -14664,7 +14681,9 @@
       "us_schedule_c_v0_2_s_corp": "3000"
      },
      "direction": "receive",
-     "facts": {},
+     "facts": {
+      "line_states": true
+     },
      "fixed_group": null,
      "line_descriptions": [
       "Individual income tax refund",
@@ -15093,7 +15112,7 @@
      "fixed_group": null,
      "line_descriptions": [
       "Lunch with client re proposal",
-      "Dinner with subcontractor, project review",
+      "Dinner with client, project review",
       "Client dinner, project kickoff"
      ],
      "narratives": null,
@@ -15475,7 +15494,7 @@
      "fixed_group": null,
      "line_descriptions": [
       "Lunch with client re proposal",
-      "Dinner with subcontractor, project review",
+      "Dinner with client, project review",
       "Client dinner, project kickoff"
      ],
      "narratives": null,
@@ -15774,7 +15793,7 @@
    "uses": [
     {
      "amount_choices": null,
-     "amount_mode": "range",
+     "amount_mode": "whole",
      "amount_range": [
       "150.00",
       "500.00"
@@ -16040,7 +16059,7 @@
      "fixed_group": null,
      "line_descriptions": [
       "Lunch with client re proposal",
-      "Dinner with subcontractor, project review",
+      "Dinner with client, project review",
       "Client dinner, project kickoff"
      ],
      "narratives": null,
@@ -17872,7 +17891,7 @@
      "fixed_group": null,
      "line_descriptions": [
       "Lunch with client re proposal",
-      "Dinner with subcontractor, project review",
+      "Dinner with client, project review",
       "Client dinner, project kickoff"
      ],
      "narratives": null,
@@ -18769,7 +18788,7 @@
      "fixed_group": null,
      "line_descriptions": [
       "Lunch with client re proposal",
-      "Dinner with subcontractor, project review",
+      "Dinner with client, project review",
       "Client dinner, project kickoff"
      ],
      "narratives": null,
@@ -19464,6 +19483,7 @@
      },
      "direction": "spend",
      "facts": {
+      "line_states": true,
       "personal_return": true
      },
      "fixed_group": null,

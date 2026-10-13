@@ -88,7 +88,7 @@ MERCHANTS += [
     ]),
     # Telecoms
     *[B(bid, contacts, narrs, [
-        U("business_contract", "spend", lo, hi, "489", "UK-R033", ["Business broadband", "Office phone line", "Business mobile plan", "Fibre broadband, unit"], facts={"contract": "business"}, routine=True, needs_line=True, amount_mode="fixed"),
+        U("business_contract", "spend", lo, hi, "489", "UK-R033", ["Business broadband", "Office phone line", "Business mobile plan", "Fibre broadband"], facts={"contract": "business"}, routine=True, needs_line=True, amount_mode="fixed"),
         U("personal_contract", "spend", lo, hi, "489", "UK-R033", ["Mobile contract", ""], hooks=["UK-R033"], facts={"contract": "personal"}, amount_mode="fixed"),
         U("director_contract", "spend", lo, hi, "489", "UK-R033", ["Mobile, director", "Director phone contract", "Phone for director", "Mobile contract, director use", ""], hooks=["UK-R033"], facts={"contract": "director_personal"}, only={"entity": ["limited_company"]}, amount_mode="fixed"),
     ], fmt="UK-DD", refs=refs) for bid, contacts, narrs, lo, hi, refs in [
@@ -615,7 +615,7 @@ MERCHANTS += [
         U("branded_gifts", "spend", "60.00", "420.00", "400", "UK-R030", ["Logo pens for customers", "Branded tote bags for open day", "Printed keyrings with logo"], needs_line=True),
     ], refs=["IP{N5}"]),
     I("halden-print-studio", "Halden Print Studio", ["Halden Print Studio"], ["HALDEN PRINT"], [
-        U("print_marketing", "spend", "40.00", "480.00", "400", "UK-R056", ["Flyers for open day", "Brochures print run", "Shop window posters"], routine=True),
+        U("print_marketing", "spend", "40.00", "480.00", "400", "UK-R056", ["Flyers for open day", "Brochures print run", "Shop window posters"], routine=True, needs_line=True),  # a print shop's name alone does not say marketing (400) or stationery (461)
     ], refs=["HPS{N4}"]),
     I("larkfield-vehicle-leasing", "Larkfield Vehicle Leasing Ltd", ["Larkfield Vehicle Leasing Ltd"], ["LARKFIELD LEASING"], [
         U("lease", "spend", "180.00", "520.00", "457", "UK-R063", ["Van lease rental {MMM}", "Vehicle lease", ""], routine=True, only={"vehicle_methods": ["actual_costs", "taxi_cost_of_sales"]}, amount_mode="fixed"),
@@ -646,7 +646,9 @@ MERCHANTS += [
         U("keys", "spend", "4.00", "40.00", "429", "UK-R064", ["Spare keys for shop", "Key cutting, unit"], routine=True, needs_line=True),
     ], fmt="UK-DEB"),
     I("safeguard-workwear", "Safeguard Workwear Supplies", ["Safeguard Workwear Supplies"], ["SAFEGUARD WORKWEAR"], [
-        U("workwear", "spend", "25.00", "260.00", "429", "UK-R062", ["Safety boots", "Chef whites and aprons", "Hi-vis and hard hats"], needs_line=True, routine=True),
+        # Protective kit for site and workshop trades, chef whites for kitchens only (re-audit R4: not at a roofer).
+        U("workwear", "spend", "25.00", "260.00", "429", "UK-R062", ["Safety boots", "Hi-vis and hard hats"], needs_line=True, routine=True, only={"trades": ("construction", "trades", "manufacturing", "transport")}),
+        U("workwear_kitchen", "spend", "25.00", "180.00", "429", "UK-R062", ["Chef whites and aprons"], needs_line=True, routine=True, only={"trades": ("catering",)}),
         U("everyday_clothes", "spend", "30.00", "140.00", "980", "UK-R062", ["Jeans and jumper", "Everyday shoes"], needs_line=True, facts={"private": True}),
     ], fmt="UK-DEB"),
     I("riverside-brasserie", "Riverside Brasserie", ["Riverside Brasserie"], ["RIVERSIDE BRASSERI"], _food_uses("25.00", "380.00"), fmt="UK-DEB", category="food_drink"),
@@ -707,7 +709,7 @@ MERCHANTS += [
     # confirmation statement filed online: GBP 50 from 1 February 2026, GBP 34 before (gov.uk/government/
     # publications/companies-house-fees, updated 25 September 2026). Equal bounds put the tariff on every line; the
     # history window starts before 1 February 2026, so history rows dated earlier should carry CS01_FEE_BEFORE.
-    I("ico", "Information Commissioner's Office", ["ICO", "Information Commissioner's Office"], ["ICO {A2}{N6}"], [
+    I("ico", "Information Commissioner's Office", ["ICO", "Information Commissioner's Office"], ["ICO ZB{N6}"], [
         U("registration", "spend", ICO_FEE_DD, ICO_FEE_DD, "485", "UK-R042", ["Data protection fee", "ICO registration"], routine=True, facts={"membership": "trade_body"}),
     ], kind="government", category="government", fmt="UK-DD"),
     I("companies-house", "Companies House", ["Companies House"], ["COMPANIES HOUSE"], [

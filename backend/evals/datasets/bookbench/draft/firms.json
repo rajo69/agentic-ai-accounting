@@ -34,6 +34,11 @@
      "B Whaernerell": "20",
      "E Slainerell": "0"
     },
+    "clients": [
+     "R Chaerkens",
+     "B Clentingham",
+     "E Kepett"
+    ],
     "employees": [
      "K Pearramere",
      "S Reambington"
@@ -60,10 +65,7 @@
      "P Slaivond",
      "L Thyswow",
      "C Dyneby",
-     "T Veaffowell",
-     "R Chaerkens",
-     "B Clentingham",
-     "E Kepett"
+     "T Veaffowell"
     ]
    },
    "policies": {
@@ -128,6 +130,11 @@
    "name": "Copperleaf Bakery",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "R Shaldell",
+     "B Steatock",
+     "W Goulvell"
+    ],
     "employees": [
      "M Clembworth"
     ],
@@ -150,10 +157,7 @@
      "N Boubimere",
      "G Crearrimere",
      "K Flougowell",
-     "L Prontine",
-     "R Shaldell",
-     "B Steatock",
-     "W Goulvell"
+     "L Prontine"
     ]
    },
    "policies": {
@@ -220,6 +224,11 @@
    "name": "Northwind Mobile Mechanics",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "W Crealmens",
+     "D Brouffine",
+     "R Pryrkisby"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -240,10 +249,7 @@
      "W Whirell",
      "G Slaivond",
      "E Punham",
-     "F Vaerennick",
-     "W Crealmens",
-     "D Brouffine",
-     "R Pryrkisby"
+     "F Vaerennick"
     ]
    },
    "policies": {
@@ -308,6 +314,11 @@
    "name": "Kestrel Lane Design Studio",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "D Tealdick",
+     "R Whambard",
+     "G Blaiteby"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -329,10 +340,7 @@
      "W Neserell",
      "G Narvock",
      "S Sealington",
-     "S Whoaffens",
-     "D Tealdick",
-     "R Whambard",
-     "G Blaiteby"
+     "S Whoaffens"
     ]
    },
    "policies": {
@@ -401,6 +409,11 @@
     "cis_rates": {
      "D Slourvell": "20"
     },
+    "clients": [
+     "M Noffridge",
+     "K Kiffond",
+     "W Boackerell"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -423,10 +436,7 @@
      "S Cremick",
      "H Pairnworth",
      "C Moaskimere",
-     "B Nernowell",
-     "M Noffridge",
-     "K Kiffond",
-     "W Boackerell"
+     "B Nernowell"
     ]
    },
    "policies": {
@@ -493,6 +503,11 @@
    "name": "Saltmarsh Coffee House Ltd",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "E Crernington",
+     "N Staistowell",
+     "R Prurrimere"
+    ],
     "employees": [
      "F Dyneby",
      "M Sourwanick",
@@ -519,10 +534,7 @@
      "N Blouskow",
      "E Preskerell",
      "N Gaernine",
-     "C Puserell",
-     "E Crernington",
-     "N Staistowell",
-     "R Prurrimere"
+     "C Puserell"
     ]
    },
    "policies": {
@@ -589,6 +601,11 @@
    "name": "Fernhill Garden Services",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "M Droambowell",
+     "M Lontanick",
+     "G Sheandond"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -609,10 +626,7 @@
      "J Pruthamere",
      "M Caelward",
      "C Nambley",
-     "W Cluskett",
-     "M Droambowell",
-     "M Lontanick",
-     "G Sheandond"
+     "W Cluskett"
     ]
    },
    "policies": {
@@ -677,6 +691,11 @@
    "name": "Riverbend Bookkeeping Partners",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "C Sourwanick",
+     "R Baffley",
+     "K Shearwworth"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -698,10 +717,7 @@
      "W Cemworth",
      "A Blapridge",
      "C Praeskisby",
-     "D Dountamere",
-     "C Sourwanick",
-     "R Baffley",
-     "K Shearwworth"
+     "D Dountamere"
     ]
    },
    "policies": {
@@ -771,6 +787,11 @@
    "name": "Ashby Cross Physiotherapy Ltd",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "M Patick",
+     "G Toathamere",
+     "N Cebington"
+    ],
     "employees": [
      "J Shearwworth",
      "E Beaskell"
@@ -794,10 +815,7 @@
      "D Blunley",
      "P Dustaven",
      "D Staezick",
-     "B Drarkennick",
-     "M Patick",
-     "G Toathamere",
-     "N Cebington"
+     "B Drarkennick"
     ]
    },
    "policies": {
@@ -864,6 +882,11 @@
    "name": "Moorland Taxis",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "H Claerrham",
+     "P Hymell",
+     "A Faelmell"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -884,10 +907,7 @@
      "M Vousimere",
      "K Glizeby",
      "R Sourrisby",
-     "K Glaisennick",
-     "H Claerrham",
-     "P Hymell",
-     "A Faelmell"
+     "K Glaisennick"
     ]
    },
    "policies": {
@@ -959,6 +979,11 @@
    "name": "Tidepool Web Partners",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "R Wulvamere",
+     "S Whaernerell",
+     "R Reambington"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -980,10 +1005,7 @@
      "C Pryrkisby",
      "H Louddell",
      "E Thyffowell",
-     "K Fletheby",
-     "R Wulvamere",
-     "S Whaernerell",
-     "R Reambington"
+     "K Fletheby"
     ]
    },
    "policies": {
@@ -1050,6 +1072,11 @@
    "name": "Larkspur Florists Ltd",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "E Whaebell",
+     "K Chybine",
+     "T Queallett"
+    ],
     "employees": [
      "L Ceswstow",
      "H Glailvowell"
@@ -1073,10 +1100,7 @@
      "E Puggridge",
      "P Stuldington",
      "G Traerrock",
-     "M Hearkett",
-     "E Whaebell",
-     "K Chybine",
-     "T Queallett"
+     "M Hearkett"
     ]
    },
    "policies": {
@@ -1152,6 +1176,11 @@
      "A Ratwowell": "20",
      "W Chaerkens": "20"
     },
+    "clients": [
+     "K Woulwerell",
+     "P Droadham",
+     "M Cizington"
+    ],
     "employees": [
      "W Sloastard",
      "G Kegard",
@@ -1179,10 +1208,7 @@
      "H Trunimere",
      "M Chybine",
      "E Pearramere",
-     "G Tebard",
-     "K Woulwerell",
-     "P Droadham",
-     "M Cizington"
+     "G Tebard"
     ]
    },
    "policies": {
@@ -1249,6 +1275,11 @@
    "name": "Bellwether Marketing Consultancy",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "L Hickley",
+     "J Bolwamere",
+     "L Greavanick"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -1269,10 +1300,7 @@
      "G Whambard",
      "M Tealdick",
      "N Whirrennick",
-     "L Clorvine",
-     "L Hickley",
-     "J Bolwamere",
-     "L Greavanick"
+     "L Clorvine"
     ]
    },
    "policies": {
@@ -1341,6 +1369,11 @@
    "name": "Old Mill Pottery",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "N Foarwow",
+     "F Glysens",
+     "N Bolwamere"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -1361,10 +1394,7 @@
      "N Quindridge",
      "M Whaernerell",
      "W Baemmennick",
-     "S Stirstow",
-     "N Foarwow",
-     "F Glysens",
-     "N Bolwamere"
+     "S Stirstow"
     ]
    },
    "policies": {
@@ -1433,6 +1463,11 @@
    "name": "Cobalt Street Hair Studio",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "N Graerwowell",
+     "B Fabworth",
+     "G Cloldanick"
+    ],
     "employees": [
      "C Gaernine"
     ],
@@ -1456,10 +1491,7 @@
      "T Cysterell",
      "K Whaebell",
      "W Shickick",
-     "W Noffridge",
-     "N Graerwowell",
-     "B Fabworth",
-     "G Cloldanick"
+     "W Noffridge"
     ]
    },
    "policies": {
@@ -1528,6 +1560,11 @@
     "cis_rates": {
      "N Treasett": "0"
     },
+    "clients": [
+     "W Claeldell",
+     "L Peatwridge",
+     "F Drurkworth"
+    ],
     "employees": [
      "N Thenridge"
     ],
@@ -1552,10 +1589,7 @@
      "N Dountamere",
      "C Thyffowell",
      "A Trugett",
-     "S Moumbens",
-     "W Claeldell",
-     "L Peatwridge",
-     "F Drurkworth"
+     "S Moumbens"
     ]
    },
    "policies": {
@@ -1620,6 +1654,11 @@
    "name": "Silverdale Dog Grooming",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "K Stirstow",
+     "N Fearweby",
+     "B Puckens"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -1640,10 +1679,7 @@
      "F Greavanick",
      "R Hearkett",
      "R Thaithow",
-     "E Maemow",
-     "K Stirstow",
-     "N Fearweby",
-     "B Puckens"
+     "E Maemow"
     ]
    },
    "policies": {
@@ -1710,6 +1746,11 @@
    "name": "Hollowbrook Catering Partners",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "H Bolvridge",
+     "N Thyswow",
+     "D Flagstow"
+    ],
     "employees": [
      "D Houmaven",
      "E Blunley"
@@ -1734,10 +1775,7 @@
      "K Blaelmham",
      "T Stuldington",
      "T Walmanick",
-     "F Whoaffens",
-     "H Bolvridge",
-     "N Thyswow",
-     "D Flagstow"
+     "F Whoaffens"
     ]
    },
    "policies": {
@@ -1809,6 +1847,11 @@
    "name": "Quillstone Translation Services Ltd",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "H Peazisby",
+     "H Glailvowell",
+     "J Faizick"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "director",
@@ -1829,10 +1872,7 @@
      "H Pepaven",
      "P Leaskworth",
      "E Dunnowell",
-     "A Moaskimere",
-     "H Peazisby",
-     "H Glailvowell",
-     "J Faizick"
+     "A Moaskimere"
     ]
    },
    "policies": {
@@ -1899,6 +1939,11 @@
    "name": "Nettlebed Organic Box Scheme",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "P Faipowell",
+     "R Toffell",
+     "N Reambington"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -1919,10 +1964,7 @@
      "C Blounnond",
      "H Sletanick",
      "E Flagstow",
-     "D Trummley",
-     "P Faipowell",
-     "R Toffell",
-     "N Reambington"
+     "D Trummley"
     ]
    },
    "policies": {
@@ -1990,6 +2032,11 @@
    "name": "Ironbridge Fabrication Ltd",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "M Faembington",
+     "N Quaembard",
+     "M Baebell"
+    ],
     "employees": [
      "E Whaernerell",
      "R Quaiggeby",
@@ -2014,10 +2061,7 @@
      "E Thairnaven",
      "T Kithingham",
      "R Leckanick",
-     "S Nambley",
-     "M Faembington",
-     "N Quaembard",
-     "M Baebell"
+     "S Nambley"
     ]
    },
    "policies": {
@@ -2082,6 +2126,11 @@
    "name": "Pebblebank Tutoring",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "N Glysens",
+     "A Wulvamere",
+     "A Paeckaven"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -2102,10 +2151,7 @@
      "H Baevimere",
      "S Nuldine",
      "A Wiggham",
-     "P Crernington",
-     "N Glysens",
-     "A Wulvamere",
-     "A Paeckaven"
+     "P Crernington"
     ]
    },
    "policies": {
@@ -2175,6 +2221,11 @@
    "name": "Larchmont Events Ltd",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "R Pairnworth",
+     "G Thustett",
+     "T Thailvock"
+    ],
     "employees": [
      "P Koalisby",
      "C Whethow"
@@ -2199,10 +2250,7 @@
      "D Quaipington",
      "S Patick",
      "L Ceswstow",
-     "R Clombham",
-     "R Pairnworth",
-     "G Thustett",
-     "T Thailvock"
+     "R Clombham"
     ]
    },
    "policies": {
@@ -2264,6 +2312,11 @@
    "name": "Quernmoor Plastering",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "P Trunimere",
+     "H Myswowell",
+     "T Chickimere"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -2284,10 +2337,7 @@
      "K Feapington",
      "C Roammisby",
      "T Hibaven",
-     "H Glaisennick",
-     "P Trunimere",
-     "H Myswowell",
-     "T Chickimere"
+     "H Glaisennick"
     ]
    },
    "policies": {
@@ -2352,6 +2402,11 @@
    "name": "Swaleford Roofing Partners",
    "people": {
     "cis_rates": {},
+    "clients": [
+     "F Crarwennick",
+     "S Cryllworth",
+     "G Traernick"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -2373,10 +2428,7 @@
      "M Trugett",
      "N Trollham",
      "B Sloastard",
-     "F Flildley",
-     "F Crarwennick",
-     "S Cryllworth",
-     "G Traernick"
+     "F Flildley"
     ]
    },
    "policies": {
@@ -2446,6 +2498,11 @@
    "memo_style": "upper",
    "name": "Prairie Lantern Design LLC",
    "people": {
+    "clients": [
+     "L Claerrham",
+     "E Stunond",
+     "E Flildley"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -2468,10 +2525,7 @@
      "L Soasimere",
      "J Cremick",
      "R Blaserell",
-     "S Slisowell",
-     "L Claerrham",
-     "E Stunond",
-     "E Flildley"
+     "S Slisowell"
     ]
    },
    "policies": {
@@ -2534,6 +2588,11 @@
    "memo_style": "plain",
    "name": "Bluegill Plumbing and Drain",
    "people": {
+    "clients": [
+     "P Haeldanick",
+     "D Praithard",
+     "S Chistley"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -2556,10 +2615,7 @@
      "D Madworth",
      "B Crypingham",
      "P Traernick",
-     "C Nernowell",
-     "P Haeldanick",
-     "D Praithard",
-     "S Chistley"
+     "C Nernowell"
     ]
    },
    "policies": {
@@ -2627,6 +2683,11 @@
    "memo_style": "plain",
    "name": "Summit Ridge Consulting Inc",
    "people": {
+    "clients": [
+     "T Bylens",
+     "T Gryndell",
+     "W Drarkennick"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "officer",
@@ -2647,10 +2708,7 @@
      "G Blarvingham",
      "N Cloldanick",
      "A Drouddick",
-     "W Claerrham",
-     "T Bylens",
-     "T Gryndell",
-     "W Drarkennick"
+     "W Claerrham"
     ]
    },
    "policies": {
@@ -2718,6 +2776,11 @@
    "memo_style": "upper",
    "name": "Cedar Hollow Candle Co LLC",
    "people": {
+    "clients": [
+     "R Croasond",
+     "T Whylmard",
+     "E Vousimere"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -2738,10 +2801,7 @@
      "W Blougridge",
      "G Thylanick",
      "H Vatett",
-     "M Droadham",
-     "R Croasond",
-     "T Whylmard",
-     "E Vousimere"
+     "M Droadham"
     ]
    },
    "policies": {
@@ -2810,6 +2870,11 @@
    "memo_style": "plain",
    "name": "Northfork Landscaping",
    "people": {
+    "clients": [
+     "H Trombennick",
+     "D Puckens",
+     "G Blaiteby"
+    ],
     "employees": [
      "R Boackerell",
      "B Sloswley"
@@ -2833,10 +2898,7 @@
      "R Paeckaven",
      "P Slaeswaven",
      "T Fulvowell",
-     "C Peagick",
-     "H Trombennick",
-     "D Puckens",
-     "G Blaiteby"
+     "C Peagick"
     ]
    },
    "policies": {
@@ -2904,6 +2966,11 @@
    "memo_style": "slash",
    "name": "Tall Pines Bakery LLC",
    "people": {
+    "clients": [
+     "J Cloderell",
+     "S Kaivridge",
+     "M Traernick"
+    ],
     "employees": [
      "G Crealmens",
      "S Vatett",
@@ -2928,10 +2995,7 @@
      "R Trourwanick",
      "E Braervine",
      "R Gleathanick",
-     "L Gougeby",
-     "J Cloderell",
-     "S Kaivridge",
-     "M Traernick"
+     "L Gougeby"
     ]
    },
    "policies": {
@@ -2999,6 +3063,11 @@
    "memo_style": "month",
    "name": "Granite Bay Builders Inc",
    "people": {
+    "clients": [
+     "K Cronnine",
+     "D Croadanick",
+     "H Vockimere"
+    ],
     "employees": [
      "K Cotowell",
      "D Saibanick",
@@ -3027,10 +3096,7 @@
      "M Myswowell",
      "H Gaernine",
      "S Slepond",
-     "N Haeldanick",
-     "K Cronnine",
-     "D Croadanick",
-     "H Vockimere"
+     "N Haeldanick"
     ]
    },
    "policies": {
@@ -3096,6 +3162,11 @@
    "memo_style": "plain",
    "name": "Kettle Creek Photography",
    "people": {
+    "clients": [
+     "A Woustisby",
+     "P Whaernerell",
+     "D Ritley"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -3116,10 +3187,7 @@
      "C Trunimere",
      "T Slourrens",
      "N Mogond",
-     "P Houmaven",
-     "A Woustisby",
-     "P Whaernerell",
-     "D Ritley"
+     "P Houmaven"
     ]
    },
    "policies": {
@@ -3177,6 +3245,11 @@
    "memo_style": "plain",
    "name": "Lumen Tutoring Services",
    "people": {
+    "clients": [
+     "F Flildley",
+     "N Goulvell",
+     "G Cremick"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -3197,10 +3270,7 @@
      "C Dambaven",
      "T Glysens",
      "T Leckanick",
-     "W Slourvell",
-     "F Flildley",
-     "N Goulvell",
-     "G Cremick"
+     "W Slourvell"
     ]
    },
    "policies": {
@@ -3266,6 +3336,11 @@
    "memo_style": "slash",
    "name": "Copperline HVAC Inc",
    "people": {
+    "clients": [
+     "A Pairnworth",
+     "J Readingham",
+     "W Blougridge"
+    ],
     "employees": [
      "J Droambowell",
      "N Dunnowell",
@@ -3290,10 +3365,7 @@
      "F Woulwerell",
      "R Fervond",
      "W Crypingham",
-     "F Punham",
-     "A Pairnworth",
-     "J Readingham",
-     "W Blougridge"
+     "F Punham"
     ]
    },
    "policies": {
@@ -3359,6 +3431,11 @@
    "memo_style": "upper",
    "name": "Riverstone Bookkeeping LLC",
    "people": {
+    "clients": [
+     "J Sourwanick",
+     "B Clembworth",
+     "G Slulwerell"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -3379,10 +3456,7 @@
      "C Whaebell",
      "E Shuzham",
      "J Simberell",
-     "D Slaivond",
-     "J Sourwanick",
-     "B Clembworth",
-     "G Slulwerell"
+     "D Slaivond"
     ]
    },
    "policies": {
@@ -3450,6 +3524,11 @@
    "memo_style": "plain",
    "name": "Maple and Moss Floral Studio",
    "people": {
+    "clients": [
+     "N Sloswley",
+     "M Shearwworth",
+     "E Gougeby"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -3470,10 +3549,7 @@
      "D Breastimere",
      "H Noarnard",
      "J Thaithow",
-     "E Traswridge",
-     "N Sloswley",
-     "M Shearwworth",
-     "E Gougeby"
+     "E Traswridge"
     ]
    },
    "policies": {
@@ -3543,6 +3619,11 @@
    "memo_style": "lower",
    "name": "Quarry Lane Pressure Washing",
    "people": {
+    "clients": [
+     "S Dunnowell",
+     "J Foarwow",
+     "K Peazisby"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -3563,10 +3644,7 @@
      "N Traswridge",
      "W Gouggstow",
      "C Doatley",
-     "E Shearwworth",
-     "S Dunnowell",
-     "J Foarwow",
-     "K Peazisby"
+     "E Shearwworth"
     ]
    },
    "policies": {
@@ -3634,6 +3712,11 @@
    "memo_style": "slash",
    "name": "Gristmill Hill Soap Works LLC",
    "people": {
+    "clients": [
+     "D Cloderell",
+     "H Faizick",
+     "E Glysens"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -3654,10 +3737,7 @@
      "T Whyffamere",
      "N Blasanick",
      "D Laggett",
-     "D Flougowell",
-     "D Cloderell",
-     "H Faizick",
-     "E Glysens"
+     "D Flougowell"
     ]
    },
    "policies": {
@@ -3725,6 +3805,11 @@
    "memo_style": "slash",
    "name": "Larkspur Network Solutions Inc",
    "people": {
+    "clients": [
+     "W Cronnine",
+     "K Dountamere",
+     "T Kegard"
+    ],
     "employees": [
      "A Slaizamere",
      "W Thairkisby"
@@ -3748,10 +3833,7 @@
      "P Sletanick",
      "G Whatwell",
      "K Tryrramere",
-     "F Shaevock",
-     "W Cronnine",
-     "K Dountamere",
-     "T Kegard"
+     "F Shaevock"
     ]
    },
    "policies": {
@@ -3819,6 +3901,11 @@
    "memo_style": "slash",
    "name": "Sagebrush Skillet Food Truck",
    "people": {
+    "clients": [
+     "M Glailvowell",
+     "L Cronnine",
+     "W Cysterell"
+    ],
     "employees": [
      "P Sletanick"
     ],
@@ -3841,10 +3928,7 @@
      "T Baevimere",
      "E Whoummerell",
      "A Sliffell",
-     "J Ferrstow",
-     "M Glailvowell",
-     "L Cronnine",
-     "W Cysterell"
+     "J Ferrstow"
     ]
    },
    "policies": {
@@ -3912,6 +3996,11 @@
    "memo_style": "month",
    "name": "Juniper Reel Video LLC",
    "people": {
+    "clients": [
+     "P Mynneby",
+     "R Claithamere",
+     "N Thaithow"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -3934,10 +4023,7 @@
      "W Caillerell",
      "R Leckanick",
      "A Thoantard",
-     "M Thumbingham",
-     "P Mynneby",
-     "R Claithamere",
-     "N Thaithow"
+     "M Thumbingham"
     ]
    },
    "policies": {
@@ -4000,6 +4086,11 @@
    "memo_style": "month",
    "name": "Kinnick Hill Handyman Services",
    "people": {
+    "clients": [
+     "P Prilmimere",
+     "R Readingham",
+     "R Grarnow"
+    ],
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -4022,10 +4113,7 @@
      "L Ceswstow",
      "S Whaernerell",
      "E Praithard",
-     "S Grorkard",
-     "P Prilmimere",
-     "R Readingham",
-     "R Grarnow"
+     "S Grorkard"
     ]
    },
    "policies": {
