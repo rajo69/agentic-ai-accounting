@@ -1,4 +1,4 @@
-// Demo state: the synthetic organisation's rows, audit log and jobs, persisted in localStorage.
+// Demo state: the demo organisation's rows, audit log and jobs, persisted in localStorage.
 // Mutations live here so that jobs.ts and server.ts stay thin; every mutation goes through
 // `mutate()` so the state is written back after each change.
 import type { AuditLog, BankStatement, GeneratedDocument, JobRead, TeamMember, Transaction } from "@/lib/api";

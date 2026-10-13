@@ -43,7 +43,7 @@ export function Hero({ connectHref, videoUrl }: { connectHref: string; videoUrl?
           </div>
 
           <p className="animate-rise mt-5 font-mono text-xs text-muted-foreground" style={rise(3)}>
-            The demo is a synthetic company. No account needed.
+            The demo needs no account.
             {videoUrl && (
               <>
                 {" "}

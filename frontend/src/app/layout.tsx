@@ -27,7 +27,7 @@ const serif = Instrument_Serif({
 
 export const metadata: Metadata = {
   title: "AI Accountant",
-  description: "The review layer for AI-coded Xero books. Portfolio project by Rajarshi Nandi.",
+  description: "The review layer for AI-coded Xero books. Built by Rajarshi Nandi.",
 };
 
 export default function RootLayout({
