@@ -54,14 +54,17 @@ CUSTOMER_TRADES = {
     "lakeview-holiday-lets": ["services", "catering", "trades", "creative", "beauty", "events", "transport", "retail", "crafts"],
 }
 
+# Monthly subscriptions bill one amount per firm (F8); annual plans, domains and usage-billed hosting do not.
+_NOT_MONTHLY = {"uk-squarespace", "uk-wix-com", "uk-godaddy", "uk-123-reg", "uk-amazon-web-services"}
 for bid, contacts, narrs, lines, lo, hi in _SAAS:
-    MERCHANTS.append(B(bid, contacts, narrs, [U("software", "spend", lo, hi, "463", "UK-R041", lines, routine=True)]))
+    MERCHANTS.append(B(bid, contacts, narrs, [U("software", "spend", lo, hi, "463", "UK-R041", lines, routine=True,
+                                                 amount_mode="range" if bid in _NOT_MONTHLY else "fixed")]))
 for bid, contacts, narrs, lines, lo, hi in _ACCOUNTING_SW:
     MERCHANTS.append(B(bid, contacts, narrs, [U("software", "spend", lo, hi, "463", "UK-R041", lines, routine=True,
-                                                 facts={"accounting_software": True})]))
+                                                 facts={"accounting_software": True}, amount_mode="fixed")]))
 
 MERCHANTS += [
-    B("uk-shopify", ["Shopify"], ["SHOPIFY* {N9}"], [U("software", "spend", "19.00", "89.00", "463", "UK-R041", ["Shopify plan", "Online shop plan {MMM}"], routine=True)]),
+    B("uk-shopify", ["Shopify"], ["SHOPIFY* {N9}"], [U("software", "spend", "19.00", "89.00", "463", "UK-R041", ["Shopify plan", "Online shop plan {MMM}"], routine=True, amount_mode="fixed")]),
     # Advertising
     B("uk-google-ads", ["Google Ads", "Google Ireland"], ["GOOGLE *ADS{N10}"], [
         U("ads", "spend", "25.00", "600.00", "400", ["UK-R043", "UK-R056"], ["Google Ads campaign", "Search ads {MMM}", "Pay per click ads"], routine=True, facts={"account": "400"}),
@@ -80,26 +83,26 @@ MERCHANTS += [
     ]),
     # Telecoms
     *[B(bid, contacts, narrs, [
-        U("business_contract", "spend", lo, hi, "489", "UK-R033", ["Business broadband", "Office phone line", "Business mobile plan", "Fibre broadband, unit"], facts={"contract": "business"}, routine=True, needs_line=True),
-        U("personal_contract", "spend", lo, hi, "489", "UK-R033", ["Mobile contract", ""], hooks=["UK-R033"], facts={"contract": "personal"}),
-        U("director_contract", "spend", lo, hi, "489", "UK-R033", ["Mobile, director", "Director phone contract", "Phone for director", "Mobile contract, director use", ""], hooks=["UK-R033"], facts={"contract": "director_personal"}, only={"entity": ["limited_company"]}),
+        U("business_contract", "spend", lo, hi, "489", "UK-R033", ["Business broadband", "Office phone line", "Business mobile plan", "Fibre broadband, unit"], facts={"contract": "business"}, routine=True, needs_line=True, amount_mode="fixed"),
+        U("personal_contract", "spend", lo, hi, "489", "UK-R033", ["Mobile contract", ""], hooks=["UK-R033"], facts={"contract": "personal"}, amount_mode="fixed"),
+        U("director_contract", "spend", lo, hi, "489", "UK-R033", ["Mobile, director", "Director phone contract", "Phone for director", "Mobile contract, director use", ""], hooks=["UK-R033"], facts={"contract": "director_personal"}, only={"entity": ["limited_company"]}, amount_mode="fixed"),
     ], fmt="UK-DD", refs=refs) for bid, contacts, narrs, lo, hi, refs in [
-        ("uk-bt", ["BT", "BT Business"], ["BT GROUP PLC"], "28.00", "95.00", ["{A2}{N8}"]),
-        ("uk-ee", ["EE"], ["EE LIMITED"], "12.00", "65.00", ["{N10}"]),
-        ("uk-o2", ["O2"], ["O2"], "10.00", "55.00", ["{N9}"]),
-        ("uk-vodafone", ["Vodafone"], ["VODAFONE LTD"], "12.00", "60.00", ["{N10}"]),
-        ("uk-three", ["Three"], ["THREE"], "10.00", "40.00", ["{N9}"]),
-        ("uk-sky", ["Sky", "Sky Broadband"], ["SKY DIGITAL"], "25.00", "80.00", ["{N10}"]),
-        ("uk-virgin-media", ["Virgin Media"], ["VIRGIN MEDIA PYMTS"], "30.00", "90.00", ["{N9}"]),
-        ("uk-talktalk", ["TalkTalk"], ["TALKTALK LIMITED"], "22.00", "50.00", ["{N10}"]),
-        ("uk-plusnet", ["Plusnet"], ["PLUSNET PLC PAY AC"], "20.00", "45.00", ["{N8}"]),
+        ("uk-bt", ["BT", "BT Business"], ["BT GROUP PLC"], "28.00", "95.00", ["{K10}"]),
+        ("uk-ee", ["EE"], ["EE LIMITED"], "12.00", "65.00", ["{K10}"]),
+        ("uk-o2", ["O2"], ["O2"], "10.00", "55.00", ["{K9}"]),
+        ("uk-vodafone", ["Vodafone"], ["VODAFONE LTD"], "12.00", "60.00", ["{K10}"]),
+        ("uk-three", ["Three"], ["THREE"], "10.00", "40.00", ["{K9}"]),
+        ("uk-sky", ["Sky", "Sky Broadband"], ["SKY DIGITAL"], "25.00", "80.00", ["{K10}"]),
+        ("uk-virgin-media", ["Virgin Media"], ["VIRGIN MEDIA PYMTS"], "30.00", "90.00", ["{K9}"]),
+        ("uk-talktalk", ["TalkTalk"], ["TALKTALK LIMITED"], "22.00", "50.00", ["{K10}"]),
+        ("uk-plusnet", ["Plusnet"], ["PLUSNET PLC PAY AC"], "20.00", "45.00", ["{K8}"]),
         ("uk-giffgaff", ["giffgaff"], ["GIFFGAFF"], "8.00", "25.00", [""]),
     ]],
     # Energy and water
     *[B(bid, contacts, narrs, [
         U("premises_energy", "spend", lo, hi, "445", "UK-R037", ["Electricity, workshop", "Gas, business unit", "Energy, shop premises"], facts={"account": "445", "line_states": True}, needs_line=True, only={"premises": True}, hooks=["UK-R037"]),
         U("household_energy", "spend", "45.00", "190.00", "980", "UK-R036", ["", "Home energy"], hooks=["UK-R036"]),
-    ], fmt="UK-DD", refs=["{N11}"]) for bid, contacts, narrs, lo, hi in [
+    ], fmt="UK-DD", refs=["{K11}"]) for bid, contacts, narrs, lo, hi in [
         ("uk-british-gas", ["British Gas"], ["BRITISH GAS"], "60.00", "420.00"),
         ("uk-edf", ["EDF"], ["EDF ENERGY"], "60.00", "380.00"),
         ("uk-octopus-energy", ["Octopus Energy"], ["OCTOPUS ENERGY"], "50.00", "350.00"),
@@ -108,10 +111,10 @@ MERCHANTS += [
         ("uk-scottishpower", ["ScottishPower"], ["SCOTTISHPOWER"], "60.00", "360.00"),
         ("uk-good-energy", ["Good Energy"], ["GOOD ENERGY LTD"], "45.00", "260.00"),
     ]],
-    B("uk-water-plus", ["Water Plus"], ["WATERPLUS"], [U("premises_water", "spend", "25.00", "140.00", "445", "UK-R037", ["Water, business premises", "Water and sewerage, unit"], facts={"account": "445", "line_states": True}, only={"premises": True}, hooks=["UK-R037"])], fmt="UK-DD", refs=["INV {N7}"]),
+    B("uk-water-plus", ["Water Plus"], ["WATERPLUS"], [U("premises_water", "spend", "25.00", "140.00", "445", "UK-R037", ["Water, business premises", "Water and sewerage, unit"], facts={"account": "445", "line_states": True}, only={"premises": True}, hooks=["UK-R037"])], fmt="UK-DD", refs=["{K10}"]),
     *[B(bid, contacts, narrs, [
         U("household_water", "spend", "25.00", "70.00", "980", "UK-R036", ["", "Water bill"], hooks=["UK-R036"]),
-    ], fmt="UK-DD", refs=["{N10}"]) for bid, contacts, narrs in [
+    ], fmt="UK-DD", refs=["{K10}"]) for bid, contacts, narrs in [
         ("uk-thames-water", ["Thames Water"], ["THAMES WATER"]),
         ("uk-severn-trent", ["Severn Trent"], ["SEVERN TRENT WATER"]),
         ("uk-anglian-water", ["Anglian Water"], ["ANGLIAN WATER"]),
@@ -345,8 +348,8 @@ MERCHANTS += [
     B("uk-hobbycraft", ["Hobbycraft"], ["HOBBYCRAFT {N3}"], [U("materials", "spend", "8.00", "160.00", "310", "UK-R055", ["Glaze and clay supplies", "Craft materials for orders", "Packaging for orders"], needs_line=True, routine=True, only={"trades": ["crafts", "retail"]})]),
     # Insurance
     *[B(bid, contacts, narrs, [
-        U("business_policy", "spend", "18.00", "260.00", "433", "UK-R039", ["Public liability insurance", "Business insurance premium", "Business contents insurance", "Employers liability cover"], routine=True, needs_line=True, facts={"policy_type": "business"}),
-    ], fmt="UK-DD", refs=["POL{N7}"]) for bid, contacts, narrs in [
+        U("business_policy", "spend", "18.00", "260.00", "433", "UK-R039", ["Public liability insurance", "Business insurance premium", "Business contents insurance", "Employers liability cover"], routine=True, needs_line=True, facts={"policy_type": "business"}, amount_mode="fixed"),
+    ], fmt="UK-DD", refs=["POL{K7}"]) for bid, contacts, narrs in [
         ("uk-simply-business", ["Simply Business"], ["SIMPLY BUSINESS"]),
         ("uk-hiscox", ["Hiscox"], ["HISCOX UK"]),
         ("uk-zurich", ["Zurich"], ["ZURICH"]),
@@ -354,35 +357,35 @@ MERCHANTS += [
         ("uk-allianz", ["Allianz"], ["ALLIANZ INSURANCE"]),
     ]],
     B("uk-axa", ["AXA"], ["AXA INSURANCE"], [
-        U("business_policy", "spend", "20.00", "240.00", "433", "UK-R039", ["Business insurance", "Shop contents insurance"], routine=True, needs_line=True, facts={"policy_type": "business"}),
-        U("employee_medical", "spend", "40.00", "260.00", "483", "UK-R039", ["Staff health cash plan", "Employee private medical"], needs_line=True, facts={"policy_type": "employee_medical"}, only={"employer": True}),
-    ], fmt="UK-DD", refs=["AXA{N8}"]),
+        U("business_policy", "spend", "20.00", "240.00", "433", "UK-R039", ["Business insurance", "Shop contents insurance"], routine=True, needs_line=True, facts={"policy_type": "business"}, amount_mode="fixed"),
+        U("employee_medical", "spend", "40.00", "260.00", "483", "UK-R039", ["Staff health cash plan", "Employee private medical"], needs_line=True, facts={"policy_type": "employee_medical"}, only={"employer": True}, amount_mode="fixed"),
+    ], fmt="UK-DD", refs=["AXA{K8}"]),
     *[B(bid, contacts, narrs, [
-        U("motor_policy", "spend", "45.00", "160.00", "449", "UK-R039", ["Van insurance", "Motor insurance, van", ""], hooks=["UK-R039"], facts={"policy_type": "motor"}, only={"vehicle_methods": ["actual_costs", "taxi_cost_of_sales"]}),
-    ], fmt="UK-DD", refs=["{A3}{N8}"]) for bid, contacts, narrs in [
+        U("motor_policy", "spend", "45.00", "160.00", "449", "UK-R039", ["Van insurance", "Motor insurance, van", ""], hooks=["UK-R039"], facts={"policy_type": "motor"}, only={"vehicle_methods": ["actual_costs", "taxi_cost_of_sales"]}, amount_mode="fixed"),
+    ], fmt="UK-DD", refs=["{K11}"]) for bid, contacts, narrs in [
         ("uk-admiral", ["Admiral"], ["ADMIRAL INSURANCE"]),
         ("uk-direct-line", ["Direct Line"], ["DIRECT LINE INS"]),
         ("uk-swinton", ["Swinton"], ["SWINTON INSURANCE"]),
     ]],
     B("uk-aviva", ["Aviva"], ["AVIVA LIFE", "AVIVA INSURANCE"], [
-        U("business_policy", "spend", "20.00", "220.00", "433", "UK-R039", ["Commercial property insurance", "Business insurance premium"], routine=True, needs_line=True, facts={"policy_type": "business"}),
-        U("private_policy", "spend", "15.00", "90.00", "980", "UK-R039", ["Life cover", "Income protection", "Home insurance"], needs_line=True, hooks=["UK-R039"], facts={"policy_type": "private"}),
-    ], fmt="UK-DD", refs=["{N10}"]),
-    B("uk-lv", ["LV="], ["LV LIFE"], [U("private_policy", "spend", "12.00", "75.00", "980", "UK-R039", ["Life insurance", "Pet insurance"], needs_line=True, hooks=["UK-R039"], facts={"policy_type": "private"})], fmt="UK-DD", refs=["{N9}"]),
+        U("business_policy", "spend", "20.00", "220.00", "433", "UK-R039", ["Commercial property insurance", "Business insurance premium"], routine=True, needs_line=True, facts={"policy_type": "business"}, amount_mode="fixed"),
+        U("private_policy", "spend", "15.00", "90.00", "980", "UK-R039", ["Life cover", "Income protection", "Home insurance"], needs_line=True, hooks=["UK-R039"], facts={"policy_type": "private"}, amount_mode="fixed"),
+    ], fmt="UK-DD", refs=["{K10}"]),
+    B("uk-lv", ["LV="], ["LV LIFE"], [U("private_policy", "spend", "12.00", "75.00", "980", "UK-R039", ["Life insurance", "Pet insurance"], needs_line=True, hooks=["UK-R039"], facts={"policy_type": "private"}, amount_mode="fixed")], fmt="UK-DD", refs=["{K9}"]),
     # Car purchase
     B("uk-arnold-clark", ["Arnold Clark"], ["ARNOLD CLARK {TOWN}"], [U("vehicle_purchase", "spend", "2500.00", "24000.00", "760", "UK-R023", ["Van purchase", "Deposit on van", "Used car for business"], needs_line=True)], fmt="UK-FPO", refs=["INV{N6}"]),
     # Storage and workspace
     *[B(bid, contacts, narrs, [
-        U("space_rent", "spend", lo, hi, "469", "UK-R001", lines, routine=True, facts={"account": "469"}),
+        U("space_rent", "spend", lo, hi, "469", "UK-R001", lines, routine=True, facts={"account": "469"}, amount_mode="fixed"),
     ], fmt=fmt, refs=refs) for bid, contacts, narrs, lines, lo, hi, fmt, refs in [
-        ("uk-big-yellow-self-storage", ["Big Yellow"], ["BIG YELLOW SELF ST"], ["Storage unit rent", "Storage unit, stock", ""], "60.00", "320.00", "UK-DD", ["BY{N7}"]),
-        ("uk-safestore", ["Safestore"], ["SAFESTORE"], ["Storage unit", ""], "55.00", "280.00", "UK-DD", ["SS{N6}"]),
-        ("uk-shurgard", ["Shurgard"], ["SHURGARD UK"], ["Storage unit rent"], "60.00", "260.00", "UK-DD", ["{N8}"]),
+        ("uk-big-yellow-self-storage", ["Big Yellow"], ["BIG YELLOW SELF ST"], ["Storage unit rent", "Storage unit, stock", ""], "60.00", "320.00", "UK-DD", ["BY{K7}"]),
+        ("uk-safestore", ["Safestore"], ["SAFESTORE"], ["Storage unit", ""], "55.00", "280.00", "UK-DD", ["SS{K6}"]),
+        ("uk-shurgard", ["Shurgard"], ["SHURGARD UK"], ["Storage unit rent"], "60.00", "260.00", "UK-DD", ["{K8}"]),
     ]],
     *[B(bid, contacts, narrs, [
-        U("space_rent", "spend", lo, hi, "469", "UK-R001", lines, routine=True, facts={"account": "469"}, only={"premises": True}),
+        U("space_rent", "spend", lo, hi, "469", "UK-R001", lines, routine=True, facts={"account": "469"}, only={"premises": True}, amount_mode="fixed"),
     ], fmt=fmt, refs=refs) for bid, contacts, narrs, lines, lo, hi, fmt, refs in [
-        ("uk-regus", ["Regus"], ["REGUS MANAGEMENT"], ["Coworking desk", "Meeting room hire", "Office membership"], "40.00", "650.00", "UK-DD", ["INV{N7}"]),
+        ("uk-regus", ["Regus"], ["REGUS MANAGEMENT"], ["Coworking desk", "Meeting room hire", "Office membership"], "40.00", "650.00", "UK-DD", ["INV{N7}", "ACC {K7}"]),
         ("uk-wework", ["WeWork"], ["WEWORK UK"], ["Hot desk membership", "Private office"], "180.00", "900.00", "UK-DEB", [""]),
     ]],
     # Gyms (private)
@@ -397,40 +400,47 @@ MERCHANTS += [
         U("unknown_purchase", "spend", "4.00", "60.00", "NEEDS_REVIEW", "UK-R049", [""]),
     ], category="pharmacy_health"),
     B("uk-taxassist-accountants", ["TaxAssist Accountants"], ["TAXASSIST ACCOUNTA"], [
-        U("accountancy", "spend", "60.00", "1200.00", "401", "UK-R040", ["Year end accounts", "Bookkeeping {MMM}", "VAT return preparation"], routine=True, facts={"professional": "accountant"}),
-        U("personal_return", "spend", "150.00", "450.00", "980", "UK-R040", ["Personal tax return fee", "Self assessment return, owner"], needs_line=True, facts={"professional": "personal_return"}),
+        U("accountancy", "spend", "60.00", "1200.00", "401", "UK-R040", ["Year end accounts", "VAT return preparation", "Tax computation"], routine=True, facts={"professional": "accountant"}),
+        U("accountancy_monthly", "spend", "45.00", "260.00", "401", "UK-R040", ["Bookkeeping {MMM}", "Monthly accountancy fee", "Monthly bookkeeping package"], routine=True, facts={"professional": "accountant"}, amount_mode="fixed", refs=["DD {K6}"]),
+        U("personal_return", "spend", "150.00", "450.00", "980", "UK-R040", ["Personal tax return fee", "Self assessment return, owner"], needs_line=True, facts={"professional": "personal_return"}, only={"entity": ["sole_trader", "partnership"]}),
+        U("personal_return_director", "spend", "150.00", "450.00", "835", "UK-R040", ["Personal tax return fee, director", "Director self assessment return"], needs_line=True, facts={"professional": "personal_return"}, only={"entity": ["limited_company"]}),
     ], fmt="UK-FPO", refs=["INV {N5}"]),
 ]
 
 # Processors, marketplaces and banks (bank-side lines)
 MERCHANTS += [
     B("uk-stripe", ["Stripe", "Stripe Payments UK"], ["STRIPE PAYMENTS UK STRIPE"], [
-        U("payout", "receive", "80.00", "4200.00", "200", "UK-R019", ["Stripe payout", "Card sales payout", ""], only={"processor": "uk-stripe"}),
+        U("payout", "receive", "80.00", "4200.00", "200", "UK-R019", ["Stripe payout", "Card sales payout", ""], facts={"split": "processor_payout", "fee_rate": "0.015", "fee_fixed": "0.20"}, only={"processor": "uk-stripe"}),
     ], fmt="UK-FPI", refs=["STRIPE", "ST-{A10}"]),
     B("uk-sumup", ["SumUp"], ["SUMUP PAYMENTS LTD"], [
-        U("payout", "receive", "40.00", "2600.00", "200", "UK-R019", ["SumUp payout", "Card takings", ""], only={"processor": "uk-sumup"}),
+        U("payout", "receive", "40.00", "2600.00", "200", "UK-R019", ["SumUp payout", "Card takings", ""], facts={"split": "processor_payout", "fee_rate": "0.0169", "fee_fixed": "0.00"}, only={"processor": "uk-sumup"}),
         U("card_reader", "spend", "19.00", "39.00", "429", "UK-R064", ["Card reader", "Spare card reader"], needs_line=True),
     ], fmt="UK-FPI", refs=["SUMUP {N8}"]),
     B("uk-square", ["Square"], ["SQUARE {A14}"], [
-        U("payout", "receive", "50.00", "3200.00", "200", "UK-R019", ["Square payout", ""], only={"processor": "uk-square"}),
+        U("payout", "receive", "50.00", "3200.00", "200", "UK-R019", ["Square payout", ""], facts={"split": "processor_payout", "fee_rate": "0.0175", "fee_fixed": "0.00"}, only={"processor": "uk-square"}),
     ], fmt="UK-FPI", refs=[""]),
     B("uk-zettle", ["Zettle", "PayPal Zettle"], ["ZETTLE PAYOUT"], [
-        U("payout", "receive", "50.00", "2400.00", "200", "UK-R019", ["Zettle payout", "Card takings"], only={"processor": "uk-zettle"}),
+        U("payout", "receive", "50.00", "2400.00", "200", "UK-R019", ["Zettle payout", "Card takings"], facts={"split": "processor_payout", "fee_rate": "0.0175", "fee_fixed": "0.00"}, only={"processor": "uk-zettle"}),
     ], fmt="UK-FPI", refs=["IZ {N8}"]),
     B("uk-paypal", ["PayPal"], ["PAYPAL EUROPE"], [
-        U("payout", "receive", "30.00", "1800.00", "200", "UK-R019", ["PayPal transfer to bank", "PayPal sales"], only={"processor": "uk-paypal"}),
+        U("payout", "receive", "30.00", "1800.00", "200", "UK-R019", ["PayPal transfer to bank", "PayPal sales"], facts={"split": "processor_payout", "fee_rate": "0.029", "fee_fixed": "0.30"}, only={"processor": "uk-paypal"}),
     ], fmt="UK-FPI", refs=["PP{N10}"]),
     B("uk-etsy", ["Etsy"], ["ETSY UK PAYMENTS"], [
-        U("payout", "receive", "40.00", "1600.00", "200", "UK-R019", ["Etsy deposit", "Etsy sales"], only={"processor": "uk-etsy"}),
+        U("payout", "receive", "40.00", "1600.00", "200", "UK-R066", ["Etsy deposit", "Etsy sales", ""], facts={"split": None}, only={"processor": "uk-etsy"}),
     ], fmt="UK-BGC", refs=["ETSY {N8}"]),
     B("uk-gocardless", ["GoCardless"], ["GOCARDLESS"], [
-        U("payout", "receive", "60.00", "3000.00", "200", "UK-R019", ["GoCardless payout", "Box subscriptions collected"], only={"processor": "uk-gocardless"}),
+        U("payout", "receive", "60.00", "3000.00", "200", "UK-R019", ["GoCardless payout", "Box subscriptions collected"], facts={"split": "processor_payout", "fee_rate": "0.01", "fee_fixed": "0.20"}, only={"processor": "uk-gocardless"}),
         U("fees", "spend", "4.00", "60.00", "404", "UK-R018", ["GoCardless fees", "Direct debit collection fees"], routine=True, only={"processor": "uk-gocardless"}),
     ], fmt="UK-BGC", refs=["GC-{A8}"]),
+    # Amazon seller payouts: a separate merchant id from the Amazon shop (forbidden-merchant rules stay per use family).
+    B("uk-amazon", ["Amazon Payments UK", "Amazon Seller Services"], ["AMAZON PAYMENTS UK"], [
+        U("payout", "receive", "60.00", "2200.00", "200", "UK-R066", ["Amazon seller payout", "Amazon sales settlement", ""], facts={"split": None}, only={"processor": "uk-amazon-seller"}),
+    ], fmt="UK-BGC", refs=["AMZ {N10}"], category="marketplace", name="Amazon Seller Payouts"),
     B("uk-worldpay", ["Worldpay"], ["WORLDPAY {N8}"], [
         U("fees", "spend", "15.00", "120.00", "404", "UK-R018", ["Card processing charges", "Merchant service charge {MMM}"], routine=True),
     ], fmt="UK-DD", refs=["{N8}"]),
 ]
+next(m for m in MERCHANTS if m["name"] == "Amazon Seller Payouts")["merchant_id"] += "-seller"
 
 _BANKS = [
     ("uk-barclays", ["Barclays"], "BARCLAYS"),
@@ -448,8 +458,8 @@ for bid, contacts, short in _BANKS:
         U("interest_charged", "spend", "1.20", "48.00", "437", "UK-R014", ["Overdraft interest", ""], routine=True, narratives=["INTEREST CHARGED", "OVERDRAFT INTEREST"], fmt="UK-CHG"),
         U("interest_received", "receive", "0.05", "38.00", "270", "UK-R059", ["Interest", ""], routine=True, narratives=["INTEREST", "GROSS INTEREST"], fmt="UK-INT"),
         U("card_repayment", "spend", "120.00", "3200.00", "811", "UK-R046", ["Credit card repayment", "Card payment", ""], hooks=["UK-R046"], narratives=[short + " CARD SERVS", short + " CREDIT CARD"], fmt="UK-DD", refs=["{N6}"]),
-        U("loan_drawdown", "receive", "5000.00", "45000.00", "900", "UK-R013", ["Business loan drawdown", "Loan advance"], narratives=[short + " LOANS"], fmt="UK-BGC", refs=["LOAN {N8}"]),
-        U("loan_instalment", "spend", "180.00", "1400.00", "900", "UK-R016", ["Loan repayment", "Monthly loan instalment"], narratives=[short + " LOANS"], fmt="UK-DD", refs=["LOAN {N8}"]),
+        U("loan_drawdown", "receive", "5000.00", "45000.00", "900", "UK-R013", ["Business loan drawdown", "Loan advance"], narratives=[short + " LOANS"], fmt="UK-BGC", refs=["LOAN {K8}"], amount_mode="round"),
+        U("loan_instalment", "spend", "180.00", "1400.00", "900", "UK-R016", ["Loan repayment", "Monthly loan instalment"], narratives=[short + " LOANS"], fmt="UK-DD", refs=["LOAN {K8}"], amount_mode="fixed"),
     ], category="bank"))
 
 # Invented local merchants, customers and government payees.
@@ -470,6 +480,16 @@ MERCHANTS += [
     I("stonebridge-scaffolding", "Stonebridge Scaffolding Ltd", ["Stonebridge Scaffolding Ltd"], ["STONEBRIDGE SCAFF"], [
         U("subcontract", "spend", "300.00", "2400.00", "321", "UK-R055", ["Scaffolding erect and strike, job {N4}", "Scaffold subcontract"], needs_line=True, facts={"subcontractor": True}, only={"trades": CONSTRUCTION}),
     ], refs=["SB{N5}"]),
+    # CIS contractors that pay the dataset's CIS subcontractor firms (B16; UK-R067, R068, R071). Invented names.
+    *[I(slug, name, [name, short_name], [narr], [
+        U("cis_receipt", "receive", lo, hi, "200", "UK-R067", [""], facts={"split": "cis_receipt"}, only={"trades": CONSTRUCTION}),
+        U("cis_gross_receipt", "receive", lo, hi, "200", "UK-R068", ["Valuation {N2}, plot {N2}", "Stage payment, plot {N2}", "Application {N2}, {TOWN} site", "Final account, plot {N2}"], only={"trades": CONSTRUCTION}),
+        U("cis_unclear", "receive", lo, hi, "NEEDS_REVIEW", "UK-R071", ["CIS", "Payment less CIS", "Net of CIS", "CIS deducted", "Valuation {N2} less CIS"], only={"trades": CONSTRUCTION}),
+    ], refs=refs, fmt="UK-FPI", category="construction_contractor") for slug, name, short_name, narr, lo, hi, refs in [
+        ("pellbrook-developments", "Pellbrook Developments Ltd", "Pellbrook Developments", "PELLBROOK DEVS", "600.00", "5800.00", ["PB{N5}", "REMIT {N6}"]),
+        ("ravensgill-construction", "Ravensgill Construction Ltd", "Ravensgill Construction", "RAVENSGILL CONST", "450.00", "4800.00", ["RCL {N5}", "SUBCON {N4}"]),
+        ("ashlow-homes", "Ashlow Homes Ltd", "Ashlow Homes", "ASHLOW HOMES LTD", "800.00", "6500.00", ["AH{N6}", "PAYMENT {N5}"]),
+    ]],
     I("greystone-plant-hire", "Greystone Plant Hire", ["Greystone Plant Hire"], ["GREYSTONE PLANT"], [
         U("job_hire", "spend", "60.00", "900.00", "310", "UK-R055", ["Digger hire, groundworks job", "Plant hire, job {N4}"], routine=True, needs_line=True, facts={"service": True}, only={"trades": CONSTRUCTION}),
     ], refs=["GPH{N5}"]),
@@ -484,8 +504,10 @@ MERCHANTS += [
         U("cleaning", "spend", "45.00", "380.00", "408", "UK-R001", ["Office cleaning {MMM}", "Shop cleaning contract", ""], routine=True, facts={"account": "408"}, only={"premises": True}),
     ], refs=["INV {N4}"], fmt="UK-SO"),
     I("ashgrove-accountancy", "Ashgrove Accountancy LLP", ["Ashgrove Accountancy LLP", "Ashgrove Accountancy"], ["ASHGROVE ACCOUNTAN"], [
-        U("accountancy", "spend", "90.00", "1600.00", "401", "UK-R040", ["Year end accounts", "Payroll bureau {MMM}", "Bookkeeping retainer"], routine=True, facts={"professional": "accountant"}),
-        U("personal_return", "spend", "180.00", "480.00", "980", "UK-R040", ["Owner self assessment return", "Personal tax return, partner"], needs_line=True, facts={"professional": "personal_return"}),
+        U("accountancy", "spend", "90.00", "1600.00", "401", "UK-R040", ["Year end accounts", "Tax return work for the business", "VAT return review"], routine=True, facts={"professional": "accountant"}),
+        U("accountancy_monthly", "spend", "60.00", "320.00", "401", "UK-R040", ["Payroll bureau {MMM}", "Bookkeeping retainer", "Monthly retainer {MMM}"], routine=True, facts={"professional": "accountant"}, amount_mode="fixed", refs=["AA {K5}"]),
+        U("personal_return", "spend", "180.00", "480.00", "980", "UK-R040", ["Owner self assessment return", "Personal tax return, partner"], needs_line=True, facts={"professional": "personal_return"}, only={"entity": ["sole_trader", "partnership"]}),
+        U("personal_return_director", "spend", "180.00", "480.00", "835", "UK-R040", ["Self assessment return, director", "Personal tax return for the director"], needs_line=True, facts={"professional": "personal_return"}, only={"entity": ["limited_company"]}),
     ], refs=["AA{N5}"]),
     I("brightfield-advisory", "Brightfield Advisory Ltd", ["Brightfield Advisory Ltd"], ["BRIGHTFIELD ADVISO"], [
         U("advice", "spend", "250.00", "2400.00", "412", "UK-R040", ["Business planning workshop", "HR advice retainer", "Growth strategy sessions"], routine=True, facts={"professional": "adviser"}),
@@ -494,14 +516,14 @@ MERCHANTS += [
         U("legal", "spend", "180.00", "3200.00", "441", "UK-R040", ["Debt recovery, unpaid invoice", "Trade mark filing", "Review of supplier contract"], routine=True, facts={"professional": "solicitor"}),
     ], refs=["NL{N6}"]),
     I("canal-wharf-properties", "Canal Wharf Properties Ltd", ["Canal Wharf Properties Ltd"], ["CANAL WHARF PROPS"], [
-        U("rent", "spend", "450.00", "2800.00", "469", "UK-R037", ["Rent, unit {N2}", "Quarterly rent, workshop", "Rent {MMM}"], facts={"account": "469"}, hooks=["UK-R037"], only={"premises": True}),
-    ], refs=["RENT {N4}"], fmt="UK-SO"),
+        U("rent", "spend", "450.00", "2800.00", "469", "UK-R037", ["Rent, unit {K2}", "Quarterly rent, workshop", "Rent {MMM}"], facts={"account": "469"}, hooks=["UK-R037"], only={"premises": True}, amount_mode="fixed"),
+    ], refs=["RENT {K4}"], fmt="UK-SO"),
     I("meadowgate-business-park", "Meadowgate Business Park Ltd", ["Meadowgate Business Park Ltd", "Meadowgate Business Park"], ["MEADOWGATE BUS PK"], [
-        U("rent", "spend", "500.00", "3200.00", "469", "UK-R037", ["Unit rent {MMM}", "Service charge and rent"], facts={"account": "469"}, hooks=["UK-R037"], only={"premises": True}),
-    ], refs=["MBP{N4}"], fmt="UK-SO"),
+        U("rent", "spend", "500.00", "3200.00", "469", "UK-R037", ["Unit rent {MMM}", "Service charge and rent"], facts={"account": "469"}, hooks=["UK-R037"], only={"premises": True}, amount_mode="fixed"),
+    ], refs=["MBP{K4}"], fmt="UK-SO"),
     I("linden-court-lettings", "Linden Court Lettings Ltd", ["Linden Court Lettings Ltd"], ["LINDEN COURT LETS"], [
-        U("home_rent", "spend", "650.00", "1450.00", "980", "UK-R036", ["", "Rent, flat"], hooks=["UK-R036"]),
-    ], refs=["FLAT {N2}"], fmt="UK-SO"),
+        U("home_rent", "spend", "650.00", "1450.00", "980", "UK-R036", ["", "Rent, flat"], hooks=["UK-R036"], amount_mode="fixed"),
+    ], refs=["FLAT {K2}"], fmt="UK-SO"),
     I("westshire-council", "Westshire Council", ["Westshire Council"], ["WESTSHIRE COUNCIL"], [
         U("business_rates", "spend", "60.00", "640.00", "465", "UK-R038", ["Business rates", ""], facts={"council_marker": "rates"}, refs=["NNDR {N8}", "BUS RATES {N7}"]),
         U("council_tax", "spend", "95.00", "240.00", "980", "UK-R038", [""], facts={"council_marker": "council_tax"}, refs=["CTAX {N8}", "C TAX {N8}"]),
@@ -548,13 +570,13 @@ MERCHANTS += [
         U("print_marketing", "spend", "40.00", "480.00", "400", "UK-R056", ["Flyers for open day", "Brochures print run", "Shop window posters"], routine=True),
     ], refs=["HPS{N4}"]),
     I("larkfield-vehicle-leasing", "Larkfield Vehicle Leasing Ltd", ["Larkfield Vehicle Leasing Ltd"], ["LARKFIELD LEASING"], [
-        U("lease", "spend", "180.00", "520.00", "457", "UK-R063", ["Van lease rental {MMM}", "Vehicle lease", ""], routine=True, only={"vehicle_methods": ["actual_costs", "taxi_cost_of_sales"]}),
-    ], refs=["AGR {N7}"], fmt="UK-DD"),
+        U("lease", "spend", "180.00", "520.00", "457", "UK-R063", ["Van lease rental {MMM}", "Vehicle lease", ""], routine=True, only={"vehicle_methods": ["actual_costs", "taxi_cost_of_sales"]}, amount_mode="fixed"),
+    ], refs=["AGR {K7}"], fmt="UK-DD"),
     I("kingsmere-business-finance", "Kingsmere Business Finance Ltd", ["Kingsmere Business Finance Ltd", "Kingsmere Finance"], ["KINGSMERE FINANCE"], [
-        U("loan_drawdown", "receive", "3000.00", "40000.00", "900", "UK-R013", ["Loan drawdown", "Business loan advance"], refs=["DRAWDOWN {N6}"], fmt="UK-BGC"),
-        U("loan_instalment", "spend", "150.00", "1300.00", "900", "UK-R016", ["Loan repayment", "Monthly instalment"], refs=["LOAN {N6}"], fmt="UK-DD"),
-        U("loan_capital", "spend", "500.00", "8000.00", "900", "UK-R015", ["Capital repayment, loan", "Early repayment of loan capital"], needs_line=True, refs=["CAPITAL {N6}"], fmt="UK-FPO"),
-        U("loan_interest", "spend", "15.00", "220.00", "437", "UK-R014", ["Loan interest {MMM}", "Interest on business loan"], needs_line=True, refs=["INTEREST {N6}"], fmt="UK-DD"),
+        U("loan_drawdown", "receive", "3000.00", "40000.00", "900", "UK-R013", ["Loan drawdown", "Business loan advance"], refs=["DRAWDOWN {K8}"], fmt="UK-BGC", amount_mode="round"),
+        U("loan_instalment", "spend", "150.00", "1300.00", "900", "UK-R016", ["Loan repayment", "Monthly instalment"], refs=["LOAN {K8}"], fmt="UK-DD", amount_mode="fixed"),
+        U("loan_capital", "spend", "500.00", "8000.00", "900", "UK-R015", ["Capital repayment, loan", "Early repayment of loan capital"], needs_line=True, refs=["CAPITAL {K8}"], fmt="UK-FPO"),
+        U("loan_interest", "spend", "15.00", "220.00", "437", "UK-R014", ["Loan interest {MMM}", "Interest on business loan"], needs_line=True, refs=["INT {K8}"], fmt="UK-DD"),
     ]),
     I("corvane-workplace-pensions", "Corvane Workplace Pensions", ["Corvane Workplace Pensions"], ["CORVANE PENSIONS"], [
         U("pension", "spend", "40.00", "900.00", "482", "UK-R050", ["Employer pension contributions", "Workplace pension {MMM}", ""], only={"employer": True}),
@@ -618,11 +640,13 @@ MERCHANTS += [
         U("corporation_tax", "spend", "400.00", "18000.00", "830", "UK-R010", ["", "CT payment", "CT {YY}"], refs=["{CTREF}"], only={"entity": ["limited_company"]}),
         U("self_assessment", "spend", "200.00", "8500.00", "980", "UK-R011", ["", "Tax payment"], refs=["{UTR}K"]),
         U("no_reference", "spend", "200.00", "6000.00", "NEEDS_REVIEW", "UK-R012", [""], refs=[""], narratives=["HMRC CUMBERNAULD"]),
+        U("cis_deductions", "spend", "120.00", "2600.00", "827", "UK-R070", ["", "CIS {MMM}", "CIS return {MMM}"], refs=["{AOREF}", "{AOREF}{YYMM}"], only={"trades": CONSTRUCTION}),
     ], kind="government", category="government"),
     I("hmrc-shipley", "HMRC Shipley", ["HMRC Shipley"], ["HMRC SHIPLEY"], [
         U("self_assessment", "spend", "200.00", "8500.00", "980", "UK-R011", ["", "Self assessment"], refs=["{UTR}K"]),
         U("paye", "spend", "150.00", "5200.00", "825", "UK-R009", [""], refs=["{AOREF}"], only={"employer": True}),
         U("no_reference", "spend", "200.00", "5000.00", "NEEDS_REVIEW", "UK-R012", [""], refs=["PAYMENT", ""]),
+        U("cis_deductions", "spend", "120.00", "2600.00", "827", "UK-R070", ["", "CIS {MMM}"], refs=["{AOREF}"], only={"trades": CONSTRUCTION}),
     ], kind="government", category="government"),
     I("dvla", "DVLA", ["DVLA"], ["DVLA-{A7}"], [
         U("vehicle_tax", "spend", "15.00", "345.00", "449", "UK-R001", ["Vehicle tax, van", "Road tax"], routine=True, facts={"account": "449"}, only={"vehicle_methods": ["actual_costs", "taxi_cost_of_sales"]}),
@@ -635,13 +659,36 @@ MERCHANTS += [
     ], kind="government", category="government", fmt="UK-DEB"),
 ]
 
+def _chart_defaults() -> None:
+    """Per-chart default codes (F12): owner accounts follow the entity's chart (980 / 970 on the sole trader chart,
+    835 on the company chart), and a use restricted to the other entity family has no default on a chart. The rule
+    functions decide gold; this only keeps the catalogue from naming a code the chart variant lacks."""
+    from .charts import accounts, uk_variant
+
+    owner = {"st": {"835": "980"}, "co": {"980": "835", "970": "835"}}
+    ents = {"st": ("sole_trader", "partnership"), "co": ("limited_company",)}
+    for m in MERCHANTS:
+        for u in m["uses"]:
+            for key in ("st", "co"):
+                cid = uk_variant(key)["chart_id"]
+                code = u["default_code"]
+                allowed = u["only"].get("entity")
+                if allowed and not set(allowed) & set(ents[key]):
+                    code = None
+                elif code != "NEEDS_REVIEW" and code not in accounts("UK", key):
+                    code = owner[key].get(code)
+                u["default_code_per_chart"][cid] = code
+
+
+_chart_defaults()
+
 UK_TOWNS = ["LEEDS", "YORK", "DERBY", "BATH", "HULL", "STOCKPORT", "NORWICH", "EXETER", "TELFORD", "PRESTON",
             "CARDIFF", "PERTH", "READING", "KENDAL", "LINCOLN", "HEREFORD", "DONCASTER", "TRURO", "STIRLING", "IPSWICH"]
 
 
 def _p(entity, vat, sic, label, trade, town, *, vehicle="none", phone="business_contract", threshold="500.00",
        threshold_in_history=False, card="none", savings=True, processors=(), premises=False, home_office="none",
-       employees=0, subcontractors=0, lender=None, basis=None, gaps=(), landlord_person=False):
+       employees=0, subcontractors=0, lender=None, basis=None, gaps=(), landlord_person=False, cis=None):
     return {
         "entity_type": entity,
         "vat_registered": vat,
@@ -666,27 +713,33 @@ def _p(entity, vat, sic, label, trade, town, *, vehicle="none", phone="business_
         "subcontractors": subcontractors,
         "landlord_person": landlord_person,
         "policy_gaps": list(gaps),
+        # UK CIS status (B16, SCHEMA_v0.2 section 8): firms.py fills the default (not in CIS) when None.
+        "cis": dict(cis) if cis else None,
     }
 
 
+def _cis(contractor=False, subcontractor=False, rate=None):
+    return {"contractor": contractor, "subcontractor": subcontractor, "deduction_rate": rate}
+
+
 FIRMS = {
-    "uk-01": ("Harbour Lane Joinery Ltd", "dev", _p("limited_company", True, "43320", "Joinery installation", "construction", "KENDAL", vehicle="actual_costs", card="092", premises=True, employees=2, subcontractors=1, threshold_in_history=True, lender="uk-i-kingsmere-business-finance")),
+    "uk-01": ("Harbour Lane Joinery Ltd", "dev", _p("limited_company", True, "43320", "Joinery installation", "construction", "KENDAL", vehicle="actual_costs", card="092", premises=True, employees=2, subcontractors=1, threshold_in_history=True, lender="uk-i-kingsmere-business-finance", cis=_cis(True, True, "20"))),
     "uk-02": ("Copperleaf Bakery", "dev", _p("sole_trader", False, "10710", "Manufacture of bread and fresh pastry", "catering", "HEREFORD", vehicle="simplified_mileage", phone="mixed_use_claimed", premises=True, processors=["uk-sumup"], employees=1)),
     "uk-03": ("Northwind Mobile Mechanics", "dev", _p("sole_trader", True, "45200", "Maintenance and repair of motor vehicles", "trades", "DONCASTER", vehicle="actual_costs", phone="personal_not_claimed", card="811")),
     "uk-04": ("Kestrel Lane Design Studio", "test", _p("partnership", True, "74100", "Specialised design activities", "creative", "BATH", phone="mixed_use_claimed", processors=["uk-stripe"], premises=True, threshold="250.00", threshold_in_history=True)),
-    "uk-05": ("Brightwell Electrical Services", "test", _p("sole_trader", True, "43210", "Electrical installation", "construction", "STOCKPORT", vehicle="simplified_mileage", phone="mixed_use_claimed", subcontractors=1, gaps=["vehicle_method"])),
+    "uk-05": ("Brightwell Electrical Services", "test", _p("sole_trader", True, "43210", "Electrical installation", "construction", "STOCKPORT", vehicle="simplified_mileage", phone="mixed_use_claimed", subcontractors=1, gaps=["vehicle_method"], cis=_cis(True, True, "20"))),
     "uk-06": ("Saltmarsh Coffee House Ltd", "test", _p("limited_company", True, "56102", "Unlicensed restaurants and cafes", "catering", "TRURO", card="811", premises=True, processors=["uk-zettle"], employees=4)),
     "uk-07": ("Fernhill Garden Services", "test", _p("sole_trader", False, "81300", "Landscape service activities", "trades", "LINCOLN", vehicle="actual_costs", phone="personal_not_claimed")),
     "uk-08": ("Riverbend Bookkeeping Partners", "dev", _p("partnership", False, "69201", "Accounting and bookkeeping activities", "professional", "YORK", vehicle="simplified_mileage", phone="personal_not_claimed", home_office="flat_rate")),
     "uk-09": ("Ashby Cross Physiotherapy Ltd", "dev", _p("limited_company", False, "86900", "Other human health activities", "health", "DERBY", card="092", premises=True, processors=["uk-square"], employees=2, landlord_person=True)),
     "uk-10": ("Moorland Taxis", "dev", _p("sole_trader", False, "49320", "Taxi operation", "transport", "PRESTON", vehicle="taxi_cost_of_sales", phone="mixed_use_claimed", processors=["uk-sumup"])),
     "uk-11": ("Tidepool Web Partners", "test", _p("partnership", True, "62012", "Business and domestic software development", "creative", "CARDIFF", phone="business_contract", processors=["uk-stripe"], card="092")),
-    "uk-12": ("Larkspur Florists Ltd", "test", _p("limited_company", True, "47760", "Retail sale of flowers and plants", "retail", "NORWICH", vehicle="actual_costs", premises=True, processors=["uk-sumup"], employees=2)),
-    "uk-13": ("Granite Peak Building Contractors Ltd", "test", _p("limited_company", True, "41202", "Construction of domestic buildings", "construction", "TELFORD", vehicle="actual_costs", card="092", premises=True, employees=3, subcontractors=2, lender="uk-b-natwest", gaps=["card_account"])),
+    "uk-12": ("Larkspur Florists Ltd", "test", _p("limited_company", True, "47760", "Retail sale of flowers and plants", "retail", "NORWICH", vehicle="actual_costs", premises=True, processors=["uk-sumup", "uk-etsy"], employees=2)),
+    "uk-13": ("Granite Peak Building Contractors Ltd", "test", _p("limited_company", True, "41202", "Construction of domestic buildings", "construction", "TELFORD", vehicle="actual_costs", card="092", premises=True, employees=3, subcontractors=2, lender="uk-b-natwest", gaps=["card_account"], cis=_cis(contractor=True))),
     "uk-14": ("Bellwether Marketing Consultancy", "test", _p("sole_trader", True, "70229", "Management consultancy activities", "professional", "READING", vehicle="simplified_mileage", phone="mixed_use_claimed", home_office="flat_rate", processors=["uk-stripe"], gaps=["phone"])),
-    "uk-15": ("Old Mill Pottery", "dev", _p("sole_trader", False, "23410", "Manufacture of ceramic household articles", "crafts", "IPSWICH", phone="personal_not_claimed", processors=["uk-etsy", "uk-paypal"], premises=True)),
+    "uk-15": ("Old Mill Pottery", "dev", _p("sole_trader", False, "23410", "Manufacture of ceramic household articles", "crafts", "IPSWICH", phone="personal_not_claimed", processors=["uk-etsy", "uk-paypal", "uk-amazon-seller"], premises=True)),
     "uk-16": ("Cobalt Street Hair Studio", "test", _p("partnership", False, "96020", "Hairdressing and other beauty treatment", "beauty", "EXETER", phone="mixed_use_claimed", premises=True, processors=["uk-square"], employees=1, landlord_person=True)),
-    "uk-17": ("Wrenfield Plumbing and Heating Ltd", "dev", _p("limited_company", True, "43220", "Plumbing, heat and air-conditioning installation", "construction", "HULL", vehicle="actual_costs", card="811", employees=1, subcontractors=1)),
+    "uk-17": ("Wrenfield Plumbing and Heating Ltd", "dev", _p("limited_company", True, "43220", "Plumbing, heat and air-conditioning installation", "construction", "HULL", vehicle="actual_costs", card="811", employees=1, subcontractors=1, cis=_cis(True, True, "0"))),
     "uk-18": ("Silverdale Dog Grooming", "test", _p("sole_trader", False, "96090", "Other personal service activities", "services", "PERTH", vehicle="actual_costs", phone="personal_not_claimed", processors=["uk-sumup"], premises=True)),
     "uk-19": ("Hollowbrook Catering Partners", "test", _p("partnership", True, "56210", "Event catering activities", "catering", "STIRLING", vehicle="actual_costs", phone="mixed_use_claimed", processors=["uk-stripe"], employees=2, premises=True, lender="uk-b-hsbc")),
     "uk-20": ("Quillstone Translation Services Ltd", "dev", _p("limited_company", True, "74300", "Translation and interpretation activities", "professional", "CARDIFF", processors=["uk-paypal"], card="092")),
@@ -694,4 +747,7 @@ FIRMS = {
     "uk-22": ("Ironbridge Fabrication Ltd", "test", _p("limited_company", True, "25110", "Manufacture of metal structures", "manufacturing", "TELFORD", vehicle="actual_costs", threshold="1000.00", threshold_in_history=True, premises=True, employees=3, card="811", lender="uk-i-kingsmere-business-finance")),
     "uk-23": ("Pebblebank Tutoring", "dev", _p("sole_trader", False, "85590", "Other education", "education", "YORK", vehicle="simplified_mileage", phone="mixed_use_claimed", home_office="flat_rate")),
     "uk-24": ("Larchmont Events Ltd", "test", _p("limited_company", True, "82302", "Activities of conference organisers", "events", "LEEDS", card="092", processors=["uk-stripe"], employees=2)),
+    # Added in v0.2 for CIS (B16, choice S6). Invented names, checked against a web search on 2026-10-13.
+    "uk-25": ("Quernmoor Plastering", "dev", _p("sole_trader", False, "43310", "Plastering", "construction", "DONCASTER", vehicle="actual_costs", phone="mixed_use_claimed", savings=False, cis=_cis(subcontractor=True, rate="30"))),
+    "uk-26": ("Swaleford Roofing Partners", "test", _p("partnership", True, "43910", "Roofing activities", "construction", "PRESTON", vehicle="actual_costs", phone="mixed_use_claimed", card="811", cis=_cis(subcontractor=True, rate="20"))),
 }
