@@ -1,5 +1,5 @@
 {
-  "chart_id": "us_schedule_c_v0",
+  "chart_id": "us_schedule_c_v0_2",
   "status": "draft, not frozen",
   "jurisdiction": "US",
   "tax_year": 2025,
@@ -767,7 +767,7 @@
     "CONVENTION": {
       "title": "Bookkeeping convention adopted by this dataset (no IRS text decides the account)",
       "url": null,
-      "publisher": "ledgerline labelling guide US v0",
+      "publisher": "bookbench labelling guide US v0",
       "licence": "n/a",
       "verified": "n/a"
     }

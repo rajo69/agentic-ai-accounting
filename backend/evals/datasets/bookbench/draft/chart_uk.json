@@ -1,5 +1,5 @@
 {
-  "chart_id": "uk_xero_default_v0_draft",
+  "chart_id": "uk_xero_default_v0_2",
   "title": "Xero UK default chart of accounts, as recovered from two public accountancy pages",
   "status": "draft, not frozen; every row awaits the candidate's check on a fresh UK trial org Chart of Accounts screen (a screen read, never the API, never the Demo Company)",
   "guide": "guide_uk.md (Labelling guide UK, v0.2-draft)",

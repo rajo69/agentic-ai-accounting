@@ -1,4 +1,4 @@
-"""Build licence-clean UK and US national brand lists for the Ledgerline eval dataset.
+"""Build licence-clean UK and US national brand lists for the bookbench eval dataset (named ledgerline when the lists were built).
 
 Sources
   * Name Suggestion Index (NSI) dist/json/nsi.json, BSD-3-Clause.
