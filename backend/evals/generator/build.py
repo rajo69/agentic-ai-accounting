@@ -291,6 +291,18 @@ def generate(seed: int, n_uk: int, n_us: int, pilot: bool, retrieval: str = "min
     return firms, items, history, quotas_all, dict(sorted(gen_stats.items()))
 
 
+def working_day_ok(item: dict) -> bool:
+    """R1: a line in a working-day bank format is dated on a working day of its country."""
+    import datetime as dt
+
+    from .constants import BANK_HOLIDAYS, WORKING_DAY_FORMATS
+
+    if item["bank_line"]["bank_format"] not in WORKING_DAY_FORMATS:
+        return True
+    d = dt.date.fromisoformat(item["record"]["date"])
+    return d.weekday() < 5 and d.isoformat() not in BANK_HOLIDAYS[item["jurisdiction"]]
+
+
 def fixed_ok(amounts: set) -> bool:
     """A fixed use shows one amount, or two that differ by 10% or less (one price step)."""
     if len(amounts) <= 1:
@@ -432,6 +444,7 @@ def stats(items: list[dict], history: list[dict], quotas: dict, gen_stats: dict 
             "s6_items": sum(1 for i in items if i["stratum"] == "S6"),
         },
         "records_without_contact": sum(1 for i in items if not i["record"]["xero"]["contact_name"]),
+        "working_day_violations": sum(1 for i in items if not working_day_ok(i)),
         "contacts_with_role_word": sum(1 for i in items if has_role_word(i["record"]["xero"]["contact_name"] or "")),
         "generation": gen_stats or {},
         "history_rows_ending_in_own_account_name": sum(

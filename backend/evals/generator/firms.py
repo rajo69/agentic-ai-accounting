@@ -85,6 +85,19 @@ def _cis(p: dict) -> dict:
     return cis
 
 
+def _bank_name(bank_brand: str, merchants: list[dict]) -> str:
+    return next(m["name"] for m in merchants if m["merchant_id"] == bank_brand)
+
+
+def _cis_rates(firm_id: str, people: dict, cis: dict) -> dict:
+    """Deduction rate per subcontractor of a CIS contractor (R7): one rate per person, mostly 20%, some gross
+    payment status, rarely 30% (unregistered)."""
+    if not cis["contractor"]:
+        return {}
+    rng = firm_rng(firm_id, "cis-rates")
+    return {t: rng.choices(["20", "0", "30"], weights=[7, 2, 1])[0] for t in people["subcontractors"]}
+
+
 def _uk_firm(firm_id: str, name: str, split: str, p: dict) -> dict:
     rng = firm_rng(firm_id, "tax")
     entity = p["entity_type"]
@@ -123,6 +136,8 @@ def _uk_firm(firm_id: str, name: str, split: str, p: dict) -> dict:
         "policy_gaps": p["policy_gaps"],
     }
     firm["chart_id"] = chart_id_for(firm)
+    firm["bank_name"] = _bank_name(bank_brand, spec_uk.MERCHANTS)
+    firm["people"]["cis_rates"] = _cis_rates(firm_id, firm["people"], tax["cis"])
     return firm
 
 
@@ -158,6 +173,7 @@ def _us_firm(firm_id: str, name: str, split: str, p: dict) -> dict:
         "state_revenue": list(spec_us.STATE_REVENUE[p["state"]]),
     }
     firm["chart_id"] = chart_id_for(firm)
+    firm["bank_name"] = _bank_name(bank_brand, spec_us.MERCHANTS)
     return firm
 
 
