@@ -55,7 +55,7 @@ import re
 from collections import Counter
 from decimal import Decimal
 
-from . import splits
+from . import spec_us, splits
 from .charts import account_name, firm_accounts, in_chart
 from .constants import WORKING_DAY_FORMATS
 from .engine import RULES, Env, Prec, _payee_only_ok
@@ -305,6 +305,20 @@ class HistoryBuilder:
     def _line_pool(self, u: dict) -> list[str]:
         return [x for x in u["line_descriptions"] if x and role_ok(x, self.firm)]
 
+    def _payroll_kind(self, m: dict | None, u: dict | None) -> str | None:
+        """US payroll provider uses whose amount the US catalogue sizes per firm (R18): "net" or "tax"."""
+        if self.jur != "US" or m is None or u is None or getattr(spec_us, "payroll_amount", None) is None:
+            return None
+        return {"net_pay": "net", "payroll_tax": "tax"}.get(u["use"])
+
+    def _amount(self, m: dict | None, u: dict, date: dt.date) -> Decimal:
+        """Unsigned amount of one line of a catalogue use: US payroll from `spec_us.payroll_amount` when the
+        catalogue has it (history pay then matches the scored items, R18), else `Env.amount_for`."""
+        kind = self._payroll_kind(m, u)
+        if kind:
+            return abs(Decimal(spec_us.payroll_amount(self.env, self.firm, m, kind, date)))
+        return self.env.amount_for(self.rng, self.firm, m, u, date)
+
     def _render_use(self, m: dict, u: dict, line_pat: str) -> dict:
         """The use as render sees it: one line pattern, and when that line carries an invoice number, only the
         reference patterns that repeat it (R12: one invoice number per record)."""
@@ -322,7 +336,7 @@ class HistoryBuilder:
             ruse = self._render_use(m, u, rng.choice(pool) if pool else "")
             date = self._date(fmt, window)
             ctx = self.env.fill_ctx(self.firm, date)
-            amt = amount if amount is not None else self.env.amount_for(rng, self.firm, m, u, date)
+            amt = amount if amount is not None else self._amount(m, u, date)
             s = sign if sign is not None else (-1 if u["direction"] == "spend" else 1)
             choice = rng.random()
             line = None
@@ -363,7 +377,7 @@ class HistoryBuilder:
             uu = dict(uu, narratives=[rng.choice(narrs)], reference_patterns=[rng.choice(uu["reference_patterns"])])
             recs = []
             for d in dates:
-                amt = amount if amount is not None else self.env.amount_for(rng, self.firm, m, amount_use, d)
+                amt = amount if amount is not None else self._amount(m, amount_use, d)
                 xero, _ = render(jurisdiction=self.jur, rng=rng, ctx=self.env.fill_ctx(self.firm, d), merchant=mm,
                                  use=uu, amount=amt * s, family=fam)
                 recs.append(derive_record(xero))
@@ -592,8 +606,8 @@ class HistoryBuilder:
         else the scored amount times 0.7 to 1.3 and never equal to it. Owner capital injections are round (R14),
         and the amount keeps the rule's label (F9: no precedent across the de minimis or capitalisation threshold)."""
         mode = (u or {}).get("amount_mode", "range")
-        if u is not None and mode != "range":
-            return self.env.amount_for(self.rng, self.firm, m, u, date)
+        if u is not None and (mode != "range" or self._payroll_kind(m, u)):
+            return self._amount(m, u, date)
         base = Decimal(p.amount or "100.00")
         if p.label in CAPITAL_CODES and p.sign > 0:
             lo, hi = base * Decimal("0.7"), base * Decimal("1.3")
@@ -973,7 +987,8 @@ class HistoryBuilder:
                 for lab in labs:
                     self.merchant_stream(m, u, lab, "policy", "US-R075" if lab == "696" else "US-R084")
                 m, u = self.env.use_named(prov, "payroll_tax")
-                self.merchant_stream(m, u, "2200", "policy", "US-R083", amount=self._payroll_share(("695", "696"), 30, 45))
+                tax = None if self._payroll_kind(m, u) else self._payroll_share(("695", "696"), 30, 45)
+                self.merchant_stream(m, u, "2200", "policy", "US-R083", amount=tax)
             if pol.get("business_property_mortgage"):
                 m, u = self.env.use_named("us-i-cedar-valley-savings", "mortgage_interest")
                 self.merchant_stream(m, u, "630", "policy", "US-R102")
