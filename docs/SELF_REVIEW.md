@@ -12,13 +12,13 @@ accept and what to fix first. The pass produced 106 findings, 14 high and none c
 
 | Finding | Status |
 |---|---|
-| VAT summary arithmetic wrong by construction (rate applied to gross; unknown tax types default to 20%) | Open; figures labelled indicative; fix in roadmap phases 0 and 5 |
+| VAT summary arithmetic wrong by construction (rate applied to gross; unknown tax types default to 20%) | Open; the VAT figures are labelled indicative in the document |
 | `SPEND-TRANSFER`, `-OVERPAYMENT`, `-PREPAYMENT` stored positive (only exact `SPEND` is negated) | Fixed with tests on both sync paths (2026-10-11); rows already stored correct themselves on a full re-sync, except statement lines, which need a one-off update |
-| One `AsyncSession` shared by five concurrent graph tasks in both batch runners | Open; roadmap phase 3 |
-| Categoriser persists the model's category name string; validation passes on code or name | Fixed with tests (2026-10-11): a match on code or name now stores the chart's own code and name. A prediction that matches nothing still goes to review with the model's text; chart-constrained structured outputs remain roadmap phase 4 |
+| One `AsyncSession` shared by five concurrent graph tasks in both batch runners | Open; the fix is per-task sessions from `async_sessionmaker` |
+| Categoriser persists the model's category name string; validation passes on code or name | Fixed with tests (2026-10-11): a match on code or name now stores the chart's own code and name. A prediction that matches nothing goes to review with the model's text; the next step is chart-constrained structured outputs |
 | Fuzzy membership returns zero at the clamped extremes, so saturated inputs default to "medium" | Fixed with tests (2026-10-11): shoulder sets are full at their edge, so the most extreme inputs score high and the most ordinary low |
-| EBM explanations never executed for three or more categories; placeholder bars were shown | UI gated on the real model type; EBM retirement in roadmap phase 8 |
-| Identity: any Xero login to a tenant gets the owner session; invited members cannot sign in | Open; roadmap phase 2 |
+| EBM explanations never executed for three or more categories; placeholder bars were shown | UI gated on the real model type; the EBM is being retired |
+| Identity: any Xero login to a tenant gets the owner session; invited members cannot sign in | Open; the fix is Sign in with Xero with memberships |
 | Public numbers unverifiable and mutually inconsistent; privacy notice denied a data flow that happens | Fixed in the README, PORTFOLIO.md, the evals README and the privacy page (2026-10-10) |
 | PDF templates render untrusted text without autoescaping, and WeasyPrint may fetch any URL | Fixed with tests (2026-10-11): autoescaping on, and a URL fetcher that serves only `data:` URIs and the templates folder |
 | The consent screen requests three write scopes the app never uses | Fixed (2026-10-11): read-only scopes, guarded by a test |
@@ -26,10 +26,8 @@ accept and what to fix first. The pass produced 106 findings, 14 high and none c
 ## Reading the findings as a whole
 
 The plumbing held up: tenancy scoping (all 29 authenticated operations take the organisation from the session), the audit trail, money types, the adapter boundary, migrations and CI. The
-defects sat in the product's own differentiators, the parts least exercised by tests, which is where I would
-least have wanted them and where a reviewer should look first. The unit tests mock the database session, so the
-tenant-isolation, batch-concurrency and VAT-arithmetic findings were invisible to them; a database-backed test layer is
-the first phase of the [production roadmap](PRODUCTION_ROADMAP.md).
+defects sat in the product's own differentiators, the parts least exercised by tests, which is where a reviewer should
+look first. The unit tests mock the database session, so the tenant-isolation, batch-concurrency and VAT-arithmetic
+findings needed this review to surface; a database-backed test layer is the next test phase.
 
-The full finding list is private working material. The headline items are summarised in the roadmap, and the story of
-the review is in the [engineering record](ENGINEERING_RECORD.md#a-six-lens-review-of-my-own-repository).
+The full finding list is private working material. The story of the review is in the [engineering record](ENGINEERING_RECORD.md#a-six-lens-review-of-my-own-repository).

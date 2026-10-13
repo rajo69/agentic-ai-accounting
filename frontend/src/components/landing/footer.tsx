@@ -1,13 +1,12 @@
 import { Lockup } from "@/components/brand/logo";
 
-import { GITHUB_URL, LINKEDIN_URL, README_URL } from "./links";
+import { GITHUB_URL, README_URL } from "./links";
 import { Container } from "./section";
 
 const LINKS = [
   { label: "GitHub", href: GITHUB_URL, external: true },
   { label: "README", href: README_URL, external: true },
   { label: "Privacy", href: "/privacy", external: false },
-  { label: "LinkedIn", href: LINKEDIN_URL, external: true },
 ];
 
 /** Two rows of mono links (DESIGN.md section 5). No mailto. */
@@ -33,8 +32,8 @@ export function Footer() {
           </ul>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <span>Built by Rajarshi Nandi · portfolio project, open source</span>
-          <span>© 2026 · demo data is synthetic</span>
+          <span>Built by Rajarshi Nandi · open source</span>
+          <span>© 2026</span>
         </div>
       </Container>
     </footer>

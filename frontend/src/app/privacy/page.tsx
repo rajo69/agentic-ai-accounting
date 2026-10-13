@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         <p className="mt-2 font-mono text-xs text-muted-foreground">Last updated 11 October 2026</p>
 
         <h2 className={h2}>Who this is</h2>
-        <p className={p}>AI Accountant is a portfolio project run by one developer, Rajarshi Nandi. It is not a registered accountancy service. This page describes what the live app does with data when you connect a Xero organisation. The demo at <code className={code}>/demo</code> uses a synthetic company and runs entirely in your browser: nothing is sent to a server and nothing is written to Xero.</p>
+        <p className={p}>AI Accountant is run by Rajarshi Nandi. It is not a registered accountancy service. This page describes what the live app does with data when you connect a Xero organisation. The demo at <code className={code}>/demo</code> uses a demo company and runs entirely in your browser: nothing is sent to a server and nothing is written to Xero.</p>
 
         <h2 className={h2}>What we collect</h2>
         <p className={p}>When you connect Xero, the app reads your chart of accounts, bank transactions, invoices and payments through the Xero API and stores them in a PostgreSQL database hosted on Railway. Transaction descriptions can include the names of the people and businesses you pay or are paid by. The Xero consent screen asks for read-only access; the app never writes anything back to Xero. Connections made before 11 October 2026 were also granted write permissions on bank transactions, invoices and contacts that the app never used; disconnecting the app in Xero&apos;s connected-apps settings removes them.</p>

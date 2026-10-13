@@ -14,11 +14,11 @@ const LINES = [
   },
   {
     term: "Demo",
-    text: "A synthetic company with pre-written reasoning and simulated jobs, so anyone can click through without an account. Nothing in the demo reaches Xero.",
+    text: "Click through the whole review loop without an account. Nothing in the demo reaches Xero.",
   },
   {
     term: "Open source",
-    text: "The code, the plan and the known limitations are on GitHub. Accuracy figures are not published until a reproducible evaluation is committed with its provenance.",
+    text: "The code, the architecture and the engineering record are on GitHub.",
   },
 ];
 
