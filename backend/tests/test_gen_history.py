@@ -120,7 +120,7 @@ def test_without_embedder_every_varied_precedent_is_varied_or_counted(built):
     for hb, precs in seen:
         wanted = sum(1 for p in precs if p.description and p.form == "varied")
         got = sum(1 for r in hb.deciding if r["precedent_form"] == "varied")
-        assert wanted + hb.varied_promoted == got + hb.varied_fallbacks, hb.firm["firm_id"]
+        assert wanted + hb.varied_promoted + hb.varied_dated == got + hb.varied_fallbacks, hb.firm["firm_id"]
         assert len(hb.deciding) == sum(1 for p in precs if p.description)
 
 

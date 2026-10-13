@@ -14,6 +14,10 @@ from .gold import Ctx, Gold, RuleNotApplicable
 from .templates import FAMILIES_S1, draw_amount, fill, render
 
 
+# Uses spent away from the firm's base: their card narrative names another town or city.
+AWAY_USES = frozenset({"rail", "hotel", "hotel_abroad", "overnight_meal", "day_meal", "lodging", "travel_meal"})
+
+
 class Skip(Exception):
     """A scenario could not produce a valid item for this firm; the caller retries elsewhere."""
 
@@ -112,10 +116,18 @@ class Env:
         return fmt or (use or {}).get("bank_format") or (merchant or {}).get("bank_format") or (
             "UK-DEB" if jurisdiction == "UK" else "US-CARD")
 
-    def fill_ctx(self, firm: dict, date: dt.date, person: str | None = None) -> dict:
+    def fill_ctx(self, firm: dict, date: dt.date, person: str | None = None, *, use: dict | None = None,
+                 rng: random.Random | None = None) -> dict:
         ctx = {"firm": firm, "date": date, "towns": self.towns, "person": person}
         if self.jur == "US":
             ctx["state_revenue"] = firm["state_revenue"]
+        if use is not None and rng is not None and use.get("use") in AWAY_USES:
+            # Travel spending happens away from base (re-audit R3, N5): another town, or another US city and state.
+            if self.jur == "UK":
+                ctx["away_town"] = rng.choice([t for t in self.towns if t != firm.get("town")])
+            else:
+                cities = sorted({(f["city"], f["state"]) for f in self.firms.values() if f["city"] != firm["city"]})
+                ctx["away_city"] = cities[rng.randrange(len(cities))] if cities else (firm["city"], firm["state"])
         return ctx
 
     def eligible(self, firm: dict, use: dict) -> bool:
@@ -149,8 +161,13 @@ class Env:
         return True
 
     def uses(self, firm: dict, pred) -> list[tuple[dict, dict]]:
+        from .firms import UK_BANKS, US_BANKS
+
         out = []
         for m in self.merchants:
+            # Bank charges, interest and card repayments come from the firm's own bank only (re-audit R3, N1).
+            if m["merchant_id"] in UK_BANKS + US_BANKS and m["merchant_id"] != firm["bank_brand"]:
+                continue
             for u in m["uses"]:
                 if self.eligible(firm, u) and pred(m, u):
                     out.append((m, u))
@@ -206,6 +223,8 @@ class Env:
             self.amount_log[(firm["firm_id"], mid, use.get("fixed_group") or use["use"])].add(amount)
             return amount
         amount = draw_amount(rng, lo, hi)
+        if mode == "whole":
+            return max(Decimal("1.00"), amount.quantize(Decimal("1"), rounding=ROUND_HALF_UP).quantize(Decimal("0.01")))
         if mode == "round":
             unit = Decimal("500") if amount > 5000 else Decimal("100")
             amount = max(unit, (amount / unit).quantize(Decimal("1"), rounding=ROUND_HALF_UP) * unit)
@@ -246,7 +265,7 @@ class Env:
         auto_precedent: bool = True,
     ) -> Draft:
         date = self.date_in(rng, self.scored_window, self.fmt_for(merchant, use, fmt, self.jur))
-        fctx = self.fill_ctx(firm, date, person)
+        fctx = self.fill_ctx(firm, date, person, use=use, rng=rng)
         if amount is None:
             amount = self.amount_for(rng, firm, merchant, use, date)
         if sign is None:
@@ -329,6 +348,8 @@ def _payee_only_ok(use: dict, merchant: dict | None) -> bool:
     the record through the line description."""
     if merchant is None:
         return True
+    if use.get("needs_line"):
+        return False  # the use's rule needs its context (workwear, kitchen stock), whatever the payee
     return len({u["default_code"] for u in merchant["uses"] if u["direction"] == use["direction"]}) <= 1
 
 
@@ -344,7 +365,11 @@ def family_s0(rng: random.Random, use: dict, merchant: dict | None = None) -> st
     return "contact_desc" if roll < 0.55 else ("contact_only" if roll < 0.85 else "contact_ref")
 
 
-def family_s1(rng: random.Random) -> str:
+def family_s1(rng: random.Random, use: dict | None = None, merchant: dict | None = None) -> str:
+    """S1 shows a noisy payee form without the typed line, so a payee whose account the payee alone cannot settle is
+    skipped (re-audit R3, F1 on the S1 path)."""
+    if use is not None and not _payee_only_ok(use, merchant):
+        raise Skip("payee needs its line; S1 shows none")
     return rng.choice(FAMILIES_S1)
 
 

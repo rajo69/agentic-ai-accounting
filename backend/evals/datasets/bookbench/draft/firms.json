@@ -201,16 +201,16 @@
     {
      "code": "090",
      "name": "Business Current Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-bank-of-scotland"
     },
     {
      "code": "091",
      "name": "Business Savings Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-bank-of-scotland"
     }
    ],
-   "bank_brand": "uk-b-starling-bank",
-   "bank_name": "Starling Bank",
+   "bank_brand": "uk-b-bank-of-scotland",
+   "bank_name": "Bank of Scotland",
    "card4": "9656",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -747,21 +747,21 @@
     {
      "code": "090",
      "name": "Business Current Account",
-     "provider": "uk-b-monzo"
+     "provider": "uk-b-barclays"
     },
     {
      "code": "091",
      "name": "Business Savings Account",
-     "provider": "uk-b-monzo"
+     "provider": "uk-b-barclays"
     },
     {
      "code": "092",
      "name": "Business Credit Card",
-     "provider": "uk-b-monzo"
+     "provider": "uk-b-barclays"
     }
    ],
-   "bank_brand": "uk-b-monzo",
-   "bank_name": "Monzo",
+   "bank_brand": "uk-b-barclays",
+   "bank_name": "Barclays",
    "card4": "8664",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -1507,16 +1507,16 @@
     {
      "code": "090",
      "name": "Business Current Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-hsbc"
     },
     {
      "code": "091",
      "name": "Business Savings Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-hsbc"
     }
    ],
-   "bank_brand": "uk-b-starling-bank",
-   "bank_name": "Starling Bank",
+   "bank_brand": "uk-b-hsbc",
+   "bank_name": "HSBC",
    "card4": "4084",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -1971,16 +1971,16 @@
     {
      "code": "090",
      "name": "Business Current Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-bank-of-scotland"
     },
     {
      "code": "091",
      "name": "Business Savings Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-bank-of-scotland"
     }
    ],
-   "bank_brand": "uk-b-starling-bank",
-   "bank_name": "Starling Bank",
+   "bank_brand": "uk-b-bank-of-scotland",
+   "bank_name": "Bank of Scotland",
    "card4": "3810",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -2151,21 +2151,21 @@
     {
      "code": "090",
      "name": "Business Current Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-barclays"
     },
     {
      "code": "091",
      "name": "Business Savings Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-barclays"
     },
     {
      "code": "092",
      "name": "Business Credit Card",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-barclays"
     }
    ],
-   "bank_brand": "uk-b-starling-bank",
-   "bank_name": "Starling Bank",
+   "bank_brand": "uk-b-barclays",
+   "bank_name": "Barclays",
    "card4": "2275",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -2333,16 +2333,16 @@
     {
      "code": "090",
      "name": "Business Current Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-barclays"
     },
     {
      "code": "091",
      "name": "Business Savings Account",
-     "provider": "uk-b-starling-bank"
+     "provider": "uk-b-barclays"
     }
    ],
-   "bank_brand": "uk-b-starling-bank",
-   "bank_name": "Starling Bank",
+   "bank_brand": "uk-b-barclays",
+   "bank_name": "Barclays",
    "card4": "7101",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "partnership",

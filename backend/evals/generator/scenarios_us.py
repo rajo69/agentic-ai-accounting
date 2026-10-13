@@ -41,7 +41,7 @@ def _customer_receipt(env: Env, rng, firm, stratum):
 def _noisy(env: Env, rng, firm, stratum):
     m, u = env.pick(rng, firm, lambda m, u: u["routine"] and not u["needs_line"])
     return env.build(rng, firm, scenario="noisy_descriptor", stratum=stratum, merchant=m, use=u,
-                     family=family_s1(rng), expect=LINE)
+                     family=family_s1(rng, u, m), expect=LINE)
 
 
 def _small_seller(m, u):
@@ -59,7 +59,7 @@ def _small_routine(env: Env, rng, firm, stratum):
 def _small_noisy(env: Env, rng, firm, stratum):
     m, u = env.pick(rng, firm, lambda m, u: _small_seller(m, u) and not u["needs_line"])
     return env.build(rng, firm, scenario="noisy_descriptor", stratum=stratum, merchant=m, use=u,
-                     family=family_s1(rng), expect=LINE)
+                     family=family_s1(rng, u, m), expect=LINE)
 
 
 def _fam(rng, u, m, choices):

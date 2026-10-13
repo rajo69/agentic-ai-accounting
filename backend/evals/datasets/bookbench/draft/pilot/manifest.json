@@ -15,27 +15,27 @@
  "counts": {
   "UK": 40,
   "US": 40,
-  "history_rows": 2186,
+  "history_rows": 2252,
   "items": 80
  },
  "created": "2026-10-13",
  "dataset": "bookbench",
  "files": {
   "REVIEW_SHEET.md": {
-   "bytes": 129583,
-   "sha256": "dc562d351b9cc3b3475e9e291059df06b566c6170d21cdcedce1d3f827649aec"
+   "bytes": 130360,
+   "sha256": "d7d983566ce90e0f7134ae31fdba6e6b5d8c69acdbc83dcd236d113ec858cdc7"
   },
   "history.jsonl": {
-   "bytes": 968794,
-   "sha256": "08d4437dd30c16721b1e37071bd2dd9ded0c3dfe5d1d55c5623157be29034109"
+   "bytes": 999217,
+   "sha256": "5f7a408a4fea21f1fa7474a880304a80dd35489a01dbad56615b13bd55a2fa15"
   },
   "items.jsonl": {
-   "bytes": 191417,
-   "sha256": "193394e4f5d1520cd68e37941bdf442c3faa4d79445480039d6f464bbf742fdc"
+   "bytes": 192137,
+   "sha256": "139dcfa882fc6d94275981f21f90926521985aecb7826562a067c2f9b3f36724"
   },
   "stats.json": {
-   "bytes": 13426,
-   "sha256": "c6b195f7c34286a782e610442b2f49cd50cc11f2e20b4d85485a07a16d49e243"
+   "bytes": 13421,
+   "sha256": "a5b0eb31c45d2249901a4f380f6f9268099d74cc791c9ab97951925175c0a5a7"
   }
  },
  "generator_version": "0.2.0-draft",
@@ -93,12 +93,16 @@
    "split_codes": "set of predicted line codes equals the set of gold_lines codes",
    "split_exact": "split_codes, and each predicted line amount equals its gold line amount to the cent"
   },
-  "strict": "lenient, and for split items (gold_lines set) split_exact must hold"
+  "strict": "lenient, and for split items (gold_lines set) split_exact must hold",
+  "underlying_correct_scored_channels": [
+   "payer_reference",
+   "invoice_capture"
+  ]
  },
  "seed": 20261013,
  "spec_files": {
-  "catalogue_uk.json": "17583ad0ab80637a2d97ad8c464d230ac696b214a6a2cc3abd50e5c50420ec2f",
-  "catalogue_us.json": "af9b5e48b052fc10dc9f29aace13218f5c181dd66ef14f044fc3f383848fb837",
-  "firms.json": "80db6f03bad9c7ac9ace74b91da5ae6e60be07b69ddd7b692c5c396138ce24cc"
+  "catalogue_uk.json": "5cda4e4a4249d0c3755b57148ba97f2f938b78d3334357e5d27a096747f266f4",
+  "catalogue_us.json": "4413162aa284bc941227816b1a63f74f7431a3e2433ea46d92cac5c3ad7ecb2b",
+  "firms.json": "60989997c92c4d22e31c45fc2e631ac8deb7ced89b1aa9d44c201c4183a6315a"
  }
 }

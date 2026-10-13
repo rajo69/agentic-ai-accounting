@@ -20,6 +20,7 @@ from .templates import MEMO_STYLES
 from .refs import fake_ct_reference, fake_ein, fake_paye_aoref, fake_utr, fake_vrn
 
 UK_BANKS = ["uk-b-barclays", "uk-b-hsbc", "uk-b-natwest", "uk-b-bank-of-scotland", "uk-b-starling-bank", "uk-b-monzo"]
+UK_CARD_BANKS = [b for b in UK_BANKS if b not in ("uk-b-starling-bank", "uk-b-monzo")]
 US_BANKS = ["us-b-bank-of-america", "us-b-wells-fargo", "us-b-capital-one", "us-b-pnc-bank", "us-b-u-s-bank",
             "us-b-citibank"]
 
@@ -110,7 +111,10 @@ def _uk_firm(firm_id: str, name: str, split: str, p: dict) -> dict:
         "ct_reference": fake_ct_reference(utr, rng) if entity == "limited_company" else None,
         "cis": _cis(p),
     }
-    bank_brand = UK_BANKS[firm_rng(firm_id, "bank").randrange(len(UK_BANKS))]
+    # A firm with a business credit card banks where cards are issued (re-audit R3, N2: Starling and Monzo issue no
+    # business credit card).
+    banks = UK_CARD_BANKS if p["policies"]["card_account"] in ("092", "811") else UK_BANKS
+    bank_brand = banks[firm_rng(firm_id, "bank").randrange(len(banks))]
     banks = [{"code": "090", "name": "Business Current Account", "provider": bank_brand}]
     if p["policies"]["savings_account"]:
         banks.append({"code": "091", "name": "Business Savings Account", "provider": bank_brand})
