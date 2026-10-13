@@ -81,9 +81,20 @@ def fill(pattern: str, rng: random.Random, ctx: dict) -> str:
     if not pattern:
         return ""
 
+    memo = ctx.get("_memo")
+
     def repl(m: re.Match) -> str:
         key, n = m.group(1), m.group(2)
         k = int(n) if n else 0
+        # One id per record (R12, R13): an invoice number or a long transfer id repeated across the line, the
+        # reference and the bank narrative of one record is the same value. Short tokens stay independent.
+        if memo is not None and (key == "INV" or (key in ("A", "N") and k >= 6)):
+            if m.group(0) not in memo:
+                memo[m.group(0)] = _value(key, k)
+            return memo[m.group(0)]
+        return _value(key, k)
+
+    def _value(key: str, k: int) -> str:
         date: dt.date = ctx["date"]
         firm = ctx["firm"]
         if key == "N":
@@ -137,7 +148,7 @@ def fill(pattern: str, rng: random.Random, ctx: dict) -> str:
             return rng.choice(PURPOSES.get(firm["trade"]["tag"], PURPOSES["default"]))
         if key == "PERSON":
             return ctx.get("person", "[PERSON]")
-        raise KeyError(f"unknown placeholder {m.group(0)}")
+        raise KeyError(f"unknown placeholder {{{key}{k or ''}}}")
 
     return _TOKEN.sub(repl, pattern)
 
@@ -210,8 +221,9 @@ def render(
     fmt = fmt or (use or {}).get("bank_format") or (merchant or {}).get("bank_format") or (
         "UK-DEB" if jurisdiction == "UK" else "US-CARD"
     )
+    ctx = dict(ctx, _memo={})
     if merchant:
-        ctx = dict(ctx, merchant_id=merchant["merchant_id"], use=(use or {}).get("use", ""))
+        ctx.update(merchant_id=merchant["merchant_id"], use=(use or {}).get("use", ""))
     if narrative is None:
         pats = (use or {}).get("narratives") or (merchant or {}).get("narratives") or [""]
         narrative = fill(rng.choice(pats), rng, ctx)
@@ -257,7 +269,10 @@ def render(
     else:
         raise ValueError(family)
     if not xero_contact:
-        xero_contact = payee_token(narrative, ref, amount)
+        if fmt in FEE_FORMATS and ctx["firm"].get("bank_name"):
+            xero_contact = ctx["firm"]["bank_name"]  # bank charges and interest: the bank is the contact (R15)
+        else:
+            xero_contact = payee_token(narrative, ref, amount)
 
     total = abs(amount)
     xero = {

@@ -17,7 +17,7 @@ HIST = ("line+history", "line+profile")
 
 def _routine(env: Env, rng, firm, stratum):
     m, u = env.pick(rng, firm, lambda m, u: u["routine"])
-    return env.build(rng, firm, scenario="routine", stratum=stratum, merchant=m, use=u, family=family_s0(rng, u),
+    return env.build(rng, firm, scenario="routine", stratum=stratum, merchant=m, use=u, family=family_s0(rng, u, m),
                      expect=LINE)
 
 
@@ -30,7 +30,7 @@ def _noisy(env: Env, rng, firm, stratum):
 def _use(pred, scenario, *, family=None, expect=None, rule=None, facts=None, need_free=False, forbid_self=False):
     def fn(env: Env, rng, firm, stratum):
         m, u = env.pick(rng, firm, pred, need_free=need_free)
-        fam = family(rng, u) if callable(family) else (family or family_plain(rng, u))
+        fam = family(rng, u) if callable(family) else (family or family_plain(rng, u, m))
         return env.build(rng, firm, scenario=scenario, stratum=stratum, merchant=m, use=u, family=fam,
                          expect=expect, rule=rule, facts=facts, forbid=[m["merchant_id"]] if forbid_self else None)
 

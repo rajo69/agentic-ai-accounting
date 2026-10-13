@@ -37,12 +37,14 @@ def U(
     fmt: str | None = None,
     narratives: list[str] | None = None,
     amount_mode: str = "range",
+    fixed_group: str | None = None,
 ) -> dict:
     """One use of a merchant: what the line is for, its amount range, default code and governing rules.
 
     `amount_mode` (F8): `range` draws a fresh amount per line; `fixed` keeps one amount per firm for this use (rent,
     loan instalments, contracts, subscriptions), with at most one price step; `round` rounds to 100 (500 above
-    5,000) for drawdowns and capital injections. `Env.amount_for` applies it.
+    5,000) for drawdowns and capital injections. `Env.amount_for` applies it. `fixed_group` makes several uses
+    of one payee share one fixed amount (R6: "monthly instalment" and "loan repayment" of the same loan).
     """
     if isinstance(rules, str):
         rules = [rules]
@@ -64,6 +66,7 @@ def U(
         "bank_format": fmt,
         "narratives": narratives,
         "amount_mode": amount_mode,
+        "fixed_group": fixed_group,
     }
 
 

@@ -20,7 +20,7 @@ HIST = ("line+history", "line+profile")
 
 def _routine(env: Env, rng, firm, stratum):
     m, u = env.pick(rng, firm, lambda m, u: u["routine"])
-    return env.build(rng, firm, scenario="routine", stratum=stratum, merchant=m, use=u, family=family_s0(rng, u),
+    return env.build(rng, firm, scenario="routine", stratum=stratum, merchant=m, use=u, family=family_s0(rng, u, m),
                      expect=LINE)
 
 
@@ -35,7 +35,7 @@ def _use(name_pred, scenario, family=None, expect=None, **kw):
 
     def fn(env: Env, rng, firm, stratum):
         m, u = env.pick(rng, firm, name_pred)
-        fam = family(rng, u) if callable(family) else (family or family_plain(rng, u))
+        fam = family(rng, u) if callable(family) else (family or family_plain(rng, u, m))
         return env.build(rng, firm, scenario=scenario, stratum=stratum, merchant=m, use=u, family=fam,
                          expect=expect, **kw)
 
@@ -164,7 +164,7 @@ def _pension(env, rng, firm, stratum):
 def _private_policy(env, rng, firm, stratum):
     m, u = env.pick(rng, firm, lambda m, u: u["use"] in ("private_policy", "gym", "private_shop"))
     return env.build(rng, firm, scenario="private_spend", stratum=stratum, merchant=m, use=u,
-                     family=family_plain(rng, u), expect=HIST)
+                     family=family_plain(rng, u, m), expect=HIST)
 
 
 def _commute(env, rng, firm, stratum):
@@ -274,7 +274,7 @@ def _loan(use_name, rule=None):
         if u is None:
             raise Skip("lender lacks use")
         return env.build(rng, firm, scenario="loan_" + use_name, stratum=stratum, merchant=m, use=u,
-                         rule=rule, family=family_plain(rng, u))
+                         rule=rule, family=family_plain(rng, u, m))
 
     return fn
 

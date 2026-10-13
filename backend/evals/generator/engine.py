@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from decimal import ROUND_HALF_UP, Decimal
 
 from . import rules_uk, rules_us, spec_uk, spec_us
-from .constants import NEEDS_REVIEW, WINDOWS
+from .constants import BANK_HOLIDAYS, NEEDS_REVIEW, WINDOWS, WORKING_DAY_FORMATS
 from .gold import Ctx, Gold, RuleNotApplicable
 from .templates import FAMILIES_S1, draw_amount, fill, render
 
@@ -90,9 +90,27 @@ class Env:
         self.towns = spec_uk.UK_TOWNS
 
     # ------------------------------------------------------------------ helpers
-    def date_in(self, rng: random.Random, window) -> dt.date:
+    def date_in(self, rng: random.Random, window, fmt: str | None = None) -> dt.date:
+        """A day in the window; for a working-day bank format (R1) the next working day, or the previous one when
+        the window ends first."""
         a, b = window
-        return a + dt.timedelta(days=rng.randint(0, (b - a).days))
+        d = a + dt.timedelta(days=rng.randint(0, (b - a).days))
+        if fmt in WORKING_DAY_FORMATS:
+            step = 1
+            while not self.is_working_day(d):
+                d += dt.timedelta(days=step)
+                if d > b:
+                    d, step = b, -1
+        return d
+
+    def is_working_day(self, d: dt.date) -> bool:
+        return d.weekday() < 5 and d.isoformat() not in BANK_HOLIDAYS[self.jur]
+
+    @staticmethod
+    def fmt_for(merchant: dict | None, use: dict | None, fmt: str | None = None, jurisdiction: str = "UK") -> str:
+        """The bank format a line will render with (mirrors templates.render)."""
+        return fmt or (use or {}).get("bank_format") or (merchant or {}).get("bank_format") or (
+            "UK-DEB" if jurisdiction == "UK" else "US-CARD")
 
     def fill_ctx(self, firm: dict, date: dt.date, person: str | None = None) -> dict:
         ctx = {"firm": firm, "date": date, "towns": self.towns, "person": person}
@@ -164,7 +182,7 @@ class Env:
     def _fixed_plan(self, firm: dict, merchant_id: str, use: dict) -> tuple[Decimal, dt.date | None, Decimal]:
         """Base amount, optional price-step date and stepped amount for a `fixed` use. Seeded by the run seed, firm,
         merchant and use only, so history rows and scored items agree whatever order they are drawn in."""
-        r = random.Random(f"{self.seed}:fixed:{firm['firm_id']}:{merchant_id}:{use['use']}")
+        r = random.Random(f"{self.seed}:fixed:{firm['firm_id']}:{merchant_id}:{use.get('fixed_group') or use['use']}")
         lo, hi = use["amount_range"]
         base = draw_amount(r, lo, hi)
         if r.random() < 0.35:
@@ -182,7 +200,7 @@ class Env:
             mid = merchant["merchant_id"] if merchant else "-"
             base, step_date, stepped = self._fixed_plan(firm, mid, use)
             amount = stepped if step_date is not None and date >= step_date else base
-            self.amount_log[(firm["firm_id"], mid, use["use"])].add(amount)
+            self.amount_log[(firm["firm_id"], mid, use.get("fixed_group") or use["use"])].add(amount)
             return amount
         amount = draw_amount(rng, lo, hi)
         if mode == "round":
@@ -224,7 +242,7 @@ class Env:
         expect: tuple[str, ...] | None = None,
         auto_precedent: bool = True,
     ) -> Draft:
-        date = self.date_in(rng, self.scored_window)
+        date = self.date_in(rng, self.scored_window, self.fmt_for(merchant, use, fmt, self.jur))
         fctx = self.fill_ctx(firm, date, person)
         if amount is None:
             amount = self.amount_for(rng, firm, merchant, use, date)
@@ -302,12 +320,21 @@ def _kind_of(merchant_id: str) -> str:
     return "other"
 
 
-def family_s0(rng: random.Random, use: dict) -> str:
+def _payee_only_ok(use: dict, merchant: dict | None) -> bool:
+    """A record showing only the payee settles the account only when the payee has one purpose (knowability F1,
+    audit round 2): a bank, a council or Google can be paid for several things, so their purpose word must reach
+    the record through the line description."""
+    if merchant is None:
+        return True
+    return len({u["default_code"] for u in merchant["uses"] if u["direction"] == use["direction"]}) <= 1
+
+
+def family_s0(rng: random.Random, use: dict, merchant: dict | None = None) -> str:
     has_line = any(x for x in use["line_descriptions"])
     if use.get("needs_line") and has_line:
         return "contact_desc"
     if not has_line:
-        return rng.choice(["contact_only", "contact_ref"])
+        return rng.choice(["contact_only", "contact_ref"]) if _payee_only_ok(use, merchant) else "desc_narrative"
     roll = rng.random()
     return "contact_desc" if roll < 0.55 else ("contact_only" if roll < 0.85 else "contact_ref")
 
@@ -316,10 +343,10 @@ def family_s1(rng: random.Random) -> str:
     return rng.choice(FAMILIES_S1)
 
 
-def family_plain(rng: random.Random, use: dict) -> str:
+def family_plain(rng: random.Random, use: dict, merchant: dict | None = None) -> str:
     has_line = any(x for x in use["line_descriptions"])
     if not has_line:
-        return rng.choice(["contact_only", "contact_ref"])
+        return rng.choice(["contact_only", "contact_ref"]) if _payee_only_ok(use, merchant) else "desc_narrative"
     return "contact_desc"
 
 

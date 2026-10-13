@@ -280,3 +280,67 @@ def test_copy_baselines_with_retrieval():
              {"item_id": "c", "record": {"description": "x"}, "retrieved_top5": []}]
     assert _copy(items, hist, exact_only=True) == {"a": "463", "b": NEEDS_REVIEW, "c": NEEDS_REVIEW}
     assert _copy(items, hist, exact_only=False) == {"a": "463", "b": "463", "c": NEEDS_REVIEW}
+
+
+# ---------------------------------------------------------------- fix round 2 step 5a (audit round 2)
+
+
+def test_working_day_formats_never_land_on_weekends_or_holidays():
+    env = _env()
+    for i in range(400):
+        d = env.date_in(random.Random(i), env.scored_window, "UK-DD")
+        assert env.is_working_day(d) and env.scored_window[0] <= d <= env.scored_window[1]
+    assert not env.is_working_day(dt.date(2026, 4, 6))  # Easter Monday
+    assert any(env.date_in(random.Random(i), env.scored_window, "UK-DEB").weekday() >= 5 for i in range(200))
+
+
+def test_built_items_respect_working_days(built):
+    out, items, _ = built
+    assert all(B.working_day_ok(i) for i in items)
+    assert json.loads((out / "stats.json").read_text(encoding="utf-8"))["working_day_violations"] == 0
+
+
+def test_record_ids_are_shared_within_one_record_only():
+    ctx = {"firm": UK_ST, "date": dt.date(2026, 5, 1), "_memo": {}}
+    rng = random.Random(4)
+    a, b = fill("Invoice {INV} ref {A8}", rng, ctx), fill("{INV} {A8}", rng, ctx)
+    assert a.split(" ")[1] == b.split(" ")[0] and a.split(" ")[3] == b.split(" ")[1]
+    assert fill("{N3}-{N3}", random.Random(9), dict(ctx, _memo={})).count("-") == 1  # short tokens independent
+
+
+def test_fee_lines_take_the_bank_as_contact():
+    ctx = {"firm": UK_ST, "date": dt.date(2026, 5, 1), "towns": ["LEEDS"], "person": None}
+    xero, _ = render(jurisdiction="UK", rng=random.Random(3), ctx=ctx, merchant=None, use=None,
+                     amount=Decimal("-8.50"), family="ref_narrative", contact="", line="", ref="",
+                     narrative="MONTHLY ACCOUNT FEE", fmt="UK-CHG")
+    assert xero["contact_name"] == UK_ST["bank_name"]
+
+
+def test_fixed_group_shares_one_amount():
+    env = _env()
+    m = {"merchant_id": "uk-i-lender"}
+    a = env.amount_for(random.Random(1), UK_ST, m, dict(_use("fixed"), use="loan_instalment", fixed_group="loan"),
+                       env.hist_window[0])
+    b = env.amount_for(random.Random(2), UK_ST, m, dict(_use("fixed"), use="loan_repayment", fixed_group="loan"),
+                       env.hist_window[0])
+    assert a == b
+
+
+def test_payee_only_template_needs_a_single_purpose_payee():
+    from evals.generator.engine import family_plain, family_s0
+
+    bank = {"uses": [{"direction": "spend", "default_code": "404"}, {"direction": "spend", "default_code": "437"}]}
+    use = {"direction": "spend", "line_descriptions": [""], "default_code": "404"}
+    for i in range(30):
+        assert family_s0(random.Random(i), use, bank) == "desc_narrative"
+        assert family_plain(random.Random(i), use, bank) == "desc_narrative"
+    one = {"uses": [{"direction": "spend", "default_code": "463"}]}
+    assert family_plain(random.Random(0), use, one) in ("contact_only", "contact_ref")
+
+
+def test_cis_contractors_have_a_rate_per_subcontractor():
+    for f in FIRMS.values():
+        if f["jurisdiction"] == "UK":
+            rates = f["people"]["cis_rates"]
+            assert set(rates) == (set(f["people"]["subcontractors"]) if f["tax"]["cis"]["contractor"] else set())
+            assert set(rates.values()) <= {"0", "20", "30"}
