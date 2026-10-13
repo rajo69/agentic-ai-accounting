@@ -225,7 +225,7 @@ def _card_attacks(jur: str, seeds=range(3)):
                 d = A.adversarial(env, rng, firm, "S6", review_rule=RULE[jur], channels=("card_descriptor",))
             except Skip:
                 continue
-            out.append((firm, d, {m["merchant_id"]: m for m in sellers}))
+            out.append((firm, d, {m["merchant_id"]: m for m in env.merchants}))
     return out
 
 
@@ -252,9 +252,9 @@ def test_card_hosts_are_small_sellers_with_matching_prefix(jur):
         assert d.attack["attack_channel"] == "card_descriptor"
         m = sellers.get(d.merchant_id)
         assert m is not None and m["category"] == "small_seller", d.merchant_id
-        assert d.merchant_id in HOSTS[jur], d.merchant_id
         used.add(d.merchant_id)
-        prefix, seller = A.seller_descriptor(m, m["uses"][0], jur)
+        u = next(x for x in m["uses"] if x["use"] == d.use)
+        prefix, seller = A.seller_descriptor(m, u, jur)
         text = d.attack["attack_text"]
         assert text == d.xero["contact_name"] and len(text) <= A.DESCRIPTOR_LIMIT, text
         assert text.startswith(prefix + seller.split()[0] + " "), text
@@ -262,20 +262,18 @@ def test_card_hosts_are_small_sellers_with_matching_prefix(jur):
         assert d.bank_line["narrative"].startswith(text) and d.bank_line["bank_format"] == A.CARD_FORMAT[jur]
         assert len(d.bank_line["narrative"]) <= LIMITS[f"narrative_{jur}"]
         assert not has_role_word(text)
-        assert d.attack["attack_underlying_label"] == m["uses"][0]["default_code"]
+        assert d.attack["attack_underlying_label"] == u["default_code"]
         assert d.gold.label == NEEDS_REVIEW and d.gold.rule_id == RULE[jur]
-    assert used == HOSTS[jur]
+    assert len(used) >= 2  # real catalogue sellers (and the fakes) host the channel
 
 
 @pytest.mark.parametrize("jur", ["UK", "US"])
-def test_card_attack_keeps_the_honest_line(jur):
-    """`underlying_correct` stays answerable: the bookkeeper's typed line is the record's description."""
-    for _firm, d, sellers in _card_attacks(jur):
-        line = d.xero["line_description"]
-        lines = [_norm_line(x) for x in sellers[d.merchant_id]["uses"][0]["line_descriptions"] if x]
-        assert line and any(_norm_line(line).startswith(x) for x in lines), line
-        assert derive_record(d.xero)["description"] == line
-        assert d.attack["attack_text"] not in line
+def test_card_attack_shows_the_descriptor_with_the_seller_name(jur):
+    """Production reads the description, so the descriptor is the description (no typed line); the seller name in
+    it keeps `underlying_correct` answerable (integration decision, audit round 2)."""
+    for _firm, d, _sellers in _card_attacks(jur):
+        assert d.xero["line_description"] == ""
+        assert derive_record(d.xero)["description"] == d.attack["attack_text"] == d.xero["contact_name"]
 
 
 @pytest.mark.parametrize("jur", ["UK", "US"])
@@ -284,7 +282,9 @@ def test_card_channel_never_grafts(jur):
     to another channel."""
     from evals.generator.engine import Skip
 
-    env = _env(jur)
+    base = spec_uk.MERCHANTS if jur == "UK" else spec_us.MERCHANTS
+    firms = {k: v for k, v in sorted(FIRMS.items()) if v["jurisdiction"] == jur}
+    env = Env(jur, firms, [m for m in base if m["category"] != "small_seller"])
     for firm in list(env.firms.values())[:6]:
         assert A._hosts(env, firm, "card_descriptor") == []
         with pytest.raises(Skip):
@@ -530,7 +530,7 @@ def test_new_fields_present_and_consistent(full_builds):
             elif channel == "card_descriptor":
                 assert xero["contact_name"] == text and len(text) <= A.DESCRIPTOR_LIMIT
                 assert it["bank_line"]["narrative"].startswith(text)
-                assert xero["line_description"] and it["record"]["description"] == xero["line_description"]
+                assert xero["line_description"] == "" and it["record"]["description"] == text
             else:
                 assert xero["line_description"] == text == it["record"]["description"]
 

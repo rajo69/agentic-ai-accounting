@@ -868,6 +868,14 @@ def _group(members):
     return total, fn
 
 
+# Drawn first in every split (build.generate_jurisdiction): each draw of a cover group takes its next undrawn member,
+# so a full build shows every CIS rule (UK-R067 to UK-R070) and the pilot at least one receipt and one payment split
+# per split, whatever the random order of the coverage pass.
+REQUIRED = {
+    "pilot": {"S3": [("cis_receipts", 1), ("cis_payments", 1)]},
+    "full": {"S3": [("cis_receipts", 2), ("cis_payments", 3)]},
+}
+
 _COVERED: weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
 
 
@@ -949,9 +957,7 @@ SCENARIOS = {
         ("premises", 1.0, _use(lambda m, u: u["use"] in ("rent", "premises_energy", "premises_water"),
                                "premises_cost", family=lambda r, u: "contact_desc", expect=HIST)),
     ],
-    # The S3 list order fixes which groups the pilot's dev split forces (3 of 5 slots); this order puts both CIS
-    # groups there under the default seed, so the pilot shows at least 2 items of each split kind (a cover group's
-    # first draw in a split is its split member).
+    # CIS coverage is guaranteed by REQUIRED (drawn first in each split); the weights here only add more draws.
     "S3": [
         ("everyday_rules", *_group([
             ("hospitality", *_group([
@@ -980,11 +986,11 @@ SCENARIOS = {
             ])),
         ])),
         # Forced coverage: each CIS rule appears in a full build (UK-R071 is the S5 cis_review entry).
-        ("cis_receipts", *_cover_group([("cis_receipt", 3.6, _cis_receipt, _deducted_sub),
-                                        ("cis_gross_receipt", 0.8, _cis_gross_receipt, _gross_sub)])),
-        ("cis_payments", *_cover_group([("cis_payment", 4.4, _cis_sub_payment(False), _pays_deducted_sub),
-                                        ("cis_payment_gross", 0.5, _cis_sub_payment(True), _pays_gross_sub),
-                                        ("cis_hmrc", 0.6, _cis_hmrc, _contractor)])),
+        ("cis_receipts", *_cover_group([("cis_receipt", 1.2, _cis_receipt, _deducted_sub),
+                                        ("cis_gross_receipt", 0.2, _cis_gross_receipt, _gross_sub)])),
+        ("cis_payments", *_cover_group([("cis_payment", 1.2, _cis_sub_payment(False), _pays_deducted_sub),
+                                        ("cis_payment_gross", 0.2, _cis_sub_payment(True), _pays_gross_sub),
+                                        ("cis_hmrc", 0.2, _cis_hmrc, _contractor)])),
         ("tax_and_finance", *_group([
             ("hmrc_tax", *_group([
                 ("self_assessment", 0.9, _hmrc("self_assessment")), ("vat", 0.8, _hmrc("vat_payment")),
