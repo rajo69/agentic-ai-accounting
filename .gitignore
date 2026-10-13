@@ -29,7 +29,7 @@ htmlcov/
 # Alembic
 # (keep versions tracked)
 
-# Evals — cache and results are local only
+# Evals: cache and results are local only
 backend/evals/.cache/
 backend/evals/results/
 

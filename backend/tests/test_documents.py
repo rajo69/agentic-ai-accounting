@@ -93,7 +93,7 @@ def test_render_html_produces_html():
     assert "ACME Ltd" in html
     assert "Management Letter" in html
     assert "Good quarter overall." in html
-    assert "AI-Assisted Draft" in html
+    assert "AI-Assisted Draft: Not for Distribution" in html
 
 
 # ── Integration tests: API endpoints (no DB, no LLM, no PDF) ─────────────────
