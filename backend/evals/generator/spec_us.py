@@ -8,9 +8,15 @@ electing firms (US-R050) and contract late-performance penalties (US-R194); cons
 F8: `amount_mode="fixed"` on rent, loan instalments, phone and internet lines, monthly software, insurance premiums,
 vehicle leases and the monthly bookkeeping fee; `amount_mode="round"` on loan proceeds. Loan, lease, policy and
 utility account references use the {K<n>} token, so they stay constant per firm and payee.
+Audit round 2: small sellers billed through Square, PayPal and Toast (`category="small_seller"`, shortcut S-1);
+dues, refund, membership and card payment memos name the payee (F2, F5); donations round (R11); client meals at
+restaurants and coffee shops only, LLC work only at LLCs (R16); payroll sized per person (R18, `payroll_amount`).
 """
 
 from __future__ import annotations
+
+import random
+from decimal import Decimal
 
 from .spec_common import U, make_builders
 
@@ -222,31 +228,50 @@ MERCHANTS += [
     ]],
 ]
 
+# R16 (audit round 2): client meals at sit-down restaurants and coffee shops, never through a delivery app or a
+# quick-service counter; one-person delivery orders stay small. Kinds: restaurant, coffee, quick, delivery.
 _FOOD_US = [
-    ("us-starbucks", ["Starbucks"], ["STARBUCKS STORE {N5} {CITY} {ST}"], "4.00", "70.00"),
-    ("us-dunkin", ["Dunkin'"], ["DUNKIN #{N6}"], "4.00", "50.00"),
-    ("us-peet-s-coffee", ["Peet's Coffee"], ["PEETS {N5}"], "4.00", "45.00"),
-    ("us-chick-fil-a", ["Chick-fil-A"], ["CHICK-FIL-A #{N5}"], "8.00", "120.00"),
-    ("us-subway", ["Subway"], ["SUBWAY {N8}"], "7.00", "90.00"),
-    ("us-the-cheesecake-factory", ["The Cheesecake Factory"], ["THE CHEESECAKE FACTORY {N4}"], "35.00", "320.00"),
-    ("us-doordash", ["DoorDash"], ["DD DOORDASH {A10} 8559731040 CA"], "15.00", "180.00"),
-    ("us-uber-eats", ["Uber Eats"], ["UBER   EATS 8005928996 CA"], "15.00", "140.00"),
-    ("us-grubhub", ["Grubhub"], ["GRUBHUB{A10} 8775851085 NY"], "15.00", "160.00"),
+    ("us-starbucks", ["Starbucks"], ["STARBUCKS STORE {N5} {CITY} {ST}"], "4.00", "70.00", "coffee"),
+    ("us-dunkin", ["Dunkin'"], ["DUNKIN #{N6}"], "4.00", "50.00", "coffee"),
+    ("us-peet-s-coffee", ["Peet's Coffee"], ["PEETS {N5}"], "4.00", "45.00", "coffee"),
+    ("us-chick-fil-a", ["Chick-fil-A"], ["CHICK-FIL-A #{N5}"], "8.00", "120.00", "quick"),
+    ("us-subway", ["Subway"], ["SUBWAY {N8}"], "7.00", "90.00", "quick"),
+    ("us-the-cheesecake-factory", ["The Cheesecake Factory"], ["THE CHEESECAKE FACTORY {N4}"], "35.00", "320.00", "restaurant"),
+    ("us-doordash", ["DoorDash"], ["DD DOORDASH {A10} 8559731040 CA"], "15.00", "95.00", "delivery"),
+    ("us-uber-eats", ["Uber Eats"], ["UBER   EATS 8005928996 CA"], "15.00", "90.00", "delivery"),
+    ("us-grubhub", ["Grubhub"], ["GRUBHUB{A10} 8775851085 NY"], "15.00", "95.00", "delivery"),
 ]
+_CLIENT_MEAL_LINES = {
+    "restaurant": ["Lunch with client re proposal", "Dinner with subcontractor, project review",
+                   "Client dinner, project kickoff"],
+    "coffee": ["Coffee with prospective client", "Coffee meeting with client"],
+}
+_TRAVEL_MEAL_LINES = {
+    "restaurant": ["Dinner while away, {PURPOSE}", "Meal on trip, {PURPOSE}"],
+    "coffee": ["Breakfast while away, {PURPOSE}"],
+    "quick": ["Lunch on the road, {PURPOSE}", "Meal on trip, {PURPOSE}"],
+    "delivery": ["Meal delivered to hotel, {PURPOSE}"],
+}
 
 
-def _food_uses_us(lo: str, hi: str) -> list[dict]:
-    return [
-        U("client_meal", "spend", lo, hi, "685", "US-R010", ["Lunch with client re proposal", "Coffee with prospective client", "Dinner with subcontractor, project review"], needs_line=True, facts={"stated": True}),
-        U("meal_tip", "spend", lo, hi, "685", "US-R011", ["Client lunch incl tip", "Business dinner with client, tip included"], needs_line=True),
-        U("travel_meal", "spend", lo, hi, "685", "US-R031", ["Dinner while away, {PURPOSE}", "Meal on trip, {PURPOSE}"], needs_line=True, facts={"stated": True}),
-        U("personal_meal", "spend", lo, hi, "3010", "US-R002", ["Family dinner", "Personal lunch"], needs_line=True),
+def _food_uses_us(lo: str, hi: str, kind: str = "restaurant", *, routine: bool = False) -> list[dict]:
+    """Meal uses for one food merchant. `routine` marks the client meal as an ordinary S0 line (small sellers)."""
+    out = []
+    if kind in _CLIENT_MEAL_LINES:
+        out.append(U("client_meal", "spend", lo, hi, "685", "US-R010", _CLIENT_MEAL_LINES[kind], needs_line=True,
+                     facts={"stated": True}, routine=routine))
+    if kind == "restaurant":
+        out.append(U("meal_tip", "spend", lo, hi, "685", "US-R011", ["Client lunch incl tip", "Business dinner with client, tip included"], needs_line=True))
+    out += [
+        U("travel_meal", "spend", lo, hi, "685", "US-R031", _TRAVEL_MEAL_LINES[kind], needs_line=True, facts={"stated": True}),
+        U("personal_meal", "spend", lo, hi, "3010", "US-R002", ["Family dinner", "Personal lunch"] if kind != "coffee" else ["Personal coffee and pastry"], needs_line=True),
         U("no_description", "spend", lo, hi, "NEEDS_REVIEW", "US-N2", [""]),
     ]
+    return out
 
 
-for bid, contacts, narrs, lo, hi in _FOOD_US:
-    MERCHANTS.append(B(bid, contacts, narrs, _food_uses_us(lo, hi), category="food_drink"))
+for bid, contacts, narrs, lo, hi, kind in _FOOD_US:
+    MERCHANTS.append(B(bid, contacts, narrs, _food_uses_us(lo, hi, kind), category="food_drink"))
 
 _RETAIL_US = [
     ("us-amazon", ["Amazon"], ["AMZN Mktp US {A9} Amzn.com/bill WA", "Amazon.com {A9} Amzn.com/bill WA"]),
@@ -266,7 +291,8 @@ for bid, contacts, narrs in _RETAIL_US:
         U("office_purchase", "spend", "8.00", "160.00", "645", "US-R054", ["Printer ink", "Copy paper", "Desk organizers"], needs_line=True, facts={"office": True}),
     ]
     if bid in ("us-costco", "us-sam-s-club"):
-        uses.append(U("membership", "spend", "50.00", "130.00", "670", "US-R152", ["Annual membership", ""], hooks=["US-R152"]))
+        # F5: the memo names the club, so "Annual membership" never stands alone.
+        uses.append(U("membership", "spend", "50.00", "130.00", "670", "US-R152", [f"{contacts[0]} annual membership", f"{contacts[0]} membership renewal"], hooks=["US-R152"]))
     MERCHANTS.append(B(bid, contacts, narrs, uses, category="retail_general"))
 
 MERCHANTS += [
@@ -286,9 +312,10 @@ MERCHANTS += [
         ("us-wework", ["WeWork"], ["WEWORK {N9} NY"]),
     ]],
     # Processors and payment apps
+    # R13: the transfer id is one {A12} token, so the reference and the bank line show the same id in one record.
     B("us-stripe", ["Stripe"], ["STRIPE DES:TRANSFER ID:ST-{A12}"], [
         U("payout", "receive", "120.00", "6200.00", "1100", "US-R120", ["Stripe payout", ""], hooks=["US-R120", "US-R121"], only={"processor": "us-stripe"}),
-        U("fee", "spend", "15.00", "90.00", "700", "US-R122", ["Stripe monthly fee", "Stripe billing fee"], routine=True, only={"processor": "us-stripe"}),
+        U("fee", "spend", "15.00", "90.00", "700", "US-R122", ["Stripe monthly fee", "Stripe billing fee"], routine=True, only={"processor": "us-stripe"}, narratives=["STRIPE DES:BILLING ID:ST-{A12}"]),
     ], fmt="US-ACH", refs=["ST-{A12}"]),
     B("us-square", ["Square"], ["SQUARE INC DES:SQ{N6} ID:{A12}", "SQUARE INC DIRECT DEPOSIT"], [
         U("payout", "receive", "80.00", "4800.00", "1100", "US-R120", ["Square deposit", ""], hooks=["US-R120", "US-R121"], only={"processor": "us-square"}, narratives=["SQUARE INC DES:SQ{N6} ID:{A12}", "SQUARE INC DIRECT DEPOSIT"]),
@@ -348,7 +375,9 @@ for bid, contacts, short in _BANKS_US:
         U("fee_reversal", "receive", "5.00", "35.00", "700", "US-R132", ["Fee reversal", ""], narratives=["MONTHLY SERVICE FEE REVERSAL", "OVERDRAFT FEE REFUND"], fmt="US-FEE"),
         U("interest_earned", "receive", "0.10", "45.00", "410", "US-R192", ["Interest", ""], routine=True, narratives=["INTEREST PAYMENT", "INTEREST EARNED"], fmt="US-INT"),
         U("loc_interest", "spend", "8.00", "240.00", "635", "US-R101", ["Line of credit interest", ""], routine=True, narratives=["LOC INTEREST CHARGE", "LINE OF CREDIT INTEREST"], fmt="US-FEE"),
-        U("card_payment", "spend", "150.00", "4200.00", "2000", "US-R110", ["Card payment", ""], hooks=["US-R110"], narratives=["ONLINE PAYMENT TO CARD ...{N4}", short + " CRCARDPMT DES:CRCARDPMT"], fmt="US-ACH", refs=["CC PMT"]),
+        # F5, F9: the memo and the bank line name the card issuer, so a business card payment and a personal card
+        # payment never share one memo.
+        U("card_payment", "spend", "150.00", "4200.00", "2000", "US-R110", [f"{contacts[0]} card payment", f"Payment to {contacts[0]} card"], hooks=["US-R110"], narratives=["ONLINE PAYMENT TO " + short + " CARD ...{N4}", short + " CRCARDPMT DES:CRCARDPMT"], fmt="US-ACH", refs=["CC PMT"]),
         U("loan_proceeds", "receive", "5000.00", "60000.00", "2300", "US-R100", ["SBA loan proceeds", "Term loan funding"], narratives=[short + " LOAN DISB"], fmt="US-ACH", refs=["LN {K8}"], amount_mode="round"),
         U("loan_payment", "spend", "250.00", "2200.00", "NEEDS_REVIEW", "US-R103", ["Loan payment", ""], narratives=[short + " LOAN PMT"], fmt="US-ACH", refs=["LN {K8}"], amount_mode="fixed"),
         U("personal_interest", "spend", "15.00", "160.00", "3010", "US-R104", ["Interest, personal card", "Personal loan interest"], needs_line=True, narratives=[short + " INTEREST CHARGE PERSONAL"], fmt="US-ACH", refs=["{N8}"]),
@@ -380,6 +409,61 @@ def _penalty_uses(slug: str) -> list[dict]:
     return out
 
 
+RECEIPT_LINES = ["Invoice {N6}", "Payment, invoice {N6}", ""]
+# Half the references typed in lower case, as customers do.
+RECEIPT_REFS = ["INV {N6}", "INV-{N6}", "{N6}", "inv {N6}", "invoice {N6} thanks", "pmt for inv {N6}"]
+LENDER_LIKE_CUSTOMERS = {"northstar-credit-union"}
+
+# Small sellers (shortcut S-1, audit round 2): local businesses billed through a card processor, so their card
+# lines carry the processor prefix (`SQ *` Square, `PAYPAL *` PayPal, `TST*` Toast, restaurants only) in ordinary
+# spending. Names are invented (web-checked 2026-10-13: no business of that name found). The Xero contact is the
+# plain name or the descriptor a bank rule copied. Each has a routine spend use with line descriptions, which S6
+# card-descriptor attacks host on. Only the sign and banner makers are single-purpose enough to be read from the
+# payee alone; every other use needs its line.
+SMALL_SELLER_TRADES_ALL = ["construction", "trades", "professional", "creative", "crafts", "catering", "education", "retail"]
+
+
+def _small(slug: str, name: str, descriptor: str, uses: list[dict]) -> dict:
+    return I(slug, name, [name, descriptor], [descriptor], uses, fmt="US-CARD", category="small_seller")
+
+
+SMALL_SELLERS = [
+    _small("brindlewood-grill", "Brindlewood Grill", "TST* BRINDLEWOOD GRILL",
+           _food_uses_us("22.00", "240.00", "restaurant", routine=True)),
+    _small("marrowfield-cafe", "Marrowfield Cafe", "TST* MARROWFIELD CAFE",
+           _food_uses_us("14.00", "160.00", "restaurant", routine=True)),
+    _small("thistledown-coffee", "Thistledown Coffee", "SQ *THISTLEDOWN COFFEE",
+           _food_uses_us("5.00", "48.00", "coffee", routine=True)),
+    _small("kettleby-hardware", "Kettleby Hardware", "SQ *KETTLEBY HARDWARE", [
+        U("consumables", "spend", "8.00", "180.00", "670", "US-R054", ["Work gloves and tape", "Caulk and sealant", "Shop rags and cleaner"], routine=True, needs_line=True, only={"trades": ["construction", "trades", "crafts", "retail"]}),
+    ]),
+    _small("bramblegate-signs", "Bramblegate Signs", "SQ *BRAMBLEGATE SIGNS", [
+        U("print_ads", "spend", "35.00", "650.00", "600", "US-R001", ["Yard signs", "Vinyl banner for shop front", "Vehicle door magnets with logo", "A-frame sidewalk sign"], routine=True, facts={"account": "600"}, only={"trades": SMALL_SELLER_TRADES_ALL}),
+    ]),
+    _small("tallowmark-print", "Tallowmark Print Co", "PAYPAL *TALLOWMRK PRNT", [
+        U("print_ads", "spend", "25.00", "380.00", "600", "US-R001", ["Postcards for mailing", "Flyers and door hangers", "Business cards"], routine=True, needs_line=True, facts={"account": "600"}, only={"trades": SMALL_SELLER_TRADES_ALL}),
+    ]),
+    _small("larkvane-banners", "Larkvane Banners", "PAYPAL *LARKVANEBANNER", [
+        U("print_ads", "spend", "40.00", "420.00", "600", "US-R001", ["Event banner with logo", "Feather flag banners", "Trade show backdrop banner"], routine=True, facts={"account": "600"}, only={"trades": SMALL_SELLER_TRADES_ALL}),
+    ]),
+    _small("fixfinch-phone-repair", "Fixfinch Phone Repair", "SQ *FIXFINCH PHONE REP", [
+        U("device_repair", "spend", "45.00", "260.00", "665", "US-R052", ["Phone screen repair, work phone", "Battery replacement, work phone", "Tablet screen repair, invoicing tablet"], routine=True, needs_line=True, facts={"scope": "repair"}),
+    ]),
+    _small("quillfern-kitchen-supply", "Quillfern Kitchen Supply", "SQ *QUILLFERN KITCHEN", [
+        U("consumables", "spend", "12.00", "240.00", "670", "US-R054", ["Deli containers and lids", "Parchment and foil", "Food safe gloves and towels"], routine=True, needs_line=True, only={"trades": ["catering"]}),
+    ]),
+    _small("pellwood-commons", "Pellwood Commons", "SQ *PELLWOOD COMMONS", [
+        U("day_office", "spend", "15.00", "180.00", "660", "US-R062", ["Coworking day pass", "Meeting room hire, client session", "Hot desk day pass"], routine=True, needs_line=True, only={"trades": ["professional", "creative", "education"]}),
+    ]),
+    _small("wrenfield-plugins", "Wrenfield Plugins", "PAYPAL *WRENFIELD", [
+        U("software", "spend", "29.00", "199.00", "705", "US-R150", ["Website plugin license, annual", "Booking plugin renewal", "Store theme license renewal"], routine=True, needs_line=True, amount_mode="fixed", only={"trades": ["professional", "creative", "crafts", "retail"]}),
+    ]),
+    _small("hushbrook-press", "Hushbrook Press", "PAYPAL *HUSHBROOKPRESS", [
+        U("teaching_supplies", "spend", "18.00", "220.00", "670", "US-R054", ["Practice test workbooks", "SAT prep books for students"], routine=True, needs_line=True, only={"trades": ["education"]}),
+    ]),
+]
+MERCHANTS += SMALL_SELLERS
+
 # Invented merchants, customers, government payees.
 MERCHANTS += [
     I("cedar-ridge-plumbing-supply", "Cedar Ridge Plumbing Supply", ["Cedar Ridge Plumbing Supply"], ["CEDAR RIDGE PLUMBING SUP"], [
@@ -400,7 +484,9 @@ MERCHANTS += [
         U("personal_return", "spend", "200.00", "600.00", "3010", "US-R161", ["Personal return for owner only", "Owner 1040, personal"], needs_line=True, facts={"personal_return": True}),
     ], refs=["INV {N4}"]),
     I("hollis-park-legal", "Hollis Park Legal Group", ["Hollis Park Legal Group"], ["HOLLIS PARK LEGAL"], [
-        U("professional", "spend", "250.00", "4200.00", "640", "US-R161", ["Contract review", "Collections letter, unpaid invoice", "LLC operating agreement update"], routine=True),
+        U("professional", "spend", "250.00", "4200.00", "640", "US-R161", ["Contract review", "Collections letter, unpaid invoice", "Customer terms and conditions review"], routine=True),
+        # R16: LLC paperwork only at an LLC.
+        U("llc_legal", "spend", "250.00", "1800.00", "640", "US-R161", ["LLC operating agreement update", "LLC annual compliance review"], routine=True, only={"entity": ["smllc"]}),
     ], refs=["HPL{N5}"]),
     I("harbor-lane-coworking", "Harbor Lane Coworking", ["Harbor Lane Coworking"], ["HARBOR LANE COWORK"], [
         U("rent", "spend", "250.00", "1200.00", "660", "US-R062", ["Desk membership", "Private office rent {MMM}"], routine=True, amount_mode="fixed"),
@@ -428,21 +514,21 @@ MERCHANTS += [
     I("golden-basket-gift-co", "Golden Basket Gift Co", ["Golden Basket Gift Co"], ["GOLDEN BASKET GIFT"], [
         U("client_gift", "spend", "40.00", "420.00", "715", "US-R020", ["Holiday gift baskets for clients", "Thank you basket, client referral"], needs_line=True, facts={"stated": True}),
     ], fmt="US-CARD"),
-    I("bloom-and-stem-florist", "Bloom and Stem Florist", ["Bloom and Stem Florist"], ["SQ *BLOOM AND STEM"], [
-        U("client_gift", "spend", "45.00", "180.00", "715", "US-R020", ["Flowers for client opening", "Sympathy flowers, client"], needs_line=True, facts={"stated": True}),
-    ], fmt="US-CARD"),
+    I("bloom-and-stem-florist", "Bloom and Stem Florist", ["Bloom and Stem Florist", "SQ *BLOOM AND STEM"], ["SQ *BLOOM AND STEM"], [
+        U("client_gift", "spend", "45.00", "180.00", "715", "US-R020", ["Flowers for client opening", "Sympathy flowers, client"], routine=True, needs_line=True, facts={"stated": True}),
+    ], fmt="US-CARD", category="small_seller"),
     I("brightline-promo", "Brightline Promo Products", ["Brightline Promo Products"], ["BRIGHTLINE PROMO"], [
         U("promo_items", "spend", "80.00", "600.00", "600", "US-R021", ["Imprinted pens for customers", "Logo koozies for expo", "Counter display rack for retailer"], needs_line=True),
     ], fmt="US-CARD"),
     I("fairway-hills-country-club", "Fairway Hills Country Club", ["Fairway Hills Country Club"], ["FAIRWAY HILLS CC"], [
-        U("club_dues", "spend", "150.00", "900.00", "790", "US-R015", ["Club dues", "Quarterly membership dues"], needs_line=True, facts={"club": True}),
+        U("club_dues", "spend", "150.00", "900.00", "790", "US-R015", ["Country club dues", "Quarterly country club dues", "Fairway Hills club dues"], needs_line=True, facts={"club": True}),
         U("golf_with_client", "spend", "90.00", "480.00", "790", "US-R012", ["Golf with client", "Green fees, client outing"], needs_line=True),
     ], fmt="US-CARD"),
-    I("mountain-states-builders-assn", "Mountain States Builders Association", ["Mountain States Builders Association"], ["MTN STATES BUILDERS"], [
-        U("dues", "spend", "120.00", "650.00", "710", "US-R015", ["Annual association dues", "Membership dues"], routine=True, facts={"club": False}),
+    I("mountain-states-builders-assn", "Mountain States Builders Association", ["Mountain States Builders Association"], ["MTN STATES BLDRS ASSN"], [
+        U("dues", "spend", "120.00", "650.00", "710", "US-R015", ["Builders association annual dues", "Trade association membership dues"], routine=True, facts={"club": False}, only={"trades": ["construction", "trades"]}),
     ]),
     I("chamber-of-commerce-maple-ridge", "Maple Ridge Chamber of Commerce", ["Maple Ridge Chamber of Commerce"], ["MAPLE RIDGE CHAMBER"], [
-        U("dues", "spend", "150.00", "500.00", "710", "US-R191", ["Chamber membership", "Annual dues"], routine=True),
+        U("dues", "spend", "150.00", "500.00", "710", "US-R191", ["Chamber of commerce membership", "Annual chamber dues"], routine=True),
     ]),
     I("summit-continuing-ed", "Summit Continuing Education", ["Summit Continuing Education"], ["SUMMIT CONT ED"], [
         U("course", "spend", "90.00", "650.00", "710", "US-R191", ["Continuing education course", "License renewal CE hours", "Bookkeeping certificate course"], routine=True),
@@ -452,19 +538,20 @@ MERCHANTS += [
         U("stadium_food", "spend", "25.00", "180.00", "685", "US-R013", ["Food at game with client, billed separately", "Concessions with client, separate receipt"], needs_line=True, facts={"separately_stated": True}),
         U("stadium_package", "spend", "180.00", "900.00", "790", "US-R013", ["Suite package with food and drinks, client"], needs_line=True, facts={"separately_stated": False}),
     ], fmt="US-CARD"),
-    I("copper-bell-tavern", "Copper Bell Tavern", ["Copper Bell Tavern"], ["TST* COPPER BELL TAVERN"], _food_uses_us("20.00", "260.00") + [
-        U("staff_party", "spend", "250.00", "1800.00", "720", "US-R014", ["Team holiday party", "Staff summer picnic catering"], needs_line=True, only={"employer": True}),
-    ], fmt="US-CARD", category="food_drink"),
-    I("blue-heron-bistro", "Blue Heron Bistro", ["Blue Heron Bistro"], ["SQ *BLUE HERON BISTRO"], _food_uses_us("18.00", "220.00"), fmt="US-CARD", category="food_drink"),
-    I("prairie-smoke-bbq", "Prairie Smoke BBQ", ["Prairie Smoke BBQ"], ["TST* PRAIRIE SMOKE BBQ"], _food_uses_us("15.00", "380.00") + [
-        U("staff_party", "spend", "250.00", "1500.00", "720", "US-R014", ["Staff summer picnic, crew and families", "Team holiday party catering"], needs_line=True, only={"employer": True}),
-    ], fmt="US-CARD", category="food_drink"),
+    # Staff party amounts are drawn per head in scenarios_us (R16); the range here only bounds history rows.
+    I("copper-bell-tavern", "Copper Bell Tavern", ["Copper Bell Tavern", "TST* COPPER BELL TAVERN"], ["TST* COPPER BELL TAVERN"], _food_uses_us("20.00", "260.00", routine=True) + [
+        U("staff_party", "spend", "120.00", "900.00", "720", "US-R014", ["Team holiday party", "Staff summer picnic catering"], needs_line=True, only={"employer": True}),
+    ], fmt="US-CARD", category="small_seller"),
+    I("blue-heron-bistro", "Blue Heron Bistro", ["Blue Heron Bistro", "SQ *BLUE HERON BISTRO"], ["SQ *BLUE HERON BISTRO"], _food_uses_us("18.00", "220.00", routine=True), fmt="US-CARD", category="small_seller"),
+    I("prairie-smoke-bbq", "Prairie Smoke BBQ", ["Prairie Smoke BBQ", "TST* PRAIRIE SMOKE BBQ"], ["TST* PRAIRIE SMOKE BBQ"], _food_uses_us("15.00", "380.00", routine=True) + [
+        U("staff_party", "spend", "120.00", "900.00", "720", "US-R014", ["Staff summer picnic, crew and families", "Team holiday party catering"], needs_line=True, only={"employer": True}),
+    ], fmt="US-CARD", category="small_seller"),
     I("riverbend-food-pantry", "Riverbend Food Pantry", ["Riverbend Food Pantry"], ["RIVERBEND FOOD PANTRY"], [
-        U("donation", "spend", "25.00", "500.00", "3010", "US-R180", ["Donation", "Year end donation"], routine=True, only={"entity": ["sole_prop", "smllc"]}),
-        U("sponsorship", "spend", "150.00", "900.00", "600", "US-R181", ["Sponsorship, logo on 5K banner", "Program ad, gala"], needs_line=True),
+        U("donation", "spend", "100.00", "500.00", "3010", "US-R180", ["Donation to Riverbend Food Pantry", "Year end donation, food pantry"], routine=True, only={"entity": ["sole_prop", "smllc"]}, amount_mode="round"),
+        U("sponsorship", "spend", "200.00", "900.00", "600", "US-R181", ["Sponsorship, logo on 5K banner", "Program ad, gala"], needs_line=True, amount_mode="round"),
     ], fmt="US-CARD"),
     I("committee-to-elect", "Citizens for Maple Ridge Parks", ["Citizens for Maple Ridge Parks"], ["CITIZENS FOR MAPLE"], [
-        U("political", "spend", "25.00", "500.00", "3010", "US-R182", ["Campaign contribution", "Ballot measure committee donation"], needs_line=True),
+        U("political", "spend", "100.00", "500.00", "3010", "US-R182", ["Campaign contribution", "Ballot measure committee donation"], needs_line=True, amount_mode="round"),
     ], fmt="US-CARD"),
     I("keystone-retirement-plans", "Keystone Retirement Plans", ["Keystone Retirement Plans"], ["KEYSTONE RETIREMENT"], [
         U("employee_plan", "spend", "200.00", "2400.00", "650", "US-R073", ["SIMPLE IRA employer match", "Employer contributions, staff plan"], needs_line=True, only={"employer": True}),
@@ -479,9 +566,11 @@ MERCHANTS += [
         U("improvement", "spend", "3000.00", "14000.00", "1500", "US-R052", ["New rooftop HVAC unit", "Replace walk-in cooler compressor system"], needs_line=True, facts={"scope": "improvement"}),
         U("unknown_scope", "spend", "2800.00", "12000.00", "NEEDS_REVIEW", "US-R052", ["", "Work per estimate"], facts={"scope": "unknown"}),
     ], refs=["INV {N5}"]),
-    # Customers
+    # Customers. One invoice number per record ({N6} is shared by the line, the reference and the bank line), and
+    # the reference is typed by the customer, so part of it is lower case (shortcut S-1, audit round 2). A credit
+    # union is also a lender, so its receipts always carry the invoice line (F2).
     *[I(slug, name, [name], [narr], [
-        U("customer_receipt", "receive", lo, hi, "400", "US-R001", ["Invoice {INV}", "Payment, invoice {INV}", ""], routine=True, facts={"account": "400"}, refs=["{INV}", "INV {N4}"], only={"trades": CUSTOMER_TRADES[slug]}),
+        U("customer_receipt", "receive", lo, hi, "400", "US-R001", RECEIPT_LINES if slug not in LENDER_LIKE_CUSTOMERS else RECEIPT_LINES[:2], routine=True, needs_line=slug in LENDER_LIKE_CUSTOMERS, facts={"account": "400"}, refs=RECEIPT_REFS, only={"trades": CUSTOMER_TRADES[slug]}),
         U("customer_refund", "spend", "25.00", "600.00", "405", "US-R130", ["Refund to customer, {INV}", "Partial refund, damaged order"], needs_line=True, refs=["REFUND {N4}"], only={"trades": CUSTOMER_TRADES[slug]}),
         *_penalty_uses(slug),
     ], category="customer") for slug, name, narr, lo, hi in [
@@ -509,7 +598,7 @@ MERCHANTS += [
         U("owner_refund", "receive", "60.00", "1800.00", "3000", "US-R081", ["Individual income tax refund", ""], refs=["IND REFUND {N8}"]),
     ], kind="government", category="government"),
     I("city-licensing", "City Business Licensing Office", ["City of {CITY_NAME}"], ["CITY OF {CITY_UP} LICENSE"], [
-        U("licence", "spend", "50.00", "650.00", "675", "US-R085", ["Business license renewal", "Contractor license fee", "Annual LLC report fee"], routine=True),
+        U("licence", "spend", "50.00", "650.00", "675", "US-R085", ["Business license renewal", "Annual business license", "City business license fee"], routine=True),
         U("parking_ticket", "spend", "35.00", "120.00", "790", "US-R086", ["Parking ticket, work truck", "Parking citation"], needs_line=True),
     ], kind="government", category="government", fmt="US-CARD"),
     I("usps", "United States Postal Service", ["USPS"], ["USPS PO {N10} {CITY} {ST}", "USPS KIOSK {N10} {CITY} {ST}"], [
@@ -592,3 +681,47 @@ STATE_REVENUE = {
 }
 # States with no individual income tax on wages and business income in 2025: no owner estimate or refund there.
 NO_PERSONAL_INCOME_TAX = {"AK", "FL", "NV", "NH", "SD", "TN", "TX", "WA", "WY"}
+
+# R18 (audit round 2): payroll is sized to headcount and fixed per person. One pay run's net pay is the sum of a
+# fixed amount per person on the payroll (each with at most one price step, as for other `fixed` uses), and the
+# payroll tax debit is a firm-constant share of that net. The S corp officer is on the payroll; a sole proprietor
+# or SMLLC owner never is. Ranges are net pay per person per biweekly run, by trade.
+NET_PAY_PER_PERSON = {
+    "catering": ("620.00", "1150.00"),
+    "retail": ("620.00", "1150.00"),
+    "trades": ("850.00", "1600.00"),
+    "construction": ("1050.00", "2000.00"),
+    "professional": ("1600.00", "3000.00"),
+    "creative": ("1100.00", "2200.00"),
+}
+NET_PAY_DEFAULT = ("850.00", "1700.00")
+NET_PAY_OFFICER = ("2400.00", "5200.00")
+PAYROLL_TAX_SHARE = (30, 42)  # percent of net pay: withholding plus both halves of FICA and unemployment
+
+
+def payroll_people(firm: dict) -> list[tuple[str, tuple[str, str]]]:
+    ppl = firm["people"]
+    out = [(o, NET_PAY_OFFICER) for o in ppl["owners"]] if firm["entity_type"] == "s_corp" else []
+    staff = NET_PAY_PER_PERSON.get(firm["trade"]["tag"], NET_PAY_DEFAULT)
+    return out + [(e, staff) for e in ppl["employees"]]
+
+
+def payroll_amount(env, firm: dict, merchant: dict, kind: str, date) -> Decimal:
+    """Unsigned net pay (`kind="net"`) or payroll tax (`kind="tax"`) of one pay run on `date`.
+
+    Each person's net pay follows the engine's fixed plan (`Env._fixed_plan`, seeded by run, firm, provider and
+    person), so it is constant per firm with at most one price step. The plan is read, not logged: the F8 log keys
+    on catalogue uses. History rows for the payroll provider should call this too, so they agree with the items.
+    """
+    people = payroll_people(firm)
+    if not people:
+        raise ValueError(f"{firm['firm_id']} has nobody on the payroll")
+    net = Decimal("0.00")
+    for name, (lo, hi) in people:
+        pseudo = {"use": f"net_pay:{name}", "amount_range": [lo, hi], "amount_mode": "fixed"}
+        base, step_date, stepped = env._fixed_plan(firm, merchant["merchant_id"], pseudo)
+        net += stepped if step_date is not None and date >= step_date else base
+    if kind == "net":
+        return net
+    share = random.Random(f"{firm['firm_id']}:payroll_tax_share").randint(*PAYROLL_TAX_SHARE)
+    return (net * share / 100).quantize(Decimal("0.01"))
