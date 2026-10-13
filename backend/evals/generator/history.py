@@ -647,6 +647,8 @@ class HistoryBuilder:
         if u is not None and (mode != "range" or tariff or self._payroll_kind(m, u)):
             return self._amount(m, u, date)
         base = Decimal(p.amount or "100.00")
+        if (p.description or "").startswith("SO "):
+            return base  # a standing order pays one fixed amount
         if p.label in CAPITAL_CODES and p.sign > 0:
             lo, hi = base * Decimal("0.7"), base * Decimal("1.3")
             pseudo = {"use": "capital", "amount_range": [f"{lo:.2f}", f"{hi:.2f}"], "amount_mode": "round"}

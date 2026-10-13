@@ -27,6 +27,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "9.00",
@@ -83,6 +84,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "7.00",
@@ -142,6 +144,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "45.00",
@@ -208,6 +211,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -264,6 +268,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "70.00",
@@ -326,6 +331,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -358,6 +364,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -390,6 +397,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -425,6 +433,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -457,6 +466,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -521,6 +531,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "18.00",
@@ -586,6 +597,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -618,6 +630,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -650,6 +663,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -685,6 +699,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -743,6 +758,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -805,6 +821,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -863,6 +880,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -923,6 +941,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "180.00",
@@ -986,6 +1005,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -1052,6 +1072,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -1084,6 +1105,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -1116,6 +1138,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -1151,6 +1174,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -1208,6 +1232,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "2500.00",
@@ -1268,6 +1293,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -1300,6 +1326,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -1332,6 +1359,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -1367,6 +1395,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -1399,6 +1428,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -1465,6 +1495,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -1525,6 +1556,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "7.00",
@@ -1580,6 +1612,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "80.00",
@@ -1643,6 +1676,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -1675,6 +1709,7 @@
      "use": "rail"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -1742,6 +1777,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "20.00",
@@ -1775,6 +1811,7 @@
      "use": "business_policy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "15.00",
@@ -1836,6 +1873,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "20.00",
@@ -1869,6 +1907,7 @@
      "use": "business_policy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "40.00",
@@ -1932,6 +1971,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -1964,6 +2004,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -1996,6 +2037,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -2031,6 +2073,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -2095,6 +2138,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -2131,6 +2175,7 @@
      "use": "account_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.40",
@@ -2164,6 +2209,7 @@
      "use": "fx_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.20",
@@ -2198,6 +2244,7 @@
      "use": "interest_charged"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.05",
@@ -2232,6 +2279,7 @@
      "use": "interest_received"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -2271,6 +2319,7 @@
      "use": "card_repayment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "5000.00",
@@ -2306,6 +2355,7 @@
      "use": "loan_drawdown"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "180.00",
@@ -2373,6 +2423,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -2409,6 +2460,7 @@
      "use": "account_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.40",
@@ -2442,6 +2494,7 @@
      "use": "fx_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.20",
@@ -2476,6 +2529,7 @@
      "use": "interest_charged"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.05",
@@ -2510,6 +2564,7 @@
      "use": "interest_received"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -2549,6 +2604,7 @@
      "use": "card_repayment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "5000.00",
@@ -2584,6 +2640,7 @@
      "use": "loan_drawdown"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "180.00",
@@ -2644,6 +2701,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "55.00",
@@ -2703,6 +2761,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "60.00",
@@ -2762,6 +2821,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "7.00",
@@ -2822,6 +2882,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -2854,6 +2915,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -2886,6 +2948,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -2921,6 +2984,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -2953,6 +3017,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -3017,6 +3082,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "70.00",
@@ -3077,6 +3143,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -3109,6 +3176,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -3167,6 +3235,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -3232,6 +3301,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -3297,6 +3367,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -3336,6 +3407,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -3378,6 +3450,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -3440,6 +3513,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "35.00",
@@ -3504,6 +3578,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -3535,6 +3610,7 @@
      "use": "flight_domestic"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -3597,6 +3673,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -3636,6 +3713,7 @@
      "use": "premises_energy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -3697,6 +3775,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "28.00",
@@ -3732,6 +3811,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "28.00",
@@ -3767,6 +3847,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "28.00",
@@ -3838,6 +3919,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -3877,6 +3959,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -3919,6 +4002,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -3985,6 +4069,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4018,6 +4103,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4052,6 +4138,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4069,8 +4156,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -4085,6 +4172,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4121,6 +4209,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4157,6 +4246,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4192,6 +4282,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4230,6 +4321,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4285,6 +4377,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "8.00",
@@ -4340,6 +4433,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "10.00",
@@ -4400,6 +4494,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -4439,6 +4534,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -4481,6 +4577,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -4548,6 +4645,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4581,6 +4679,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4615,6 +4714,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4632,8 +4732,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -4648,6 +4748,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4684,6 +4785,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4720,6 +4822,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4755,6 +4858,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4793,6 +4897,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -4851,6 +4956,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -4883,6 +4989,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -4915,6 +5022,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -4950,6 +5058,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -4982,6 +5091,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -5047,6 +5157,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -5079,6 +5190,7 @@
      "use": "rail"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -5147,6 +5259,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "90.00",
@@ -5184,6 +5297,7 @@
      "use": "computer"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -5244,6 +5358,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -5278,6 +5393,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -5295,8 +5411,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -5311,6 +5427,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -5347,6 +5464,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -5383,6 +5501,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -5418,6 +5537,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -5456,6 +5576,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -5511,6 +5632,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "10.00",
@@ -5569,6 +5691,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "45.00",
@@ -5635,6 +5758,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "10.00",
@@ -5690,6 +5814,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -5746,6 +5871,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "9.00",
@@ -5807,6 +5933,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "55.00",
@@ -5846,6 +5973,7 @@
      "use": "premises_energy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -5905,6 +6033,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "10.00",
@@ -5937,6 +6066,7 @@
      "use": "rail"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -6001,6 +6131,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "35.00",
@@ -6031,6 +6162,7 @@
      "use": "flight_domestic"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -6092,6 +6224,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -6124,6 +6257,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -6156,6 +6290,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -6191,6 +6326,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -6252,6 +6388,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -6291,6 +6428,7 @@
      "use": "premises_energy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -6351,6 +6489,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -6386,6 +6525,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -6421,6 +6561,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -6490,6 +6631,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -6554,6 +6696,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "35.00",
@@ -6612,6 +6755,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -6675,6 +6819,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -6736,6 +6881,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -6799,6 +6945,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "35.00",
@@ -6855,6 +7002,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -6913,6 +7061,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -6969,6 +7118,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -7024,6 +7174,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -7082,6 +7233,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "19.00",
@@ -7141,6 +7293,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "8.00",
@@ -7176,6 +7329,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "8.00",
@@ -7211,6 +7365,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "8.00",
@@ -7279,6 +7434,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -7316,6 +7472,7 @@
      "use": "payout"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -7374,6 +7531,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -7434,6 +7592,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -7473,6 +7632,7 @@
      "use": "premises_energy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -7534,6 +7694,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -7595,6 +7756,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "5.00",
@@ -7653,6 +7815,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -7685,6 +7848,7 @@
      "use": "rail"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -7753,6 +7917,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -7786,6 +7951,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -7820,6 +7986,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -7837,8 +8004,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -7853,6 +8020,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -7889,6 +8057,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -7925,6 +8094,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -7960,6 +8130,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -7998,6 +8169,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -8055,6 +8227,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -8116,6 +8289,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -8179,6 +8353,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "35.00",
@@ -8235,6 +8410,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "55.00",
@@ -8294,6 +8470,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "18.00",
@@ -8354,6 +8531,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -8416,6 +8594,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "55.00",
@@ -8479,6 +8658,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -8518,6 +8698,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -8560,6 +8741,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -8629,6 +8811,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -8665,6 +8848,7 @@
      "use": "account_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.40",
@@ -8698,6 +8882,7 @@
      "use": "fx_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.20",
@@ -8732,6 +8917,7 @@
      "use": "interest_charged"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.05",
@@ -8766,6 +8952,7 @@
      "use": "interest_received"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -8805,6 +8992,7 @@
      "use": "card_repayment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "5000.00",
@@ -8840,6 +9028,7 @@
      "use": "loan_drawdown"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "180.00",
@@ -8900,6 +9089,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "35.00",
@@ -8964,6 +9154,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "15.00",
@@ -9019,6 +9210,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "55.00",
@@ -9082,6 +9274,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -9118,6 +9311,7 @@
      "use": "furniture"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -9175,6 +9369,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "2.50",
@@ -9230,6 +9425,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -9291,6 +9487,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -9330,6 +9527,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -9372,6 +9570,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -9437,6 +9636,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -9469,6 +9669,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -9501,6 +9702,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -9536,6 +9738,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -9596,6 +9799,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -9630,6 +9834,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -9647,8 +9852,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -9663,6 +9868,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -9699,6 +9905,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -9735,6 +9942,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -9770,6 +9978,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -9808,6 +10017,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -9863,6 +10073,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.80",
@@ -9924,6 +10135,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -9991,6 +10203,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -10023,6 +10236,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -10055,6 +10269,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -10090,6 +10305,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -10122,6 +10338,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -10188,6 +10405,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -10222,6 +10440,7 @@
      "use": "ads"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -10278,6 +10497,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -10310,6 +10530,7 @@
      "use": "rail"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -10374,6 +10595,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -10431,6 +10653,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -10491,6 +10714,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -10551,6 +10775,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -10583,6 +10808,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -10615,6 +10841,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -10650,6 +10877,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -10682,6 +10910,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -10746,6 +10975,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "55.00",
@@ -10807,6 +11037,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -10868,6 +11099,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "5.00",
@@ -10931,6 +11163,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -10967,6 +11200,7 @@
      "use": "account_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.40",
@@ -11000,6 +11234,7 @@
      "use": "fx_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.20",
@@ -11034,6 +11269,7 @@
      "use": "interest_charged"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.05",
@@ -11068,6 +11304,7 @@
      "use": "interest_received"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -11107,6 +11344,7 @@
      "use": "card_repayment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "5000.00",
@@ -11142,6 +11380,7 @@
      "use": "loan_drawdown"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "180.00",
@@ -11205,6 +11444,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -11237,6 +11477,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -11269,6 +11510,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -11304,6 +11546,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -11336,6 +11579,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -11402,6 +11646,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -11464,6 +11709,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -11527,6 +11773,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -11590,6 +11837,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -11626,6 +11874,7 @@
      "use": "account_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.40",
@@ -11659,6 +11908,7 @@
      "use": "fx_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.20",
@@ -11693,6 +11943,7 @@
      "use": "interest_charged"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.05",
@@ -11727,6 +11978,7 @@
      "use": "interest_received"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -11766,6 +12018,7 @@
      "use": "card_repayment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "5000.00",
@@ -11801,6 +12054,7 @@
      "use": "loan_drawdown"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "180.00",
@@ -11861,6 +12115,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "18.00",
@@ -11922,6 +12177,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "5.00",
@@ -11954,6 +12210,7 @@
      "use": "rail"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -12020,6 +12277,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "10.00",
@@ -12055,6 +12313,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "10.00",
@@ -12090,6 +12349,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "10.00",
@@ -12161,6 +12421,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "50.00",
@@ -12200,6 +12461,7 @@
      "use": "premises_energy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -12262,6 +12524,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "50.00",
@@ -12301,6 +12564,7 @@
      "use": "premises_energy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -12359,6 +12623,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "9.00",
@@ -12414,6 +12679,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.80",
@@ -12475,6 +12741,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "30.00",
@@ -12541,6 +12808,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -12574,6 +12842,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -12608,6 +12877,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -12625,8 +12895,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -12641,6 +12911,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -12677,6 +12948,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -12713,6 +12985,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -12748,6 +13021,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -12786,6 +13060,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -12843,6 +13118,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "20.00",
@@ -12878,6 +13154,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "20.00",
@@ -12913,6 +13190,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "20.00",
@@ -12980,6 +13258,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "2.00",
@@ -13036,6 +13315,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "55.00",
@@ -13100,6 +13380,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -13133,6 +13414,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -13167,6 +13449,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -13184,8 +13467,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -13200,6 +13483,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -13236,6 +13520,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -13272,6 +13557,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -13307,6 +13593,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -13345,6 +13632,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -13404,6 +13692,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -13437,6 +13726,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -13471,6 +13761,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -13488,8 +13779,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -13504,6 +13795,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -13540,6 +13832,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -13576,6 +13869,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -13611,6 +13905,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -13649,6 +13944,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -13704,6 +14000,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -13767,6 +14064,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -13825,6 +14123,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "40.00",
@@ -13886,6 +14185,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.80",
@@ -13947,6 +14247,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.50",
@@ -14004,6 +14305,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "30.00",
@@ -14062,6 +14364,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -14122,6 +14425,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "55.00",
@@ -14180,6 +14484,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -14240,6 +14545,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -14272,6 +14578,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -14304,6 +14611,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -14339,6 +14647,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -14371,6 +14680,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -14437,6 +14747,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -14498,6 +14809,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "20.00",
@@ -14554,6 +14866,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -14586,6 +14899,7 @@
      "use": "rail"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -14654,6 +14968,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -14693,6 +15008,7 @@
      "use": "premises_energy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -14753,6 +15069,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -14814,6 +15131,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -14877,6 +15195,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "19.00",
@@ -14933,6 +15252,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "60.00",
@@ -14990,6 +15310,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "18.00",
@@ -15053,6 +15374,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "25.00",
@@ -15088,6 +15410,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "25.00",
@@ -15123,6 +15446,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "25.00",
@@ -15190,6 +15514,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "6.00",
@@ -15246,6 +15571,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "35.00",
@@ -15310,6 +15636,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "50.00",
@@ -15372,6 +15699,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -15432,6 +15760,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -15465,6 +15794,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -15499,6 +15829,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -15516,8 +15847,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -15532,6 +15863,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -15568,6 +15900,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -15604,6 +15937,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -15639,6 +15973,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -15677,6 +16012,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -15739,6 +16075,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -15775,6 +16112,7 @@
      "use": "account_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.40",
@@ -15808,6 +16146,7 @@
      "use": "fx_fee"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1.20",
@@ -15842,6 +16181,7 @@
      "use": "interest_charged"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "0.05",
@@ -15876,6 +16216,7 @@
      "use": "interest_received"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -15915,6 +16256,7 @@
      "use": "card_repayment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "5000.00",
@@ -15950,6 +16292,7 @@
      "use": "loan_drawdown"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "180.00",
@@ -16012,6 +16355,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "80.00",
@@ -16076,6 +16420,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -16114,6 +16459,7 @@
      "use": "payout"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "19.00",
@@ -16172,6 +16518,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "45.00",
@@ -16240,6 +16587,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "22.00",
@@ -16275,6 +16623,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "22.00",
@@ -16310,6 +16659,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "22.00",
@@ -16377,6 +16727,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -16411,6 +16762,7 @@
      "use": "accountancy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "45.00",
@@ -16447,6 +16799,7 @@
      "use": "accountancy_monthly"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "150.00",
@@ -16485,6 +16838,7 @@
      "use": "personal_return"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "150.00",
@@ -16550,6 +16904,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -16582,6 +16937,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -16614,6 +16970,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -16649,6 +17006,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -16681,6 +17039,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -16747,6 +17106,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -16810,6 +17170,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -16873,6 +17234,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -16938,6 +17300,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -16998,6 +17361,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "10.00",
@@ -17033,6 +17397,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "10.00",
@@ -17068,6 +17433,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "10.00",
@@ -17139,6 +17505,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17178,6 +17545,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -17220,6 +17588,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -17283,6 +17652,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17315,6 +17685,7 @@
      "use": "rail"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -17380,6 +17751,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "10.00",
@@ -17412,6 +17784,7 @@
      "use": "rail"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -17480,6 +17853,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17519,6 +17893,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -17561,6 +17936,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -17624,6 +18000,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "7.00",
@@ -17684,6 +18061,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17718,6 +18096,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17735,8 +18114,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -17751,6 +18130,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17787,6 +18167,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17823,6 +18204,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17858,6 +18240,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17896,6 +18279,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -17951,6 +18335,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "9.00",
@@ -18006,6 +18391,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -18066,6 +18452,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "30.00",
@@ -18101,6 +18488,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "30.00",
@@ -18136,6 +18524,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "30.00",
@@ -18204,6 +18593,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -18236,6 +18626,7 @@
      "use": "print_marketing"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -18295,6 +18686,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -18330,6 +18722,7 @@
      "use": "business_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -18365,6 +18758,7 @@
      "use": "personal_contract"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -18436,6 +18830,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -18469,6 +18864,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -18503,6 +18899,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -18520,8 +18917,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -18536,6 +18933,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -18572,6 +18970,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -18608,6 +19007,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -18643,6 +19043,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -18681,6 +19082,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -18739,6 +19141,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -18771,6 +19174,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -18803,6 +19207,7 @@
      "use": "precedent_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -18838,6 +19243,7 @@
      "use": "office_items"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -18870,6 +19276,7 @@
      "use": "private_shop"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -18936,6 +19343,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -19002,6 +19410,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -19060,6 +19469,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "180.00",
@@ -19120,6 +19530,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -19183,6 +19594,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -19222,6 +19634,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -19264,6 +19677,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -19327,6 +19741,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "10.00",
@@ -19386,6 +19801,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -19425,6 +19841,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -19467,6 +19884,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -19529,6 +19947,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -19585,6 +20004,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "15.00",
@@ -19643,6 +20063,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "30.00",
@@ -19703,6 +20124,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -19742,6 +20164,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -19784,6 +20207,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -19846,6 +20270,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "3.00",
@@ -19903,6 +20328,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -19962,6 +20388,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "50.00",
@@ -20024,6 +20451,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "12.00",
@@ -20080,6 +20508,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "18.00",
@@ -20140,6 +20569,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "50.00",
@@ -20201,6 +20631,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -20270,6 +20701,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "150.00",
@@ -20306,6 +20738,7 @@
      "use": "paye"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "400.00",
@@ -20344,6 +20777,7 @@
      "use": "corporation_tax"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "200.00",
@@ -20377,6 +20811,7 @@
      "use": "self_assessment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "200.00",
@@ -20411,6 +20846,7 @@
      "use": "no_reference"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -20479,6 +20915,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "200.00",
@@ -20512,6 +20949,7 @@
      "use": "self_assessment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "150.00",
@@ -20546,6 +20984,7 @@
      "use": "paye"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "200.00",
@@ -20579,6 +21018,7 @@
      "use": "no_reference"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -20642,6 +21082,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "180.00",
@@ -20677,6 +21118,7 @@
      "use": "vat_payment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "80.00",
@@ -20738,6 +21180,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "47.00",
@@ -20797,6 +21240,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "150.00",
@@ -20844,6 +21288,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -20914,6 +21359,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "90.00",
@@ -20948,6 +21394,7 @@
      "use": "accountancy"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "60.00",
@@ -20984,6 +21431,7 @@
      "use": "accountancy_monthly"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "180.00",
@@ -21021,6 +21469,7 @@
      "use": "personal_return"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "180.00",
@@ -21058,6 +21507,7 @@
      "use": "personal_return_partner"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "180.00",
@@ -21124,6 +21574,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "800.00",
@@ -21161,6 +21612,7 @@
      "use": "cis_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "800.00",
@@ -21199,6 +21651,7 @@
      "use": "cis_gross_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "800.00",
@@ -21264,6 +21717,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "80.00",
@@ -21309,6 +21763,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -21378,6 +21833,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -21410,6 +21866,7 @@
      "use": "unknown_purchase"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -21467,6 +21924,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "250.00",
@@ -21526,6 +21984,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -21589,6 +22048,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "35.00",
@@ -21658,6 +22118,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "450.00",
@@ -21727,6 +22188,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "30.00",
@@ -21788,6 +22250,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -21821,6 +22284,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -21855,6 +22319,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -21872,8 +22337,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -21888,6 +22353,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -21924,6 +22390,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -21960,6 +22427,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -21995,6 +22463,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -22033,6 +22502,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -22094,6 +22564,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -22114,7 +22585,7 @@
       "Offcuts for workshop"
      ],
      "narratives": null,
-     "needs_line": false,
+     "needs_line": true,
      "only": {
       "trades": [
        "construction",
@@ -22157,6 +22628,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -22218,6 +22690,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "70.00",
@@ -22253,6 +22726,7 @@
      "use": "business_rates"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "110.00",
@@ -22287,6 +22761,7 @@
      "use": "council_tax"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "100.00",
@@ -22321,9 +22796,15 @@
      "use": "unmarked"
     },
     {
+     "amount_choices": [
+      "25.00",
+      "35.00",
+      "50.00",
+      "70.00"
+     ],
      "amount_mode": "range",
      "amount_range": [
-      "35.00",
+      "25.00",
       "70.00"
      ],
      "bank_format": null,
@@ -22382,6 +22863,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "200.00",
@@ -22429,6 +22911,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -22499,6 +22982,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -22545,6 +23029,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -22613,6 +23098,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -22672,6 +23158,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -22741,6 +23228,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "10.00",
@@ -22802,6 +23290,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -22858,6 +23347,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -22921,6 +23411,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -22983,6 +23474,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -23042,6 +23534,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "18.00",
@@ -23105,6 +23598,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -23163,6 +23657,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "70.00",
@@ -23226,6 +23721,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -23263,6 +23759,7 @@
      "use": "materials"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "80.00",
@@ -23336,6 +23833,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.00",
@@ -23397,6 +23895,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -23454,6 +23953,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -23517,6 +24017,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -23563,6 +24064,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -23635,6 +24137,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "3000.00",
@@ -23668,6 +24171,7 @@
      "use": "loan_drawdown"
     },
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "150.00",
@@ -23701,6 +24205,7 @@
      "use": "loan_instalment"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "500.00",
@@ -23734,6 +24239,7 @@
      "use": "loan_capital"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -23793,6 +24299,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -23843,6 +24350,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -23921,6 +24429,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "30.00",
@@ -23985,6 +24494,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "180.00",
@@ -24049,6 +24559,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "650.00",
@@ -24107,6 +24618,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "40.00",
@@ -24173,6 +24685,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "fixed",
      "amount_range": [
       "500.00",
@@ -24246,6 +24759,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "90.00",
@@ -24282,6 +24796,7 @@
      "use": "repair"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "2200.00",
@@ -24347,6 +24862,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "90.00",
@@ -24392,6 +24908,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -24462,6 +24979,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "120.00",
@@ -24503,6 +25021,7 @@
      "use": "tools"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "1800.00",
@@ -24566,6 +25085,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "180.00",
@@ -24626,6 +25146,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "250.00",
@@ -24694,6 +25215,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -24727,6 +25249,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -24761,6 +25284,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -24778,8 +25302,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -24794,6 +25318,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -24830,6 +25355,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -24866,6 +25392,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -24901,6 +25428,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -24939,6 +25467,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "6.00",
@@ -24998,6 +25527,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "600.00",
@@ -25035,6 +25565,7 @@
      "use": "cis_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "600.00",
@@ -25073,6 +25604,7 @@
      "use": "cis_gross_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "600.00",
@@ -25138,6 +25670,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "300.00",
@@ -25184,6 +25717,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -25258,6 +25792,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "15.00",
@@ -25320,6 +25855,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -25384,6 +25920,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "4.00",
@@ -25444,6 +25981,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "450.00",
@@ -25481,6 +26019,7 @@
      "use": "cis_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "450.00",
@@ -25519,6 +26058,7 @@
      "use": "cis_gross_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "450.00",
@@ -25585,6 +26125,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "50.00",
@@ -25647,6 +26188,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -25680,6 +26222,7 @@
      "use": "client_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -25714,6 +26257,7 @@
      "use": "staff_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -25731,8 +26275,8 @@
      },
      "fixed_group": null,
      "line_descriptions": [
-      "Dinner, overnight {PURPOSE}",
-      "Evening meal, two day {PURPOSE}"
+      "Dinner in {TOWN}, overnight {PURPOSE}",
+      "Evening meal, two day {PURPOSE} in {TOWN}"
      ],
      "narratives": null,
      "needs_line": true,
@@ -25747,6 +26291,7 @@
      "use": "overnight_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -25783,6 +26328,7 @@
      "use": "owner_meal_co"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -25819,6 +26365,7 @@
      "use": "owner_meal_partners"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.50",
@@ -25854,6 +26401,7 @@
      "use": "owner_meal_sole"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "12.50",
@@ -25892,6 +26440,7 @@
      "use": "day_meal"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -25948,6 +26497,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "250.00",
@@ -25993,6 +26543,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -26060,6 +26611,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -26092,6 +26644,7 @@
      "use": "workwear"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "30.00",
@@ -26156,6 +26709,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "10.00",
@@ -26218,6 +26772,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -26279,6 +26834,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "300.00",
@@ -26342,6 +26898,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "45.00",
@@ -26405,6 +26962,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "25.00",
@@ -26472,6 +27030,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "250.00",
@@ -26518,6 +27077,7 @@
      "use": "customer_receipt"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "20.00",
@@ -26592,6 +27152,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "10.00",
@@ -26661,6 +27222,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "8.00",
@@ -26731,6 +27293,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "100.00",
@@ -26763,6 +27326,7 @@
      "use": "donation"
     },
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "200.00",
@@ -26821,6 +27385,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "60.00",
@@ -26857,6 +27422,7 @@
      "use": "business_rates"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "95.00",
@@ -26892,6 +27458,7 @@
      "use": "council_tax"
     },
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "90.00",
@@ -26952,6 +27519,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "range",
      "amount_range": [
       "500.00",
@@ -27009,6 +27577,7 @@
    ],
    "uses": [
     {
+     "amount_choices": null,
      "amount_mode": "round",
      "amount_range": [
       "100.00",

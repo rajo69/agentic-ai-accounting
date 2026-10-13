@@ -9,13 +9,9 @@ from dataclasses import dataclass, field
 from decimal import ROUND_HALF_UP, Decimal
 
 from . import rules_uk, rules_us, spec_uk, spec_us
-from .constants import BANK_HOLIDAYS, NEEDS_REVIEW, WINDOWS, WORKING_DAY_FORMATS
+from .constants import AWAY_USES, BANK_HOLIDAYS, NEEDS_REVIEW, WINDOWS, WORKING_DAY_FORMATS
 from .gold import Ctx, Gold, RuleNotApplicable
 from .templates import FAMILIES_S1, draw_amount, fill, render
-
-
-# Uses spent away from the firm's base: their card narrative names another town or city.
-AWAY_USES = frozenset({"rail", "hotel", "hotel_abroad", "overnight_meal", "day_meal", "lodging", "travel_meal"})
 
 
 class Skip(Exception):
@@ -158,6 +154,8 @@ class Env:
                 return False
             if key == "sales_tax" and pol.get("sales_tax") != val:
                 return False
+            if key == "states" and firm.get("state") not in val:
+                return False
         return True
 
     def uses(self, firm: dict, pred) -> list[tuple[dict, dict]]:
@@ -216,6 +214,8 @@ class Env:
         """Unsigned amount for one line of `use` on `date`, honouring the use's `amount_mode` (F8)."""
         mode = use.get("amount_mode", "range")
         lo, hi = use["amount_range"]
+        if use.get("amount_choices"):
+            return Decimal(rng.choice(use["amount_choices"]))  # a published tariff (PCN fines)
         if mode == "fixed":
             mid = merchant["merchant_id"] if merchant else "-"
             base, step_date, stepped = self._fixed_plan(firm, mid, use)
