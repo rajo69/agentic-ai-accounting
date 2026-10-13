@@ -90,15 +90,20 @@ def generate_jurisdiction(jur: str, n: int, firms: dict, rng: random.Random, pil
     jfirms = {k: v for k, v in sorted(firms.items()) if v["jurisdiction"] == jur}
     merchants = spec_uk.MERCHANTS if jur == "UK" else spec_us.MERCHANTS
     env = Env(jur, jfirms, merchants, seed=seed)
-    scen = scenarios_uk.SCENARIOS if jur == "UK" else scenarios_us.SCENARIOS
+    scen_mod = scenarios_uk if jur == "UK" else scenarios_us
+    scen = scen_mod.SCENARIOS
+    # Scenarios a module requires per stratum and split, drawn before the shuffled coverage pass, so a coverage
+    # target does not depend on where a random shuffle puts it (REQUIRED = {"pilot"|"full": {stratum: [(name, n)]}}).
+    required = getattr(scen_mod, "REQUIRED", {}).get("pilot" if pilot else "full", {})
     quotas = strata_quota(n, minimum=2 if pilot else 0)
     drafts: list[tuple[dict, Draft]] = []
     for stratum in STRATA:
         for split, k in split_quota(quotas[stratum]).items():
             split_firms = [f for f in jfirms.values() if f["split"] == split]
-            # Coverage first: each scenario is tried once (shuffled order) before weighted sampling takes over.
+            # Coverage first: required scenarios, then each scenario once (shuffled order), then weighted sampling.
             names = [name for name, _, _ in scen[stratum]]
             rng.shuffle(names)
+            names = [name for name, count in required.get(stratum, ()) for _ in range(count)] + names
             for i in range(k):
                 forced = names[i] if i < len(names) else None
                 drafts.append(_one(env, rng, scen[stratum], stratum, split_firms, forced))
