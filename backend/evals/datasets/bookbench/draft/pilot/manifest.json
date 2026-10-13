@@ -15,27 +15,27 @@
  "counts": {
   "UK": 40,
   "US": 40,
-  "history_rows": 1048,
+  "history_rows": 2186,
   "items": 80
  },
  "created": "2026-10-13",
  "dataset": "bookbench",
  "files": {
   "REVIEW_SHEET.md": {
-   "bytes": 129304,
-   "sha256": "7f60fe6ad0fc494dd7b81fddef085e16dd66c648a98c1a14655427b2f7ed18f2"
+   "bytes": 129583,
+   "sha256": "dc562d351b9cc3b3475e9e291059df06b566c6170d21cdcedce1d3f827649aec"
   },
   "history.jsonl": {
-   "bytes": 460764,
-   "sha256": "d09b70fcce29663ca71a6e6fea341bca14759c3cd4a733caa3ace19c7ea97c9e"
+   "bytes": 968794,
+   "sha256": "08d4437dd30c16721b1e37071bd2dd9ded0c3dfe5d1d55c5623157be29034109"
   },
   "items.jsonl": {
-   "bytes": 190401,
-   "sha256": "ca0b5351adbf1966bbeb444b4b5c8344d48a41302967de7d144a1cba5be5a1b7"
+   "bytes": 191417,
+   "sha256": "193394e4f5d1520cd68e37941bdf442c3faa4d79445480039d6f464bbf742fdc"
   },
   "stats.json": {
-   "bytes": 12947,
-   "sha256": "ce395cdb173080653298104c83bc9b38bfe7d59bee851b33443b2c6c53c823e9"
+   "bytes": 13426,
+   "sha256": "c6b195f7c34286a782e610442b2f49cd50cc11f2e20b4d85485a07a16d49e243"
   }
  },
  "generator_version": "0.2.0-draft",
@@ -97,8 +97,8 @@
  },
  "seed": 20261013,
  "spec_files": {
-  "catalogue_uk.json": "3900a667584a1f79dd7a2246a7d0b91b6ebf6bd0bfa671f3ab73302f1288201a",
-  "catalogue_us.json": "e34aec7399162bd07ec94abac112e3b6af04cd402cdfb133273948853fae609b",
-  "firms.json": "aa03bf396baf62190efc7d4282c9f1761b46ee66dca6b73c56eb9624a565d154"
+  "catalogue_uk.json": "17583ad0ab80637a2d97ad8c464d230ac696b214a6a2cc3abd50e5c50420ec2f",
+  "catalogue_us.json": "af9b5e48b052fc10dc9f29aace13218f5c181dd66ef14f044fc3f383848fb837",
+  "firms.json": "80db6f03bad9c7ac9ace74b91da5ae6e60be07b69ddd7b692c5c396138ce24cc"
  }
 }

@@ -15,23 +15,23 @@
  "counts": {
   "UK": 500,
   "US": 500,
-  "history_rows": 1443,
+  "history_rows": 2596,
   "items": 1000
  },
  "created": "2026-10-13",
  "dataset": "bookbench",
  "files": {
   "history.jsonl": {
-   "bytes": 631697,
-   "sha256": "752bb9046103c667c48adeeafcbda529c7dadef721b539bf5015b321c7ba93fc"
+   "bytes": 1149670,
+   "sha256": "bf8f726e166db6b24c1daea177b7d10aae9894b2f319d092067d47e1b0f0064f"
   },
   "items.jsonl": {
-   "bytes": 2354272,
-   "sha256": "8f2ba8dc6be5f0d3ca27684c27be009c871c97d697be4a63267f7b93cf02da40"
+   "bytes": 2374917,
+   "sha256": "a90fb9ad60202f2243df8f0408eb8c086f86d1fd6a69399586ec80798d9fe31b"
   },
   "stats.json": {
-   "bytes": 19012,
-   "sha256": "60f9aec8aa5298618a648d25d5df9ab901172f60c0cca83d766478eb8547dd5c"
+   "bytes": 19041,
+   "sha256": "b3940be90f75e26784cb9eac6100dc3d92372aafa3147a65fbe3cc883f6cc36b"
   }
  },
  "generator_version": "0.2.0-draft",
@@ -93,8 +93,8 @@
  },
  "seed": 20261013,
  "spec_files": {
-  "catalogue_uk.json": "3900a667584a1f79dd7a2246a7d0b91b6ebf6bd0bfa671f3ab73302f1288201a",
-  "catalogue_us.json": "e34aec7399162bd07ec94abac112e3b6af04cd402cdfb133273948853fae609b",
-  "firms.json": "aa03bf396baf62190efc7d4282c9f1761b46ee66dca6b73c56eb9624a565d154"
+  "catalogue_uk.json": "17583ad0ab80637a2d97ad8c464d230ac696b214a6a2cc3abd50e5c50420ec2f",
+  "catalogue_us.json": "af9b5e48b052fc10dc9f29aace13218f5c181dd66ef14f044fc3f383848fb837",
+  "firms.json": "80db6f03bad9c7ac9ace74b91da5ae6e60be07b69ddd7b692c5c396138ce24cc"
  }
 }

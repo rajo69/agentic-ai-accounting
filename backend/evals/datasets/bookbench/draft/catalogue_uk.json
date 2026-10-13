@@ -40,6 +40,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Domain renewal .co.uk",
       "Hosting package"
@@ -95,6 +96,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Taxi, {PURPOSE}",
       "Taxi from station, {PURPOSE}",
@@ -155,6 +157,7 @@
      "facts": {
       "policy_type": "motor"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Van insurance",
       "Motor insurance, van",
@@ -218,6 +221,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Creative Cloud subscription",
       "Acrobat Pro monthly"
@@ -275,6 +279,7 @@
      "facts": {
       "trip": "overnight_abroad"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hotel in Dublin, {PURPOSE}",
       "Apartment in Berlin, {PURPOSE}",
@@ -334,6 +339,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -365,6 +371,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -399,6 +406,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -430,6 +438,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -464,6 +473,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -526,6 +536,7 @@
      "facts": {
       "policy_type": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Public liability insurance",
       "Business insurance premium",
@@ -588,6 +599,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -619,6 +631,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -653,6 +666,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -684,6 +698,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -743,6 +758,7 @@
      "facts": {
       "split": null
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Amazon seller payout",
       "Amazon sales settlement",
@@ -802,6 +818,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Cloud hosting {MMM}",
       "AWS hosting"
@@ -859,6 +876,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Water bill"
@@ -920,6 +938,7 @@
      "facts": {
       "asset_kind": "computer"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "MacBook Air for design work",
       "iPad for client demos",
@@ -980,6 +999,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Diesel",
@@ -1045,6 +1065,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -1076,6 +1097,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -1110,6 +1132,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -1141,6 +1164,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -1197,6 +1221,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Van purchase",
       "Deposit on van",
@@ -1256,6 +1281,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -1287,6 +1313,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -1321,6 +1348,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -1352,6 +1380,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -1386,6 +1415,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -1448,6 +1478,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       ""
@@ -1507,6 +1538,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Jira licences"
      ],
@@ -1563,6 +1595,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Van tyres"
      ],
@@ -1623,6 +1656,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Rail fare, {PURPOSE}",
       "Train to {PURPOSE}",
@@ -1656,6 +1690,7 @@
      "facts": {
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly season ticket",
       "Season ticket, home to work",
@@ -1722,6 +1757,7 @@
      "facts": {
       "policy_type": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Commercial property insurance",
       "Business insurance premium"
@@ -1754,6 +1790,7 @@
      "facts": {
       "policy_type": "private"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Life cover",
       "Income protection",
@@ -1814,6 +1851,7 @@
      "facts": {
       "policy_type": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business insurance",
       "Shop contents insurance"
@@ -1846,6 +1884,7 @@
      "facts": {
       "policy_type": "employee_medical"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Staff health cash plan",
       "Employee private medical"
@@ -1906,6 +1945,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -1937,6 +1977,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -1971,6 +2012,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -2002,6 +2044,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -2065,6 +2108,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Account fee",
       "Monthly account charge",
@@ -2100,6 +2144,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -2132,6 +2177,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Overdraft interest",
       ""
@@ -2165,6 +2211,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Interest",
       ""
@@ -2198,6 +2245,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Credit card repayment",
       "Card payment",
@@ -2236,6 +2284,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Business loan drawdown",
       "Loan advance"
@@ -2270,6 +2319,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": "loan_instalment",
      "line_descriptions": [
       "Loan repayment",
       "Monthly loan instalment"
@@ -2336,6 +2386,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Account fee",
       "Monthly account charge",
@@ -2371,6 +2422,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -2403,6 +2455,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Overdraft interest",
       ""
@@ -2436,6 +2489,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Interest",
       ""
@@ -2469,6 +2523,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Credit card repayment",
       "Card payment",
@@ -2507,6 +2562,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Business loan drawdown",
       "Loan advance"
@@ -2541,6 +2597,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": "loan_instalment",
      "line_descriptions": [
       "Loan repayment",
       "Monthly loan instalment"
@@ -2602,6 +2659,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hotel, overnight {PURPOSE}",
       "Overnight stay, {PURPOSE}",
@@ -2660,6 +2718,7 @@
      "facts": {
       "account": "469"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Storage unit rent",
       "Storage unit, stock",
@@ -2716,6 +2775,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Taxi, {PURPOSE}",
       "Taxi from station, {PURPOSE}",
@@ -2775,6 +2835,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -2806,6 +2867,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -2840,6 +2902,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -2871,6 +2934,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -2905,6 +2969,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -2967,6 +3032,7 @@
      "facts": {
       "trip": "overnight_abroad"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hotel in Dublin, {PURPOSE}",
       "Apartment in Berlin, {PURPOSE}",
@@ -3024,6 +3090,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Toiletries",
       "Prescription",
@@ -3055,6 +3122,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -3112,6 +3180,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Diesel",
@@ -3176,6 +3245,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "EV charging",
       "Charging, van",
@@ -3240,6 +3310,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -3280,6 +3351,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -3319,6 +3391,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -3382,6 +3455,7 @@
      "facts": {
       "service": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hire, mini digger for job",
       "Tower scaffold hire, job {N4}",
@@ -3443,6 +3517,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Flight London to Edinburgh, {PURPOSE}",
       "Flight to Belfast, {PURPOSE}"
@@ -3475,6 +3550,7 @@
      "facts": {
       "international": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Flight to Madrid, {PURPOSE}",
       "Flight to New York, {PURPOSE}"
@@ -3537,6 +3613,7 @@
       "account": "445",
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Electricity, workshop",
       "Gas, business unit",
@@ -3572,6 +3649,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Home energy"
@@ -3634,6 +3712,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -3668,6 +3747,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -3702,6 +3782,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -3770,6 +3851,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -3810,6 +3892,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -3849,6 +3932,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -3914,6 +3998,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -3946,6 +4031,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -3981,6 +4067,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -4004,22 +4091,26 @@
       "30.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -4027,7 +4118,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -4042,9 +4133,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "3.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "3.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -4080,6 +4243,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -4134,6 +4298,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Booking software"
      ],
@@ -4188,6 +4353,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Canva Pro",
       "Canva team plan"
@@ -4247,6 +4413,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -4287,6 +4454,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -4326,6 +4494,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -4392,6 +4561,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -4424,6 +4594,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -4459,6 +4630,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -4482,22 +4654,26 @@
       "35.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -4505,7 +4681,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -4520,9 +4696,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "3.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "3.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -4558,6 +4806,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -4615,6 +4864,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -4646,6 +4896,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -4680,6 +4931,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -4711,6 +4963,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -4745,6 +4998,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -4806,6 +5060,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Rail fare, {PURPOSE}",
       "Train to {PURPOSE}",
@@ -4839,6 +5094,7 @@
      "facts": {
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly season ticket",
       "Season ticket, home to work",
@@ -4906,6 +5162,7 @@
      "facts": {
       "asset_kind": "computer"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Laptop for office",
       "Monitor and keyboard",
@@ -4940,6 +5197,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -4962,7 +5220,7 @@
   {
    "bank_format": "UK-DEB",
    "brand_id": "uk-deliveroo",
-   "category": "food_drink",
+   "category": "food_delivery",
    "contact_names": [
     "Deliveroo"
    ],
@@ -4979,45 +5237,12 @@
     ""
    ],
    "rule_ids": [
-    "UK-R025",
     "UK-R026",
     "UK-R027",
     "UK-R028",
     "UK-R029"
    ],
    "uses": [
-    {
-     "amount_mode": "range",
-     "amount_range": [
-      "12.00",
-      "140.00"
-     ],
-     "bank_format": null,
-     "default_code": "424",
-     "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "424",
-      "uk_xero_default_v0_2_st": "424"
-     },
-     "direction": "spend",
-     "facts": {},
-     "line_descriptions": [
-      "Lunch with client",
-      "Coffee with prospective client",
-      "Dinner with supplier",
-      "Client lunch, {PURPOSE}"
-     ],
-     "narratives": null,
-     "needs_line": true,
-     "only": {},
-     "policy_hooks": [],
-     "reference_patterns": null,
-     "routine": false,
-     "rule_ids": [
-      "UK-R025"
-     ],
-     "typical_direction": "spend",
-     "use": "client_meal"
-    },
     {
      "amount_mode": "range",
      "amount_range": [
@@ -5032,6 +5257,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -5055,7 +5281,7 @@
      "amount_mode": "range",
      "amount_range": [
       "12.00",
-      "140.00"
+      "60.00"
      ],
      "bank_format": null,
      "default_code": "493",
@@ -5067,6 +5293,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -5090,22 +5317,26 @@
       "140.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -5113,7 +5344,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -5128,9 +5359,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "12.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "12.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -5166,6 +5469,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -5220,6 +5524,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Courier, samples to client",
       "Express courier"
@@ -5279,6 +5584,7 @@
      "facts": {
       "policy_type": "motor"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Van insurance",
       "Motor insurance, van",
@@ -5342,6 +5648,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "E-signature plan"
      ],
@@ -5396,6 +5703,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Courier, order dispatch",
       "DPD collection"
@@ -5451,6 +5759,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Dropbox Business",
       "Cloud storage {MMM}"
@@ -5514,6 +5823,7 @@
       "account": "445",
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Electricity, workshop",
       "Gas, business unit",
@@ -5549,6 +5859,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Home energy"
@@ -5607,6 +5918,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Rail fare, {PURPOSE}",
       "Train to {PURPOSE}",
@@ -5640,6 +5952,7 @@
      "facts": {
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly season ticket",
       "Season ticket, home to work",
@@ -5701,6 +6014,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Flight Bristol to Glasgow, {PURPOSE}"
      ],
@@ -5732,6 +6046,7 @@
      "facts": {
       "international": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Flight to Amsterdam, {PURPOSE}",
       "Flight to Lisbon, {PURPOSE}"
@@ -5790,6 +6105,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -5821,6 +6137,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -5855,6 +6172,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -5886,6 +6204,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -5949,6 +6268,7 @@
       "account": "445",
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Electricity, workshop",
       "Gas, business unit",
@@ -5984,6 +6304,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Home energy"
@@ -6045,6 +6366,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -6079,6 +6401,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -6113,6 +6436,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -6179,6 +6503,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Diesel",
@@ -6242,6 +6567,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Car hire, {PURPOSE}",
       "Hire car, two days {PURPOSE}"
@@ -6299,6 +6625,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Diesel",
@@ -6363,6 +6690,7 @@
      "facts": {
       "split": null
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Etsy deposit",
       "Etsy sales",
@@ -6423,6 +6751,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Brake discs, van",
       "Oil and filters, van"
@@ -6483,6 +6812,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Car hire, {PURPOSE}",
       "Hire car, two days {PURPOSE}"
@@ -6540,6 +6870,7 @@
      "facts": {
       "international": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Eurostar to Paris, {PURPOSE}",
       "Eurostar to Brussels, {PURPOSE}"
@@ -6595,6 +6926,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Parcel postage",
       "Courier"
@@ -6650,6 +6982,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "International courier"
      ],
@@ -6706,6 +7039,7 @@
      "facts": {
       "membership": "gym"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Gym membership"
@@ -6763,6 +7097,7 @@
      "facts": {
       "accounting_software": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "FreeAgent subscription"
      ],
@@ -6821,6 +7156,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -6855,6 +7191,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -6889,6 +7226,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -6958,6 +7296,7 @@
       "fee_rate": "0.01",
       "split": "processor_payout"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "GoCardless payout",
       "Box subscriptions collected"
@@ -6990,6 +7329,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "GoCardless fees",
       "Direct debit collection fees"
@@ -7047,6 +7387,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Domain renewal",
       "Domain and hosting"
@@ -7109,6 +7450,7 @@
       "account": "445",
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Electricity, workshop",
       "Gas, business unit",
@@ -7144,6 +7486,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Home energy"
@@ -7206,6 +7549,7 @@
      "facts": {
       "account": "400"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Google Ads campaign",
       "Search ads {MMM}",
@@ -7264,6 +7608,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Google Workspace licences",
       "Email and storage, {MMM}",
@@ -7321,6 +7666,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Rail fare, {PURPOSE}",
       "Train to {PURPOSE}",
@@ -7354,6 +7700,7 @@
      "facts": {
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly season ticket",
       "Season ticket, home to work",
@@ -7419,6 +7766,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -7451,6 +7799,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -7486,6 +7835,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -7509,22 +7859,26 @@
       "40.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -7532,7 +7886,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -7547,9 +7901,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "3.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "3.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -7585,6 +8011,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -7641,6 +8068,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "EV charging",
       "Charging, van",
@@ -7703,6 +8131,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Wiper blades and bulbs, van",
       "Car service"
@@ -7763,6 +8192,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Car hire, {PURPOSE}",
       "Hire car, two days {PURPOSE}"
@@ -7820,6 +8250,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hotel, overnight {PURPOSE}",
       "Overnight stay, {PURPOSE}",
@@ -7878,6 +8309,7 @@
      "facts": {
       "policy_type": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Public liability insurance",
       "Business insurance premium",
@@ -7935,6 +8367,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Glaze and clay supplies",
       "Craft materials for orders",
@@ -7998,6 +8431,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hotel, overnight {PURPOSE}",
       "Overnight stay, {PURPOSE}",
@@ -8058,6 +8492,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -8098,6 +8533,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -8137,6 +8573,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -8205,6 +8642,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Account fee",
       "Monthly account charge",
@@ -8240,6 +8678,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -8272,6 +8711,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Overdraft interest",
       ""
@@ -8305,6 +8745,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Interest",
       ""
@@ -8338,6 +8779,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Credit card repayment",
       "Card payment",
@@ -8376,6 +8818,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Business loan drawdown",
       "Loan advance"
@@ -8410,6 +8853,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": "loan_instalment",
      "line_descriptions": [
       "Loan repayment",
       "Monthly loan instalment"
@@ -8471,6 +8915,7 @@
      "facts": {
       "service": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hire, mini digger for job",
       "Tower scaffold hire, job {N4}",
@@ -8532,6 +8977,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "CRM Starter"
      ],
@@ -8588,6 +9034,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hotel, overnight {PURPOSE}",
       "Overnight stay, {PURPOSE}",
@@ -8650,6 +9097,7 @@
      "facts": {
       "asset_kind": "office_equipment"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Office desk and chair",
       "Shelving for studio",
@@ -8683,6 +9131,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -8739,6 +9188,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Locker parcel"
      ],
@@ -8795,6 +9245,7 @@
      "facts": {
       "international": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Flight to Malaga, {PURPOSE}"
      ],
@@ -8853,6 +9304,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -8893,6 +9345,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -8932,6 +9385,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -8996,6 +9450,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -9027,6 +9482,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -9061,6 +9517,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -9092,6 +9549,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -9114,7 +9572,7 @@
   {
    "bank_format": "UK-DEB",
    "brand_id": "uk-just-eat",
-   "category": "food_drink",
+   "category": "food_delivery",
    "contact_names": [
     "Just Eat"
    ],
@@ -9131,45 +9589,12 @@
     ""
    ],
    "rule_ids": [
-    "UK-R025",
     "UK-R026",
     "UK-R027",
     "UK-R028",
     "UK-R029"
    ],
    "uses": [
-    {
-     "amount_mode": "range",
-     "amount_range": [
-      "12.00",
-      "120.00"
-     ],
-     "bank_format": null,
-     "default_code": "424",
-     "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "424",
-      "uk_xero_default_v0_2_st": "424"
-     },
-     "direction": "spend",
-     "facts": {},
-     "line_descriptions": [
-      "Lunch with client",
-      "Coffee with prospective client",
-      "Dinner with supplier",
-      "Client lunch, {PURPOSE}"
-     ],
-     "narratives": null,
-     "needs_line": true,
-     "only": {},
-     "policy_hooks": [],
-     "reference_patterns": null,
-     "routine": false,
-     "rule_ids": [
-      "UK-R025"
-     ],
-     "typical_direction": "spend",
-     "use": "client_meal"
-    },
     {
      "amount_mode": "range",
      "amount_range": [
@@ -9184,6 +9609,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -9207,7 +9633,7 @@
      "amount_mode": "range",
      "amount_range": [
       "12.00",
-      "120.00"
+      "60.00"
      ],
      "bank_format": null,
      "default_code": "493",
@@ -9219,6 +9645,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -9242,22 +9669,26 @@
       "120.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -9265,7 +9696,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -9280,9 +9711,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "12.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "12.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -9318,6 +9821,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -9374,6 +9878,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Parking, client visit",
       "Parking",
@@ -9434,6 +9939,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Two tyres, van",
       "MOT and brake pads",
@@ -9498,6 +10004,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -9529,6 +10036,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -9563,6 +10071,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -9594,6 +10103,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -9628,6 +10138,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -9692,6 +10203,7 @@
      "facts": {
       "account": "400"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "LinkedIn sponsored posts",
       "LinkedIn ads campaign"
@@ -9723,6 +10235,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "LinkedIn Learning, staff course"
      ],
@@ -9778,6 +10291,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Rail fare, {PURPOSE}",
       "Train to {PURPOSE}",
@@ -9811,6 +10325,7 @@
      "facts": {
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly season ticket",
       "Season ticket, home to work",
@@ -9872,6 +10387,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Flight to Kirkwall, {PURPOSE}"
      ],
@@ -9930,6 +10446,7 @@
      "facts": {
       "policy_type": "private"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Life insurance",
       "Pet insurance"
@@ -9987,6 +10504,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Newsletter platform",
       "Mailchimp Standard"
@@ -10046,6 +10564,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -10077,6 +10596,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -10111,6 +10631,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -10142,6 +10663,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -10176,6 +10698,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -10238,6 +10761,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hotel, overnight {PURPOSE}",
       "Overnight stay, {PURPOSE}",
@@ -10298,6 +10822,7 @@
      "facts": {
       "account": "400"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Facebook and Instagram ads",
       "Social ads boost"
@@ -10356,6 +10881,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Microsoft 365 Business",
       "Office licences {MMM}"
@@ -10418,6 +10944,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Account fee",
       "Monthly account charge",
@@ -10453,6 +10980,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -10485,6 +11013,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Overdraft interest",
       ""
@@ -10518,6 +11047,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Interest",
       ""
@@ -10551,6 +11081,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Credit card repayment",
       "Card payment",
@@ -10589,6 +11120,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Business loan drawdown",
       "Loan advance"
@@ -10623,6 +11155,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": "loan_instalment",
      "line_descriptions": [
       "Loan repayment",
       "Monthly loan instalment"
@@ -10685,6 +11218,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -10716,6 +11250,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -10750,6 +11285,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -10781,6 +11317,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -10815,6 +11352,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -10877,6 +11415,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Diesel"
@@ -10938,6 +11477,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Diesel",
@@ -11000,6 +11540,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Coach fare, {PURPOSE}",
       "Coach to {PURPOSE}"
@@ -11062,6 +11603,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Account fee",
       "Monthly account charge",
@@ -11097,6 +11639,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -11129,6 +11672,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Overdraft interest",
       ""
@@ -11162,6 +11706,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Interest",
       ""
@@ -11195,6 +11740,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Credit card repayment",
       "Card payment",
@@ -11233,6 +11779,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Business loan drawdown",
       "Loan advance"
@@ -11267,6 +11814,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": "loan_instalment",
      "line_descriptions": [
       "Loan repayment",
       "Monthly loan instalment"
@@ -11328,6 +11876,7 @@
      "facts": {
       "policy_type": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Public liability insurance",
       "Business insurance premium",
@@ -11386,6 +11935,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Rail fare, {PURPOSE}",
       "Train to {PURPOSE}",
@@ -11419,6 +11969,7 @@
      "facts": {
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly season ticket",
       "Season ticket, home to work",
@@ -11484,6 +12035,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -11518,6 +12070,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -11552,6 +12105,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -11623,6 +12177,7 @@
       "account": "445",
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Electricity, workshop",
       "Gas, business unit",
@@ -11658,6 +12213,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Home energy"
@@ -11722,6 +12278,7 @@
       "account": "445",
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Electricity, workshop",
       "Gas, business unit",
@@ -11757,6 +12314,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Home energy"
@@ -11814,6 +12372,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Parcel collection"
      ],
@@ -11870,6 +12429,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Parking, client visit",
       "Parking",
@@ -11932,6 +12492,7 @@
       "fee_rate": "0.029",
       "split": "processor_payout"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "PayPal transfer to bank",
       "PayPal sales"
@@ -11993,6 +12554,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -12025,6 +12587,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -12048,7 +12611,7 @@
      "amount_mode": "range",
      "amount_range": [
       "18.00",
-      "190.00"
+      "60.00"
      ],
      "bank_format": null,
      "default_code": "493",
@@ -12060,6 +12623,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -12083,22 +12647,26 @@
       "190.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -12106,7 +12674,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -12121,9 +12689,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "18.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "18.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -12159,6 +12799,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -12217,6 +12858,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -12251,6 +12893,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -12285,6 +12928,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -12349,6 +12993,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Postage",
       "Special delivery"
@@ -12406,6 +13051,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hotel, overnight {PURPOSE}",
       "Overnight stay, {PURPOSE}",
@@ -12467,6 +13113,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -12499,6 +13146,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -12534,6 +13182,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -12557,22 +13206,26 @@
       "60.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -12580,7 +13233,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -12595,9 +13248,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "4.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "4.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -12633,6 +13358,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -12691,6 +13417,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -12723,6 +13450,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -12746,7 +13474,7 @@
      "amount_mode": "range",
      "amount_range": [
       "18.00",
-      "170.00"
+      "60.00"
      ],
      "bank_format": null,
      "default_code": "493",
@@ -12758,6 +13486,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -12781,22 +13510,26 @@
       "170.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -12804,7 +13537,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -12819,9 +13552,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "18.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "18.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -12857,6 +13662,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -12913,6 +13719,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Tyre and tracking, van"
      ],
@@ -12975,6 +13782,7 @@
      "facts": {
       "accounting_software": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "QuickBooks Online"
      ],
@@ -13032,6 +13840,7 @@
      "facts": {
       "account": "469"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Coworking desk",
       "Meeting room hire",
@@ -13040,7 +13849,7 @@
      "narratives": null,
      "needs_line": false,
      "only": {
-      "premises": true
+      "premises": false
      },
      "policy_hooks": [],
      "reference_patterns": null,
@@ -13092,6 +13901,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Parking, client visit",
       "Parking",
@@ -13150,6 +13960,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Postage",
       "Stamps",
@@ -13208,6 +14019,7 @@
      "facts": {
       "international": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Flight to Dublin, {PURPOSE}",
       "Flight to Krakow, {PURPOSE}"
@@ -13265,6 +14077,7 @@
      "facts": {
       "stationery": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper",
       "Stationery",
@@ -13324,6 +14137,7 @@
      "facts": {
       "account": "469"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Storage unit",
       ""
@@ -13381,6 +14195,7 @@
      "facts": {
       "accounting_software": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Sage Accounting plan"
      ],
@@ -13438,6 +14253,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -13469,6 +14285,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -13503,6 +14320,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -13534,6 +14352,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -13568,6 +14387,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -13630,6 +14450,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Petrol",
@@ -13690,6 +14511,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "CRM licences"
      ],
@@ -13745,6 +14567,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Rail fare, {PURPOSE}",
       "Train to {PURPOSE}",
@@ -13778,6 +14601,7 @@
      "facts": {
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly season ticket",
       "Season ticket, home to work",
@@ -13846,6 +14670,7 @@
       "account": "445",
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Electricity, workshop",
       "Gas, business unit",
@@ -13881,6 +14706,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Home energy"
@@ -13940,6 +14766,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Water bill"
@@ -14000,6 +14827,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Diesel",
@@ -14062,6 +14890,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Shopify plan",
       "Online shop plan {MMM}"
@@ -14119,6 +14948,7 @@
      "facts": {
       "account": "469"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Storage unit rent"
      ],
@@ -14175,6 +15005,7 @@
      "facts": {
       "policy_type": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Public liability insurance",
       "Business insurance premium",
@@ -14237,6 +15068,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -14271,6 +15103,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -14305,6 +15138,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -14369,6 +15203,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Slack Pro seats"
      ],
@@ -14426,6 +15261,7 @@
      "facts": {
       "service": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hire, mini digger for job",
       "Tower scaffold hire, job {N4}",
@@ -14491,6 +15327,7 @@
       "fee_rate": "0.0175",
       "split": "processor_payout"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Square payout",
       ""
@@ -14548,6 +15385,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Website plan",
       "Squarespace annual site plan"
@@ -14607,6 +15445,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -14639,6 +15478,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -14674,6 +15514,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -14697,22 +15538,26 @@
       "35.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -14720,7 +15565,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -14735,9 +15580,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "3.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "3.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -14773,6 +15690,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -14834,6 +15752,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Account fee",
       "Monthly account charge",
@@ -14869,6 +15788,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -14901,6 +15821,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Overdraft interest",
       ""
@@ -14934,6 +15855,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Interest",
       ""
@@ -14967,6 +15889,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Credit card repayment",
       "Card payment",
@@ -15005,6 +15928,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Business loan drawdown",
       "Loan advance"
@@ -15039,6 +15963,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": "loan_instalment",
      "line_descriptions": [
       "Loan repayment",
       "Monthly loan instalment"
@@ -15104,6 +16029,7 @@
       "fee_rate": "0.015",
       "split": "processor_payout"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Stripe payout",
       "Card sales payout",
@@ -15167,6 +16093,7 @@
       "fee_rate": "0.0169",
       "split": "processor_payout"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "SumUp payout",
       "Card takings",
@@ -15200,6 +16127,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Card reader",
       "Spare card reader"
@@ -15259,6 +16187,7 @@
      "facts": {
       "policy_type": "motor"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Van insurance",
       "Motor insurance, van",
@@ -15326,6 +16255,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -15360,6 +16290,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -15394,6 +16325,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -15460,6 +16392,7 @@
      "facts": {
       "professional": "accountant"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Year end accounts",
       "VAT return preparation",
@@ -15493,6 +16426,7 @@
      "facts": {
       "professional": "accountant"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Bookkeeping {MMM}",
       "Monthly accountancy fee",
@@ -15528,6 +16462,7 @@
      "facts": {
       "professional": "personal_return"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Personal tax return fee",
       "Self assessment return, owner"
@@ -15565,6 +16500,7 @@
      "facts": {
       "professional": "personal_return"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Personal tax return fee, director",
       "Director self assessment return"
@@ -15627,6 +16563,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -15658,6 +16595,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -15692,6 +16630,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -15723,6 +16662,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -15757,6 +16697,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -15819,6 +16760,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Diesel",
@@ -15881,6 +16823,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "EV charging",
       "Charging, van",
@@ -15943,6 +16886,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fuel",
       "Diesel",
@@ -16007,6 +16951,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Water bill"
@@ -16068,6 +17013,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -16102,6 +17048,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -16136,6 +17083,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -16204,6 +17152,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -16244,6 +17193,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -16283,6 +17233,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -16345,6 +17296,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Rail fare, {PURPOSE}",
       "Train to {PURPOSE}",
@@ -16378,6 +17330,7 @@
      "facts": {
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly season ticket",
       "Season ticket, home to work",
@@ -16440,6 +17393,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Rail fare, {PURPOSE}",
       "Train to {PURPOSE}",
@@ -16473,6 +17427,7 @@
      "facts": {
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly season ticket",
       "Season ticket, home to work",
@@ -16538,6 +17493,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -16578,6 +17534,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -16617,6 +17574,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -16679,6 +17637,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Taxi, {PURPOSE}",
       "Taxi from station, {PURPOSE}",
@@ -16701,7 +17660,7 @@
   {
    "bank_format": "UK-DEB",
    "brand_id": "uk-uber-eats",
-   "category": "food_drink",
+   "category": "food_delivery",
    "contact_names": [
     "Uber Eats"
    ],
@@ -16718,45 +17677,12 @@
     ""
    ],
    "rule_ids": [
-    "UK-R025",
     "UK-R026",
     "UK-R027",
     "UK-R028",
     "UK-R029"
    ],
    "uses": [
-    {
-     "amount_mode": "range",
-     "amount_range": [
-      "12.00",
-      "110.00"
-     ],
-     "bank_format": null,
-     "default_code": "424",
-     "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "424",
-      "uk_xero_default_v0_2_st": "424"
-     },
-     "direction": "spend",
-     "facts": {},
-     "line_descriptions": [
-      "Lunch with client",
-      "Coffee with prospective client",
-      "Dinner with supplier",
-      "Client lunch, {PURPOSE}"
-     ],
-     "narratives": null,
-     "needs_line": true,
-     "only": {},
-     "policy_hooks": [],
-     "reference_patterns": null,
-     "routine": false,
-     "rule_ids": [
-      "UK-R025"
-     ],
-     "typical_direction": "spend",
-     "use": "client_meal"
-    },
     {
      "amount_mode": "range",
      "amount_range": [
@@ -16771,6 +17697,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -16794,7 +17721,7 @@
      "amount_mode": "range",
      "amount_range": [
       "12.00",
-      "110.00"
+      "60.00"
      ],
      "bank_format": null,
      "default_code": "493",
@@ -16806,6 +17733,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -16829,22 +17757,26 @@
       "110.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -16852,7 +17784,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -16867,9 +17799,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "12.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "12.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -16905,6 +17909,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -16959,6 +17964,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Courier"
      ],
@@ -17015,6 +18021,7 @@
      "facts": {
       "membership": "gym"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Gym membership"
@@ -17074,6 +18081,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -17108,6 +18116,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -17142,6 +18151,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -17207,6 +18217,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Leaflets for marketing",
       "Business cards",
@@ -17238,6 +18249,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Branded pens for customers",
       "Logo mugs for trade show giveaways",
@@ -17298,6 +18310,7 @@
      "facts": {
       "contract": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business broadband",
       "Office phone line",
@@ -17332,6 +18345,7 @@
      "facts": {
       "contract": "personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile contract",
       ""
@@ -17366,6 +18380,7 @@
      "facts": {
       "contract": "director_personal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Mobile, director",
       "Director phone contract",
@@ -17434,6 +18449,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -17466,6 +18482,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -17489,7 +18506,7 @@
      "amount_mode": "range",
      "amount_range": [
       "15.00",
-      "180.00"
+      "60.00"
      ],
      "bank_format": null,
      "default_code": "493",
@@ -17501,6 +18518,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -17524,22 +18542,26 @@
       "180.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -17547,7 +18569,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -17562,9 +18584,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "15.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "15.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -17600,6 +18694,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -17657,6 +18752,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -17688,6 +18784,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -17722,6 +18819,7 @@
       "account": "461",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Printer paper and toner",
       "Envelopes and labels",
@@ -17753,6 +18851,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Weekly shop",
       "Household shopping",
@@ -17787,6 +18886,7 @@
       "account": "310",
       "item_named": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Milk and eggs for cafe",
       "Ingredients for orders",
@@ -17852,6 +18952,7 @@
       "account": "445",
       "line_states": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Water, business premises",
       "Water and sewerage, unit"
@@ -17914,6 +19015,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Water bill"
@@ -17973,6 +19075,7 @@
      "facts": {
       "account": "469"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Hot desk membership",
       "Private office"
@@ -17980,7 +19083,7 @@
      "narratives": null,
      "needs_line": false,
      "only": {
-      "premises": true
+      "premises": false
      },
      "policy_hooks": [],
      "reference_patterns": null,
@@ -18032,6 +19135,7 @@
      "facts": {
       "stationery": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Stationery",
       "Notebooks and pens",
@@ -18092,6 +19196,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -18132,6 +19237,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -18171,6 +19277,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -18233,6 +19340,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Website premium plan"
      ],
@@ -18291,6 +19399,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -18331,6 +19440,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -18370,6 +19480,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -18431,6 +19542,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Card processing charges",
       "Merchant service charge {MMM}"
@@ -18488,6 +19600,7 @@
      "facts": {
       "accounting_software": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Xero subscription",
       "Accounting software {MMM}"
@@ -18543,6 +19656,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directory listing",
       "Yell advert monthly"
@@ -18602,6 +19716,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Materials, job {N4}",
       "Timber and fixings",
@@ -18642,6 +19757,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Cordless drill set",
       "Mitre saw",
@@ -18681,6 +19797,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Hi-vis jackets",
@@ -18742,6 +19859,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Parcel postage"
      ],
@@ -18798,6 +19916,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Water bill"
@@ -18860,6 +19979,7 @@
       "fee_rate": "0.0175",
       "split": "processor_payout"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Zettle payout",
       "Card takings"
@@ -18917,6 +20037,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Zoom Pro licence",
       "Video calls subscription"
@@ -18974,6 +20095,7 @@
      "facts": {
       "policy_type": "business"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Public liability insurance",
       "Business insurance premium",
@@ -19020,7 +20142,7 @@
     {
      "amount_mode": "range",
      "amount_range": [
-      "34.00",
+      "50.00",
       "50.00"
      ],
      "bank_format": null,
@@ -19033,6 +20155,7 @@
      "facts": {
       "membership": "trade_body"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Confirmation statement fee"
      ],
@@ -19093,6 +20216,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Vehicle tax, van",
       "Road tax"
@@ -19159,6 +20283,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "PAYE {MMM}"
@@ -19194,6 +20319,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "CT payment",
@@ -19231,6 +20357,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Tax payment"
@@ -19263,6 +20390,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -19296,6 +20424,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "CIS {MMM}",
@@ -19363,6 +20492,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Self assessment"
@@ -19395,6 +20525,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -19428,6 +20559,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -19460,6 +20592,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "CIS {MMM}"
@@ -19522,6 +20655,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "VAT return payment"
@@ -19556,6 +20690,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "VAT repayment"
@@ -19605,8 +20740,8 @@
     {
      "amount_mode": "range",
      "amount_range": [
-      "40.00",
-      "60.00"
+      "47.00",
+      "47.00"
      ],
      "bank_format": null,
      "default_code": "485",
@@ -19618,6 +20753,7 @@
      "facts": {
       "membership": "trade_body"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Data protection fee",
       "ICO registration"
@@ -19674,6 +20810,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -19694,8 +20831,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -19720,6 +20859,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -19789,6 +20929,7 @@
      "facts": {
       "professional": "accountant"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Year end accounts",
       "Tax return work for the business",
@@ -19822,6 +20963,7 @@
      "facts": {
       "professional": "accountant"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Payroll bureau {MMM}",
       "Bookkeeping retainer",
@@ -19857,16 +20999,16 @@
      "facts": {
       "professional": "personal_return"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Owner self assessment return",
-      "Personal tax return, partner"
+      "Personal tax return fee"
      ],
      "narratives": null,
      "needs_line": true,
      "only": {
       "entity": [
-       "sole_trader",
-       "partnership"
+       "sole_trader"
       ]
      },
      "policy_hooks": [],
@@ -19885,6 +21027,43 @@
       "480.00"
      ],
      "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {
+      "professional": "personal_return"
+     },
+     "fixed_group": null,
+     "line_descriptions": [
+      "Personal tax return, partner",
+      "Partner self assessment return"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R040"
+     ],
+     "typical_direction": "spend",
+     "use": "personal_return_partner"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "180.00",
+      "480.00"
+     ],
+     "bank_format": null,
      "default_code": "835",
      "default_code_per_chart": {
       "uk_xero_default_v0_2_co": "835",
@@ -19894,6 +21073,7 @@
      "facts": {
       "professional": "personal_return"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Self assessment return, director",
       "Personal tax return for the director"
@@ -19959,6 +21139,7 @@
      "facts": {
       "split": "cis_receipt"
      },
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -19993,6 +21174,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Valuation {N2}, plot {N2}",
       "Stage payment, plot {N2}",
@@ -20030,6 +21212,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "CIS",
       "Payment less CIS",
@@ -20094,6 +21277,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -20113,8 +21297,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -20139,6 +21325,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -20206,6 +21393,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -20237,6 +21425,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -20295,6 +21484,7 @@
      "facts": {
       "professional": "adviser"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business planning workshop",
       "HR advice retainer",
@@ -20351,6 +21541,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "First aid at work course",
       "Food hygiene level 2 course",
@@ -20367,6 +21558,79 @@
      ],
      "typical_direction": "spend",
      "use": "training"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Brindlecombe Tech Repairs",
+    "PAYPAL *BRINDLE REPAIR"
+   ],
+   "descriptor": "PAYPAL *BRINDLE",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-brindlecombe-tech-repairs",
+   "name": "Brindlecombe Tech Repairs",
+   "narratives": [
+    "PAYPAL *BRINDLE REPAIR",
+    "PAYPAL *BRINDLE REPAIR {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-paypal",
+   "raw_contact_names": [
+    "PAYPAL *BRINDLE REPAIR"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R024"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "35.00",
+      "260.00"
+     ],
+     "bank_format": null,
+     "default_code": "473",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "473",
+      "uk_xero_default_v0_2_st": "473"
+     },
+     "direction": "spend",
+     "facts": {
+      "scope": "repair"
+     },
+     "fixed_group": null,
+     "line_descriptions": [
+      "Laptop screen repair",
+      "Replace laptop battery",
+      "Work phone screen repair"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "professional",
+       "creative",
+       "education",
+       "events",
+       "health"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R024"
+     ],
+     "typical_direction": "spend",
+     "use": "equipment_repair"
     }
    ]
   },
@@ -20411,15 +21675,22 @@
      "facts": {
       "account": "469"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Rent, unit {K2}",
-      "Quarterly rent, workshop",
+      "Workshop rent {MMM}",
       "Rent {MMM}"
      ],
      "narratives": null,
      "needs_line": false,
      "only": {
-      "premises": true
+      "premises": true,
+      "trades": [
+       "construction",
+       "trades",
+       "manufacturing",
+       "crafts"
+      ]
      },
      "policy_hooks": [
       "UK-R037"
@@ -20471,6 +21742,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Wine for client, project completion",
       "Champagne gift for client"
@@ -20531,6 +21803,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -20563,6 +21836,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -20586,7 +21860,7 @@
      "amount_mode": "range",
      "amount_range": [
       "18.00",
-      "260.00"
+      "60.00"
      ],
      "bank_format": null,
      "default_code": "493",
@@ -20598,6 +21872,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -20621,22 +21896,26 @@
       "260.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -20644,7 +21923,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -20659,9 +21938,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "18.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "18.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -20697,6 +22048,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -20711,6 +22063,75 @@
      ],
      "typical_direction": "spend",
      "use": "no_description"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Copsewood Sawmill",
+    "SUMUP *COPSEWOOD SAW"
+   ],
+   "descriptor": "SUMUP *COPSEWOOD",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-copsewood-sawmill",
+   "name": "Copsewood Sawmill",
+   "narratives": [
+    "SUMUP *COPSEWOOD SAW",
+    "SUMUP *COPSEWOOD SAW {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-sumup",
+   "raw_contact_names": [
+    "SUMUP *COPSEWOOD SAW"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R055"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "25.00",
+      "420.00"
+     ],
+     "bank_format": null,
+     "default_code": "310",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "310",
+      "uk_xero_default_v0_2_st": "310"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Oak boards for job",
+      "Sawn timber, job {N4}",
+      "Offcuts for workshop"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "construction",
+       "manufacturing",
+       "crafts"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R055"
+     ],
+     "typical_direction": "spend",
+     "use": "materials"
     }
    ]
   },
@@ -20751,6 +22172,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Employer pension contributions",
       "Workplace pension {MMM}",
@@ -20813,6 +22235,7 @@
      "facts": {
       "council_marker": "rates"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business rates {MMM}",
       ""
@@ -20847,6 +22270,7 @@
      "facts": {
       "council_marker": "council_tax"
      },
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -20880,6 +22304,7 @@
      "facts": {
       "council_marker": null
      },
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -20911,6 +22336,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "PCN, van parked at job",
       "Parking penalty, delivery"
@@ -20971,6 +22397,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -20991,8 +22418,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -21017,6 +22446,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -21084,6 +22514,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -21103,8 +22534,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -21129,6 +22562,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -21196,6 +22630,7 @@
      "facts": {
       "membership": "trade_body"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Membership renewal",
       "Trade body membership"
@@ -21252,6 +22687,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Oak boards, job {N4}",
       "Timber for staircase job",
@@ -21274,6 +22710,73 @@
      ],
      "typical_direction": "spend",
      "use": "materials"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Furrowby Grooming Supplies",
+    "iZ *FURROWBY GROOMING"
+   ],
+   "descriptor": "iZ *FURROWBY",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-furrowby-grooming-supplies",
+   "name": "Furrowby Grooming Supplies",
+   "narratives": [
+    "iZ *FURROWBY GROOMING",
+    "iZ *FURROWBY GROOMING {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-zettle",
+   "raw_contact_names": [
+    "iZ *FURROWBY GROOMING"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R055"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "10.00",
+      "150.00"
+     ],
+     "bank_format": null,
+     "default_code": "310",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "310",
+      "uk_xero_default_v0_2_st": "310"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Grooming shampoo stock",
+      "Clipper blades",
+      "Dog conditioner stock"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "services"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R055"
+     ],
+     "typical_direction": "spend",
+     "use": "stock"
     }
    ]
   },
@@ -21314,6 +22817,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Theatre tickets for clients",
       "Box seats, client evening"
@@ -21371,6 +22875,7 @@
      "facts": {
       "service": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Digger hire, groundworks job",
       "Plant hire, job {N4}"
@@ -21433,6 +22938,7 @@
      "facts": {
       "membership": "trade_body"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Annual membership",
       "Guild membership {YY}"
@@ -21492,6 +22998,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Flyers for open day",
       "Brochures print run",
@@ -21550,6 +23057,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Copper pipe and fittings",
       "Boiler parts, job {N4}",
@@ -21614,6 +23122,7 @@
      "facts": {
       "private": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Evening Spanish course, owner",
       "Pottery hobby class"
@@ -21671,6 +23180,7 @@
      "facts": {
       "scope": "repair"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Boiler service, premises",
       "Heating repair, unit {N2}"
@@ -21731,6 +23241,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Fixings and sealant",
       "Consumables, job {N4}"
@@ -21769,6 +23280,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Welding set",
       "Bench grinder",
@@ -21793,6 +23305,73 @@
      ],
      "typical_direction": "spend",
      "use": "tools"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Hollowmere Farm Shop",
+    "iZ *HOLLOWMERE FARM"
+   ],
+   "descriptor": "iZ *HOLLOWMERE",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-hollowmere-farm-shop",
+   "name": "Hollowmere Farm Shop",
+   "narratives": [
+    "iZ *HOLLOWMERE FARM",
+    "iZ *HOLLOWMERE FARM {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-zettle",
+   "raw_contact_names": [
+    "iZ *HOLLOWMERE FARM"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R055"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "12.00",
+      "160.00"
+     ],
+     "bank_format": null,
+     "default_code": "310",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "310",
+      "uk_xero_default_v0_2_st": "310"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Eggs and veg for kitchen",
+      "Fresh herbs for menu",
+      "Free range eggs, kitchen"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "catering"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R055"
+     ],
+     "typical_direction": "spend",
+     "use": "stock"
     }
    ]
   },
@@ -21833,6 +23412,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Logo pens for customers",
       "Branded tote bags for open day",
@@ -21891,6 +23471,7 @@
      "facts": {
       "membership": "trade_body"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Trade journal subscription"
      ],
@@ -21951,6 +23532,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -21970,8 +23552,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -21996,6 +23580,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -22065,6 +23650,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Loan drawdown",
       "Business loan advance"
@@ -22097,6 +23683,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": "loan_instalment",
      "line_descriptions": [
       "Loan repayment",
       "Monthly instalment"
@@ -22129,6 +23716,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Capital repayment, loan",
       "Early repayment of loan capital"
@@ -22161,6 +23749,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Loan interest {MMM}",
       "Interest on business loan"
@@ -22219,6 +23808,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -22242,8 +23832,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -22268,6 +23860,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -22297,6 +23890,76 @@
      ],
      "typical_direction": "spend",
      "use": "customer_refund"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Lanternhay Party Hire",
+    "SQ *LANTERNHAY HIRE"
+   ],
+   "descriptor": "SQ *LANTERNHAY",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-lanternhay-party-hire",
+   "name": "Lanternhay Party Hire",
+   "narratives": [
+    "SQ *LANTERNHAY HIRE",
+    "SQ *LANTERNHAY HIRE {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-square",
+   "raw_contact_names": [
+    "SQ *LANTERNHAY HIRE"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R055"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "30.00",
+      "380.00"
+     ],
+     "bank_format": null,
+     "default_code": "310",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "310",
+      "uk_xero_default_v0_2_st": "310"
+     },
+     "direction": "spend",
+     "facts": {
+      "service": true
+     },
+     "fixed_group": null,
+     "line_descriptions": [
+      "Table linen hire for event",
+      "Glassware hire, client event",
+      "Chair covers hire, wedding job"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "events",
+       "catering"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R055"
+     ],
+     "typical_direction": "spend",
+     "use": "event_hire"
     }
    ]
   },
@@ -22337,6 +24000,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Van lease rental {MMM}",
       "Vehicle lease",
@@ -22400,6 +24064,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Rent, flat"
@@ -22459,6 +24124,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Two tyres, van",
       "Exhaust repair"
@@ -22524,6 +24190,7 @@
      "facts": {
       "account": "469"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Unit rent {MMM}",
       "Service charge and rent"
@@ -22531,7 +24198,17 @@
      "narratives": null,
      "needs_line": false,
      "only": {
-      "premises": true
+      "premises": true,
+      "trades": [
+       "catering",
+       "retail",
+       "creative",
+       "services",
+       "events",
+       "professional",
+       "education",
+       "transport"
+      ]
      },
      "policy_hooks": [
       "UK-R037"
@@ -22586,6 +24263,7 @@
      "facts": {
       "scope": "repair"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Repair to shop door",
       "Replace broken window frame",
@@ -22621,6 +24299,7 @@
      "facts": {
       "scope": "unknown"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "",
       "Works per quote",
@@ -22683,6 +24362,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -22702,8 +24382,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -22728,6 +24410,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -22798,6 +24481,7 @@
      "facts": {
       "asset_kind": "tools"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Commercial mixer",
       "Combination oven",
@@ -22839,6 +24523,7 @@
       "asset_account": "764",
       "scope": "improvement"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Upgrade of extraction canopy",
       "New walk-in cold room installed"
@@ -22900,6 +24585,7 @@
      "facts": {
       "professional": "solicitor"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Debt recovery, unpaid invoice",
       "Trade mark filing",
@@ -22959,6 +24645,7 @@
      "facts": {
       "subcontractor": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Subcontract electrics, job {N4}",
       "Rewire subcontract",
@@ -23024,6 +24711,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -23056,6 +24744,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -23079,7 +24768,7 @@
      "amount_mode": "range",
      "amount_range": [
       "6.00",
-      "70.00"
+      "60.00"
      ],
      "bank_format": null,
      "default_code": "493",
@@ -23091,6 +24780,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -23114,22 +24804,26 @@
       "70.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -23137,7 +24831,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -23152,9 +24846,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "6.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "6.00",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -23190,6 +24956,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -23250,6 +25017,7 @@
      "facts": {
       "split": "cis_receipt"
      },
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -23284,6 +25052,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Valuation {N2}, plot {N2}",
       "Stage payment, plot {N2}",
@@ -23321,6 +25090,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "CIS",
       "Payment less CIS",
@@ -23385,6 +25155,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -23404,8 +25175,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -23430,6 +25203,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -23455,6 +25229,73 @@
      ],
      "typical_direction": "spend",
      "use": "customer_refund"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Pinmarsh Salon Supplies",
+    "SQ *PINMARSH SUPPLIES"
+   ],
+   "descriptor": "SQ *PINMARSH",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-pinmarsh-salon-supplies",
+   "name": "Pinmarsh Salon Supplies",
+   "narratives": [
+    "SQ *PINMARSH SUPPLIES",
+    "SQ *PINMARSH SUPPLIES {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-square",
+   "raw_contact_names": [
+    "SQ *PINMARSH SUPPLIES"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R055"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "15.00",
+      "220.00"
+     ],
+     "bank_format": null,
+     "default_code": "310",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "310",
+      "uk_xero_default_v0_2_st": "310"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Hair colour stock",
+      "Colour and developer for salon",
+      "Shampoo for salon use"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "beauty"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R055"
+     ],
+     "typical_direction": "spend",
+     "use": "stock"
     }
    ]
   },
@@ -23498,6 +25339,7 @@
      "facts": {
       "account": "449"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "MOT and service, van",
       "Clutch repair, van",
@@ -23559,6 +25401,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Spare keys for shop",
       "Key cutting, unit"
@@ -23620,6 +25463,7 @@
      "facts": {
       "split": "cis_receipt"
      },
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -23654,6 +25498,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Valuation {N2}, plot {N2}",
       "Stage payment, plot {N2}",
@@ -23691,6 +25536,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "CIS",
       "Payment less CIS",
@@ -23756,6 +25602,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Personal pension",
       ""
@@ -23817,6 +25664,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch with client",
       "Coffee with prospective client",
@@ -23849,6 +25697,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Team lunch, project wrap",
       "Staff lunch for team day",
@@ -23872,7 +25721,7 @@
      "amount_mode": "range",
      "amount_range": [
       "25.00",
-      "380.00"
+      "60.00"
      ],
      "bank_format": null,
      "default_code": "493",
@@ -23884,6 +25733,7 @@
      "facts": {
       "trip": "overnight_uk"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Dinner, overnight {PURPOSE}",
       "Evening meal, two day {PURPOSE}"
@@ -23907,22 +25757,26 @@
       "380.00"
      ],
      "bank_format": null,
-     "default_code": "980",
+     "default_code": "420",
      "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "835",
-      "uk_xero_default_v0_2_st": "980"
+      "uk_xero_default_v0_2_co": "420",
+      "uk_xero_default_v0_2_st": null
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Directors lunch",
-      "Partners lunch",
-      "Lunch, partners only",
-      "Lunch, directors only"
+      "Lunch, directors only",
+      "Directors working dinner"
      ],
      "narratives": null,
      "needs_line": true,
-     "only": {},
+     "only": {
+      "entity": [
+       "limited_company"
+      ]
+     },
      "policy_hooks": [],
      "reference_patterns": null,
      "routine": false,
@@ -23930,7 +25784,7 @@
       "UK-R027"
      ],
      "typical_direction": "spend",
-     "use": "owner_meal"
+     "use": "owner_meal_co"
     },
     {
      "amount_mode": "range",
@@ -23945,9 +25799,81 @@
       "uk_xero_default_v0_2_st": "980"
      },
      "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Partners lunch",
+      "Lunch, partners only",
+      "Partners dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "partnership"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_partners"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "12.50",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Lunch, owner only",
+      "Dinner, no guests"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "entity": [
+       "sole_trader"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R027"
+     ],
+     "typical_direction": "spend",
+     "use": "owner_meal_sole"
+    },
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "12.50",
+      "25.00"
+     ],
+     "bank_format": null,
+     "default_code": "980",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": null,
+      "uk_xero_default_v0_2_st": "980"
+     },
+     "direction": "spend",
      "facts": {
       "trip": "day_meal"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Lunch",
       "Sandwich, working day"
@@ -23983,6 +25909,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -24038,6 +25965,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -24057,8 +25985,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -24083,6 +26013,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -24148,6 +26079,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Safety boots",
       "Chef whites and aprons",
@@ -24181,6 +26113,7 @@
      "facts": {
       "private": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Jeans and jumper",
       "Everyday shoes"
@@ -24196,6 +26129,73 @@
      ],
      "typical_direction": "spend",
      "use": "everyday_clothes"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Selbridge Therapy Supplies",
+    "iZ *SELBRIDGE THERAPY"
+   ],
+   "descriptor": "iZ *SELBRIDGE",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-selbridge-therapy-supplies",
+   "name": "Selbridge Therapy Supplies",
+   "narratives": [
+    "iZ *SELBRIDGE THERAPY",
+    "iZ *SELBRIDGE THERAPY {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-zettle",
+   "raw_contact_names": [
+    "iZ *SELBRIDGE THERAPY"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R055"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "10.00",
+      "160.00"
+     ],
+     "bank_format": null,
+     "default_code": "310",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "310",
+      "uk_xero_default_v0_2_st": "310"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Couch roll and massage oil",
+      "Kinesiology tape",
+      "Treatment room consumables"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "health"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R055"
+     ],
+     "typical_direction": "spend",
+     "use": "consumables"
     }
    ]
   },
@@ -24239,6 +26239,7 @@
      "facts": {
       "account": "408"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Office cleaning {MMM}",
       "Shop cleaning contract",
@@ -24299,6 +26300,7 @@
      "facts": {
       "subcontractor": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Scaffolding erect and strike, job {N4}",
       "Scaffold subcontract"
@@ -24359,6 +26361,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Christmas hampers for clients",
       "Thank you hamper, client",
@@ -24375,6 +26378,78 @@
      ],
      "typical_direction": "spend",
      "use": "client_gift"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Threadmoor Embroidery",
+    "SUMUP *THREADMOOR WEAR"
+   ],
+   "descriptor": "SUMUP *THRDMOOR",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-threadmoor-embroidery",
+   "name": "Threadmoor Embroidery",
+   "narratives": [
+    "SUMUP *THREADMOOR WEAR",
+    "SUMUP *THREADMOOR WEAR {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-sumup",
+   "raw_contact_names": [
+    "SUMUP *THREADMOOR WEAR"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R062"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "25.00",
+      "240.00"
+     ],
+     "bank_format": null,
+     "default_code": "429",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "429",
+      "uk_xero_default_v0_2_st": "429"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Logo polo shirts for work",
+      "Embroidered work jackets",
+      "Branded hi-vis vests"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "construction",
+       "trades",
+       "transport",
+       "catering",
+       "manufacturing",
+       "services"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R062"
+     ],
+     "typical_direction": "spend",
+     "use": "workwear"
     }
    ]
   },
@@ -24416,6 +26491,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Invoice {INV}",
       "Payment for invoice {INV}",
@@ -24435,8 +26511,10 @@
      "policy_hooks": [],
      "reference_patterns": [
       "{INV}",
-      "INV {N4}",
-      "{FIRMREF}"
+      "{INV} thanks",
+      "paid {INV}",
+      "{FIRMREF}",
+      "{FIRMREF} thanks"
      ],
      "routine": true,
      "rule_ids": [
@@ -24461,6 +26539,7 @@
      "facts": {
       "account": "200"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Refund to customer, {INV}",
       "Credit note {INV} refunded"
@@ -24490,6 +26569,151 @@
    ]
   },
   {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Tillymoss Packaging Supplies",
+    "PAYPAL *TILLYMOSS PKG"
+   ],
+   "descriptor": "PAYPAL *TILLYMOS",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-tillymoss-packaging",
+   "name": "Tillymoss Packaging Supplies",
+   "narratives": [
+    "PAYPAL *TILLYMOSS PKG",
+    "PAYPAL *TILLYMOSS PKG {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-paypal",
+   "raw_contact_names": [
+    "PAYPAL *TILLYMOSS PKG"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R055"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "10.00",
+      "180.00"
+     ],
+     "bank_format": null,
+     "default_code": "310",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "310",
+      "uk_xero_default_v0_2_st": "310"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Packaging for orders",
+      "Mailing boxes for orders",
+      "Tissue and ribbon for orders"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "retail",
+       "crafts",
+       "catering"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R055"
+     ],
+     "typical_direction": "spend",
+     "use": "packaging"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "small_seller",
+   "contact_names": [
+    "Tollbeck Print Shop",
+    "SQ *TOLLBECK PRINT"
+   ],
+   "descriptor": "SQ *TOLLBECK",
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-tollbeck-print-shop",
+   "name": "Tollbeck Print Shop",
+   "narratives": [
+    "SQ *TOLLBECK PRINT",
+    "SQ *TOLLBECK PRINT {TOWN}"
+   ],
+   "policy_hooks": [],
+   "processor": "uk-b-square",
+   "raw_contact_names": [
+    "SQ *TOLLBECK PRINT"
+   ],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R057"
+   ],
+   "uses": [
+    {
+     "amount_mode": "range",
+     "amount_range": [
+      "8.00",
+      "140.00"
+     ],
+     "bank_format": null,
+     "default_code": "461",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "461",
+      "uk_xero_default_v0_2_st": "461"
+     },
+     "direction": "spend",
+     "facts": {
+      "stationery": true
+     },
+     "fixed_group": null,
+     "line_descriptions": [
+      "Receipt books printed",
+      "Appointment cards printed",
+      "Letterheaded paper"
+     ],
+     "narratives": null,
+     "needs_line": false,
+     "only": {
+      "trades": [
+       "creative",
+       "professional",
+       "transport",
+       "education",
+       "health",
+       "events",
+       "services",
+       "beauty"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": true,
+     "rule_ids": [
+      "UK-R057"
+     ],
+     "typical_direction": "spend",
+     "use": "printing"
+    }
+   ]
+  },
+  {
    "bank_format": "UK-FPO",
    "brand_id": null,
    "category": "local",
@@ -24513,9 +26737,9 @@
    ],
    "uses": [
     {
-     "amount_mode": "range",
+     "amount_mode": "round",
      "amount_range": [
-      "10.00",
+      "100.00",
       "500.00"
      ],
      "bank_format": null,
@@ -24526,6 +26750,7 @@
      },
      "direction": "spend",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Donation",
       "Charity donation, fun run",
@@ -24544,9 +26769,9 @@
      "use": "donation"
     },
     {
-     "amount_mode": "range",
+     "amount_mode": "round",
      "amount_range": [
-      "150.00",
+      "200.00",
       "800.00"
      ],
      "bank_format": null,
@@ -24559,6 +26784,7 @@
      "facts": {
       "sponsorship": true
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Sponsorship, logo on event banner",
       "Programme advert, charity ball"
@@ -24616,6 +26842,7 @@
      "facts": {
       "council_marker": "rates"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Business rates",
       ""
@@ -24651,6 +26878,7 @@
      "facts": {
       "council_marker": "council_tax"
      },
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -24685,6 +26913,7 @@
      "facts": {
       "council_marker": null
      },
+     "fixed_group": null,
      "line_descriptions": [
       ""
      ],
@@ -24742,6 +26971,7 @@
      },
      "direction": "receive",
      "facts": {},
+     "fixed_group": null,
      "line_descriptions": [
       "Business grant",
       "Growth grant award",
@@ -24785,9 +27015,9 @@
    ],
    "uses": [
     {
-     "amount_mode": "range",
+     "amount_mode": "round",
      "amount_range": [
-      "20.00",
+      "100.00",
       "300.00"
      ],
      "bank_format": null,
@@ -24800,6 +27030,7 @@
      "facts": {
       "membership": "political"
      },
+     "fixed_group": null,
      "line_descriptions": [
       "Party donation",
       "Political donation"

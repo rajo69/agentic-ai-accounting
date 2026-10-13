@@ -21,6 +21,7 @@
     }
    ],
    "bank_brand": "uk-b-hsbc",
+   "bank_name": "HSBC",
    "card4": "8262",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -29,6 +30,10 @@
    "memo_style": "lower",
    "name": "Harbour Lane Joinery Ltd",
    "people": {
+    "cis_rates": {
+     "B Whaernerell": "20",
+     "E Slainerell": "0"
+    },
     "employees": [
      "K Pearramere",
      "S Reambington"
@@ -39,16 +44,17 @@
      "M Hymell"
     ],
     "role_of": {
+     "B Whaernerell": "subcontractor",
      "E Slainerell": "subcontractor",
      "K Pearramere": "employee",
      "M Hymell": "director",
      "S Reambington": "employee"
     },
     "subcontractors": [
-     "E Slainerell"
+     "E Slainerell",
+     "B Whaernerell"
     ],
     "unknown_pool": [
-     "B Whaernerell",
      "N Clylvett",
      "J Tealdick",
      "P Slaivond",
@@ -66,9 +72,10 @@
     "directors_loan_account_in_use": true,
     "home_office": "none",
     "lender": "uk-i-kingsmere-business-finance",
+    "marketplace_booking": null,
     "phone": "business_contract",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": true,
@@ -111,6 +118,7 @@
     }
    ],
    "bank_brand": "uk-b-natwest",
+   "bank_name": "NatWest",
    "card4": "8037",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -119,6 +127,7 @@
    "memo_style": "slash",
    "name": "Copperleaf Bakery",
    "people": {
+    "cis_rates": {},
     "employees": [
      "M Clembworth"
     ],
@@ -153,9 +162,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-sumup"
     ],
@@ -200,6 +210,7 @@
     }
    ],
    "bank_brand": "uk-b-starling-bank",
+   "bank_name": "Starling Bank",
    "card4": "9656",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -208,6 +219,7 @@
    "memo_style": "upper",
    "name": "Northwind Mobile Mechanics",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -240,9 +252,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "personal_not_claimed",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": false,
@@ -285,6 +298,7 @@
     }
    ],
    "bank_brand": "uk-b-natwest",
+   "bank_name": "NatWest",
    "card4": "8917",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "partnership",
@@ -293,6 +307,7 @@
    "memo_style": "upper",
    "name": "Kestrel Lane Design Studio",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -326,9 +341,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-stripe"
     ],
@@ -373,6 +389,7 @@
     }
    ],
    "bank_brand": "uk-b-bank-of-scotland",
+   "bank_name": "Bank of Scotland",
    "card4": "5608",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -381,6 +398,9 @@
    "memo_style": "plain",
    "name": "Brightwell Electrical Services",
    "people": {
+    "cis_rates": {
+     "D Slourvell": "20"
+    },
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -415,9 +435,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": false,
@@ -462,6 +483,7 @@
     }
    ],
    "bank_brand": "uk-b-bank-of-scotland",
+   "bank_name": "Bank of Scotland",
    "card4": "8044",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -470,6 +492,7 @@
    "memo_style": "month",
    "name": "Saltmarsh Coffee House Ltd",
    "people": {
+    "cis_rates": {},
     "employees": [
      "F Dyneby",
      "M Sourwanick",
@@ -508,9 +531,10 @@
     "directors_loan_account_in_use": true,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "business_contract",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-zettle"
     ],
@@ -555,6 +579,7 @@
     }
    ],
    "bank_brand": "uk-b-monzo",
+   "bank_name": "Monzo",
    "card4": "9838",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -563,6 +588,7 @@
    "memo_style": "plain",
    "name": "Fernhill Garden Services",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -595,9 +621,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "personal_not_claimed",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": false,
@@ -640,6 +667,7 @@
     }
    ],
    "bank_brand": "uk-b-natwest",
+   "bank_name": "NatWest",
    "card4": "7855",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "partnership",
@@ -648,6 +676,7 @@
    "memo_style": "upper",
    "name": "Riverbend Bookkeeping Partners",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -681,9 +710,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "flat_rate",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "personal_not_claimed",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": false,
@@ -731,6 +761,7 @@
     }
    ],
    "bank_brand": "uk-b-monzo",
+   "bank_name": "Monzo",
    "card4": "8664",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -739,6 +770,7 @@
    "memo_style": "upper",
    "name": "Ashby Cross Physiotherapy Ltd",
    "people": {
+    "cis_rates": {},
     "employees": [
      "J Shearwworth",
      "E Beaskell"
@@ -774,9 +806,10 @@
     "directors_loan_account_in_use": true,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "business_contract",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-square"
     ],
@@ -821,6 +854,7 @@
     }
    ],
    "bank_brand": "uk-b-starling-bank",
+   "bank_name": "Starling Bank",
    "card4": "3475",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -829,6 +863,7 @@
    "memo_style": "plain",
    "name": "Moorland Taxis",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -861,9 +896,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-sumup"
     ],
@@ -913,6 +949,7 @@
     }
    ],
    "bank_brand": "uk-b-bank-of-scotland",
+   "bank_name": "Bank of Scotland",
    "card4": "6119",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "partnership",
@@ -921,6 +958,7 @@
    "memo_style": "lower",
    "name": "Tidepool Web Partners",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -954,9 +992,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "business_contract",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-stripe"
     ],
@@ -1001,6 +1040,7 @@
     }
    ],
    "bank_brand": "uk-b-hsbc",
+   "bank_name": "HSBC",
    "card4": "5172",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -1009,6 +1049,7 @@
    "memo_style": "upper",
    "name": "Larkspur Florists Ltd",
    "people": {
+    "cis_rates": {},
     "employees": [
      "L Ceswstow",
      "H Glailvowell"
@@ -1044,9 +1085,10 @@
     "directors_loan_account_in_use": true,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": "net_single_line",
     "phone": "business_contract",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-sumup",
      "uk-etsy"
@@ -1097,6 +1139,7 @@
     }
    ],
    "bank_brand": "uk-b-bank-of-scotland",
+   "bank_name": "Bank of Scotland",
    "card4": "3564",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -1105,6 +1148,10 @@
    "memo_style": "upper",
    "name": "Granite Peak Building Contractors Ltd",
    "people": {
+    "cis_rates": {
+     "A Ratwowell": "20",
+     "W Chaerkens": "20"
+    },
     "employees": [
      "W Sloastard",
      "G Kegard",
@@ -1144,9 +1191,10 @@
     "directors_loan_account_in_use": true,
     "home_office": "none",
     "lender": "uk-b-natwest",
+    "marketplace_booking": null,
     "phone": "business_contract",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": false,
@@ -1191,6 +1239,7 @@
     }
    ],
    "bank_brand": "uk-b-starling-bank",
+   "bank_name": "Starling Bank",
    "card4": "4047",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -1199,6 +1248,7 @@
    "memo_style": "lower",
    "name": "Bellwether Marketing Consultancy",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -1231,9 +1281,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "flat_rate",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-stripe"
     ],
@@ -1280,6 +1331,7 @@
     }
    ],
    "bank_brand": "uk-b-starling-bank",
+   "bank_name": "Starling Bank",
    "card4": "5918",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -1288,6 +1340,7 @@
    "memo_style": "plain",
    "name": "Old Mill Pottery",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -1320,9 +1373,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": "net_single_line",
     "phone": "personal_not_claimed",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-etsy",
      "uk-paypal",
@@ -1369,6 +1423,7 @@
     }
    ],
    "bank_brand": "uk-b-barclays",
+   "bank_name": "Barclays",
    "card4": "8261",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "partnership",
@@ -1377,6 +1432,7 @@
    "memo_style": "lower",
    "name": "Cobalt Street Hair Studio",
    "people": {
+    "cis_rates": {},
     "employees": [
      "C Gaernine"
     ],
@@ -1412,9 +1468,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-square"
     ],
@@ -1459,6 +1516,7 @@
     }
    ],
    "bank_brand": "uk-b-starling-bank",
+   "bank_name": "Starling Bank",
    "card4": "4084",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -1467,6 +1525,9 @@
    "memo_style": "plain",
    "name": "Wrenfield Plumbing and Heating Ltd",
    "people": {
+    "cis_rates": {
+     "N Treasett": "0"
+    },
     "employees": [
      "N Thenridge"
     ],
@@ -1503,9 +1564,10 @@
     "directors_loan_account_in_use": true,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "business_contract",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": false,
@@ -1548,6 +1610,7 @@
     }
    ],
    "bank_brand": "uk-b-barclays",
+   "bank_name": "Barclays",
    "card4": "2487",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -1556,6 +1619,7 @@
    "memo_style": "lower",
    "name": "Silverdale Dog Grooming",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -1588,9 +1652,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "personal_not_claimed",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-sumup"
     ],
@@ -1635,6 +1700,7 @@
     }
    ],
    "bank_brand": "uk-b-monzo",
+   "bank_name": "Monzo",
    "card4": "1454",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "partnership",
@@ -1643,6 +1709,7 @@
    "memo_style": "slash",
    "name": "Hollowbrook Catering Partners",
    "people": {
+    "cis_rates": {},
     "employees": [
      "D Houmaven",
      "E Blunley"
@@ -1679,9 +1746,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": "uk-b-hsbc",
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-stripe"
     ],
@@ -1731,6 +1799,7 @@
     }
    ],
    "bank_brand": "uk-b-barclays",
+   "bank_name": "Barclays",
    "card4": "1840",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -1739,6 +1808,7 @@
    "memo_style": "lower",
    "name": "Quillstone Translation Services Ltd",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "director",
@@ -1771,9 +1841,10 @@
     "directors_loan_account_in_use": true,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "business_contract",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-paypal"
     ],
@@ -1818,6 +1889,7 @@
     }
    ],
    "bank_brand": "uk-b-bank-of-scotland",
+   "bank_name": "Bank of Scotland",
    "card4": "9361",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -1826,6 +1898,7 @@
    "memo_style": "plain",
    "name": "Nettlebed Organic Box Scheme",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -1858,9 +1931,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "personal_not_claimed",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-gocardless",
      "uk-stripe"
@@ -1906,6 +1980,7 @@
     }
    ],
    "bank_brand": "uk-b-starling-bank",
+   "bank_name": "Starling Bank",
    "card4": "3810",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -1914,6 +1989,7 @@
    "memo_style": "slash",
    "name": "Ironbridge Fabrication Ltd",
    "people": {
+    "cis_rates": {},
     "employees": [
      "E Whaernerell",
      "R Quaiggeby",
@@ -1950,9 +2026,10 @@
     "directors_loan_account_in_use": true,
     "home_office": "none",
     "lender": "uk-i-kingsmere-business-finance",
+    "marketplace_booking": null,
     "phone": "business_contract",
     "premises": true,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": true,
@@ -1995,6 +2072,7 @@
     }
    ],
    "bank_brand": "uk-b-barclays",
+   "bank_name": "Barclays",
    "card4": "8685",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -2003,6 +2081,7 @@
    "memo_style": "month",
    "name": "Pebblebank Tutoring",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -2035,9 +2114,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "flat_rate",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": false,
@@ -2085,6 +2165,7 @@
     }
    ],
    "bank_brand": "uk-b-starling-bank",
+   "bank_name": "Starling Bank",
    "card4": "2275",
    "chart_id": "uk_xero_default_v0_2_co",
    "entity_type": "limited_company",
@@ -2093,6 +2174,7 @@
    "memo_style": "month",
    "name": "Larchmont Events Ltd",
    "people": {
+    "cis_rates": {},
     "employees": [
      "P Koalisby",
      "C Whethow"
@@ -2129,9 +2211,10 @@
     "directors_loan_account_in_use": true,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "business_contract",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": "gross_split",
     "processors": [
      "uk-stripe"
     ],
@@ -2171,6 +2254,7 @@
     }
    ],
    "bank_brand": "uk-b-bank-of-scotland",
+   "bank_name": "Bank of Scotland",
    "card4": "5366",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "sole_trader",
@@ -2179,6 +2263,7 @@
    "memo_style": "month",
    "name": "Quernmoor Plastering",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -2211,9 +2296,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": false,
     "threshold_in_history": false,
@@ -2256,6 +2342,7 @@
     }
    ],
    "bank_brand": "uk-b-starling-bank",
+   "bank_name": "Starling Bank",
    "card4": "7101",
    "chart_id": "uk_xero_default_v0_2_st",
    "entity_type": "partnership",
@@ -2264,6 +2351,7 @@
    "memo_style": "plain",
    "name": "Swaleford Roofing Partners",
    "people": {
+    "cis_rates": {},
     "employees": [],
     "landlord": null,
     "owner_role": "owner",
@@ -2297,9 +2385,10 @@
     "directors_loan_account_in_use": false,
     "home_office": "none",
     "lender": null,
+    "marketplace_booking": null,
     "phone": "mixed_use_claimed",
     "premises": false,
-    "processor_booking": "net_single_line",
+    "processor_booking": null,
     "processors": [],
     "savings_account": true,
     "threshold_in_history": false,
@@ -2347,6 +2436,7 @@
     }
    ],
    "bank_brand": "us-b-u-s-bank",
+   "bank_name": "U.S. Bank",
    "card4": "9580",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Fort Collins",
@@ -2434,6 +2524,7 @@
     }
    ],
    "bank_brand": "us-b-u-s-bank",
+   "bank_name": "U.S. Bank",
    "card4": "2411",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Dayton",
@@ -2526,6 +2617,7 @@
     }
    ],
    "bank_brand": "us-b-capital-one",
+   "bank_name": "Capital One",
    "card4": "2733",
    "chart_id": "us_schedule_c_v0_2_s_corp",
    "city": "Austin",
@@ -2616,6 +2708,7 @@
     }
    ],
    "bank_brand": "us-b-wells-fargo",
+   "bank_name": "Wells Fargo",
    "card4": "6515",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Burlington",
@@ -2707,6 +2800,7 @@
     }
    ],
    "bank_brand": "us-b-capital-one",
+   "bank_name": "Capital One",
    "card4": "4402",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Macon",
@@ -2800,6 +2894,7 @@
     }
    ],
    "bank_brand": "us-b-u-s-bank",
+   "bank_name": "U.S. Bank",
    "card4": "2478",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Spokane",
@@ -2894,6 +2989,7 @@
     }
    ],
    "bank_brand": "us-b-capital-one",
+   "bank_name": "Capital One",
    "card4": "9547",
    "chart_id": "us_schedule_c_v0_2_s_corp",
    "city": "Flagstaff",
@@ -2990,6 +3086,7 @@
     }
    ],
    "bank_brand": "us-b-capital-one",
+   "bank_name": "Capital One",
    "card4": "7761",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Bend",
@@ -3070,6 +3167,7 @@
     }
    ],
    "bank_brand": "us-b-capital-one",
+   "bank_name": "Capital One",
    "card4": "1997",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Peoria",
@@ -3158,6 +3256,7 @@
     }
    ],
    "bank_brand": "us-b-capital-one",
+   "bank_name": "Capital One",
    "card4": "2667",
    "chart_id": "us_schedule_c_v0_2_s_corp",
    "city": "Las Cruces",
@@ -3250,6 +3349,7 @@
     }
    ],
    "bank_brand": "us-b-citibank",
+   "bank_name": "Citibank",
    "card4": "2293",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Duluth",
@@ -3340,6 +3440,7 @@
     }
    ],
    "bank_brand": "us-b-pnc-bank",
+   "bank_name": "PNC Bank",
    "card4": "6761",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Asheville",
@@ -3432,6 +3533,7 @@
     }
    ],
    "bank_brand": "us-b-bank-of-america",
+   "bank_name": "Bank of America",
    "card4": "4600",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Springfield",
@@ -3522,6 +3624,7 @@
     }
    ],
    "bank_brand": "us-b-citibank",
+   "bank_name": "Citibank",
    "card4": "8037",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Lancaster",
@@ -3612,6 +3715,7 @@
     }
    ],
    "bank_brand": "us-b-bank-of-america",
+   "bank_name": "Bank of America",
    "card4": "6988",
    "chart_id": "us_schedule_c_v0_2_s_corp",
    "city": "Eau Claire",
@@ -3705,6 +3809,7 @@
     }
    ],
    "bank_brand": "us-b-wells-fargo",
+   "bank_name": "Wells Fargo",
    "card4": "5937",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Ogden",
@@ -3797,6 +3902,7 @@
     }
    ],
    "bank_brand": "us-b-citibank",
+   "bank_name": "Citibank",
    "card4": "7038",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Boise",
@@ -3884,6 +3990,7 @@
     }
    ],
    "bank_brand": "us-b-capital-one",
+   "bank_name": "Capital One",
    "card4": "7813",
    "chart_id": "us_schedule_c_v0_2",
    "city": "Bangor",
