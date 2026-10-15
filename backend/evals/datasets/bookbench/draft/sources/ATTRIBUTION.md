@@ -1,4 +1,7 @@
-# Brand lists: sources, licences and selection rules
+# Sources, licences and attribution
+
+This file covers the brand lists in this folder (sections 1 to 4) and every other outside source the dataset relies
+on (section 5).
 
 Files in this folder:
 
@@ -64,7 +67,8 @@ NSI licence notice, reproduced as the licence requires:
   on the page today; the licence is long-standing and stated site-wide.
 - Access: SPARQL endpoint https://query.wikidata.org/sparql (POST, JSON results) and, for resolving the curated
   seed names to Q-ids, the `wbsearchentities` API at https://www.wikidata.org/w/api.php. User-Agent
-  `LedgerlineEvalDatasetBuild/0.1 (https://github.com/rajo69/Agentic_AI_Accounting)`.
+  `LedgerlineEvalDatasetBuild/0.1 (https://github.com/rajo69/Agentic_AI_Accounting)` (the dataset was formerly
+  called `ledgerline`).
 - Every record keeps its Q-id (`wikidata_qid`; for Wikidata-sourced records also `source_id`).
 
 The metadata query (the only SPARQL query the build depends on). `%s` is replaced by up to 250 `wd:Q...`
@@ -115,20 +119,22 @@ Wikidata part uses curated seeds instead (section 2.2).
 
 ### 1.3 Descriptor hints
 
-`descriptor_hint` is set only where a statement string for that brand was **observed** in a public source and
-recorded in the research notes (`.claude/plan/eval-dataset/notes/r2_uk.md` sections 3.4 and 5,
-`notes/r3_us.md` sections 3.3 to 3.5 and 5). Strings the notes mark as typical or unverified are not used, and
-nothing observed only in unlicensed data (Oklahoma p-card) is used. The string is copied as observed (case
+`descriptor_hint` is set only where a statement string for that brand was **observed** in one of the public sources
+below during the dataset's research (the research notes themselves are not published). Strings that were only
+typical or could not be verified are not used, and nothing observed only in unlicensed data (Oklahoma p-card) is
+used. The string is copied as observed (case
 and spacing kept, store numbers and references cut). `descriptor_hint_source` names the origin:
 
 | Tag | Source | Licence |
 |---|---|---|
 | MV | MoneyVis bank transactions dataset, University of Nottingham, DOI 10.17632/dnxtg6n4rv.1 | CC BY 4.0 (attribution: Firat et al., EuroVis 2023) |
-| PC | UK parish and town council statements (r2 4.2) | none stated; only company-name forms are used (e.g. `EE LIMITED`, `TRAVIS PERKINS`) |
+| PC | UK parish and town council published statements | none stated; only company-name forms are used (e.g. `EE LIMITED`, `TRAVIS PERKINS`) |
 | DOC | vendor or bank documentation (Square, Stripe, Google Workspace, Cash App help) | quoted descriptor formats only |
-| LA, DE, DEN | LA City Controller, Delaware and Denver p-card open data (r3 4.1) | public domain per portal tag |
+| LA, DE, DEN | LA City Controller, Delaware and Denver p-card open data | public domain per portal tag |
+| (other) | one UK hint (Apple) observed in a post on the Apple developer forum | a short descriptor string quoted as a fact |
 
-UK records with a hint: 40. US records with a hint: 47. All other records have `descriptor_hint: null`.
+UK records with a hint: 40 (31 tagged MV, one tagged DOC and MV). US records with a hint: 47. All other records
+have `descriptor_hint: null`. `descriptor_hint_source` holds only the source tag from the table above.
 
 ## 2. Selection rules
 
@@ -167,9 +173,9 @@ UK records with a hint: 40. US records with a hint: 47. All other records have `
 
 Software and SaaS, accounting and payroll, payments, marketplaces, telecoms, energy and water utilities,
 insurers, couriers, airlines, rail and coach operators, parking apps, ride hailing and food delivery, travel
-booking, advertising and online banks. The names come from the merchant tables in `notes/r2_uk.md` section 5
-and `notes/r3_us.md` section 5 plus the task's platform list (Stripe, PayPal, Square, SumUp, Zettle, Amazon,
-Shopify, Etsy, eBay, Uber, Deliveroo, Gusto, ADP, Intuit, Xero). Each name was resolved to a Q-id with
+booking, advertising and online banks. The names come from merchant tables compiled during research
+from public sources, plus a fixed list of major payment, commerce and software platforms (Stripe, PayPal, Square,
+SumUp, Zettle, Amazon, Shopify, Etsy, eBay, Uber, Deliveroo, Gusto, ADP, Intuit, Xero). Each name was resolved to a Q-id with
 `wbsearchentities` on 2026-10-13 and checked by hand against the Wikidata description; the Q-ids are fixed in
 `SEEDS` in the script. Notes on specific seeds:
 
@@ -197,7 +203,7 @@ Brands named after their founders (Sainsbury's, McDonald's, Harry Ramsden's, Wen
 company with its own Wikidata item that is not an instance of human.
 
 No names were taken from Food Standards Agency, council spend, Companies House, OpenStreetMap or card datasets
-(personal-data and share-alike risks, PLAN_v2 section 7).
+(personal-data and share-alike risks).
 
 ## 3. Record schema
 
@@ -230,10 +236,34 @@ py -3.13 -I build_brands.py build --nsi <dl>/nsi.json --wd-dir <dl>/wikidata_met
 ```
 
 `build` is deterministic (checked by building twice into separate folders on 2026-10-13: identical bytes).
-Output hashes on 2026-10-13: `brands_uk.json` sha256
-`33c2d1b6ed2361c62a9b37067484a3588d92daeaee42f1ccda73a60fdbeab281`, `brands_us.json` sha256
-`cacd5ab3750a6075cf08890d9a6d0d5a1048dee32d8c6f3b9f98df11812b64ab`. A later `fetch` will return
+Output hashes (sha256 of the LF bytes, after the 2026-10-15 change that publishes only the source tag in
+`descriptor_hint_source`): `brands_uk.json`
+`1661dc2ef4cf22856bab612c329cd7e6df49c070b8c7cfd841dded36dd0a7511`, `brands_us.json`
+`c1ac9ade53583c59b8217c501969166116d762cbb07bc2ed8fe18f729ead947a`. A later `fetch` will return
 current Wikidata values (sitelinks, labels, dissolution dates), so a rebuild from fresh responses can differ.
 
 The brand selection (categories, caps, allowlist, deny list, seed list) and this file were drafted by Claude
-Code on 2026-10-13 for review by the candidate.
+Code (an AI coding assistant) on 2026-10-13 for review by the maintainer.
+
+## 5. Other sources the dataset relies on
+
+| Source | Licence | How it is used |
+|---|---|---|
+| MoneyVis bank transactions dataset: "Bank Transactions Dataset", Mendeley Data, version 1, University of Nottingham, DOI [10.17632/dnxtg6n4rv.1](https://doi.org/10.17632/dnxtg6n4rv.1). Paper: Elif E. Firat et al. (University of Nottingham), "MoneyVis: Open Bank Transaction Data for Visualization and Beyond", EuroVis 2023 Short Papers, pages 109 to 113, DOI 10.2312/evs.20231052 | CC BY 4.0 | Descriptor strings were extracted and used as the `descriptor_hint` of the UK brand records tagged MV in `brands_uk.json` (section 1.3). No transaction rows are redistributed. |
+| HMRC and gov.uk guidance (including the HMRC internal manuals and the SA103F notes), legislation.gov.uk (Finance Act 2004 sections 61 and 62) and the ONS UK SIC 2007 classification | Open Government Licence v3.0 | Rule citations and short quotations in `guide_uk.md`; the SIC 2007 codes and labels in the UK firm profiles. |
+| IRS forms, instructions, publications, notices and web pages; the Treasury Financial Manual; the Code of Federal Regulations and the US Code | US federal government works, public domain in the US (17 U.S.C. 105) | Rule citations and short quotations in `guide_us.md`; account names in `chart_us.json` follow the Schedule C wording. |
+| US Census Bureau 2010 surname file (https://www2.census.gov/topics/genealogy/2010surnames/names.zip) | US federal government work, public domain | Exclusion filter only: an invented surname that is a real surname in the file is rejected. No name from the file is used. |
+| dwyl/english-words `words_alpha.txt` (https://github.com/dwyl/english-words) | Unlicense (public domain dedication) | Exclusion filter only: an invented surname that is an English word is rejected. |
+| sentence-transformers `all-MiniLM-L6-v2` | Apache License 2.0 | Used only to compute retrieval ranks that simulate which history precedents production would show. The model and its embeddings are not redistributed. |
+| HMRC `reference-checker` (https://github.com/hmrc/reference-checker) | Apache License 2.0 | The check-digit logic for UK VAT numbers, UTRs and PAYE Accounts Office references is ported in the generator's `refs.py`, which uses it to make sure every synthetic tax reference fails the official check. |
+
+Person payees in the data are an initial plus an invented surname from a generated pseudo-surname list (the generator's
+`make_names.py`), filtered by the two exclusion sources above and against the brand names in this folder.
+
+Required attribution for the Open Government Licence material: "Contains public sector information licensed under the
+Open Government Licence v3.0." (https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
+
+MoneyVis attribution: Firat, E. E. et al. (2023), "MoneyVis: Open Bank
+Transaction Data for Visualization and Beyond", EuroVis 2023 Short Papers; dataset DOI 10.17632/dnxtg6n4rv.1,
+licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The descriptor strings were copied with store
+numbers and references cut (section 1.3).

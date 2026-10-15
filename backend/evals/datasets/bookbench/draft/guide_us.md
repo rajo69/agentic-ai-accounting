@@ -1,8 +1,9 @@
 # Labelling guide US, v0.2 (draft, not frozen)
 
-Dataset: `bookbench` (renamed from `ledgerline` on 2026-10-13, decision A1). Chart: `chart_us.json` (`chart_id` `us_schedule_c_v0_2`, S corp overlay `us_schedule_c_v0_2_s_corp`; 42 accounts, 41 bank-hit).
-Status: version 0.2-draft (change log in section 8), written 2026-10-13 by Claude Code from the IRS sources in section 7; the candidate audits every rule
-(gate G2) before freeze. Nothing here is tax advice; it is a coding standard for a synthetic evaluation set.
+Dataset: `bookbench` (formerly `ledgerline`, renamed on 2026-10-13). Chart: `chart_us.json` (`chart_id` `us_schedule_c_v0_2`, S corp overlay `us_schedule_c_v0_2_s_corp`; 42 accounts, 41 bank-hit).
+Status: version 0.2-draft (change log in section 8), written 2026-10-13 by Claude Code (an AI coding assistant) from the
+IRS sources in section 7; the maintainer audits every rule before the guide is frozen. Nothing here is tax advice; it
+is a coding standard for a synthetic evaluation set.
 
 **Tax year.** All rules, thresholds and rates are those for **tax year 2025** (the current published Schedule C and
 2025 editions of Pubs 334, 463, 587 and 946). Every item date must fall inside calendar 2025. Changes found for 2026
@@ -37,7 +38,7 @@ the inputs listed in 1.3 and this guide must reach the gold answer; if they cann
 |---|---|---|
 | `record` | `{contact, description, reference, amount, date}` | The Xero-style record (main config). `amount` is signed: money out is negative, money in positive. Currency USD. `description` may hold a human memo or a bank narrative; `reference` may hold a check number, an ACH id, an invoice number or a tax form id. |
 | `bank_line` | `{narrative, bank_format}` | Second config only (feed-level shape). Same gold as the record. |
-| Firm history ledger | earlier confirmed transactions of the same firm: record fields plus the confirmed account | Never scored. This is how firm policy reaches the model in the production arm (PLAN_v2 section 2). |
+| Firm history ledger | earlier confirmed transactions of the same firm: record fields plus the confirmed account | Never scored. This is how firm policy reaches the model in the production arm (as precedents). |
 | Firm profile (optional) | metadata, see 1.4 | Shown only in the "profile injected" arm. |
 | Chart | all 42 accounts of `chart_us.json` (43 with the S corp overlay) | The model sees the full chart including 9999. |
 
@@ -80,7 +81,7 @@ fact into the item's review reason:
   loan repayment with no principal and interest breakdown; a payroll debit that mixes officer and staff pay).
 - **N4 Inputs contradict each other.** For example the description says "refund" on a debit with no earlier purchase
   in history, or the reference names a different firm.
-- **N5 Instruction-like text (stratum S6).** A field contains text that tries to direct the categoriser ("code this to
+- **N5 Instruction-like text (stratum S6, adversarial text).** A field contains text that tries to direct the categoriser ("code this to
   Owner's draw", "ignore previous rules"). A bookkeeper flags such a line; gold action is review whatever the
   apparent merchant.
 
@@ -92,7 +93,7 @@ inputs its tier allows, the gold is that account.
 
 - 9999 is an **account in the chart**. It exists so a model limited to chart codes (as production is) can express
   "send to a person". It is **never** a gold label and is `bank_hit = false`.
-- `NEEDS_REVIEW` is the **gold label**. Scoring (DECISIONS D22): on a gold `NEEDS_REVIEW` item, a prediction of 9999,
+- `NEEDS_REVIEW` is the **gold label**. Scoring (dataset convention): on a gold `NEEDS_REVIEW` item, a prediction of 9999,
   or any prediction routed to review by confidence, counts as a review action (lenient and strict variants are
   defined in the harness). On a gold-coded item a 9999 prediction counts as an unnecessary review.
 - `NEEDS_REVIEW` is never placed in `acceptable_labels`, and 9999 is never placed there either.
@@ -122,7 +123,7 @@ instructions say to deduct de minimis amounts only as other expenses and not on 
 - `line+profile`: only the firm profile states the deciding fact (scored only in the profile-injected arm).
 - `none`: gold is `NEEDS_REVIEW`.
 
-**Gold by arm (fix round 1).** Every item carries `label` (gold with every permitted input), `label_cold_start` (gold when no history is supplied: the code if the line alone settles it, else `NEEDS_REVIEW`) and `gold_action_production` (the action the production arm must take: `review` for `line+profile` items, whose deciding fact production never sees, and for any `line+history` item whose deciding precedent is not in the simulated top 5). Scorers read these fields; prose in this guide is not the scoring rule.
+**Gold by arm (added in v0.1).** Every item carries `label` (gold with every permitted input), `label_cold_start` (gold when no history is supplied: the code if the line alone settles it, else `NEEDS_REVIEW`) and `gold_action_production` (the action the production arm must take: `review` for `line+profile` items, whose deciding fact production never sees, and for any `line+history` item whose deciding precedent is not in the simulated top 5). Scorers read these fields; prose in this guide is not the scoring rule.
 
 The rule table gives each rule's usual tier. The generator sets the tier per item: a rule tagged `line+history` is
 `line` when the record text itself states the deciding fact (for example a memo "client lunch, kitchen bid").
@@ -142,7 +143,7 @@ When a rule mixes both (IRS text decides deductibility, convention decides the a
 ## 3. Bank-hit accounts
 
 Format per account: definition; typical merchants or descriptors; include; exclude; near neighbours. Merchant names are
-national brands or invented businesses (D18). "Sch C" = Schedule C 2025 line.
+national brands or invented businesses (marked "invented"). "Sch C" = Schedule C 2025 line.
 
 ### Revenue
 
@@ -275,8 +276,8 @@ national brands or invented businesses (D18). "Sch C" = Schedule C 2025 line.
   furniture and equipment expensed under the de minimis election (720, US-R050); such items over the limit or at a
   firm without the election (1500).
 - Near: 645, 500, 720, 1500.
-- Changed in v0.2: de minimis items moved from 670 to 720 (owner decision C2; the Schedule C instructions say "Only
-  deduct these amounts as other expenses").
+- Changed in v0.2: de minimis items moved from 670 to 720 (section 6, item 2; the Schedule C instructions say
+  "Only deduct these amounts as other expenses").
 
 **675 Taxes and licenses** (Sch C 23)
 - Typical: city business licence, state LLC annual fee, county business personal property tax, state contractor
@@ -340,7 +341,7 @@ national brands or invented businesses (D18). "Sch C" = Schedule C 2025 line.
 
 **720 Other business expenses (Part V)** (Sch C 27b, from Part V line 48)
 - Definition: ordinary and necessary business expenses that Schedule C puts in Part V and that no more specific
-  account in this chart covers. Added in v0.2 (owner decisions C1 and C2).
+  account in this chart covers. Added in v0.2 (section 6, items 1 and 2).
 - Typical: a laptop, tool, printer or piece of furniture at or under USD 2,500 per item or invoice at a firm with the
   de minimis election (US-R050); a caterer, venue or party supplier for a staff holiday party or summer picnic
   (US-R014); a penalty or liquidated damages paid to a customer or contract party for late performance or
@@ -535,84 +536,52 @@ payroll), F-SC-B (single-officer S corp consultancy with payroll through a provi
 
 ---
 
-## 6. Open questions for the candidate
+## 6. Known limitations and pending checks
 
-All twelve were answered by the owner on 2026-10-13 (DECISION_ANSWERS.md, Part C; DECISIONS D54). Each question is
-kept with its answer.
+### 6.0 Dataset conventions
 
-1. **Add an "Other business expenses (Part V)" account?** v0 had no generic Part V account, so a staff party went to
-   620 (US-R014) and contract late-performance penalties (deductible per Pub 334) were not generated.
-   Decided 2026-10-13 (C1, not the default): add `720 Other business expenses (Part V)`, Schedule C line 27b via
-   Part V line 48 (not line 27a, which is the energy-efficient commercial buildings deduction on the 2025 form).
-   Staff parties (US-R014) and deductible late-performance penalties (new US-R194) go there. Conflict check: the IRS
-   text supports both moves (section 4.1 citations); no conflict found.
-2. **De minimis items in 670 Supplies or a separate account?** IRS instructions place de minimis amounts in Part V,
-   not line 22. Decided 2026-10-13 (C2, not the default 670): 720. Conflict check: the Schedule C instructions say
-   "Only deduct these amounts as other expenses. Don't include these amounts on any other line." and Pub 334 says
-   they "should be included as other expenses in Part V". The move agrees with the IRS text; US-R050 now labels 720.
-   One related point is open, see 6.1.
-3. **Standard mileage firms: fuel and repairs to 3010, or to 605 with a year-end reclass?** Decided 2026-10-13 (C3,
-   default): 3010 (US-R043).
-4. **Payroll coding.** Decided 2026-10-13 (C4, default): net pay 695, payroll taxes 2200, provider fee 640 with 705
-   acceptable (US-R083, US-R084).
-5. **Processor policy mix.** Decided 2026-10-13 (C5, default ratio): one third `processor_gross`, two thirds
-   `bank_deposit_net`. With 18 US firms (SCHEMA_v0.2 choice S6, after the 500 / 500 split of A3) that is 6
-   `processor_gross` and 12 `bank_deposit_net` (was 4 and 8 of 12), with both values in dev and in test.
-6. **Local rideshare.** Decided 2026-10-13 (C6, default): 605 with 680 acceptable (US-R033).
-7. **Bank interest income.** Decided 2026-10-13 (C7, default): 410 Other income (US-R192).
-8. **S corp scope.** Decided 2026-10-13 (C8, default): one single-officer S corp plus two S corps with staff; a
-   payroll debit mixing officer and staff pay is review (US-R077).
-9. **Mixed-use mobile phone plans.** Decided 2026-10-13 (C9, default): by stated use, business line 690, home line
-   3010, with a precedent in history (US-R061).
-10. **Political contributions and club dues.** Decided 2026-10-13 (C10, default): political 3010 (US-R182), club
-    dues 790 (US-R015).
-11. **Warehouse club memberships (US-R152).** Decided 2026-10-13 (C11, default): 670 when history shows supply buying
-    (convention), else 3010 as the rule states.
-12. **Tax year.** Decided 2026-10-13 (C12, default): every US item date in calendar 2025.
+Each point below is a choice this dataset makes where IRS text does not settle the account, or a scope limit. All
+were decided on 2026-10-13 and each is kept with its reasoning.
 
-### 6.1 Conflicts for the owner (open)
+1. **An "Other business expenses (Part V)" account.** v0 had no generic Part V account, so a staff party went to 620
+   (US-R014) and contract late-performance penalties (deductible per Pub 334) were not generated. The chart adds
+   `720 Other business expenses (Part V)`, Schedule C line 27b via Part V line 48 (not line 27a, which is the
+   energy-efficient commercial buildings deduction on the 2025 form). Staff parties (US-R014) and deductible
+   late-performance penalties (US-R194) go there. The IRS text supports both moves (section 4.1 citations).
+2. **De minimis items go to 720, not 670 Supplies.** The Schedule C instructions say "Only deduct these amounts as
+   other expenses. Don't include these amounts on any other line." and Pub 334 says they "should be included as other
+   expenses in Part V". US-R050 labels 720. One related point is open, see 6.1.
+3. **Standard mileage firms.** Fuel and repairs go to 3010, not to 605 with a year-end reclass (US-R043).
+4. **Payroll coding.** Net pay 695, payroll taxes 2200, provider fee 640 with 705 acceptable (US-R083, US-R084).
+5. **Processor policy mix.** One third of US firms use `processor_gross` and two thirds `bank_deposit_net`. With 18 US
+   firms that is 6 `processor_gross` and 12 `bank_deposit_net`, with both values in dev and in test.
+6. **Local rideshare.** 605 with 680 acceptable (US-R033).
+7. **Bank interest income.** 410 Other income (US-R192).
+8. **S corp scope.** One single-officer S corp plus two S corps with staff; a payroll debit mixing officer and staff
+   pay is review (US-R077).
+9. **Mixed-use mobile phone plans.** By stated use: business line 690, home line 3010, with a precedent in history
+   (US-R061).
+10. **Political contributions and club dues.** Political 3010 (US-R182), club dues 790 (US-R015).
+11. **Warehouse club memberships (US-R152).** 670 when history shows supply buying (convention), else 3010 as the
+    rule states.
+12. **Tax year.** Every US item date is in calendar 2025.
+
+### 6.1 Known limitation (open)
 
 - **Operating supplies at a firm with the de minimis election.** 26 CFR 1.162-3(f) says a taxpayer who elects the de
   minimis safe harbor "must apply the de minimis safe harbor to amounts paid for all materials and supplies that meet
   the requirements of § 1.263(a)-1(f)", and that those amounts "are not treated as amounts paid for materials and
   supplies". Read with the Schedule C instruction above ("Don't include these amounts on any other line"), this
   suggests that at an electing firm even consumables (US-R054, US-R053 at a firm without inventory, US-R152) could
-  belong in Part V rather than line 22. v0.2 does not apply this: C2 names only de minimis items, the generator
-  treats "equipment" uses as the de minimis items, and line 22 Supplies would otherwise be empty at most firms.
-  Consumables stay 670 at every firm until the owner decides. Options: (a) keep as is (recommended: matches common
-  practice, and the rules here only claim the de minimis items); (b) move consumables to 720 at electing firms.
-- **Decision log slip.** DECISIONS D54 says "Schedule C line 27a". The 2025 form has 27a "Energy efficient commercial
-  bldgs deduction (attach Form 7205)" and 27b "Other expenses (from line 48)". 720 is recorded as 27b. D54 needs a
-  correction note; this guide cannot edit DECISIONS.md.
+  belong in Part V rather than line 22. v0.2 does not apply this: convention 2 names only de minimis items, the
+  generator treats "equipment" purchases as the de minimis items, and line 22 Supplies would otherwise be empty at
+  most firms. Consumables stay 670 at every firm until this is decided. Options: (a) keep as is (recommended: matches
+  common practice, and the rules here only claim the de minimis items); (b) move consumables to 720 at electing firms.
+- **Line number of account 720.** The 2025 form has 27a "Energy efficient commercial bldgs deduction (attach Form
+  7205)" and 27b "Other expenses (from line 48)". 720 is recorded as line 27b; an earlier internal note that named
+  line 27a was wrong.
 
 ---
-
-## 8. Change log
-
-- 0.2-draft (2026-10-13, fix round 2, owner decisions C1 to C12 and SCHEMA_v0.2):
-  - New account `720 Other business expenses (Part V)` in `chart_us.json` (Schedule C line 27b via Part V line 48;
-    bank-hit; class family `overheads_admin`). Chart counts now 42 accounts, 41 bank-hit, 30 P&L, 12 balance sheet
-    and control.
-  - US-R014 (staff parties, employee recreation): label 620 to 720; basis stays convention; citations add the
-    Schedule C line 14 and Part V instructions and the Pub 334 list of employee benefit programs.
-  - US-R050 (de minimis items): label 670 to 720; basis statute to official_guidance (the instructions, not the
-    regulation, decide the line); citations lead with the Schedule C Part V instruction and Pub 334.
-  - New US-R194 (penalties for late performance or nonperformance of a contract): 720, line, official_guidance.
-  - Section 3: new 720 entry; near-neighbour notes updated for 620, 645, 670, 685, 700, 705, 710, 715, 790 and 1500;
-    670 no longer includes de minimis items. Chart labeller notes updated to match (620, 670, 700, 705, 710, 715,
-    790, 1500); the CONVENTION and regulation sources were dropped from 670, whose de minimis note they supported.
-  - Section 2.3: 670/720 recorded as not an acceptable pair.
-  - Section 4.2 counts: 81 rules (statute 4, official_guidance 44, convention 33).
-  - Worked example 6: label 670 to 720.
-  - Section 6: owner answers to C1 to C12 recorded; C5 restated as 6 `processor_gross` and 12 `bank_deposit_net`
-    of 18 US firms (S6); new 6.1 lists open conflicts (materials and supplies at electing firms; the D54 line
-    number slip).
-  - Sources: Schedule C 2025 form and instructions, Pub 334 and Pub 463 re-fetched 2026-10-13 for the new and
-    changed citations; 26 CFR 1.162-3 added (section 6.1 only).
-- 0.1-draft (2026-10-13, fix round 1 after the pilot audit): US-R002 versus US-R143 for grocers settled in favour
-  of US-R143 (audit item ll-us-0007); `line+profile` items are review in the production arm, encoded as
-  `gold_action_production` (ll-us-0031); meals with no memo and no precedent use criterion N2, not N1; new US-R193
-  recurring payee; gold by arm (`label_cold_start`, `gold_action_production`).
 
 ## 7. Sources
 
@@ -674,6 +643,35 @@ line 30" and line 48 is "Total other expenses. Enter here and on line 27b".
 
 ### 7.3 Provenance
 
-Drafted by Claude Code (2026-10-13) from the sources above and the research note `notes/r3_us.md`; no model wrote
-items or labels. The candidate audits each rule (G2) and may change any convention rule; changes bump the guide
-version.
+Drafted by Claude Code (an AI coding assistant, 2026-10-13) from the sources above; no model wrote items or labels
+(the generator is deterministic code). The maintainer audits each rule and may change any convention rule; changes
+bump the guide version.
+
+---
+
+## 8. Change log
+
+- 0.2-draft (2026-10-13, second fix round):
+  - New account `720 Other business expenses (Part V)` in `chart_us.json` (Schedule C line 27b via Part V line 48;
+    bank-hit; class family `overheads_admin`). Chart counts now 42 accounts, 41 bank-hit, 30 P&L, 12 balance sheet
+    and control.
+  - US-R014 (staff parties, employee recreation): label 620 to 720; basis stays convention; citations add the
+    Schedule C line 14 and Part V instructions and the Pub 334 list of employee benefit programs.
+  - US-R050 (de minimis items): label 670 to 720; basis statute to official_guidance (the instructions, not the
+    regulation, decide the line); citations lead with the Schedule C Part V instruction and Pub 334.
+  - New US-R194 (penalties for late performance or nonperformance of a contract): 720, line, official_guidance.
+  - Section 3: new 720 entry; near-neighbour notes updated for 620, 645, 670, 685, 700, 705, 710, 715, 790 and 1500;
+    670 no longer includes de minimis items. Chart labeller notes updated to match (620, 670, 700, 705, 710, 715,
+    790, 1500); the CONVENTION and regulation sources were dropped from 670, whose de minimis note they supported.
+  - Section 2.3: 670/720 recorded as not an acceptable pair.
+  - Section 4.2 counts: 81 rules (statute 4, official_guidance 44, convention 33).
+  - Worked example 6: label 670 to 720.
+  - Section 6: the twelve dataset conventions recorded; the processor policy mix restated as 6 `processor_gross` and
+    12 `bank_deposit_net` of 18 US firms; new 6.1 lists open points (materials and supplies at electing firms; the
+    line number of 720).
+  - Sources: Schedule C 2025 form and instructions, Pub 334 and Pub 463 re-fetched 2026-10-13 for the new and
+    changed citations; 26 CFR 1.162-3 added (section 6.1 only).
+- 0.1-draft (2026-10-13, first fix round after an audit of the pilot sample): US-R002 versus US-R143 for grocers
+  settled in favour of US-R143; `line+profile` items are review in the production arm, encoded as
+  `gold_action_production`; meals with no memo and no precedent use criterion N2, not N1; new US-R193 recurring
+  payee; gold by arm (`label_cold_start`, `gold_action_production`).

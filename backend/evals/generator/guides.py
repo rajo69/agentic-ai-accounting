@@ -51,6 +51,32 @@ def _resolve_links(cell: str, targets: dict[str, str]) -> str:
     return _LINK.sub(repl, cell).replace(" ; ", "; ")
 
 
+# Emitted `rule_source` strings must resolve for a reader who has only the published files. Some guide source cells
+# point at project-internal planning notes (a plan section, an owner decision code, a numbered open question); those
+# pointers are rewritten into the published guide file and rule id. The guide text is the authority either way.
+INTERNAL_REF = re.compile(
+    r"PLAN_v\d|SCHEMA_v|BUILD_NOTES|REVIEW_SHEET|DECISION|\.claude|review_plan|notes/|[Oo]wner decision"
+    r"|[Dd]esign decision|open question|open decision|fix round|\baudit round|\b[A-F]\d{1,2}\b"
+)
+
+
+def public_source(rule_id: str, source: str) -> str:
+    guide = "guide_uk.md" if rule_id.startswith("UK") else "guide_us.md"
+    ref = f"{guide} {rule_id}"
+    s = re.sub(r"the split itself is owner decision B5 \(open question 5\)",
+               f"the split itself is a dataset convention: processor payouts split, sales at gross to 200 and fees "
+               f"to 404 ({ref})", source)
+    s = re.sub(r"\bis (?:an? )?owner decision [A-Z]\d+(?: \(open question \d+\))?", f"is a dataset convention ({ref})", s)
+    s = re.sub(r"[Oo]wner decision [A-Z]\d+(?: \(open question \d+\))?", f"dataset convention ({ref})", s)
+    s = re.sub(r"dataset policy \(PLAN_v2 section \d+\)", f"dataset convention, {ref}", s)
+    s = re.sub(r"design decision for v1", f"dataset convention, {ref}", s)
+    s = re.sub(r" ?\(open question \d+\)", f"; dataset convention, {ref}", s)
+    s = re.sub(r"open question \d+", f"dataset convention, {ref}", s)
+    # A bare "(section 7, item 4)" names a section of the guide the rule sits in; an item does not say which guide.
+    s = re.sub(r"\(section (\d)", rf"({guide} section \1", s)
+    return s
+
+
 def _parse(path: Path, prefix: str) -> dict[str, RuleMeta]:
     text = path.read_text(encoding="utf-8")
     targets = _us_link_targets(text)
@@ -69,7 +95,7 @@ def _parse(path: Path, prefix: str) -> dict[str, RuleMeta]:
             label_text=label,
             solvable_with=solvable,
             rule_basis=basis,
-            rule_source=_resolve_links(source, targets),
+            rule_source=public_source(rid, _resolve_links(source, targets)),
         )
     return rules
 

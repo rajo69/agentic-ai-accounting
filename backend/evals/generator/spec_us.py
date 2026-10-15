@@ -31,7 +31,7 @@ CUSTOMER_TRADES = {
     "bayview-veterinary": ["professional", "creative", "construction", "trades", "catering"],
     "crescent-moon-yoga": ["creative", "professional", "education", "retail", "crafts"],
     "timberline-outfitters": ["crafts", "retail", "creative", "professional", "catering"],
-    "northstar-credit-union": ["professional", "creative", "construction", "education", "retail", "catering", "crafts", "trades"],
+    "bramblewood-credit-union": ["professional", "creative", "construction", "education", "retail", "catering", "crafts", "trades"],
 }
 
 _SAAS = [
@@ -415,7 +415,7 @@ def _penalty_uses(slug: str) -> list[dict]:
 RECEIPT_LINES = ["Invoice {N6}", "Payment, invoice {N6}", ""]
 # Half the references typed in lower case, as customers do.
 RECEIPT_REFS = ["INV {N6}", "INV-{N6}", "{N6}", "inv {N6}", "invoice {N6} thanks", "pmt for inv {N6}"]
-LENDER_LIKE_CUSTOMERS = {"northstar-credit-union"}
+LENDER_LIKE_CUSTOMERS = {"bramblewood-credit-union"}
 
 # Small sellers (shortcut S-1, audit round 2): local businesses billed through a card processor, so their card
 # lines carry the processor prefix (`SQ *` Square, `PAYPAL *` PayPal, `TST*` Toast, restaurants only) in ordinary
@@ -584,7 +584,8 @@ MERCHANTS += [
         ("bayview-veterinary", "Bayview Veterinary Clinic", "BAYVIEW VETERINARY", "120.00", "2800.00"),
         ("crescent-moon-yoga", "Crescent Moon Yoga Studio", "CRESCENT MOON YOGA", "80.00", "1600.00"),
         ("timberline-outfitters", "Timberline Outfitters", "TIMBERLINE OUTFITTERS", "200.00", "6400.00"),
-        ("northstar-credit-union", "Northstar Community Credit Union", "NORTHSTAR CMTY CU", "400.00", "9000.00"),
+        # Renamed from a name close to a real credit union; the new name was web-checked (2026-10-15).
+        ("bramblewood-credit-union", "Bramblewood Community Credit Union", "BRAMBLEWOOD CMTY CU", "400.00", "9000.00"),
     ]],
     # Government payees
     I("irs", "Internal Revenue Service", ["Internal Revenue Service", "IRS"], ["IRS DES:USATAXPYMT ID:{N15}", "IRS USATAXPYMT"], [

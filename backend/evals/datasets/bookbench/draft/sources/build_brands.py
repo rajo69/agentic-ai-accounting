@@ -748,7 +748,8 @@ def cmd_build(a):
         for r in rows:
             h = HINTS.get((cc, r['name']))
             r['descriptor_hint'] = h[0] if h else None
-            r['descriptor_hint_source'] = h[1] if h else None
+            # The hint tables cite the research notes they came from; only the source tag is published.
+            r['descriptor_hint_source'] = re.sub(r' via r\d_u[ks]\.md [\d.]+(?: and [\d.]+)?$', '', h[1]) if h else None
             if r['brand_id'] in ids:
                 r['brand_id'] += '-' + r['wikidata_qid'].lower()
             ids[r['brand_id']] = 1

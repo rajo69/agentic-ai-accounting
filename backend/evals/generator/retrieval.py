@@ -68,7 +68,7 @@ class Embedder:
     def save(self) -> None:
         if self.dirty:
             self.cache_path.parent.mkdir(parents=True, exist_ok=True)
-            self.cache_path.write_text(json.dumps(self.cache, sort_keys=True), encoding="utf-8")
+            self.cache_path.write_text(json.dumps(self.cache, sort_keys=True), encoding="utf-8", newline="\n")
             self.dirty = False
 
 

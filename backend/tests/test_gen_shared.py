@@ -4,6 +4,7 @@ amounts, constant references, contacts, precedent forms, the history tag and the
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import json
 import random
 from decimal import Decimal
@@ -366,3 +367,110 @@ def test_month_style_does_not_repeat_a_month():
     assert apply_style("Rent for September", "month", d) == "Rent for September"
     assert apply_style("Search ads", "month", d) == "Search ads Nov"
     assert apply_style("Junk removal", "month", d) == "Junk removal Nov"
+
+
+# ---------------------------------------------------------------- publication hygiene
+
+
+def test_public_source_rewrites_internal_pointers():
+    from evals.generator.guides import INTERNAL_REF, public_source
+
+    cases = {
+        "dataset policy (PLAN_v2 section 5)": "dataset convention, guide_uk.md UK-R061",
+        "SA103F 26, supporting; the split itself is owner decision B5 (open question 5)":
+            "SA103F 26, supporting; the split itself is a dataset convention: processor payouts split, sales at gross "
+            "to 200 and fees to 404 (guide_uk.md UK-R061)",
+        "SA103F 15, supporting; single code is owner decision S3":
+            "SA103F 15, supporting; single code is a dataset convention (guide_uk.md UK-R061)",
+        "open question 3": "dataset convention, guide_uk.md UK-R061",
+        "account choice is practice (open question 6)": "account choice is practice; dataset convention, guide_uk.md UK-R061",
+        "design decision for v1": "dataset convention, guide_uk.md UK-R061",
+        "dataset convention (section 7, item 4)": "dataset convention (guide_uk.md section 7, item 4)",
+        "BIM38515 (penalties)": "BIM38515 (penalties)",
+    }
+    for raw, want in cases.items():
+        got = public_source("UK-R061", raw)
+        assert got == want, (raw, got)
+        assert not INTERNAL_REF.search(got)
+    assert public_source("US-R077", "N3 (section 2.1)") == "N3 (guide_us.md section 2.1)"
+
+
+def test_no_rule_source_cites_internal_notes(built):
+    from evals.generator.guides import INTERNAL_REF, load_rules
+
+    for rid, meta in load_rules().items():
+        assert not INTERNAL_REF.search(meta.rule_source), (rid, meta.rule_source)
+    _, items, _ = built
+    for it in items:
+        assert not INTERNAL_REF.search(it["rule_source"]), (it["item_id"], it["rule_source"])
+
+
+def test_published_notes_and_manifest_files(built):
+    out, _, _ = built
+    st = json.loads((out / "stats.json").read_text(encoding="utf-8"))
+    assert st["note"] == f"Build statistics for this draft; generator {B.GENERATOR_VERSION}."
+    m = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert m["baselines"]["results_in"] == "stats.json; per stratum in the dataset card"
+    # The review sheet is written for the owner but is not a published file.
+    assert (out / "REVIEW_SHEET.md").exists()
+    assert set(m["files"]) == {"items.jsonl", "history.jsonl", "stats.json"}
+
+
+def test_text_hashes_ignore_line_endings(tmp_path):
+    lf, crlf, binary = tmp_path / "a.md", tmp_path / "b.md", tmp_path / "c.bin"
+    lf.write_bytes(b"line one\nline two\n")
+    crlf.write_bytes(b"line one\r\nline two\r\n")
+    binary.write_bytes(b"line one\r\nline two\r\n")
+    assert B.sha256(lf) == B.sha256(crlf)
+    assert B.sha256(binary) != B.sha256(lf)
+    for name in ("x.json", "x.jsonl"):
+        p = tmp_path / name
+        p.write_bytes(b"{}\r\n")
+        assert B.sha256(p) == hashlib.sha256(b"{}\n").hexdigest()
+
+
+def test_build_writes_lf_only(built):
+    out, _, _ = built
+    for p in out.iterdir():
+        assert b"\r\n" not in p.read_bytes(), p.name
+
+
+def test_surname_deny_filter_and_stable_draw():
+    from evals.generator import make_names
+    from evals.generator.firms import surname_slots, surnames
+
+    names = surnames()
+    assert not any(make_names.denied(n) for n in names)
+    assert "Hickley" not in names and len(set(names)) == len(names)
+    slots = surname_slots()
+    assert [s for s in slots if s is not None] == list(names)
+    assert len(slots) - len(names) == sum(1 for s in slots if s is None) > 0
+    assert make_names.deny_filter(["Halvennick", "Tealdick", "Hickley", "Brownard"]) == (
+        ["Halvennick", "Brownard"],
+        {"substrings": list(make_names.DENY_SUBSTRINGS), "exact": ["Hickley"], "draw_pool_size": 4, "removed": 2,
+         "removed_positions": [1, 2]},
+    )
+    for f in FIRMS.values():
+        people = [p for k in ("owners", "employees", "subcontractors", "unknown_pool", "clients") for p in f["people"][k]]
+        people += [f["people"]["landlord"]] if f["people"]["landlord"] else []
+        assert len(set(people)) == len(people), f["firm_id"]
+        assert not any(make_names.denied(p.partition(" ")[2]) for p in people), f["firm_id"]
+
+
+def test_no_merchant_borrows_a_real_business_name():
+    from evals.generator import spec_uk, spec_us
+
+    names = {n.casefold() for m in spec_uk.MERCHANTS + spec_us.MERCHANTS
+             for n in [m["name"], *m["contact_names"], *m["narratives"]]}
+    for banned in ("cellar door wines", "northstar community credit union", "northstar cmty cu"):
+        assert banned not in names
+    assert "quillmoor wines" in names and "bramblewood community credit union" in names
+
+
+def test_refs_carries_upstream_attribution():
+    from pathlib import Path
+
+    from evals.generator import refs
+
+    head = Path(refs.__file__).read_text(encoding="utf-8")[:600]
+    assert "github.com/hmrc/reference-checker" in head and "Apache License, Version 2.0" in head

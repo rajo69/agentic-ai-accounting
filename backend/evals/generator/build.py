@@ -1,4 +1,4 @@
-"""Build the bookbench dataset: `py -3.13 -m evals.generator.build --mode pilot|full [--seed N] [--out DIR]`.
+"""Build the bookbench dataset: `python -m evals.generator.build --mode pilot|full [--seed N] [--out DIR]`.
 
 No network, no model calls. Deterministic: one seeded random.Random per stage, sorted iteration everywhere, and a
 fixed `created` date, so the same seed gives byte-identical files.
@@ -355,8 +355,19 @@ def write_json(path: Path, obj) -> None:
     write_text(path, json.dumps(obj, sort_keys=True, ensure_ascii=False, indent=1) + "\n")
 
 
+TEXT_SUFFIXES = {".md", ".json", ".jsonl", ".txt", ".csv"}
+
+
 def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    """sha256 of a file; text files are hashed over LF-normalised bytes (CRLF to LF).
+
+    Every file the build writes is LF (`newline="\\n"`), but git with core.autocrlf checks text files out as CRLF on
+    Windows while storing LF, so hashing raw working-tree bytes would make the manifest depend on checkout settings.
+    Normalising CRLF to LF gives the same hash on any checkout, and equals the raw hash of the LF file git stores."""
+    data = path.read_bytes()
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
 
 
 def write_specs(specs_dir: Path, firms: dict) -> list[Path]:
@@ -405,7 +416,7 @@ def stats(items: list[dict], history: list[dict], quotas: dict, gen_stats: dict 
     by_split_stratum = Counter((i["jurisdiction"], i["split"], i["stratum"]) for i in items)
     return {
         "canary": CANARY,
-        "note": "Dry-run statistics for design review; never for publication.",
+        "note": f"Build statistics for this draft; generator {GENERATOR_VERSION}.",
         "items": len(items),
         "history_rows": len(history),
         "quotas": quotas,
@@ -599,8 +610,8 @@ def build(seed: int, mode: str, n_uk: int | None, n_us: int | None, out: Path, s
     write_json(out / "stats.json", st)
     files.append(out / "stats.json")
     if mode == "pilot":
+        # Local review aid for the owner; not a published file, so it stays out of the manifest.
         write_text(out / "REVIEW_SHEET.md", review_sheet(items, history, firms))
-        files.append(out / "REVIEW_SHEET.md")
     spec_files = write_specs(specs_out, firms) if specs_out else []
     inputs = [DRAFT_DIR / n for n in ("guide_uk.md", "guide_us.md", "chart_uk.json", "chart_us.json")]
     manifest = {
@@ -619,7 +630,7 @@ def build(seed: int, mode: str, n_uk: int | None, n_us: int | None, out: Path, s
         "inputs": {p.name: sha256(p) for p in inputs},
         "scoring": SCORING,
         "baselines": {"names": list(baselines.NAMES), "fit_on": "dev", "scored_on": "test", "rule": "lenient",
-                      "results_in": "stats.json (internal); per stratum in the dataset card (A14)"},
+                      "results_in": "stats.json; per stratum in the dataset card"},
     }
     write_json(out / "manifest.json", manifest)
     return manifest

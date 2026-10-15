@@ -20,12 +20,12 @@
      "n": 109
     },
     "none": {
-     "accuracy": 0.231,
-     "n": 312
+     "accuracy": 0.232,
+     "n": 311
     },
     "varied": {
-     "accuracy": 0.101,
-     "n": 179
+     "accuracy": 0.1,
+     "n": 180
     }
    },
    "by_rule_basis": {
@@ -105,7 +105,7 @@
     "n": 300
    },
    "US": {
-    "accuracy": 0.42,
+    "accuracy": 0.417,
     "n": 300
    },
    "by_description_in_history": {
@@ -114,12 +114,12 @@
      "n": 109
     },
     "none": {
-     "accuracy": 0.125,
-     "n": 312
+     "accuracy": 0.116,
+     "n": 311
     },
     "varied": {
-     "accuracy": 0.732,
-     "n": 179
+     "accuracy": 0.739,
+     "n": 180
     }
    },
    "by_rule_basis": {
@@ -128,7 +128,7 @@
      "n": 326
     },
     "official_guidance": {
-     "accuracy": 0.41,
+     "accuracy": 0.406,
      "n": 256
     },
     "statute": {
@@ -138,11 +138,11 @@
    },
    "by_solvable_with": {
     "line": {
-     "accuracy": 0.314,
+     "accuracy": 0.308,
      "n": 331
     },
     "line+history": {
-     "accuracy": 0.994,
+     "accuracy": 1.0,
      "n": 174
     },
     "line+profile": {
@@ -160,7 +160,7 @@
      "n": 150
     },
     "S1": {
-     "accuracy": 0.189,
+     "accuracy": 0.178,
      "n": 90
     },
     "S2": {
@@ -185,11 +185,11 @@
     }
    },
    "headline": {
-    "accuracy": 0.489,
+    "accuracy": 0.488,
     "n": 570
    },
    "overall": {
-    "accuracy": 0.465,
+    "accuracy": 0.463,
     "n": 600
    }
   },
@@ -208,12 +208,12 @@
      "n": 109
     },
     "none": {
-     "accuracy": 0.231,
-     "n": 312
+     "accuracy": 0.232,
+     "n": 311
     },
     "varied": {
-     "accuracy": 0.101,
-     "n": 179
+     "accuracy": 0.1,
+     "n": 180
     }
    },
    "by_rule_basis": {
@@ -302,12 +302,12 @@
      "n": 109
     },
     "none": {
-     "accuracy": 0.571,
-     "n": 312
+     "accuracy": 0.572,
+     "n": 311
     },
     "varied": {
-     "accuracy": 0.48,
-     "n": 179
+     "accuracy": 0.478,
+     "n": 180
     }
    },
    "by_rule_basis": {
@@ -424,9 +424,9 @@
   "UK:exact": 102,
   "UK:none": 238,
   "UK:varied": 160,
-  "US:exact": 81,
-  "US:none": 267,
-  "US:varied": 152
+  "US:exact": 80,
+  "US:none": 266,
+  "US:varied": 154
  },
  "by_gold_action": {
   "UK:post": 425,
@@ -957,7 +957,7 @@
   "distinct_descriptions": 756,
   "exact_record_within_firm": 0,
   "repeated_descriptions": 244,
-  "scored_descriptions_in_history": 362,
+  "scored_descriptions_in_history": 357,
   "scored_records_in_history": 0
  },
  "firms_per_split": {
@@ -978,14 +978,14 @@
  "history_precedent_form": {
   "UK:exact": 93,
   "UK:varied": 124,
-  "US:exact": 72,
-  "US:varied": 115
+  "US:exact": 70,
+  "US:varied": 117
  },
- "history_rows": 2568,
+ "history_rows": 2564,
  "history_rows_by_source": {
   "background": 825,
   "entity": 337,
-  "policy": 1002,
+  "policy": 998,
   "precedent": 404
  },
  "history_rows_containing_multiword_account_name_as_memo": 0,
@@ -996,10 +996,10 @@
  "merchant_seen_in_history": {
   "UK:False": 238,
   "UK:True": 262,
-  "US:False": 270,
-  "US:True": 230
+  "US:False": 269,
+  "US:True": 231
  },
- "note": "Dry-run statistics for design review; never for publication.",
+ "note": "Build statistics for this draft; generator 0.2.0-draft.",
  "quotas": {
   "UK": {
    "S0": 125,
@@ -1022,8 +1022,8 @@
  },
  "records_without_contact": 0,
  "retrieval_line_history_deciding_rank": {
-  "1": 287,
-  "2": 4,
+  "1": 288,
+  "2": 3,
   "3": 2,
   "4": 1
  },

@@ -36,10 +36,28 @@ def _short(name: str) -> str:
 
 
 @lru_cache(maxsize=None)
-def surnames() -> tuple[str, ...]:
-    """Frozen invented surnames (data/pseudo_surnames.json, built by make_names.py)."""
+def _surname_doc() -> dict:
     path = Path(__file__).parent / "data" / "pseudo_surnames.json"
-    return tuple(json.loads(path.read_text(encoding="utf-8"))["surnames"])
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=None)
+def surnames() -> tuple[str, ...]:
+    """Frozen invented surnames (data/pseudo_surnames.json, built by make_names.py), after its deny filter."""
+    return tuple(_surname_doc()["surnames"])
+
+
+@lru_cache(maxsize=None)
+def surname_slots() -> tuple[str | None, ...]:
+    """The surname list at its pre-filter positions, None where make_names.py's deny filter dropped a name.
+
+    Firms draw positions from this pre-filter pool, so the deny filter does not change how the firm's random stream
+    is consumed: initials, owner counts and every surviving name stay where they were."""
+    doc = _surname_doc()
+    kept = iter(doc["surnames"])
+    deny = doc.get("deny_filter") or {"draw_pool_size": len(doc["surnames"]), "removed_positions": []}
+    removed = set(deny["removed_positions"])
+    return tuple(None if i in removed else next(kept) for i in range(deny["draw_pool_size"]))
 
 
 INITIALS = "ABCDEFGHJKLMNPRSTW"
@@ -49,7 +67,14 @@ def _people(firm_id: str, entity: str, employees: int, subcontractors: int, land
     """Person payees as '<initial> <invented surname>'. Names are drawn at random per firm and never encode a role."""
     rng = firm_rng(firm_id, "people")
     names: list[str] = []
-    for sn in rng.sample(surnames(), 14):
+    slots = surname_slots()
+    picks = [slots[i] for i in rng.sample(range(len(slots)), 14)]
+    if None in picks:
+        # A position the deny filter emptied takes a replacement from a separate stream, so `rng` is untouched.
+        spare_rng = firm_rng(firm_id, "people-replace")
+        spare = [s for s in surnames() if s not in picks]
+        picks = [p if p is not None else spare.pop(spare_rng.randrange(len(spare))) for p in picks]
+    for sn in picks:
         names.append(f"{rng.choice(INITIALS)} {sn}")
     owners_n = {"partnership": 2, "limited_company": rng.choice([1, 2])}.get(entity, 1)
     owners = names[:owners_n]

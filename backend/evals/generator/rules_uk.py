@@ -1,7 +1,7 @@
 """UK rule functions, keyed by the rule ids of guide_uk.md section 4.
 
-Each function reads a `Ctx` (firm, merchant use, facts) and returns a `Gold`. Defaults taken for the guide's open
-questions are listed in BUILD_NOTES.md; the relevant ones are named in comments here.
+Each function reads a `Ctx` (firm, merchant use, facts) and returns a `Gold`. Where the guide leaves a question open,
+the default the generator takes is named in a comment next to the rule that uses it.
 Not generated in v1, so not implemented: UK-R007 (dividends) and UK-R020 (a generator constraint, enforced by never
 holding processor balances as bank accounts).
 """
