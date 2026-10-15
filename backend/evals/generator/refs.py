@@ -1,3 +1,8 @@
+# The UK check-digit routines below are a Python port of HMRC's reference-checker
+# (https://github.com/hmrc/reference-checker), Copyright 2023 HM Revenue & Customs, licensed under the
+# Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0). Changes: ported from Scala to Python and
+# used only to make sure synthetic references fail the checks. Distributed on an "AS IS" basis, without warranties
+# or conditions of any kind.
 """Synthetic tax references that look real but FAIL the official check rules.
 
 UK check rules are ported from HMRC's own reference checker (https://github.com/hmrc/reference-checker,

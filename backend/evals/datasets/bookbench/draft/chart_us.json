@@ -6,7 +6,7 @@
   "currency": "USD",
   "applies_to": "Sole proprietor and single-member LLC (Schedule C filers). S corporation only through the entity_variants.s_corp overlay (owner pay accounts).",
   "guide": "guide_us.md (Labelling guide US, v0.2-draft)",
-  "authorship": "Drafted by Claude Code from the IRS sources listed; to be audited by the candidate (G2).",
+  "authorship": "Drafted by Claude Code (an AI coding assistant) from the IRS sources listed; audited by the maintainer before the chart is frozen.",
   "code_scheme_note": "This dataset's own numeric scheme (ranges in the style of a small-business ledger: 4xx income, 5xx direct cost, 6xx-7xx expenses, 1xxx assets, 2xxx liabilities, 3xxx equity, 9999 suspense). Not Xero US, QuickBooks Online or any vendor's default numbering.",
   "field_docs": {
     "code": "This dataset's own numeric scheme (ranges in the style of a small-business ledger: 4xx income, 5xx direct cost, 6xx-7xx expenses, 1xxx assets, 2xxx liabilities, 3xxx equity, 9999 suspense). Not Xero US, QuickBooks Online or any vendor's default numbering.",
@@ -15,7 +15,7 @@
     "type": "Account type for the chart shown to the model.",
     "schedule_c_line": "Schedule C 2025 line the account feeds on a sole proprietor or SMLLC return; null for balance-sheet accounts and for 790.",
     "bank_hit": "True if a bank or card feed line can carry this account as its gold label. Gold labels are restricted to bank_hit accounts plus NEEDS_REVIEW.",
-    "class_family": "Reporting family for per-family metrics (PLAN_v2 section 6).",
+    "class_family": "Reporting family for per-family metrics.",
     "sources": "Keys into source_index; '#' suffix names the section."
   },
   "counts": {
@@ -630,7 +630,7 @@
       "sources": [
         "CONVENTION"
       ],
-      "labeller_note": "Shown to the model so it can send a line to a person. Never a gold label: gold for such lines is NEEDS_REVIEW, and a 9999 prediction is scored as a review action (DECISIONS D22)."
+      "labeller_note": "Shown to the model so it can send a line to a person. Never a gold label: gold for such lines is NEEDS_REVIEW, and a 9999 prediction is scored as a review action (dataset scoring convention)."
     }
   ],
   "entity_variants": {

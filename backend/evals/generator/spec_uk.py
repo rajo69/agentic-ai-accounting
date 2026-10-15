@@ -608,7 +608,8 @@ MERCHANTS += [
     I("thornbury-hampers", "Thornbury Hampers Ltd", ["Thornbury Hampers Ltd"], ["THORNBURY HAMPERS"], [
         U("client_gift", "spend", "45.00", "420.00", "424", "UK-R031", ["Christmas hampers for clients", "Thank you hamper, client", "Gift hamper for supplier"], needs_line=True),
     ], fmt="UK-DEB"),
-    I("cellar-door-wines", "Cellar Door Wines", ["Cellar Door Wines"], ["CELLAR DOOR WINES"], [
+    # Renamed from a name a real wine merchant trades under; the new name was web-checked (2026-10-15).
+    I("quillmoor-wines", "Quillmoor Wines", ["Quillmoor Wines"], ["QUILLMOOR WINES"], [
         U("client_gift", "spend", "30.00", "260.00", "424", "UK-R031", ["Wine for client, project completion", "Champagne gift for client"], needs_line=True),
     ], fmt="UK-DEB"),
     I("inkwell-promotions", "Inkwell Promotional Products", ["Inkwell Promotional Products"], ["INKWELL PROMO"], [

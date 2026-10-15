@@ -7,7 +7,7 @@
    "copy_exact",
    "copy_top1"
   ],
-  "results_in": "stats.json (internal); per stratum in the dataset card (A14)",
+  "results_in": "stats.json; per stratum in the dataset card",
   "rule": "lenient",
   "scored_on": "test"
  },
@@ -15,23 +15,23 @@
  "counts": {
   "UK": 500,
   "US": 500,
-  "history_rows": 2568,
+  "history_rows": 2564,
   "items": 1000
  },
  "created": "2026-10-13",
  "dataset": "bookbench",
  "files": {
   "history.jsonl": {
-   "bytes": 1138875,
-   "sha256": "3bd6d755770f5d52562f1e913df11941c78821ba9f588fdc3fd9a42db1d002d3"
+   "bytes": 1137134,
+   "sha256": "2ccb52c79c728d6d2223a8fcf2df4614edc37a83f726e2d4639ca0bab7f0fd6f"
   },
   "items.jsonl": {
-   "bytes": 2375789,
-   "sha256": "32d76b2b021ea09964036db40c8c259efc0d0233af4e442ff99fa293e56ff243"
+   "bytes": 2378843,
+   "sha256": "b6c53e95932d1f52bca1676c1d51281d8a007b486aae63ef96a144f1f6091daf"
   },
   "stats.json": {
-   "bytes": 18757,
-   "sha256": "ac99528e8072adaca0f5f4cb289f2877f6019975f6815d8977bce1b76a2e7b8a"
+   "bytes": 18748,
+   "sha256": "22872b63c54f950c67234604b6773b8406488b0ba90ff653557f458bc1ce2323"
   }
  },
  "generator_version": "0.2.0-draft",
@@ -40,10 +40,10 @@
   "US": "us-v0.2-draft"
  },
  "inputs": {
-  "chart_uk.json": "2761841a140df1757fd254d2aec8883bfe1b7c903107273a68febd0f691d92a3",
-  "chart_us.json": "22aab025d7f18a0b06710a59cb21307c872d14fb54afce846a17ed15f1eeb3eb",
-  "guide_uk.md": "bd925e617953f2b3cf0423d9455c53d4ff32b8468be82881f1ee854adb7ebcdd",
-  "guide_us.md": "9db9ef0f6fba56b250753e01d9176dce89e496a7a1bb8f60550f4f26595977b3"
+  "chart_uk.json": "9fe248674701fb1ffbec9d6e8e5c8e281d3b9949ab5a257f7de37b9130eb55c1",
+  "chart_us.json": "1f0af07cf4f1974fc2efede0210807296250f3918867962d33a5ac0fd39dcd07",
+  "guide_uk.md": "f46556075c26c8fbcb967795d4fe967eab52991692c1e2190be5c7732049b59b",
+  "guide_us.md": "af06b43c4ee756e152be2d84f350acb869eff4d7d4467d86f311c9290e66eb14"
  },
  "mode": "full",
  "retrieval": {
@@ -97,8 +97,8 @@
  },
  "seed": 20261013,
  "spec_files": {
-  "catalogue_uk.json": "649076b7feb5f35d2e4396af48edbac9fb303b2cc208070c685d46aca7476539",
-  "catalogue_us.json": "4485ef7fccede793f7a468ba5b62f506d657c1b6105aa7d10c223afa4defe321",
-  "firms.json": "37fa6c8e96eec65f7cf4b6794df39ad01cc57851ad3a5efc298a452e6b007ff6"
+  "catalogue_uk.json": "8c6afe53eef6ca32d5aeb5075da9ad715229a3c44ad2d611b24fe80b14f50bc1",
+  "catalogue_us.json": "fae9ca56c0166327a600e599dd841965c958df6a750cef66ed22298e8599ee8f",
+  "firms.json": "99b906142d78bb4ddfeb52b5d91b5f3659eb5a1bfab39bd497895b1f552fa734"
  }
 }

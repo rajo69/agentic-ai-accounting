@@ -1,12 +1,20 @@
 """Build the frozen pseudo-surname list used for person payees (run once; output is committed with this script).
 
 Usage (stdlib only, so it runs isolated against untrusted downloads):
-    py -3.13 -I evals/generator/make_names.py <Names_2010Census.zip> <words_alpha.txt> <brands_uk.json> <brands_us.json> <out.json>
+    python -I evals/generator/make_names.py <Names_2010Census.zip> <words_alpha.txt> <brands_uk.json> <brands_us.json> <out.json>
+    python -I evals/generator/make_names.py --refilter <pseudo_surnames.json>   (apply the deny filter in place)
 
 Composer: seeded random.Random(SEED) joins onset + vowel + middle + suffix (for example "Halvennick"). A candidate is
 kept only if (1) it is not a surname in the US Census Bureau 2010 surname file (public domain; aggregate counts of
 surnames occurring 100 or more times, no individuals), (2) it is not an English word in the dwyl english-words list
 (Unlicense), (3) it shares no word with a brand name, and (4) it is at least edit distance 2 from every name kept so far.
+
+Deny filter (applied after composing, so it never changes which candidates are composed): a name containing an
+offensive or unfortunate substring (DENY_SUBSTRINGS), or listed in DENY_EXACT (a real surname the Census file misses),
+is dropped. The list keeps its order and the output records the dropped positions; firms.py draws from a pool of the
+pre-filter size and replaces a dropped position, so names that survive the filter keep their place in every firm.
+The committed list was filtered with `--refilter` because the Census and word-list inputs were not to hand; a full
+rebuild applies the same filter and gives the same list.
 """
 
 from __future__ import annotations
@@ -28,6 +36,48 @@ MIDDLES = ["lv", "rn", "rr", "nd", "ld", "lm", "rv", "sk", "st", "th", "mb", "nt
            "lw", "rw", "sw", "tw", "mm", "ff", "v", "z", "m", "n", "l", "r", "t", "d", "g", "b", "p", "s"]
 SUFFIXES = ["ennick", "anick", "worth", "imere", "amere", "eby", "isby", "ham", "ingham", "ell", "owell", "erell",
             "ock", "ard", "ington", "ley", "ridge", "stow", "ett", "ine", "ow", "ens", "ick", "ond", "aven"]
+
+
+DENY_SUBSTRINGS = ("dick", "tard", "breast", "troll", "cock", "cum", "shit", "piss", "fuck", "nazi", "rape", "slut",
+                   "whore", "twat", "wank", "tit", "anal", "butt", "porn", "sex", "kill", "dead", "hick")
+DENY_EXACT = ("Hickley",)  # a real (rare) English surname
+
+
+def denied(name: str) -> bool:
+    low = name.lower()
+    return name in DENY_EXACT or any(d in low for d in DENY_SUBSTRINGS)
+
+
+def deny_filter(names: list[str]) -> tuple[list[str], dict]:
+    """Drop denied names, keeping order; return the kept list and a record of what the filter did."""
+    removed = [i for i, n in enumerate(names) if denied(n)]
+    kept = [n for n in names if not denied(n)]
+    return kept, {
+        "substrings": list(DENY_SUBSTRINGS),
+        "exact": list(DENY_EXACT),
+        "draw_pool_size": len(names),
+        "removed": len(removed),
+        "removed_positions": removed,
+    }
+
+
+def write_doc(doc: dict, out: str) -> None:
+    with open(out, "w", encoding="utf-8", newline="\n") as fh:
+        json.dump(doc, fh, indent=1, sort_keys=True, ensure_ascii=False)
+        fh.write("\n")
+
+
+def refilter(path: str) -> None:
+    """Apply the deny filter to an already built list (no-op if it was filtered before)."""
+    with open(path, encoding="utf-8") as fh:
+        doc = json.load(fh)
+    if "deny_filter" in doc:
+        print("already filtered")
+        return
+    doc["surnames"], doc["deny_filter"] = deny_filter(doc["surnames"])
+    doc["count"] = len(doc["surnames"])
+    write_doc(doc, path)
+    print(f"removed {doc['deny_filter']['removed']}; {doc['count']} names left")
 
 
 def sha256(path: str) -> str:
@@ -76,6 +126,8 @@ def main(census_zip: str, words_path: str, brands_uk: str, brands_us: str, out: 
             rejected["too_close"] += 1
         else:
             kept.append(cand)
+    composed = len(kept)
+    kept, deny = deny_filter(kept)
     doc = {
         "purpose": "Invented surnames for synthetic person payees (<initial> <surname>). Not real people.",
         "seed": SEED,
@@ -98,12 +150,15 @@ def main(census_zip: str, words_path: str, brands_uk: str, brands_us: str, out: 
             "brand_lists": ["sources/brands_uk.json", "sources/brands_us.json"],
         },
         "surnames": kept,
+        "deny_filter": deny,
     }
-    with open(out, "w", encoding="utf-8", newline="\n") as fh:
-        json.dump(doc, fh, indent=1, sort_keys=True, ensure_ascii=False)
-        fh.write("\n")
-    print(f"kept {len(kept)} of {attempts} candidates; rejected {rejected}")
+    write_doc(doc, out)
+    print(f"kept {len(kept)} of {composed} composed ({attempts} candidates); rejected {rejected}; "
+          f"denied {deny['removed']}")
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:6])
+    if sys.argv[1:2] == ["--refilter"]:
+        refilter(sys.argv[2])
+    else:
+        main(*sys.argv[1:6])

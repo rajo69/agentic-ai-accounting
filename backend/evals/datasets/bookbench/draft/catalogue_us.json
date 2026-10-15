@@ -15389,6 +15389,251 @@
    ]
   },
   {
+   "bank_format": "US-ACH",
+   "brand_id": null,
+   "category": "customer",
+   "contact_names": [
+    "Bramblewood Community Credit Union"
+   ],
+   "jurisdiction": "US",
+   "kind": "invented",
+   "merchant_id": "us-i-bramblewood-credit-union",
+   "name": "Bramblewood Community Credit Union",
+   "narratives": [
+    "BRAMBLEWOOD CMTY CU"
+   ],
+   "policy_hooks": [],
+   "raw_contact_names": [],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "US-R001",
+    "US-R130",
+    "US-R194"
+   ],
+   "uses": [
+    {
+     "amount_choices": null,
+     "amount_mode": "range",
+     "amount_range": [
+      "400.00",
+      "9000.00"
+     ],
+     "bank_format": null,
+     "default_code": "400",
+     "default_code_per_chart": {
+      "us_schedule_c_v0_2": "400",
+      "us_schedule_c_v0_2_s_corp": "400"
+     },
+     "direction": "receive",
+     "facts": {
+      "account": "400"
+     },
+     "fixed_group": null,
+     "line_descriptions": [
+      "Invoice {N6}",
+      "Payment, invoice {N6}"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "trades": [
+       "professional",
+       "creative",
+       "construction",
+       "education",
+       "retail",
+       "catering",
+       "crafts",
+       "trades"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": [
+      "INV {N6}",
+      "INV-{N6}",
+      "{N6}",
+      "inv {N6}",
+      "invoice {N6} thanks",
+      "pmt for inv {N6}"
+     ],
+     "routine": true,
+     "rule_ids": [
+      "US-R001"
+     ],
+     "typical_direction": "receive",
+     "use": "customer_receipt"
+    },
+    {
+     "amount_choices": null,
+     "amount_mode": "range",
+     "amount_range": [
+      "25.00",
+      "600.00"
+     ],
+     "bank_format": null,
+     "default_code": "405",
+     "default_code_per_chart": {
+      "us_schedule_c_v0_2": "405",
+      "us_schedule_c_v0_2_s_corp": "405"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Refund to customer, {INV}",
+      "Partial refund, damaged order"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "trades": [
+       "professional",
+       "creative",
+       "construction",
+       "education",
+       "retail",
+       "catering",
+       "crafts",
+       "trades"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": [
+      "REFUND {N4}"
+     ],
+     "routine": false,
+     "rule_ids": [
+      "US-R130"
+     ],
+     "typical_direction": "spend",
+     "use": "customer_refund"
+    },
+    {
+     "amount_choices": null,
+     "amount_mode": "range",
+     "amount_range": [
+      "100.00",
+      "2400.00"
+     ],
+     "bank_format": null,
+     "default_code": "720",
+     "default_code_per_chart": {
+      "us_schedule_c_v0_2": "720",
+      "us_schedule_c_v0_2_s_corp": "720"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Liquidated damages, late completion per contract",
+      "Late completion penalty per contract"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "trades": [
+       "construction",
+       "trades"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": [
+      "CONTRACT {K6}",
+      "PO {N5}"
+     ],
+     "routine": false,
+     "rule_ids": [
+      "US-R194"
+     ],
+     "typical_direction": "spend",
+     "use": "late_completion_penalty"
+    },
+    {
+     "amount_choices": null,
+     "amount_mode": "range",
+     "amount_range": [
+      "100.00",
+      "2400.00"
+     ],
+     "bank_format": null,
+     "default_code": "720",
+     "default_code_per_chart": {
+      "us_schedule_c_v0_2": "720",
+      "us_schedule_c_v0_2_s_corp": "720"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Late delivery penalty per contract",
+      "Penalty for late order delivery per agreement"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "trades": [
+       "retail",
+       "catering",
+       "crafts"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": [
+      "CONTRACT {K6}",
+      "PO {N5}"
+     ],
+     "routine": false,
+     "rule_ids": [
+      "US-R194"
+     ],
+     "typical_direction": "spend",
+     "use": "late_delivery_penalty"
+    },
+    {
+     "amount_choices": null,
+     "amount_mode": "range",
+     "amount_range": [
+      "100.00",
+      "2400.00"
+     ],
+     "bank_format": null,
+     "default_code": "720",
+     "default_code_per_chart": {
+      "us_schedule_c_v0_2": "720",
+      "us_schedule_c_v0_2_s_corp": "720"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Penalty for missed contract deadline",
+      "Late deliverable penalty per agreement"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {
+      "trades": [
+       "professional",
+       "creative"
+      ]
+     },
+     "policy_hooks": [],
+     "reference_patterns": [
+      "CONTRACT {K6}",
+      "PO {N5}"
+     ],
+     "routine": false,
+     "rule_ids": [
+      "US-R194"
+     ],
+     "typical_direction": "spend",
+     "use": "missed_deadline_penalty"
+    }
+   ]
+  },
+  {
    "bank_format": "US-CARD",
    "brand_id": null,
    "category": "local",
@@ -18246,251 +18491,6 @@
      ],
      "typical_direction": "spend",
      "use": "contract_labor"
-    }
-   ]
-  },
-  {
-   "bank_format": "US-ACH",
-   "brand_id": null,
-   "category": "customer",
-   "contact_names": [
-    "Northstar Community Credit Union"
-   ],
-   "jurisdiction": "US",
-   "kind": "invented",
-   "merchant_id": "us-i-northstar-credit-union",
-   "name": "Northstar Community Credit Union",
-   "narratives": [
-    "NORTHSTAR CMTY CU"
-   ],
-   "policy_hooks": [],
-   "raw_contact_names": [],
-   "reference_patterns": [
-    ""
-   ],
-   "rule_ids": [
-    "US-R001",
-    "US-R130",
-    "US-R194"
-   ],
-   "uses": [
-    {
-     "amount_choices": null,
-     "amount_mode": "range",
-     "amount_range": [
-      "400.00",
-      "9000.00"
-     ],
-     "bank_format": null,
-     "default_code": "400",
-     "default_code_per_chart": {
-      "us_schedule_c_v0_2": "400",
-      "us_schedule_c_v0_2_s_corp": "400"
-     },
-     "direction": "receive",
-     "facts": {
-      "account": "400"
-     },
-     "fixed_group": null,
-     "line_descriptions": [
-      "Invoice {N6}",
-      "Payment, invoice {N6}"
-     ],
-     "narratives": null,
-     "needs_line": true,
-     "only": {
-      "trades": [
-       "professional",
-       "creative",
-       "construction",
-       "education",
-       "retail",
-       "catering",
-       "crafts",
-       "trades"
-      ]
-     },
-     "policy_hooks": [],
-     "reference_patterns": [
-      "INV {N6}",
-      "INV-{N6}",
-      "{N6}",
-      "inv {N6}",
-      "invoice {N6} thanks",
-      "pmt for inv {N6}"
-     ],
-     "routine": true,
-     "rule_ids": [
-      "US-R001"
-     ],
-     "typical_direction": "receive",
-     "use": "customer_receipt"
-    },
-    {
-     "amount_choices": null,
-     "amount_mode": "range",
-     "amount_range": [
-      "25.00",
-      "600.00"
-     ],
-     "bank_format": null,
-     "default_code": "405",
-     "default_code_per_chart": {
-      "us_schedule_c_v0_2": "405",
-      "us_schedule_c_v0_2_s_corp": "405"
-     },
-     "direction": "spend",
-     "facts": {},
-     "fixed_group": null,
-     "line_descriptions": [
-      "Refund to customer, {INV}",
-      "Partial refund, damaged order"
-     ],
-     "narratives": null,
-     "needs_line": true,
-     "only": {
-      "trades": [
-       "professional",
-       "creative",
-       "construction",
-       "education",
-       "retail",
-       "catering",
-       "crafts",
-       "trades"
-      ]
-     },
-     "policy_hooks": [],
-     "reference_patterns": [
-      "REFUND {N4}"
-     ],
-     "routine": false,
-     "rule_ids": [
-      "US-R130"
-     ],
-     "typical_direction": "spend",
-     "use": "customer_refund"
-    },
-    {
-     "amount_choices": null,
-     "amount_mode": "range",
-     "amount_range": [
-      "100.00",
-      "2400.00"
-     ],
-     "bank_format": null,
-     "default_code": "720",
-     "default_code_per_chart": {
-      "us_schedule_c_v0_2": "720",
-      "us_schedule_c_v0_2_s_corp": "720"
-     },
-     "direction": "spend",
-     "facts": {},
-     "fixed_group": null,
-     "line_descriptions": [
-      "Liquidated damages, late completion per contract",
-      "Late completion penalty per contract"
-     ],
-     "narratives": null,
-     "needs_line": true,
-     "only": {
-      "trades": [
-       "construction",
-       "trades"
-      ]
-     },
-     "policy_hooks": [],
-     "reference_patterns": [
-      "CONTRACT {K6}",
-      "PO {N5}"
-     ],
-     "routine": false,
-     "rule_ids": [
-      "US-R194"
-     ],
-     "typical_direction": "spend",
-     "use": "late_completion_penalty"
-    },
-    {
-     "amount_choices": null,
-     "amount_mode": "range",
-     "amount_range": [
-      "100.00",
-      "2400.00"
-     ],
-     "bank_format": null,
-     "default_code": "720",
-     "default_code_per_chart": {
-      "us_schedule_c_v0_2": "720",
-      "us_schedule_c_v0_2_s_corp": "720"
-     },
-     "direction": "spend",
-     "facts": {},
-     "fixed_group": null,
-     "line_descriptions": [
-      "Late delivery penalty per contract",
-      "Penalty for late order delivery per agreement"
-     ],
-     "narratives": null,
-     "needs_line": true,
-     "only": {
-      "trades": [
-       "retail",
-       "catering",
-       "crafts"
-      ]
-     },
-     "policy_hooks": [],
-     "reference_patterns": [
-      "CONTRACT {K6}",
-      "PO {N5}"
-     ],
-     "routine": false,
-     "rule_ids": [
-      "US-R194"
-     ],
-     "typical_direction": "spend",
-     "use": "late_delivery_penalty"
-    },
-    {
-     "amount_choices": null,
-     "amount_mode": "range",
-     "amount_range": [
-      "100.00",
-      "2400.00"
-     ],
-     "bank_format": null,
-     "default_code": "720",
-     "default_code_per_chart": {
-      "us_schedule_c_v0_2": "720",
-      "us_schedule_c_v0_2_s_corp": "720"
-     },
-     "direction": "spend",
-     "facts": {},
-     "fixed_group": null,
-     "line_descriptions": [
-      "Penalty for missed contract deadline",
-      "Late deliverable penalty per agreement"
-     ],
-     "narratives": null,
-     "needs_line": true,
-     "only": {
-      "trades": [
-       "professional",
-       "creative"
-      ]
-     },
-     "policy_hooks": [],
-     "reference_patterns": [
-      "CONTRACT {K6}",
-      "PO {N5}"
-     ],
-     "routine": false,
-     "rule_ids": [
-      "US-R194"
-     ],
-     "typical_direction": "spend",
-     "use": "missed_deadline_penalty"
     }
    ]
   },

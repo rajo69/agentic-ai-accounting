@@ -22167,63 +22167,6 @@
   {
    "bank_format": "UK-DEB",
    "brand_id": null,
-   "category": "local",
-   "contact_names": [
-    "Cellar Door Wines"
-   ],
-   "jurisdiction": "UK",
-   "kind": "invented",
-   "merchant_id": "uk-i-cellar-door-wines",
-   "name": "Cellar Door Wines",
-   "narratives": [
-    "CELLAR DOOR WINES"
-   ],
-   "policy_hooks": [],
-   "raw_contact_names": [],
-   "reference_patterns": [
-    ""
-   ],
-   "rule_ids": [
-    "UK-R031"
-   ],
-   "uses": [
-    {
-     "amount_choices": null,
-     "amount_mode": "range",
-     "amount_range": [
-      "30.00",
-      "260.00"
-     ],
-     "bank_format": null,
-     "default_code": "424",
-     "default_code_per_chart": {
-      "uk_xero_default_v0_2_co": "424",
-      "uk_xero_default_v0_2_st": "424"
-     },
-     "direction": "spend",
-     "facts": {},
-     "fixed_group": null,
-     "line_descriptions": [
-      "Wine for client, project completion",
-      "Champagne gift for client"
-     ],
-     "narratives": null,
-     "needs_line": true,
-     "only": {},
-     "policy_hooks": [],
-     "reference_patterns": null,
-     "routine": false,
-     "rule_ids": [
-      "UK-R031"
-     ],
-     "typical_direction": "spend",
-     "use": "client_gift"
-    }
-   ]
-  },
-  {
-   "bank_format": "UK-DEB",
-   "brand_id": null,
    "category": "food_drink",
    "contact_names": [
     "The Copper Pot Kitchen",
@@ -25950,6 +25893,63 @@
      ],
      "typical_direction": "spend",
      "use": "keys"
+    }
+   ]
+  },
+  {
+   "bank_format": "UK-DEB",
+   "brand_id": null,
+   "category": "local",
+   "contact_names": [
+    "Quillmoor Wines"
+   ],
+   "jurisdiction": "UK",
+   "kind": "invented",
+   "merchant_id": "uk-i-quillmoor-wines",
+   "name": "Quillmoor Wines",
+   "narratives": [
+    "QUILLMOOR WINES"
+   ],
+   "policy_hooks": [],
+   "raw_contact_names": [],
+   "reference_patterns": [
+    ""
+   ],
+   "rule_ids": [
+    "UK-R031"
+   ],
+   "uses": [
+    {
+     "amount_choices": null,
+     "amount_mode": "range",
+     "amount_range": [
+      "30.00",
+      "260.00"
+     ],
+     "bank_format": null,
+     "default_code": "424",
+     "default_code_per_chart": {
+      "uk_xero_default_v0_2_co": "424",
+      "uk_xero_default_v0_2_st": "424"
+     },
+     "direction": "spend",
+     "facts": {},
+     "fixed_group": null,
+     "line_descriptions": [
+      "Wine for client, project completion",
+      "Champagne gift for client"
+     ],
+     "narratives": null,
+     "needs_line": true,
+     "only": {},
+     "policy_hooks": [],
+     "reference_patterns": null,
+     "routine": false,
+     "rule_ids": [
+      "UK-R031"
+     ],
+     "typical_direction": "spend",
+     "use": "client_gift"
     }
    ]
   },

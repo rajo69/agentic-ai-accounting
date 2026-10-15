@@ -720,11 +720,11 @@
   "US:exact": 7,
   "US:varied": 13
  },
- "history_rows": 2218,
+ "history_rows": 2208,
  "history_rows_by_source": {
-  "background": 841,
+  "background": 837,
   "entity": 342,
-  "policy": 999,
+  "policy": 993,
   "precedent": 36
  },
  "history_rows_containing_multiword_account_name_as_memo": 0,
@@ -738,7 +738,7 @@
   "US:False": 19,
   "US:True": 21
  },
- "note": "Dry-run statistics for design review; never for publication.",
+ "note": "Build statistics for this draft; generator 0.2.0-draft.",
  "quotas": {
   "UK": {
    "S0": 10,
