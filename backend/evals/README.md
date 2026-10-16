@@ -5,6 +5,9 @@ from Xero: accuracy by difficulty tier, per-category F1, confidence calibration 
 prompt: it sends its own prompt with no precedent retrieval and no model routing, so a result measures the prompt
 alone.
 
+The benchmark built for the production categoriser, with precedents, is
+[bookbench](https://github.com/rajo69/bookbench), published as a draft; no model has been scored on it yet.
+
 ## Quick start
 
 ```bash

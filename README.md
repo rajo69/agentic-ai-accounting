@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/431b5bd4-40b8-466a-8d86-a41dfa1e11d9
 
 - **Built for** UK sole traders, small businesses and the bookkeepers who sign off their books on Xero, now quarterly under Making Tax Digital.
 - **What it does** proposes and explains a category for every transaction, matches bank transactions to invoices and payments, drafts the quarter's management letter, and keeps an audit trail of every AI proposal and every human decision.
-- **AI** Claude Haiku 4.5, escalating to Sonnet 4.6 when unsure · structured output through Instructor and Pydantic · LangGraph workflows · pgvector retrieval of the firm's own past decisions · an offline eval harness with pass/fail gates · risk flags from eight readable fuzzy-logic rules.
+- **AI** Claude Haiku 4.5, escalating to Sonnet 4.6 when unsure · structured output through Instructor and Pydantic · LangGraph workflows · pgvector retrieval of the firm's own past decisions · an offline eval harness with pass/fail gates · [bookbench](https://github.com/rajo69/bookbench), a synthetic categorisation benchmark built for this categoriser, published as a draft · risk flags from eight readable fuzzy-logic rules.
 - **Stack** Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL 16 with pgvector, Redis, Alembic · Next.js 14, TypeScript, Tailwind · Docker, GitHub Actions, Vercel, Railway.
 - **Size** 34 API routes, 8 tables, 6 migrations, 117 backend tests run in CI.
 - **Status** deployed and open source (MIT); designed and built by Rajarshi Nandi, March to October 2026.
@@ -134,6 +134,8 @@ What the harness measures: its own prompt, isolated from precedent retrieval and
 cd backend && python -m evals.eval_runner --mode mock    # no API calls
 ```
 
+**bookbench** is the benchmark built for measuring the production categoriser, public as a work-in-progress draft (0.2.0-draft): [code on GitHub](https://github.com/rajo69/bookbench) (MIT) and [data on Hugging Face](https://huggingface.co/datasets/rajo0113/bookbench) (CC BY 4.0). Each item is a synthetic firm's bank transaction with that firm's chart of accounts and earlier categorised transactions, in the shape this categoriser reads: the Xero record fields, the chart and the top five retrieved precedents. It covers UK firms on the Xero default chart and US firms on a Schedule C chart, counts sending a transaction to a person as the right answer where the record and its precedents do not settle the account, and scores planted instruction-like text apart from the headline. A seeded generator applies the rules of published labelling guides, with no model calls and no Xero data. The draft holds an 80-item pilot, a 1,000-item build (dev 400, test 600), a reference scorer and non-AI baselines. The labels have not had my item-by-item review yet and may change before v1.0; no model, this one included, has been scored on it.
+
 Research questions the build raised: whether confidence should be calibrated per organisation when each firm has little labelled data; whether explanations change review time and correction rate; and whether choosing review candidates actively reduces corrections compared with arrival order.
 
 ## Explainability and risk scoring
@@ -230,7 +232,7 @@ docs/                ARCHITECTURE, ENGINEERING_RECORD, PRODUCTION_ROADMAP, SELF_
 
 ## About
 
-Designed, built and documented by **Rajarshi Nandi** · [GitHub](https://github.com/rajo69). Further reading: [architecture](docs/ARCHITECTURE.md) · [engineering record](docs/ENGINEERING_RECORD.md) · [self-review](docs/SELF_REVIEW.md) · [roadmap](docs/PRODUCTION_ROADMAP.md) · [eval harness](backend/evals/README.md) · [how the video was made](video/README.md) · [changelog](CHANGELOG.md).
+Designed, built and documented by **Rajarshi Nandi** · [GitHub](https://github.com/rajo69). Further reading: [architecture](docs/ARCHITECTURE.md) · [engineering record](docs/ENGINEERING_RECORD.md) · [self-review](docs/SELF_REVIEW.md) · [roadmap](docs/PRODUCTION_ROADMAP.md) · [eval harness](backend/evals/README.md) · [bookbench](https://github.com/rajo69/bookbench) · [how the video was made](video/README.md) · [changelog](CHANGELOG.md).
 
 **How it was built.** With Claude Code as the implementer: it wrote the code and drafted the documentation. My part was the product and its scope (the UK MTD and Xero framing, what to build and what to cut), the architecture and its trade-offs (the stack, the two LangGraph workflows, Haiku first with Sonnet on low confidence, the review-layer positioning), and the verification: I read the diffs, ran and tested the app, and decided which review findings and which claims in these docs to accept. The six self-review passes and the fact-checks of these docs ran as parallel Claude Code agents under one evidence standard: file, line and quoted code for every finding.
 
