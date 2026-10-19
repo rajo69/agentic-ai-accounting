@@ -10,16 +10,18 @@
 
 https://github.com/user-attachments/assets/431b5bd4-40b8-466a-8d86-a41dfa1e11d9
 
-<sup>The launch video (2:14; 1080p with chapters [on YouTube](https://youtu.be/icLQG596Ctg)). It is code, not a screen recording: a Remotion composition in [`video/`](video/).</sup>
+<sup>The launch video (2:14; 1080p with chapters [on YouTube](https://youtu.be/icLQG596Ctg)), rendered from a Remotion composition in [`video/`](video/).</sup>
 
 ## At a glance
 
-- **Built for** UK sole traders, small businesses and the bookkeepers who sign off their books on Xero, now quarterly under Making Tax Digital.
-- **What it does** proposes and explains a category for every transaction, matches bank transactions to invoices and payments, drafts the quarter's management letter, and keeps an audit trail of every AI proposal and every human decision.
-- **AI** Claude Haiku 4.5, escalating to Sonnet 4.6 when unsure · structured output through Instructor and Pydantic · LangGraph workflows · pgvector retrieval of the firm's own past decisions · an offline eval harness with pass/fail gates · risk flags from eight readable fuzzy-logic rules.
-- **Stack** Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL 16 with pgvector, Redis, Alembic · Next.js 14, TypeScript, Tailwind · Docker, GitHub Actions, Vercel, Railway.
-- **Size** 34 API routes, 8 tables, 6 migrations, 117 backend tests run in CI.
-- **Status** deployed and open source (MIT); designed and built by Rajarshi Nandi, March to October 2026.
+| | |
+|---|---|
+| Built for | UK sole traders, small businesses and the bookkeepers who sign off their books on Xero, now quarterly under Making Tax Digital. |
+| What it does | proposes and explains a category for every transaction, matches bank transactions to invoices and payments, drafts the quarter's management letter, and keeps an audit trail of every AI proposal and every human decision. |
+| AI | Claude Haiku 4.5, escalating to Sonnet 4.6 when unsure · structured output through Instructor and Pydantic · LangGraph workflows · pgvector retrieval of the firm's own past decisions · risk flags from eight readable fuzzy-logic rules. |
+| Stack | Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL 16 with pgvector, Redis, Alembic · Next.js 14, TypeScript, Tailwind · Docker, GitHub Actions, Vercel, Railway. |
+| Size | 34 API routes, 8 tables, 6 migrations, 117 backend tests run in CI. |
+| Status | deployed and open source (MIT); designed and built by Rajarshi Nandi, March to October 2026. |
 
 ## Who it is for and why it exists
 
@@ -31,10 +33,10 @@ Xero's own AI, JAX, now categorises and reconciles bank transactions automatical
 
 AI Accountant sits after Xero's AI and before the sign-off, and makes the review short, evidenced and recorded:
 
-- **Attention goes to the uncertain cases.** Confidence tiers say where to look.
-- **Every proposal arrives with its reasoning**, so the question becomes "do I agree?".
-- **Corrections improve later proposals** through retrieval, not training: the firm's own decisions come back as examples.
-- **The audit trail exists before anyone asks for it**: model, confidence, reasoning and the human decision, one row each.
+- Confidence tiers say where to look, so attention goes to the uncertain cases.
+- Every proposal arrives with its reasoning, and the reviewer's question becomes "do I agree?".
+- A correction comes back as an example on the next similar transaction; the firm's own decisions are retrieved, and no model is trained on them.
+- Before anyone asks for it, the audit row (model, confidence, reasoning, human decision) already exists.
 
 ## What it does
 
@@ -61,7 +63,7 @@ Also: a small team per practice with owner and member roles, and GDPR export and
 
 **The demo** at [agentic-ai-accounting.vercel.app/demo](https://agentic-ai-accounting.vercel.app/demo) opens the console on "Harlow & Finch Ltd", with fifty transactions and a quarter's statement lines. It runs entirely in your browser: match scores are computed by a browser port of the reconciler, the PDFs come from the real templates, and nothing reaches the API or Xero. Add `?skip_onboarding=1` to start with the quarter already imported.
 
-**The video** is a two-minute product and engineering walkthrough, playable at the top of this page or [on YouTube](https://youtu.be/icLQG596Ctg) with chapters. It is generated from code, a Remotion composition in [`video/`](video/); [`video/README.md`](video/README.md) says how it was made.
+**The video** is a two-minute product and engineering walkthrough, playable at the top of this page or [on YouTube](https://youtu.be/icLQG596Ctg) with chapters; [`video/README.md`](video/README.md) says how it was made.
 
 [![AI Accountant: the review layer for AI-categorised Xero books (2-minute video)](docs/media/video-thumbnail.png)](https://youtu.be/icLQG596Ctg)
 
@@ -84,13 +86,13 @@ A Next.js console talks to a FastAPI service; a LangGraph categoriser and the do
 | Documents | Figures in Python, narrative via Instructor, Jinja2 templates rendered to PDF by WeasyPrint |
 | Operations | GitHub Actions (pgvector service container, migrations, 117 tests, type check, lint), per-organisation rate limits, background jobs tracked in Postgres, optional Sentry |
 
-**Boundaries the code keeps.** In the application, model calls happen only in `services/` and `agents/`, never in routes. Xero is reached only through `integrations/xero_adapter.py`, and nothing is written back to Xero. Every AI decision and every human review decision (approve, correct, reject, confirm, match, unmatch) writes an audit row. Model output is always structured, never parsed from free text. The organisation always comes from the session, never from model output.
+**Boundaries the code keeps.** Model calls live in `services/` and `agents/`; no route makes one. The single path to Xero is `integrations/xero_adapter.py`, and it only reads. Every AI decision and every human review decision (approve, correct, reject, confirm, match, unmatch) writes an audit row. Model output arrives as a schema, so nothing is parsed from free text, and the organisation comes from the session rather than from anything the model returns.
 
-The current design and the reconciliation path on live Xero data are in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) holds the current design and the reconciliation path on live Xero data.
 
 ## How the AI works
 
-The model proposes, code validates, a person decides: one fixed workflow calls Claude at defined points, and no model answer is accepted without passing a schema, a chart-of-accounts check and a confidence tier; an answer that fails goes to a person.
+The model proposes, code validates and a person decides. One fixed workflow calls Claude at defined points, and no model answer is accepted without passing a schema, a chart-of-accounts check and a confidence tier; an answer that fails goes to a person.
 
 One categorisation run (`POST /api/v1/categorise/async`):
 
@@ -120,13 +122,15 @@ Each row is a choice, the alternative it was chosen over, and the trade-off acce
 | Raw `httpx` Xero adapter behind one interface | The Xero SDK | Control over token refresh, 429 backoff and `If-Modified-Since` sync, in one file | More code to own |
 | Browser-only demo behind `apiFetch` | A hosted demo backend | No running cost, no data risk; every endpoint the console calls is simulated, and reconciler scoring is ported and checked against RapidFuzz to four decimal places | Demo reasoning is replayed from the seed, not generated live |
 
-The problems behind these choices, with commits, are in the [engineering record](#engineering-record).
+Behind these choices are specific problems, with commits, in the [engineering record](#engineering-record).
 
 ## Evaluation
 
 The eval harness has pass/fail gates, a calibration table and a budget guard, and the rule is that every published number sits next to a provenance file (commit, fixture version, prompt version, model id, date).
 
 The harness in [`backend/evals/`](backend/evals/) runs fifty labelled UK small-business bank transactions generated with Claude, none taken from Xero, against twenty chart-of-accounts codes, split 31 easy, 15 medium and 4 hard. It reports accuracy by tier, per-category precision, recall and F1, a calibration table (accuracy by confidence bucket) and cost. It exits non-zero when a gate is missed: overall at least 80%, easy tier at least 95%, auto-accept bucket at least 90%. Responses are cached by model and prompt so reruns are free, and `--budget` stops a live run as soon as its recorded spend passes the cap.
+
+The benchmark built to this categoriser's input contract (the Xero record fields it reads, the firm's chart and the top 5 retrieved precedents) is [bookbench](https://github.com/rajo69/bookbench): 1,000 UK and US small-business transactions with precedent history, `NEEDS_REVIEW` as a gold answer and a separately scored stratum of instruction-like text.
 
 What the harness measures: its own prompt, isolated from precedent retrieval and routing, so a result belongs to the prompt alone; the four-item hard tier is read as a diagnostic split; the gates run in the runner. The measurement plan, in order: a baseline of the production graph replayed on the fixtures, then Haiku-only against Sonnet-only against tiered.
 
@@ -140,9 +144,9 @@ Research questions the build raised: whether confidence should be calibrated per
 
 Three different things sit behind the explanation panel, and the console keeps them apart.
 
-- **The model's reasoning** is the `reasoning` field of the structured output, shown to the reviewer beside the proposal.
-- **The risk flag is glass-box.** A Mamdani-style fuzzy inference engine, written from scratch in [`backend/app/xai/fuzzy_engine.py`](backend/app/xai/fuzzy_engine.py), takes three normalised inputs (amount deviation from the category's history, vendor frequency, weekday or weekend timing), applies eight plain-language rules, and returns a score, a label (low, medium, high) and the rules that fired. Defuzzification is a centroid over term representatives.
-- **Feature importances, retired on the evidence.** An Explainable Boosting Machine was built to train once fifty labelled rows existed. The self-review found it never produced output for three or more categories, and it trains on Xero data, which the developer terms forbid, so it is being retired; the console shows feature bars only when that model actually produced them.
+- The model's reasoning is the `reasoning` field of the structured output, shown to the reviewer beside the proposal.
+- The risk flag is glass-box. A Mamdani-style fuzzy inference engine, written from scratch in [`backend/app/xai/fuzzy_engine.py`](backend/app/xai/fuzzy_engine.py), takes three normalised inputs (amount deviation from the category's history, vendor frequency, weekday or weekend timing), applies eight plain-language rules, and returns a score, a label (low, medium, high) and the rules that fired. Defuzzification is a centroid over term representatives.
+- Feature importances, retired on the evidence. An Explainable Boosting Machine was built to train once fifty labelled rows existed. The self-review found it never produced output for three or more categories, and it trains on Xero data, which the developer terms forbid, so it is being retired; the console shows feature bars only when that model actually produced them.
 
 ## Security and data handling
 
@@ -162,16 +166,16 @@ Tenant isolation, token handling and webhook verification held up under review.
 
 Problems that needed judgement, in brief. The long form, with commit links, is in [`docs/ENGINEERING_RECORD.md`](docs/ENGINEERING_RECORD.md).
 
-- **Xero changed its OAuth scope scheme mid-build.** Apps created after 2 March 2026 must use granular scopes, and the broad ones returned `unauthorized_client`. I found the working names by testing against the token endpoint, then caught a later commit that silently reintroduced a broad scope by cross-checking git history against Xero's scope table.
-- **A CORS "improvement" took the production dashboard down in a loop.** Every `fetch` threw a `TypeError` with no status, which the dashboard read as "Xero not connected", while OAuth (a redirect, immune to CORS) kept working. Diagnosed by telling a browser-level CORS failure apart from a 401.
-- **Anthropic has no embeddings endpoint.** Split the concerns: local MiniLM embeddings off the event loop with `asyncio.to_thread`, and a migration shrinking the vector column from the OpenAI size.
-- **Parsing model text produced wrong categories without raising.** Replaced with Instructor, so a Pydantic model is the contract and invalid output retries instead of persisting.
-- **Xero's Demo Company bank lines are invisible to the API.** Added a Payments source with deduplication against invoices, so on live data the reconciler matches bank transactions to invoices and payments.
-- **A dependency release took the API down for an afternoon.** SQLAlchemy 2.1 shipped, the unpinned range resolved to it, and `postgresql://` now defaulted to a driver the image lacked. Pinned, redeployed and verified within the afternoon.
-- **I reviewed my own code.** Six parallel review passes, run as Claude Code agents under one evidence standard (file, line, quoted code, severity), produced 106 findings, 14 high, none critical; the numerical ones were reproduced before being recorded. Method and top findings: [`docs/SELF_REVIEW.md`](docs/SELF_REVIEW.md).
-- **Findings fixed test-first.** Five defects from the self-review, each pinned first by a test that failed: spend subtypes stored as money in, a risk engine that scored the most extreme inputs "medium", validation that stored the model's paraphrase instead of the chart's account name, PDF templates that rendered untrusted text unescaped with an open URL fetcher, and three write scopes the app never used.
-- **The demo had to be honest and complete at once.** An in-browser server behind `apiFetch` answers every endpoint the console calls from a seed generated from the eval fixtures; every action does visible work from every entry point; no request reaches the API or Xero (checked in headless Chrome against production).
-- **The launch video is code.** Script first, narration synthesised per beat, every word timed with whisper; every visual event starts on its sentence and every caption on its spoken word; product footage is the landing page's own components. Swapping the narrator's voice cost one regeneration and one render. See [`video/README.md`](video/README.md).
+- Xero changed its OAuth scope scheme mid-build. Apps created after 2 March 2026 must use granular scopes, and the broad ones returned `unauthorized_client`. I found the working names by testing against the token endpoint, then caught a later commit that silently reintroduced a broad scope by cross-checking git history against Xero's scope table.
+- A CORS "improvement" took the production dashboard down in a loop. Every `fetch` threw a `TypeError` with no status, which the dashboard read as "Xero not connected", while OAuth (a redirect, immune to CORS) kept working. Diagnosed by telling a browser-level CORS failure apart from a 401.
+- Anthropic has no embeddings endpoint. Split the concerns: local MiniLM embeddings off the event loop with `asyncio.to_thread`, and a migration shrinking the vector column from the OpenAI size.
+- Parsing model text produced wrong categories without raising. Replaced with Instructor, so a Pydantic model is the contract and invalid output retries instead of persisting.
+- Xero's Demo Company bank lines are invisible to the API. Added a Payments source with deduplication against invoices, so on live data the reconciler matches bank transactions to invoices and payments.
+- A dependency release took the API down for an afternoon. SQLAlchemy 2.1 shipped, the unpinned range resolved to it, and `postgresql://` now defaulted to a driver the image lacked. Pinned, redeployed and verified within the afternoon.
+- I reviewed my own code. Six parallel review passes, run as Claude Code agents under one evidence standard (file, line, quoted code, severity), produced 106 findings, 14 high, none critical; the numerical ones were reproduced before being recorded. Method and top findings: [`docs/SELF_REVIEW.md`](docs/SELF_REVIEW.md).
+- Findings fixed test-first. Five defects from the self-review, each pinned first by a test that failed: spend subtypes stored as money in, a risk engine that scored the most extreme inputs "medium", validation that stored the model's paraphrase instead of the chart's account name, PDF templates that rendered untrusted text unescaped with an open URL fetcher, and three write scopes the app never used.
+- The demo had to be honest and complete at once. An in-browser server behind `apiFetch` answers every endpoint the console calls from a seed generated from the eval fixtures; every action does visible work from every entry point; no request reaches the API or Xero (checked in headless Chrome against production).
+- The launch video is a Remotion render. Script first, narration synthesised per beat, every word timed with whisper; every visual event starts on its sentence and every caption on its spoken word; product footage is the landing page's own components. Swapping the narrator's voice cost one regeneration and one render. See [`video/README.md`](video/README.md).
 
 ## Run it locally
 
