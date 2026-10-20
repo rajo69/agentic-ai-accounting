@@ -48,7 +48,7 @@ the token endpoint until the dot-notation resource scopes worked (`accounting.ba
 **Problem.** The UK Demo Company shows statement lines to reconcile, but `GET /BankTransactions`, `/Invoices` and
 `/Payments` return none of them: they live in Xero's bank-feed layer, which the Accounting API does not expose.
 **Decision.** Add `/Payments` as a third sync source with deduplication against invoices
-([915abf1](https://github.com/rajo69/agentic-ai-accounting/commit/915abf1)), and seed local data for pipeline
+([6e6851c](https://github.com/rajo69/agentic-ai-accounting/commit/6e6851c)), and seed local data for pipeline
 testing. **Outcome.** Real organisations sync, and on live data the reconciler matches bank transactions to invoice
 and payment records.
 
@@ -69,23 +69,23 @@ subject to CORS) kept working, so the dashboard asked to connect again and again
 ## April 2026: production features
 
 ### Five production features in one release
-[240eb91](https://github.com/rajo69/agentic-ai-accounting/commit/240eb91) (2026-04-12): Fernet token encryption
+[4703461](https://github.com/rajo69/agentic-ai-accounting/commit/4703461) (2026-04-12): Fernet token encryption
 with an `enc::` prefix and legacy fallback, Redis cache with graceful degradation, HMAC-verified Xero webhooks with
 a 60-second debounce, a `users` table with owner and member roles, and two more document templates. Followed by
-incremental sync ([f92a65c](https://github.com/rajo69/agentic-ai-accounting/commit/f92a65c)), background jobs with a
-stale-job sweep on start ([b004bf2](https://github.com/rajo69/agentic-ai-accounting/commit/b004bf2)), team
-management with Resend invitations ([65533be](https://github.com/rajo69/agentic-ai-accounting/commit/65533be)) and
-a frontend error boundary ([a7dc626](https://github.com/rajo69/agentic-ai-accounting/commit/a7dc626)).
+incremental sync ([8234fa5](https://github.com/rajo69/agentic-ai-accounting/commit/8234fa5)), background jobs with a
+stale-job sweep on start ([5f6c537](https://github.com/rajo69/agentic-ai-accounting/commit/5f6c537)), team
+management with Resend invitations ([d6b5e10](https://github.com/rajo69/agentic-ai-accounting/commit/d6b5e10)) and
+a frontend error boundary ([3ab7adb](https://github.com/rajo69/agentic-ai-accounting/commit/3ab7adb)).
 
 ### Tiered model routing
-[d113290](https://github.com/rajo69/agentic-ai-accounting/commit/d113290) (2026-04-13). **Problem.** Haiku alone
+[bc1e41c](https://github.com/rajo69/agentic-ai-accounting/commit/bc1e41c) (2026-04-13). **Problem.** Haiku alone
 looked weak on hard cases; Sonnet on everything costs about three times as much per token. **Decision.** Haiku first;
 when its confidence is below the auto-accept threshold (0.85) the same prompt goes to Sonnet and Sonnet's answer
 replaces Haiku's; if Sonnet fails, Haiku's answer stands; the audit row records both. **Outcome.** Shipped. Its
 measurement is the first live comparison in the evaluation plan: Haiku-only against Sonnet-only against tiered.
 
 ### A silent scope regression
-[b05239f](https://github.com/rajo69/agentic-ai-accounting/commit/b05239f) (2026-04-13). **Problem.** The
+[62177dd](https://github.com/rajo69/agentic-ai-accounting/commit/62177dd) (2026-04-13). **Problem.** The
 Payments-sync commit had reintroduced the deprecated broad scope to reach `/Payments`, undoing the March fix; OAuth
 failed again for every new connection. **Decision.** Verify Xero's scope-to-resource table (fetched with a browser
 when the plain fetch timed out): `accounting.invoices.read` does not cover payments; `accounting.payments.read` does.
@@ -93,7 +93,7 @@ when the plain fetch timed out): `accounting.invoices.read` does not cover payme
 history.
 
 ### A documentation fix verified like a code fix
-[bd236b8](https://github.com/rajo69/agentic-ai-accounting/commit/bd236b8) (2026-04-17, PR #1). **Problem.** The
+[4e77f98](https://github.com/rajo69/agentic-ai-accounting/commit/4e77f98) (2026-04-17, PR #1). **Problem.** The
 README said reconciliation used an LLM for explanations; it does not. **Decision.** Fix the six sites that said so.
 **Outcome.** The October review found four more sites and a cost ratio computed from a stale price table (the
 list-price ratio is 3x), and both were corrected. Since then a documentation fix gets the same verification as a code
@@ -114,7 +114,7 @@ positive. A 66-row claim ledger graded every public statement TRUE, PARTLY, FALS
 rewrite resolves every FALSE and PARTLY row. The five findings that were small to fix were fixed test-first (below).
 
 ### Launch: design system, landing page, demo mode, console restyle
-[8e6b2c1](https://github.com/rajo69/agentic-ai-accounting/commit/8e6b2c1) (2026-10-10, PR #2). **Problem.** Nobody
+[53abf31](https://github.com/rajo69/agentic-ai-accounting/commit/53abf31) (2026-10-10, PR #2). **Problem.** Nobody
 would test a Xero login to see the product. **Decision.** A token-based design system; a landing page whose product frame is a scripted, clock-driven
 replay of the real components; a browser-only demo mode behind the frontend's single `apiFetch` choke point, seeded
 from the eval fixtures (fifty transactions, 32 statement lines), with the reconciler's scoring ported line for line
@@ -124,14 +124,14 @@ Anyone can click through the whole review loop without an account; the Xero logi
 request reaches the API or Xero (verified in headless Chrome against production).
 
 ### A dependency release took the API down for an afternoon
-[f517426](https://github.com/rajo69/agentic-ai-accounting/commit/f517426) (2026-10-10, PR #3). **Problem.** Merging
+[194f5c0](https://github.com/rajo69/agentic-ai-accounting/commit/194f5c0) (2026-10-10, PR #3). **Problem.** Merging
 the frontend PR triggered a backend rebuild; `sqlalchemy[asyncio]>=2.0.0` resolved to the newly released 2.1, which
 defaults `postgresql://` URLs to psycopg 3, not installed; `alembic upgrade head` failed on start and the API
 returned 502. **Decision.** Pin below 2.1 (the app was built on 2.0.48), redeploy, verify health and the OAuth
 redirect. **Outcome.** Back within the afternoon.
 
 ### Every demo action must do visible work
-[b6a5428](https://github.com/rajo69/agentic-ai-accounting/commit/b6a5428) (2026-10-10, PR #4). **Problem.** Clicking
+[b8b88a4](https://github.com/rajo69/agentic-ai-accounting/commit/b8b88a4) (2026-10-10, PR #4). **Problem.** Clicking
 Categorise during the first import ran over an empty book and reported zero; the pre-populated state had nothing left
 for Categorise or Reconcile to do. **Decision.** Jobs queue behind an in-flight sync and size themselves when it
 completes; the populated state leaves a mixed batch for both actions; document figures use the planned categories so
@@ -139,7 +139,7 @@ rows always match the static PDFs. **Outcome.** A principle for the demo: from e
 something happening, even where the real backend would correctly report zero.
 
 ### The launch video is code
-[4ca6fb7](https://github.com/rajo69/agentic-ai-accounting/commit/4ca6fb7) (2026-10-11, PR #6). **Problem.** A
+[2b7458e](https://github.com/rajo69/agentic-ai-accounting/commit/2b7458e) (2026-10-11, PR #6). **Problem.** A
 two-minute launch video for the README and the landing page, with no budget, no screen recordings that go stale with
 the next UI change, and nothing on screen that the repository cannot verify. **Decision.** A Remotion composition in
 [`video/`](../video/): the script is locked first and synthesised beat by beat (Fish Audio, free tier); whisper
