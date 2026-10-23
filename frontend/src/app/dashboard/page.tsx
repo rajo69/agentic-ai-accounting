@@ -294,7 +294,8 @@ export default function DashboardPage() {
               <>
                 <p className="text-sm font-medium text-foreground">Importing the books.</p>
                 <p className="mt-0.5 text-small text-muted-foreground">
-                  Accounts and transactions are being read from Xero in the background. This usually takes under a minute.
+                  Accounts and transactions are being read from Xero in the background.{" "}
+                  {isDemo() ? "This takes about two seconds." : "This usually takes under a minute."}
                 </p>
               </>
             ) : (
