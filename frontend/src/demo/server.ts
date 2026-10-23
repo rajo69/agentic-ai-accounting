@@ -51,6 +51,8 @@ interface Route {
   method: Method;
   pattern: RegExp;
   handler: Handler;
+  /** Wait before answering, for an action the UI shows as running (default: a short network beat). */
+  delayMs?: number;
 }
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -221,6 +223,7 @@ const routes: Route[] = [
   {
     method: "POST",
     pattern: /^\/sync$/,
+    delayMs: 900, // long enough for the Sync button's running state to read
     handler: () => mutate((s) => ({ status: "completed", ...applySync(s, nowIso()), message: null })),
   },
   {
@@ -330,9 +333,9 @@ export async function demoHandle<T>(path: string, options?: RequestInit): Promis
       body = options.body;
     }
   }
-  await sleep(150 + Math.random() * 300);
   const route = routes.find((r) => r.method === method && r.pattern.test(rawPath));
   if (!route) throw new Error(`demo: no route for ${method} ${rawPath}`);
+  await sleep(route.delayMs ?? 20 + Math.random() * 40);
   const match = rawPath.match(route.pattern) as RegExpMatchArray;
   return clone(route.handler(match, q, body)) as T;
 }
@@ -353,7 +356,7 @@ export async function demoGenerateDocument(body: {
   } catch (e) {
     return new Response(e instanceof Error ? e.message : String(e), { status: 400, headers: { "Content-Type": "text/plain" } });
   }
-  const [pdf] = await Promise.all([fetch(`/demo/${req.template}.pdf`, { cache: "force-cache" }), sleep(1500)]);
+  const [pdf] = await Promise.all([fetch(`/demo/${req.template}.pdf`, { cache: "force-cache" }), sleep(400)]);
   if (!pdf.ok) {
     return new Response(`Demo: the ${req.template} PDF is missing from this build.`, {
       status: 404,
