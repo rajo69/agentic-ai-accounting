@@ -25,7 +25,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { StatusChip } from "@/components/ui/status-chip";
 import { PageHeader } from "@/components/app/page-header";
-import { JobChip } from "@/components/app/job-chip";
+import { cn } from "@/lib/utils";
+import { isDemo } from "@/demo/flag";
 import { Skeleton } from "@/components/app/skeleton";
 import { uiTransition } from "@/lib/motion";
 
@@ -72,7 +73,7 @@ interface ActionRowProps {
 
 function ActionRow({ index, label, description, loadingLabel, icon: Icon, loading, onClick, variant = "secondary" }: ActionRowProps) {
   return (
-    <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4">
+    <li className="flex flex-col justify-center gap-3 px-5 py-5 sm:flex-row sm:items-center sm:gap-4">
       <span className="hidden size-8 shrink-0 items-center justify-center rounded-md border border-border bg-surface-2 text-muted-foreground sm:flex">
         <Icon className="size-4" strokeWidth={1.75} />
       </span>
@@ -84,16 +85,21 @@ function ActionRow({ index, label, description, loadingLabel, icon: Icon, loadin
         <p className="mt-0.5 text-small text-muted-foreground">{description}</p>
       </div>
       <div className="flex items-center gap-3 sm:shrink-0">
-        <JobChip state={loading ? "running" : "idle"} label={loading ? loadingLabel : "Idle"} />
         <Button
-          variant={variant === "primary" ? "default" : "outline"}
+          variant={loading ? "running" : variant === "primary" ? "default" : "outline"}
           size="sm"
           onClick={onClick}
           disabled={loading}
-          className="min-w-24"
+          aria-busy={loading || undefined}
+          data-state={loading ? "running" : "idle"}
+          className="min-w-36"
         >
           {loading ? <Loader2 className="animate-spin" /> : <Icon />}
-          {label}
+          {/* Both labels share one grid cell, so the button keeps one width in both states. */}
+          <span className="grid">
+            <span className={cn("col-start-1 row-start-1", loading && "invisible")}>{label}</span>
+            <span className={cn("col-start-1 row-start-1", !loading && "invisible")}>{loadingLabel}</span>
+          </span>
         </Button>
       </div>
     </li>
@@ -137,7 +143,9 @@ export default function DashboardPage() {
     sessionStorage.removeItem("first_sync_job_id");
 
     (async () => {
-      const tid = toast.loading("Importing your Xero data… this may take a minute.");
+      const tid = toast.loading(
+        isDemo() ? "Importing your Xero data…" : "Importing your Xero data… this may take a minute.",
+      );
       setSyncing(true);
       try {
         // Intermediate progress checks — useful for a long sync
@@ -286,7 +294,8 @@ export default function DashboardPage() {
               <>
                 <p className="text-sm font-medium text-foreground">Importing the books.</p>
                 <p className="mt-0.5 text-small text-muted-foreground">
-                  Accounts and transactions are being read from Xero in the background. This usually takes under a minute.
+                  Accounts and transactions are being read from Xero in the background.{" "}
+                  {isDemo() ? "This takes about two seconds." : "This usually takes under a minute."}
                 </p>
               </>
             ) : (
@@ -328,18 +337,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Pipeline */}
-      <Card>
-        <CardHeader className="border-b">
+      <Card className="gap-0 pb-0">
+        <CardHeader className="border-b pb-5">
           <Eyebrow>Pipeline</Eyebrow>
           <p className="text-sm text-muted-foreground">Three steps, each one a job you can watch. Every AI decision writes an audit row.</p>
         </CardHeader>
-        <CardContent>
-          <ul className="divide-y divide-border">
+        <CardContent className="px-0">
+          <ul className="grid auto-rows-fr divide-y divide-border">
             <ActionRow
               index={1}
               label="Sync"
               description="Read the chart of accounts, transactions and bank statement lines from Xero."
-              loadingLabel="Syncing"
+              loadingLabel="Syncing…"
               icon={RefreshCw}
               loading={syncing}
               onClick={handleSync}
@@ -349,7 +358,7 @@ export default function DashboardPage() {
               index={2}
               label="Categorise"
               description="Code every uncategorised transaction with a confidence, a reasoning and a risk score."
-              loadingLabel="Categorising"
+              loadingLabel="Categorising…"
               icon={Tag}
               loading={categorising}
               onClick={handleCategorise}
@@ -358,7 +367,7 @@ export default function DashboardPage() {
               index={3}
               label="Reconcile"
               description="Match bank statement lines to transactions; suggestions wait for a human."
-              loadingLabel="Matching"
+              loadingLabel="Reconciling…"
               icon={GitCompare}
               loading={reconciling}
               onClick={handleReconcile}

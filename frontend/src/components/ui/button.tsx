@@ -38,6 +38,9 @@ const buttonVariants = cva(
         destructive:
           "bg-danger/10 text-danger ring-1 ring-inset ring-danger/20 hover:bg-danger/15 hover:ring-danger/30 focus-visible:ring-danger",
         link: "text-foreground underline-offset-4 hover:text-primary hover:underline",
+        /** A job in progress: the info tone of the status chip, kept at full strength while disabled. */
+        running:
+          "bg-info/10 text-info ring-1 ring-inset ring-info/20 disabled:opacity-100",
       },
       size: {
         default: "h-9 px-3.5",

@@ -11,6 +11,7 @@ import {
   CountingConfidence,
   ExplanationSections,
   FauxButton,
+  FauxJobButton,
   JobChip,
   SceneHeader,
   type JobState,
@@ -129,11 +130,16 @@ export function CategoriseScene({ t }: { t: number }) {
     <div className="relative flex h-full flex-col" style={{ opacity: outroOpacity(t, CATEGORISE_DURATION) }}>
       <SceneHeader title="Transactions" meta={`${ORG.name} · ${ORG.period}`}>
         <JobChip
-          state={job}
-          label={job === "idle" ? "7 uncategorised" : job === "running" ? "Categorising 7" : "7 categorised · 1 to review"}
+          state={job === "running" ? "idle" : job}
+          label={job === "completed" ? "7 categorised · 1 to review" : "7 uncategorised"}
         />
-        <FauxButton variant="outline">Sync</FauxButton>
-        <FauxButton style={pressStyle(t, PRESS_AT)}>Categorise</FauxButton>
+        <FauxButton variant="outline" className="min-w-36">Sync</FauxButton>
+        <FauxJobButton
+          running={job === "running"}
+          label="Categorise"
+          runningLabel="Categorising…"
+          style={pressStyle(t, PRESS_AT)}
+        />
       </SceneHeader>
       <div className="px-6">
         <CategoriseTable t={t} selectedId={REVIEWED_ID} />

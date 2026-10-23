@@ -39,6 +39,34 @@ export function FauxButton({
   );
 }
 
+/**
+ * A pipeline job button as the dashboard draws it: while the job runs it takes the info tone, a
+ * spinner and the running label; both labels share one grid cell, so the width never changes.
+ */
+export function FauxJobButton({
+  running,
+  label,
+  runningLabel,
+  size = "sm",
+  style,
+}: {
+  running: boolean;
+  label: string;
+  runningLabel: string;
+  size?: ButtonProps["size"];
+  style?: CSSProperties;
+}) {
+  return (
+    <FauxButton variant={running ? "running" : "default"} size={size} style={style} className="min-w-36">
+      {running && <Loader2 className="animate-spin" />}
+      <span className="grid">
+        <span className={cn("col-start-1 row-start-1", running && "invisible")}>{label}</span>
+        <span className={cn("col-start-1 row-start-1", !running && "invisible")}>{runningLabel}</span>
+      </span>
+    </FauxButton>
+  );
+}
+
 /** Page title row inside the frame: title, mono meta, right-hand actions. */
 export function SceneHeader({
   title,
