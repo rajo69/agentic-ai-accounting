@@ -72,7 +72,7 @@ interface ActionRowProps {
 
 function ActionRow({ index, label, description, loadingLabel, icon: Icon, loading, onClick, variant = "secondary" }: ActionRowProps) {
   return (
-    <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4">
+    <li className="flex flex-col justify-center gap-3 px-5 py-5 sm:flex-row sm:items-center sm:gap-4">
       <span className="hidden size-8 shrink-0 items-center justify-center rounded-md border border-border bg-surface-2 text-muted-foreground sm:flex">
         <Icon className="size-4" strokeWidth={1.75} />
       </span>
@@ -328,13 +328,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Pipeline */}
-      <Card>
-        <CardHeader className="border-b">
+      <Card className="gap-0 pb-0">
+        <CardHeader className="border-b pb-5">
           <Eyebrow>Pipeline</Eyebrow>
           <p className="text-sm text-muted-foreground">Three steps, each one a job you can watch. Every AI decision writes an audit row.</p>
         </CardHeader>
-        <CardContent>
-          <ul className="divide-y divide-border">
+        <CardContent className="px-0">
+          <ul className="grid auto-rows-fr divide-y divide-border">
             <ActionRow
               index={1}
               label="Sync"
