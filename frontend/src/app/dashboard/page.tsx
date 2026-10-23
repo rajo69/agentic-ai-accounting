@@ -26,6 +26,7 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { StatusChip } from "@/components/ui/status-chip";
 import { PageHeader } from "@/components/app/page-header";
 import { cn } from "@/lib/utils";
+import { isDemo } from "@/demo/flag";
 import { Skeleton } from "@/components/app/skeleton";
 import { uiTransition } from "@/lib/motion";
 
@@ -142,7 +143,9 @@ export default function DashboardPage() {
     sessionStorage.removeItem("first_sync_job_id");
 
     (async () => {
-      const tid = toast.loading("Importing your Xero data… this may take a minute.");
+      const tid = toast.loading(
+        isDemo() ? "Importing your Xero data…" : "Importing your Xero data… this may take a minute.",
+      );
       setSyncing(true);
       try {
         // Intermediate progress checks — useful for a long sync
