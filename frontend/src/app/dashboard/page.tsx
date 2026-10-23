@@ -25,7 +25,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { StatusChip } from "@/components/ui/status-chip";
 import { PageHeader } from "@/components/app/page-header";
-import { JobChip } from "@/components/app/job-chip";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/app/skeleton";
 import { uiTransition } from "@/lib/motion";
 
@@ -84,16 +84,21 @@ function ActionRow({ index, label, description, loadingLabel, icon: Icon, loadin
         <p className="mt-0.5 text-small text-muted-foreground">{description}</p>
       </div>
       <div className="flex items-center gap-3 sm:shrink-0">
-        <JobChip state={loading ? "running" : "idle"} label={loading ? loadingLabel : "Idle"} />
         <Button
-          variant={variant === "primary" ? "default" : "outline"}
+          variant={loading ? "running" : variant === "primary" ? "default" : "outline"}
           size="sm"
           onClick={onClick}
           disabled={loading}
-          className="min-w-24"
+          aria-busy={loading || undefined}
+          data-state={loading ? "running" : "idle"}
+          className="min-w-36"
         >
           {loading ? <Loader2 className="animate-spin" /> : <Icon />}
-          {label}
+          {/* Both labels share one grid cell, so the button keeps one width in both states. */}
+          <span className="grid">
+            <span className={cn("col-start-1 row-start-1", loading && "invisible")}>{label}</span>
+            <span className={cn("col-start-1 row-start-1", !loading && "invisible")}>{loadingLabel}</span>
+          </span>
         </Button>
       </div>
     </li>
@@ -339,7 +344,7 @@ export default function DashboardPage() {
               index={1}
               label="Sync"
               description="Read the chart of accounts, transactions and bank statement lines from Xero."
-              loadingLabel="Syncing"
+              loadingLabel="Syncing…"
               icon={RefreshCw}
               loading={syncing}
               onClick={handleSync}
@@ -349,7 +354,7 @@ export default function DashboardPage() {
               index={2}
               label="Categorise"
               description="Code every uncategorised transaction with a confidence, a reasoning and a risk score."
-              loadingLabel="Categorising"
+              loadingLabel="Categorising…"
               icon={Tag}
               loading={categorising}
               onClick={handleCategorise}
@@ -358,7 +363,7 @@ export default function DashboardPage() {
               index={3}
               label="Reconcile"
               description="Match bank statement lines to transactions; suggestions wait for a human."
-              loadingLabel="Matching"
+              loadingLabel="Reconciling…"
               icon={GitCompare}
               loading={reconciling}
               onClick={handleReconcile}
