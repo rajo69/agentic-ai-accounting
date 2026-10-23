@@ -6,7 +6,7 @@ import { StatusChip } from "@/components/ui/status-chip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { CANDIDATES, ORG, STATEMENT_LINES, type Candidate } from "./data";
-import { FauxButton, JobChip, MiniBar, SceneHeader, toneForScore, type JobState } from "./parts";
+import { FauxButton, FauxJobButton, JobChip, MiniBar, SceneHeader, toneForScore, type JobState } from "./parts";
 import { enterStyle, gbp, outroOpacity, pressStyle, seg } from "./timeline";
 
 /**
@@ -104,10 +104,15 @@ export function ReconcileScene({ t }: { t: number }) {
     <div className="flex h-full flex-col" style={{ opacity: outroOpacity(t, RECONCILE_DURATION) }}>
       <SceneHeader title="Reconciliation" meta={`${ORG.name} · ${ORG.period}`}>
         <JobChip
-          state={job}
-          label={job === "idle" ? "8 unmatched" : job === "running" ? "Matching 8" : "5 auto-matched · 2 to review"}
+          state={job === "running" ? "idle" : job}
+          label={job === "completed" ? "5 auto-matched · 2 to review" : "8 unmatched"}
         />
-        <FauxButton style={pressStyle(t, PRESS_AT)}>Reconcile</FauxButton>
+        <FauxJobButton
+          running={job === "running"}
+          label="Reconcile"
+          runningLabel="Reconciling…"
+          style={pressStyle(t, PRESS_AT)}
+        />
       </SceneHeader>
 
       <div className="grid min-h-0 flex-1 grid-cols-[360px_1fr] gap-6 px-6 pb-6">
