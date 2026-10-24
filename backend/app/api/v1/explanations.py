@@ -90,6 +90,7 @@ async def get_explanation(
             "ai_model": log.ai_model,
             "ai_confidence": float(log.ai_confidence) if log.ai_confidence else None,
             "ai_explanation": log.ai_explanation,
+            "old_value": log.old_value,
             "new_value": log.new_value,
             "created_at": log.created_at.isoformat() if log.created_at else None,
         }

@@ -196,6 +196,22 @@ export const rejectTransaction = (id: string) =>
     method: "POST",
   });
 
+export interface ChartAccount {
+  code: string | null;
+  name: string;
+  type: string;
+}
+
+/**
+ * The chart of accounts a correction picks from. The demo store holds it in the browser; in real
+ * mode it is null and the correct endpoint checks the typed name against the chart instead.
+ */
+export async function getChartOfAccounts(): Promise<ChartAccount[] | null> {
+  if (!isDemo()) return null;
+  const { demoChartOfAccounts } = await import("@/demo");
+  return demoChartOfAccounts();
+}
+
 export const correctTransaction = (
   id: string,
   body: { category: string; category_code?: string }
@@ -280,6 +296,7 @@ export interface ExplanationAuditEntry {
   ai_model: string | null;
   ai_confidence: number | null;
   ai_explanation: string | null;
+  old_value?: Record<string, unknown> | null;
   new_value: Record<string, unknown> | null;
   created_at: string | null;
 }

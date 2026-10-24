@@ -45,7 +45,7 @@ function sections(d: DemoSettings): { eyebrow: string; blurb: string; rows: Row[
         { label: "Escalation model", value: <StatusChip tone="info" dot={false} className="font-mono">{d.escalation_model}</StatusChip> },
         { label: "Document model", value: <StatusChip tone="info" dot={false} className="font-mono">{d.document_model}</StatusChip>, hint: "Recorded on each generated document in real mode; the demo replays pre-written sections." },
         { label: "Risk rules", value: <Mono>{d.rule_count} plain-language rules</Mono>, hint: "Amount deviation, vendor frequency and time pattern; each fired rule is shown on the transaction." },
-        { label: "Precedent retrieval", value: <StatusChip tone="warning" outline>Behind a flag</StatusChip>, hint: "Confirmed corrections are stored as precedents; retrieval is gated until the Xero terms question is settled." },
+        { label: "Precedent retrieval", value: <StatusChip tone="success">On</StatusChip> },
       ],
     },
     {

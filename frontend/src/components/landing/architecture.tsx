@@ -30,7 +30,7 @@ const EDGES = [
 
 const FACTS = [
   "34 FastAPI endpoints behind one OpenAPI contract",
-  "93 pytest tests run on every push",
+  "117 pytest tests run on every push",
   "A fast model first, a stronger one when it is unsure",
   "Instructor outputs validated by Pydantic before they are stored",
   "pgvector precedents, scoped to the organisation",
