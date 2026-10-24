@@ -5,7 +5,7 @@
 Reads `backend/app/templates/*.html` with Jinja2 (it does not import the backend app) and the
 figures from `frontend/src/demo/seed.generated.ts`, shifted to the week the demo shows today
 (same rule as `src/demo/seed.ts`). The arithmetic mirrors `src/demo/figures.ts`; keep the two in
-step. Narrative sections are pre-written here, labelled indicative in the templates themselves.
+step. Narrative sections are pre-written here.
 
 PDF engine: WeasyPrint when importable (the backend's engine), otherwise headless Chrome's
 print-to-PDF (Chrome ignores the templates' @page footer boxes; everything else renders alike).
@@ -31,6 +31,7 @@ TEMPLATES = ROOT / "backend" / "app" / "templates"
 SEED_TS = HERE.parent / "src" / "demo" / "seed.generated.ts"
 ORG_NAME = "Harlow & Finch Ltd"  # src/demo/seed.ts ORG_NAME
 NO_VAT_CODES = {"820", "260", "462", "469", "477", "461"}  # src/demo/figures.ts
+BALANCE_SHEET_CODES = {"900"}  # src/demo/figures.ts: the loan account stays off the figures
 CHROME_CANDIDATES = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
@@ -75,6 +76,8 @@ def shifted_rows(seed: dict, today: date) -> list[dict]:
     shift = quarter_shift_days(date.fromisoformat(seed["max_date"]), today)
     rows = []
     for t in seed["transactions"]:
+        if t["plan"]["category_code"] in BALANCE_SHEET_CODES:
+            continue
         d = date.fromisoformat(t["date"]) + timedelta(days=shift)
         rows.append(
             {
@@ -207,17 +210,16 @@ class Narrative(dict):
 
 MANAGEMENT_LETTER = Narrative(
     executive_summary=(
-        "Cash movements for the quarter show receipts well below payments, but the headline is not an operating "
-        "loss: receipts include a revolving credit drawdown and an Innovate UK grant, and payments include the "
-        "PAYE, employer NIC and VAT settlements for the previous period together with a loan instalment. "
-        "Stripping those out, trading activity is modest and broadly in line with a small professional practice "
-        "between client billing cycles."
+        "Payments for the quarter run well ahead of income. A large share of them are the PAYE, employer NIC "
+        "and VAT settlements for the previous period, and income rests on one client settlement and an Innovate "
+        "UK grant, so trading activity is modest and broadly in line with a small professional practice between "
+        "client billing cycles. The revolving credit drawdown and the loan instalment are held on the balance "
+        "sheet under the loan account and sit outside these figures."
     ),
     income_analysis=(
         "Trading income rests on a single client settlement, which leaves the quarter exposed to the timing of one "
         "invoice. The grant receipt is non-recurring and should be ring-fenced against the project it funds. "
-        "The facility drawdown is financing rather than income and will need to be presented as such in the "
-        "statutory accounts."
+        "The facility drawdown is financing, recorded against the loan account, and is not counted as income."
     ),
     expense_analysis=(
         "Staff costs and the related HMRC settlements are the largest outflows, as expected for a people-led "
@@ -235,22 +237,21 @@ MANAGEMENT_LETTER = Narrative(
     recommendations=(
         "Agree a billing schedule with the main client so that receipts arrive monthly rather than in one "
         "settlement.\nReview the two general-expense payments and the contractor invoice flagged for review, and "
-        "record the reasoning in the audit trail.\nPresent the facility drawdown and the grant separately from "
-        "trading income in the management accounts, and set aside the VAT element of the quarter's sales as it "
+        "record the reasoning in the audit trail.\nPresent the grant separately from trading income in the "
+        "management accounts, and set aside the VAT element of the quarter's sales as it "
         "is invoiced."
     ),
 )
 
 PROFIT_LOSS = Narrative(
     overview=(
-        "On a cash basis the period shows a deficit, driven by financing and tax settlements rather than by "
-        "trading. Once the credit drawdown, the grant and the HMRC payments are set aside, the underlying "
-        "picture is a small practice covering its running costs with limited headroom."
+        "On a cash basis the period shows a deficit, driven largely by the HMRC settlements for the previous "
+        "period and a full quarter of payroll against a single client settlement. The revolving credit drawdown "
+        "and the loan instalment sit on the balance sheet under the loan account and are outside this statement."
     ),
     income_commentary=(
         "Sales come from one client settlement and other revenue from a grant, so the income line is lumpy by "
-        "construction. Neither item recurs on a monthly cycle, and the loan receipt sits in the income total only "
-        "because the categoriser places it there; it is financing and should be reclassified."
+        "construction. Neither item recurs on a monthly cycle."
     ),
     expense_commentary=(
         "Wages and the employer NIC and PAYE settlements dominate, followed by legal, accountancy and audit fees "
@@ -267,8 +268,8 @@ PROFIT_LOSS = Narrative(
 VAT_SUMMARY = Narrative(
     overview=(
         "Input VAT on purchases exceeds output VAT on sales for the period, so the return would show an amount "
-        "reclaimable from HMRC. The figures are indicative: they are derived from bank movements with the VAT "
-        "fraction applied to standard-rated lines, not from VAT invoices."
+        "reclaimable from HMRC. The figures are derived from bank movements with the VAT fraction applied to "
+        "standard-rated lines, not from VAT invoices."
     ),
     output_vat_commentary=(
         "Output VAT arises from a single client settlement. If that invoice was raised in the previous period "
@@ -277,8 +278,8 @@ VAT_SUMMARY = Narrative(
     ),
     input_vat_commentary=(
         "Input VAT is spread across software, professional fees, courier, cleaning and premises costs. Insurance, "
-        "business rates, wages, professional subscriptions and the HMRC and loan payments carry no VAT and are "
-        "shown at the zero line. Entertainment and hospitality lines are included in the estimate but input VAT "
+        "business rates, wages, professional subscriptions and the HMRC payments carry no VAT and are shown at "
+        "the zero line; loan movements sit outside the return. Entertainment and hospitality lines are included in the estimate but input VAT "
         "on client entertaining is not recoverable and should be removed."
     ),
     recommendations=(

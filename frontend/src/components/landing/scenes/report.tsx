@@ -11,7 +11,7 @@ import { enterStyle, gbp, outroOpacity, pressStyle, seg } from "./timeline";
 
 /**
  * Documents: the generate form runs a job (queued, running, completed), the new letter joins the
- * list, and its first page previews with indicative figures counting up.
+ * list, and its first page previews with its figures counting up.
  */
 export const REPORT_DURATION = 8000;
 
@@ -57,9 +57,6 @@ export function LetterPreview({ t, start }: { t: number; start: number }) {
           <div className="text-h3 text-foreground">{LETTER.title}</div>
           <div className="mt-1 font-mono text-xs text-muted-foreground">{LETTER.subtitle}</div>
         </div>
-        <StatusChip tone="info" dot={false}>
-          Indicative
-        </StatusChip>
       </div>
       <div className="grid grid-cols-3 gap-3">
         {LETTER.figures.map((f) => (

@@ -239,7 +239,7 @@ export default function DocumentsPage() {
               ? <><Loader2 className="animate-spin" /> Generating</>
               : <><Download /> Generate PDF</>}
           </Button>
-          <p className="font-mono text-xs text-muted-foreground">Figures come from the synced books; the commentary is drafted by the model and marked indicative.</p>
+          <p className="font-mono text-xs text-muted-foreground">Figures come from the synced books; the commentary is drafted by the model.</p>
         </div>
 
         {/* History */}

@@ -23,17 +23,39 @@ const fuzzyPath = resolve(root, "backend", "app", "xai", "fuzzy_engine.py");
 const categoriserPath = resolve(root, "backend", "app", "agents", "categoriser.py");
 const outPath = resolve(here, "..", "src", "demo", "seed.generated.ts");
 
-const SCRIPT_VERSION = "6";
+const SCRIPT_VERSION = "8";
 
 const txRaw = readFileSync(resolve(fixtures, "transactions.json"), "utf8");
 const accRaw = readFileSync(resolve(fixtures, "accounts.json"), "utf8");
 const fuzzyRaw = readFileSync(fuzzyPath, "utf8");
 const categoriserRaw = readFileSync(categoriserPath, "utf8");
 
-/** @type {Array<{id:string,date:string,amount:string,description:string,reference:string,expected_category_code:string,expected_category_name:string,expected_category_alt?:string,expected_category_alt_name?:string,difficulty:"easy"|"medium"|"hard",notes:string}>} */
-const transactions = JSON.parse(txRaw);
+// The demo chart is the fixture chart plus a balance-sheet loan account, so loan movements have
+// an account of their own and stay off the profit and loss.
+const LOAN_ACCOUNT = { code: "900", name: "Loan", type: "LIABILITY" };
+const LOAN_FIXTURES = new Set(["t032", "t041"]);
+
 /** @type {Array<{code:string,name:string,type:string}>} */
-const accounts = JSON.parse(accRaw);
+const accounts = [...JSON.parse(accRaw), LOAN_ACCOUNT];
+/** @type {Array<{id:string,date:string,amount:string,description:string,reference:string,expected_category_code:string,expected_category_name:string,expected_category_alt?:string,expected_category_alt_name?:string,difficulty:"easy"|"medium"|"hard",notes:string}>} */
+const transactions = JSON.parse(txRaw).map(toChart);
+
+/**
+ * Every demo category is an account in the chart, as the backend's chart-canonical validation
+ * requires: the name follows the fixture's code, and the alternative follows its name.
+ */
+function toChart(t) {
+  const code = LOAN_FIXTURES.has(t.id) ? LOAN_ACCOUNT.code : t.expected_category_code;
+  const account = accounts.find((a) => a.code === code);
+  if (!account) throw new Error(`${t.id}: code ${code} is not in the demo chart`);
+  const out = { ...t, expected_category_code: account.code, expected_category_name: account.name };
+  if (t.expected_category_alt_name) {
+    const alt = accounts.find((a) => a.name === t.expected_category_alt_name);
+    if (!alt) throw new Error(`${t.id}: ${t.expected_category_alt_name} is not in the demo chart`);
+    out.expected_category_alt = alt.code;
+  }
+  return out;
+}
 
 // ── Deterministic helpers ─────────────────────────────────────────────────────
 

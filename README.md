@@ -116,7 +116,7 @@ Each row is a choice, the alternative it was chosen over, and the trade-off acce
 | Haiku first, Sonnet below 0.85 confidence | Haiku only, or Sonnet only | The stronger model runs only where a person would otherwise look, at about 3× Haiku's list price | A low-confidence transaction makes two model calls |
 | The firm's own past decisions as few-shot precedents | Fine-tuning, or a global classifier | Corrections apply on the next similar transaction; categorisation trains no model on client data | Precedents come only from the same organisation |
 | Local MiniLM embeddings in the same Postgres | An embeddings API and a vector database | Anthropic has no embeddings endpoint; no extra vendor or database | PyTorch makes the backend image large |
-| Risk flags from eight readable fuzzy rules | Learned per-feature contributions (an EBM experiment) | An accountant can read and challenge "amount deviation is high AND vendor is rare" | Coarser than a learned model |
+| Risk flags from eight readable fuzzy rules | Learned per-feature contributions | An accountant can read and challenge "amount deviation is high AND vendor is rare" | Coarser than a learned model |
 | `Decimal` money, figures computed in code | Floats; model-written figures | Penny errors are trust failures; the model never touches a number | The model writes only the narrative around the figures |
 | An audit table row per AI and per human decision | Log lines | "Who decided what, and why" has to be queryable | A database write on every decision |
 | Raw `httpx` Xero adapter behind one interface | The Xero SDK | Control over token refresh, 429 backoff and `If-Modified-Since` sync, in one file | More code to own |
@@ -213,7 +213,7 @@ backend/
     agents/          categoriser.py, reconciler.py (LangGraph)
     services/        embedding_service.py, document_service.py
     integrations/    xero_adapter.py
-    xai/             fuzzy_engine.py, explainer.py (EBM experiment)
+    xai/             fuzzy_engine.py, explainer.py
     core/            config, database, session (JWT), encryption, cache, jobs, rate_limit, observability, email
     models/          SQLAlchemy models, Pydantic schemas
     templates/       management_letter.html, profit_loss.html, vat_summary.html
