@@ -138,6 +138,7 @@ function explanation(s: DemoState, id: string): ExplanationResponse {
       ai_model: a.ai_model,
       ai_confidence: toNumber(a.ai_confidence),
       ai_explanation: a.ai_explanation,
+      old_value: a.old_value,
       new_value: a.new_value,
       created_at: a.created_at,
     })),

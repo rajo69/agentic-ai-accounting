@@ -84,6 +84,15 @@ function actionTone(action: string) {
   return "bg-primary/10 text-primary ring-primary/20";
 }
 
+/** The old and new category of a correction, from its stored old and new values. */
+function categoryChange(entry: ExplanationResponse["audit_history"][number]) {
+  if (entry.action !== "human_correct") return null;
+  const from = entry.old_value?.category;
+  const to = entry.new_value?.category;
+  if (typeof to !== "string") return null;
+  return { from: typeof from === "string" ? from : null, to };
+}
+
 function fmtWhen(iso: string | null) {
   if (!iso) return null;
   return new Date(iso).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -257,6 +266,7 @@ export function ExplanationPanel({
               const Icon = actionIcon(entry.action);
               const last = i === data.audit_history.length - 1;
               const when = fmtWhen(entry.created_at);
+              const change = categoryChange(entry);
               return (
                 <li key={entry.id} className={cn("relative flex gap-3", !last && "pb-5")}>
                   {!last && <span aria-hidden className="absolute left-[11px] top-7 h-[calc(100%-20px)] w-px bg-border" />}
@@ -265,6 +275,12 @@ export function ExplanationPanel({
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="text-small text-foreground">{actionLabel(entry.action)}</div>
+                    {change && (
+                      <div className="text-small leading-5 text-muted-foreground">
+                        {change.from ?? "No category"} <span aria-hidden>→</span>
+                        <span className="sr-only">changed to</span> <span className="text-foreground">{change.to}</span>
+                      </div>
+                    )}
                     {entry.ai_explanation && (
                       <div className="text-small leading-5 text-muted-foreground">{entry.ai_explanation}</div>
                     )}

@@ -280,6 +280,7 @@ export interface ExplanationAuditEntry {
   ai_model: string | null;
   ai_confidence: number | null;
   ai_explanation: string | null;
+  old_value?: Record<string, unknown> | null;
   new_value: Record<string, unknown> | null;
   created_at: string | null;
 }
