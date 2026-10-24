@@ -61,9 +61,9 @@ export interface GeneratedSeed {
 }
 
 export const SEED: GeneratedSeed = {
-  "version": "638959284537",
+  "version": "c878fa8eb947",
   "primary_model": "claude-haiku-4-5-20251001",
-  "escalation_model": "claude-sonnet-4-5-20250929",
+  "escalation_model": "claude-sonnet-4-6",
   "escalation_threshold": 0.85,
   "max_date": "2024-03-05",
   "rules": [
@@ -1277,10 +1277,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "401",
         "tier": "suggested",
         "confidence": 0.57,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.64,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Regus is a well-known serviced office provider. Coded to Rent (401) on the vendor and reference pattern; GBP 1,200.00 is in the usual range for this account.",
@@ -1313,7 +1316,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "820",
         "tier": "suggested",
         "confidence": 0.83,
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-sonnet-4-6",
         "decision": {
           "escalated": true,
           "tier": "suggested",
@@ -1351,10 +1354,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "461",
         "tier": "suggested",
         "confidence": 0.6,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.64,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Professional membership, could be subscriptions or professional fees. Subscriptions (461) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1386,10 +1392,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "463",
         "tier": "suggested",
         "confidence": 0.6,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.7,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Conference registration, training or subscriptions. Training & Development (463) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1422,10 +1431,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "445",
         "tier": "suggested",
         "confidence": 0.53,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.57,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Waste management, utilities or general overheads. Utilities (445) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1457,10 +1469,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "412",
         "tier": "suggested",
         "confidence": 0.62,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.66,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Design tool, marketing or software. Advertising & Marketing (412) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1492,7 +1507,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "461",
         "tier": "suggested",
         "confidence": 0.71,
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-sonnet-4-6",
         "decision": {
           "escalated": true,
           "tier": "suggested",
@@ -1530,10 +1545,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "429",
         "tier": "suggested",
         "confidence": 0.5,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.78,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Flowers on Valentine's Day, client gift or entertainment. Entertainment & Hospitality (429) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1565,10 +1583,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "411",
         "tier": "suggested",
         "confidence": 0.75,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.69,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Consulting invoice, amount suggests contractor, not supplies. Consultants & Contractors (411) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1601,10 +1622,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "462",
         "tier": "suggested",
         "confidence": 0.71,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.69,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Health insurance, could be insurance or staff benefits. Insurance (462) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1636,10 +1660,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "412",
         "tier": "suggested",
         "confidence": 0.81,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.8,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "LinkedIn Premium, marketing or subscriptions. Advertising & Marketing (412) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1672,10 +1699,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "404",
         "tier": "suggested",
         "confidence": 0.59,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.62,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Electronics retailer, likely equipment but could be office supplies. Computer Equipment & Software (404) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1707,10 +1737,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "493",
         "tier": "suggested",
         "confidence": 0.53,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.79,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Parking, motor expenses or travel. Travel (493) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1742,10 +1775,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "477",
         "tier": "needs_review",
         "confidence": 0.35,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.62,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Recruitment agency fee. Recruitment (477) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1777,10 +1813,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "429",
         "tier": "needs_review",
         "confidence": 0.24,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.79,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Streaming subscription, entertainment or staff welfare. Entertainment & Hospitality (429) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1813,10 +1852,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "477",
         "tier": "needs_review",
         "confidence": 0.48,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.69,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Payroll bureau, could be admin or staff costs. Payroll Processing (477) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1848,7 +1890,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "416",
         "tier": "needs_review",
         "confidence": 0.3,
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-sonnet-4-6",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
@@ -1886,10 +1928,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "260",
         "tier": "needs_review",
         "confidence": 0.47,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.65,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Grant income, not standard revenue. The description is too generic to code Other Revenue (260) with confidence, so this needs a human decision.",
@@ -1922,10 +1967,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "820",
         "tier": "needs_review",
         "confidence": 0.21,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.73,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Credit facility drawdown, balance sheet, not P&L income. The description is too generic to code Loan Receipt (820) with confidence, so this needs a human decision.",
@@ -1958,7 +2006,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "416",
         "tier": "needs_review",
         "confidence": 0.25,
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-sonnet-4-6",
         "decision": {
           "escalated": true,
           "tier": "needs_review",

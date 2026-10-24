@@ -6,6 +6,7 @@
 //   ../backend/evals/fixtures/transactions.json   50 labelled UK transactions
 //   ../backend/evals/fixtures/accounts.json       20 chart-of-accounts rows
 //   ../backend/app/xai/fuzzy_engine.py            the eight risk rules (copied verbatim)
+//   ../backend/app/agents/categoriser.py          the primary and escalation model ids and threshold
 //
 // Everything derived here is deterministic: the same inputs always produce the same file,
 // so SEED_VERSION (a hash of the inputs and of this script) only changes when something real changed.
@@ -19,13 +20,15 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..");
 const fixtures = resolve(root, "backend", "evals", "fixtures");
 const fuzzyPath = resolve(root, "backend", "app", "xai", "fuzzy_engine.py");
+const categoriserPath = resolve(root, "backend", "app", "agents", "categoriser.py");
 const outPath = resolve(here, "..", "src", "demo", "seed.generated.ts");
 
-const SCRIPT_VERSION = "5";
+const SCRIPT_VERSION = "6";
 
 const txRaw = readFileSync(resolve(fixtures, "transactions.json"), "utf8");
 const accRaw = readFileSync(resolve(fixtures, "accounts.json"), "utf8");
 const fuzzyRaw = readFileSync(fuzzyPath, "utf8");
+const categoriserRaw = readFileSync(categoriserPath, "utf8");
 
 /** @type {Array<{id:string,date:string,amount:string,description:string,reference:string,expected_category_code:string,expected_category_name:string,expected_category_alt?:string,expected_category_alt_name?:string,difficulty:"easy"|"medium"|"hard",notes:string}>} */
 const transactions = JSON.parse(txRaw);
@@ -154,9 +157,16 @@ function reasoningFor(t) {
 // 60% auto_categorised (0.86-0.98), 25% suggested (0.50-0.85), 15% needs_review (< 0.50).
 // Order: easy, then medium, then hard (hard fixtures last), shuffled within each class.
 
-const PRIMARY_MODEL = "claude-haiku-4-5-20251001";
-const ESCALATION_MODEL = "claude-sonnet-4-5-20250929";
-const ESCALATION_THRESHOLD = 0.85;
+/** A module-level constant from categoriser.py, so the demo names the models the backend calls. */
+function categoriserConstant(name) {
+  const m = categoriserRaw.match(new RegExp(`^${name} = (?:"([^"]+)"|([0-9.]+))\\s*$`, "m"));
+  if (!m) throw new Error(`${name} not found in categoriser.py`);
+  return m[1] ?? Number(m[2]);
+}
+
+const PRIMARY_MODEL = categoriserConstant("LLM_MODEL");
+const ESCALATION_MODEL = categoriserConstant("LLM_MODEL_ESCALATION");
+const ESCALATION_THRESHOLD = categoriserConstant("ESCALATION_THRESHOLD");
 
 const order = ["easy", "medium", "hard"].flatMap((difficulty) => {
   const rows = transactions.filter((t) => t.difficulty === difficulty);
@@ -173,9 +183,6 @@ const suggestedCount = Math.round(total * 0.25);
 
 const maxDate = transactions.map((t) => t.date).sort().at(-1);
 
-// Escalated rows (3-4): the fast model was unsure, the stronger model decided.
-const escalatedPositions = new Set([autoCount + 1, autoCount + 6, autoCount + suggestedCount + 3, total - 1]);
-
 const seedTransactions = order.map((t, position) => {
   const rnd = mulberry32(fnv1a(`tx:${t.id}`));
   let tier;
@@ -190,7 +197,10 @@ const seedTransactions = order.map((t, position) => {
     tier = "needs_review";
     confidence = 0.2 + rnd() * 0.29;
   }
-  const escalated = escalatedPositions.has(position);
+  // As in the categoriser: a primary answer below the escalation threshold is re-run on the
+  // escalation model, and that answer is the one stored. Every row that ends below the threshold
+  // was escalated; the auto-categorised rows were decided by the primary model.
+  const escalated = tier !== "auto_categorised";
   const decision = escalated
     ? {
         escalated: true,
@@ -235,6 +245,7 @@ const SEED_VERSION = createHash("sha1")
   .update(txRaw)
   .update(accRaw)
   .update(ruleTexts.join("\n"))
+  .update([PRIMARY_MODEL, ESCALATION_MODEL, ESCALATION_THRESHOLD].join("\n"))
   .digest("hex")
   .slice(0, 12);
 
