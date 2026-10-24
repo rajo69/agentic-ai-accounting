@@ -86,7 +86,7 @@ const SCENES: {
     Mobile: ReportMobile,
     start: [0, 0],
     description:
-      "A management letter is generated for the quarter: the job runs, the document joins the list, and its first page previews with indicative figures.",
+      "A management letter is generated for the quarter: the job runs, the document joins the list, and its first page previews with the quarter's figures.",
   },
 ];
 

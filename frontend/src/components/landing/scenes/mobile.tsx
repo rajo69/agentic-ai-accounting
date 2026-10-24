@@ -380,9 +380,6 @@ export function ReportMobile({ t }: { t: number }) {
                   <div className="text-base font-medium tracking-[-0.01em] text-foreground">{LETTER.title}</div>
                   <div className="font-mono text-[11px] text-muted-foreground">quarter to 5 Jul 2026</div>
                 </div>
-                <StatusChip tone="info" dot={false}>
-                  Indicative
-                </StatusChip>
               </div>
               <dl className="flex flex-col divide-y divide-border border-y border-border">
                 {LETTER.figures.map((f) => (
