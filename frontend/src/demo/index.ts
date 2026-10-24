@@ -41,3 +41,8 @@ export function demoSettings() {
 }
 
 export type DemoSettings = ReturnType<typeof demoSettings>;
+
+/** The demo organisation's chart of accounts, for the correction picker. */
+export function demoChartOfAccounts() {
+  return getState().accounts.map((a) => ({ code: a.code, name: a.name, type: a.type }));
+}

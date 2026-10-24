@@ -7,7 +7,6 @@ import { decide, explainMatch, inWindow, scoreCandidates, type ScoredCandidate }
 import {
   ORG_ID,
   SEED_VERSION,
-  accountByName,
   planOrder,
   seedAccounts,
   seedRow,
@@ -298,14 +297,17 @@ export function correctTransaction(
   at: string,
 ): Transaction {
   const tx = requireTransaction(s, id);
-  const category = body.category?.trim();
-  if (!category) throw new Error("A category name is required.");
-  const category_code = body.category_code ?? accountByName(category)?.code ?? null;
+  // As in the backend: the code wins when given, otherwise the name; either must be in the chart.
+  const name = body.category?.trim().toLowerCase();
+  const account = body.category_code
+    ? s.accounts.find((a) => a.code === body.category_code)
+    : s.accounts.find((a) => a.name.toLowerCase() === name);
+  if (!account) throw new Error(`Account '${body.category}' not found in chart of accounts`);
   const old_value = { category: tx.category, categorisation_status: tx.categorisation_status };
-  tx.category = category;
+  tx.category = account.name;
   tx.categorisation_status = "confirmed";
   tx.updated_at = at;
-  pushAudit(s, humanRow("transaction", tx.id, "human_correct", old_value, { category, category_code, categorisation_status: "confirmed" }, at));
+  pushAudit(s, humanRow("transaction", tx.id, "human_correct", old_value, { category: account.name, category_code: account.code, categorisation_status: "confirmed" }, at));
   return tx;
 }
 
