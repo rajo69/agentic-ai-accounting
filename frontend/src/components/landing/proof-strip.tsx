@@ -1,8 +1,8 @@
 import { Container } from "./section";
 
 /**
- * Verified in the repository on 2026-10-10: 34 route decorators under backend/app, 93 test
- * functions under backend/tests (run by CI), one AuditLog row per AI and human decision,
+ * Verified in the repository on 2026-10-10 (test count re-checked 2026-10-24): 34 route decorators under backend/app, 117
+ * tests collected under backend/tests (run by CI), one AuditLog row per AI and human decision,
  * confirmed and corrected categorisations stored as precedents, pgvector and instructor in
  * pyproject. No accuracy, no hours saved (DESIGN.md section 9). Sits above "How it is built";
  * the model names live in the Explain row and the architecture diagram only.
@@ -11,7 +11,7 @@ const FACTS = [
   "Audit row per decision",
   "Corrections become precedents",
   "34 endpoints",
-  "93 tests in CI",
+  "117 tests in CI",
   "pgvector precedent retrieval",
   "Structured outputs via Instructor",
 ];
