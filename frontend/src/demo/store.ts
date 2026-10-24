@@ -298,6 +298,7 @@ export function correctTransaction(
 ): Transaction {
   const tx = requireTransaction(s, id);
   // As in the backend: the code wins when given, otherwise the name; either must be in the chart.
+  // A correction is a human decision, stored at full confidence.
   const name = body.category?.trim().toLowerCase();
   const account = body.category_code
     ? s.accounts.find((a) => a.code === body.category_code)
@@ -305,6 +306,7 @@ export function correctTransaction(
   if (!account) throw new Error(`Account '${body.category}' not found in chart of accounts`);
   const old_value = { category: tx.category, categorisation_status: tx.categorisation_status };
   tx.category = account.name;
+  tx.category_confidence = "1.0000";
   tx.categorisation_status = "confirmed";
   tx.updated_at = at;
   pushAudit(s, humanRow("transaction", tx.id, "human_correct", old_value, { category: account.name, category_code: account.code, categorisation_status: "confirmed" }, at));
