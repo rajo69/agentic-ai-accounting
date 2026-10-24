@@ -1,7 +1,7 @@
 // Background jobs, scripted. A job advances one step per `GET /jobs/{id}` (the UI polls), so
 // progress is visible at the dashboard's own polling rate and needs no timers.
 import type { JobRead } from "@/lib/api";
-import { ORG_ID, STATEMENT_COUNT } from "./seed";
+import { ORG_ID, STATEMENT_COUNT, planOrder, seedAccounts } from "./seed";
 import {
   applySync,
   categoriseRows,
@@ -30,7 +30,7 @@ interface Script {
   finish: (s: DemoState, job: JobRead, at: string) => Record<string, unknown>;
 }
 
-const SYNC_TOTAL = 70 + STATEMENT_COUNT; // 20 accounts + 50 transactions + statement lines
+const SYNC_TOTAL = seedAccounts().length + planOrder().length + STATEMENT_COUNT; // accounts + transactions + statement lines
 
 const emptyTiers = (): TierCounts => ({ auto_categorised: 0, suggested: 0, needs_review: 0 });
 const emptyMatches = (): MatchCounts => ({ auto_matched: 0, suggested: 0, needs_review: 0 });
