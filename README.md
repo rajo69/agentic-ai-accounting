@@ -142,11 +142,10 @@ Research questions the build raised: whether confidence should be calibrated per
 
 ## Explainability and risk scoring
 
-Three different things sit behind the explanation panel, and the console keeps them apart.
+Two different things sit behind the explanation panel, and the console keeps them apart.
 
 - The model's reasoning is the `reasoning` field of the structured output, shown to the reviewer beside the proposal.
 - The risk flag is glass-box. A Mamdani-style fuzzy inference engine, written from scratch in [`backend/app/xai/fuzzy_engine.py`](backend/app/xai/fuzzy_engine.py), takes three normalised inputs (amount deviation from the category's history, vendor frequency, weekday or weekend timing), applies eight plain-language rules, and returns a score, a label (low, medium, high) and the rules that fired. Defuzzification is a centroid over term representatives.
-- Feature importances, retired on the evidence. An Explainable Boosting Machine was built to train once fifty labelled rows existed. The self-review found it never produced output for three or more categories, and it trains on Xero data, which the developer terms forbid, so it is being retired; the console shows feature bars only when that model actually produced them.
 
 ## Security and data handling
 
