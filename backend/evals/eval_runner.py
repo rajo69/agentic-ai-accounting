@@ -147,17 +147,35 @@ async def _live_categorise(
     tracker: CostTracker,
     cache: ResponseCache,
 ) -> tuple[dict, bool]:
-    """Call Claude API to categorise a transaction. Returns (result, was_cached)."""
+    """Call Claude API to categorise a transaction. Returns (result, was_cached).
+
+    The call goes through the app's gateway with the request params of the
+    categoriser route that uses `model` (llm_client.PROFILES), and its cost
+    comes from that call's own usage.
+    """
     try:
-        import anthropic
-        import instructor
         from pydantic import BaseModel
+
+        from app.services.llm_client import PROFILES, Route, structured_call
 
         class CategoryPrediction(BaseModel):
             category_code: str
             category_name: str
             confidence: float
             reasoning: str
+
+        route_profile = next(
+            (
+                (route, profile)
+                for profile in PROFILES.values()
+                for route in (Route.CATEGORISE_PRIMARY, Route.CATEGORISE_ESCALATION)
+                if profile.routes[route].model == model
+            ),
+            None,
+        )
+        if route_profile is None:
+            raise ValueError(f"no categoriser route uses {model}; add it to a profile in app/services/llm_client.py")
+        route, profile = route_profile
 
         accounts_text = "\n".join(f"  {a['code']}: {a['name']} ({a['type']})" for a in accounts)
         prompt = f"""You are a UK accounting assistant. Categorise this bank transaction.
@@ -178,23 +196,10 @@ Return the most appropriate account code and name, your confidence (0.0-1.0), an
             return cached, True
 
         t0 = time.monotonic()
-        client = instructor.from_anthropic(anthropic.Anthropic())
-        pred = client.messages.create(
-            model=model,
-            max_tokens=256,
-            messages=[{"role": "user", "content": prompt}],
-            response_model=CategoryPrediction,
-        )
+        call = await structured_call(route, prompt, CategoryPrediction, profile)
         elapsed_ms = (time.monotonic() - t0) * 1000
-
-        # Get usage from the raw response (instructor wraps it)
-        raw_client = anthropic.Anthropic()
-        raw_resp = raw_client.messages.create(
-            model=model,
-            max_tokens=256,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        tracker.record(raw_resp.usage, label=tx.id, duration_ms=elapsed_ms)
+        tracker.record(call.usage, label=tx.id, duration_ms=elapsed_ms)
+        pred = call.require()
 
         result = {
             "category_code": pred.category_code,
@@ -206,7 +211,7 @@ Return the most appropriate account code and name, your confidence (0.0-1.0), an
         return result, False
 
     except ImportError:
-        # anthropic/instructor not installed yet (Phase 3 dep)
+        # anthropic not installed (the `ai` extra)
         return _mock_categorise(tx, accounts), False
 
 

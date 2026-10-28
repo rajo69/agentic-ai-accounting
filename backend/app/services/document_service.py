@@ -9,19 +9,16 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Optional
 
-import instructor
-from anthropic import AsyncAnthropic
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.models.database import AuditLog, GeneratedDocument, Organisation, Transaction
+from app.services.llm_client import Route, get_profile, structured_call
 
 logger = logging.getLogger(__name__)
 
-LLM_MODEL = "claude-sonnet-4-6"
 TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
 
 
@@ -100,11 +97,22 @@ def _calculate_figures(transactions: list, period_start: date, period_end: date)
 
 # ── LLM narrative generation ──────────────────────────────────────────────────
 
-async def _generate_narrative(figures: dict, org_name: str) -> ManagementLetterNarrative:
-    client = instructor.from_anthropic(
-        AsyncAnthropic(api_key=settings.anthropic_api_key)
-    )
+def _route_model(route: Route) -> str:
+    """The model id recorded on documents and audit rows for a narrative route."""
+    return get_profile().routes[route].model
 
+
+async def _narrative(route: Route, prompt: str, schema: type[BaseModel]) -> tuple[BaseModel, Optional[str]]:
+    """One narrative call: (parsed narrative, model that served it).
+
+    A refusal or a truncated or invalid output raises LLMUnavailableError,
+    whose message the documents API returns.
+    """
+    result = await structured_call(route, prompt, schema)
+    return result.require(), result.served_model
+
+
+async def _generate_narrative(figures: dict, org_name: str) -> tuple[ManagementLetterNarrative, Optional[str]]:
     top_cats = "\n".join(
         f"  - {c['name']}: £{c['total_abs']:,.2f} ({c['pct']:.1f}%)"
         for c in figures["top_expense_categories"]
@@ -129,12 +137,7 @@ async def _generate_narrative(figures: dict, org_name: str) -> ManagementLetterN
         "Use plain, professional English. Do not repeat raw figures — interpret and contextualise them."
     )
 
-    return await client.messages.create(
-        model=LLM_MODEL,
-        max_tokens=1500,
-        messages=[{"role": "user", "content": prompt}],
-        response_model=ManagementLetterNarrative,
-    )
+    return await _narrative(Route.DOC_MANAGEMENT_LETTER, prompt, ManagementLetterNarrative)
 
 
 # ── HTML rendering + PDF ──────────────────────────────────────────────────────
@@ -257,7 +260,8 @@ async def generate_management_letter(
     figures = _calculate_figures(transactions, period_start, period_end)
 
     # 2. Generate narrative (LLM)
-    narrative = await _generate_narrative(figures, org.name)
+    narrative, served_model = await _generate_narrative(figures, org.name)
+    ai_model = _route_model(Route.DOC_MANAGEMENT_LETTER)
 
     # 3. Render HTML
     html = _render_html(figures, narrative, org.name, period_start, period_end)
@@ -275,7 +279,7 @@ async def generate_management_letter(
         template="management_letter",
         period_start=period_start,
         period_end=period_end,
-        ai_model=LLM_MODEL,
+        ai_model=ai_model,
         figures=figures,
     )
     db.add(doc_record)
@@ -290,9 +294,9 @@ async def generate_management_letter(
             "period_start": str(period_start),
             "period_end": str(period_end),
         },
-        ai_model=LLM_MODEL,
+        ai_model=ai_model,
         ai_explanation="Management letter generated with AI narrative sections",
-        ai_decision_data={"transaction_count": figures["transaction_count"]},
+        ai_decision_data={"transaction_count": figures["transaction_count"], "served_model": served_model},
     )
     db.add(audit)
     await db.commit()
@@ -346,11 +350,7 @@ def _calculate_pnl_figures(transactions: list, period_start: date, period_end: d
     }
 
 
-async def _generate_pnl_narrative(figures: dict, org_name: str) -> ProfitLossNarrative:
-    client = instructor.from_anthropic(
-        AsyncAnthropic(api_key=settings.anthropic_api_key)
-    )
-
+async def _generate_pnl_narrative(figures: dict, org_name: str) -> tuple[ProfitLossNarrative, Optional[str]]:
     income_lines = "\n".join(
         f"  - {c['name']}: £{c['amount']:,.2f}" for c in figures["income_categories"]
     ) or "  (none)"
@@ -375,12 +375,7 @@ async def _generate_pnl_narrative(figures: dict, org_name: str) -> ProfitLossNar
         "Professional tone. Interpret, don't just repeat numbers."
     )
 
-    return await client.messages.create(
-        model=LLM_MODEL,
-        max_tokens=1200,
-        messages=[{"role": "user", "content": prompt}],
-        response_model=ProfitLossNarrative,
-    )
+    return await _narrative(Route.DOC_PROFIT_LOSS, prompt, ProfitLossNarrative)
 
 
 async def generate_profit_loss(
@@ -405,7 +400,8 @@ async def generate_profit_loss(
     transactions = list(tx_result.scalars().all())
 
     figures = _calculate_pnl_figures(transactions, period_start, period_end)
-    narrative = await _generate_pnl_narrative(figures, org.name)
+    narrative, served_model = await _generate_pnl_narrative(figures, org.name)
+    ai_model = _route_model(Route.DOC_PROFIT_LOSS)
 
     template = _template_env().get_template("profit_loss.html")
     html = template.render(
@@ -425,13 +421,14 @@ async def generate_profit_loss(
     db.add(GeneratedDocument(
         id=doc_id, organisation_id=org_id, template="profit_loss",
         period_start=period_start, period_end=period_end,
-        ai_model=LLM_MODEL, figures=figures,
+        ai_model=ai_model, figures=figures,
     ))
     db.add(AuditLog(
         organisation_id=org_id, action="generate_document",
         entity_type="generated_document", entity_id=doc_id,
         new_value={"template": "profit_loss", "period_start": str(period_start), "period_end": str(period_end)},
-        ai_model=LLM_MODEL, ai_explanation="Profit & Loss statement with AI commentary",
+        ai_model=ai_model, ai_explanation="Profit & Loss statement with AI commentary",
+        ai_decision_data={"served_model": served_model},
     ))
     await db.commit()
 
@@ -507,11 +504,7 @@ def _calculate_vat_figures(transactions: list, accounts: list, period_start: dat
     }
 
 
-async def _generate_vat_narrative(figures: dict, org_name: str) -> VatSummaryNarrative:
-    client = instructor.from_anthropic(
-        AsyncAnthropic(api_key=settings.anthropic_api_key)
-    )
-
+async def _generate_vat_narrative(figures: dict, org_name: str) -> tuple[VatSummaryNarrative, Optional[str]]:
     breakdown = "\n".join(
         f"  - {r['rate']}: sales £{r['net_sales']:,.2f} (output VAT £{r['output_vat']:,.2f}), "
         f"purchases £{r['net_purchases']:,.2f} (input VAT £{r['input_vat']:,.2f})"
@@ -533,12 +526,7 @@ async def _generate_vat_narrative(figures: dict, org_name: str) -> VatSummaryNar
         "Professional tone. Reference HMRC where appropriate."
     )
 
-    return await client.messages.create(
-        model=LLM_MODEL,
-        max_tokens=1200,
-        messages=[{"role": "user", "content": prompt}],
-        response_model=VatSummaryNarrative,
-    )
+    return await _narrative(Route.DOC_VAT_SUMMARY, prompt, VatSummaryNarrative)
 
 
 async def generate_vat_summary(
@@ -570,7 +558,8 @@ async def generate_vat_summary(
     accounts = list(acc_result.scalars().all())
 
     figures = _calculate_vat_figures(transactions, accounts, period_start, period_end)
-    narrative = await _generate_vat_narrative(figures, org.name)
+    narrative, served_model = await _generate_vat_narrative(figures, org.name)
+    ai_model = _route_model(Route.DOC_VAT_SUMMARY)
 
     template = _template_env().get_template("vat_summary.html")
     html = template.render(
@@ -589,13 +578,14 @@ async def generate_vat_summary(
     db.add(GeneratedDocument(
         id=doc_id, organisation_id=org_id, template="vat_summary",
         period_start=period_start, period_end=period_end,
-        ai_model=LLM_MODEL, figures=figures,
+        ai_model=ai_model, figures=figures,
     ))
     db.add(AuditLog(
         organisation_id=org_id, action="generate_document",
         entity_type="generated_document", entity_id=doc_id,
         new_value={"template": "vat_summary", "period_start": str(period_start), "period_end": str(period_end)},
-        ai_model=LLM_MODEL, ai_explanation="VAT Return Summary with AI commentary",
+        ai_model=ai_model, ai_explanation="VAT Return Summary with AI commentary",
+        ai_decision_data={"served_model": served_model},
     ))
     await db.commit()
 

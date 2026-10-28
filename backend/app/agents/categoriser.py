@@ -8,31 +8,32 @@ from decimal import Decimal
 from typing import Optional, TypedDict
 from uuid import UUID
 
-import instructor
-from anthropic import AsyncAnthropic
 from langgraph.graph import END, StateGraph
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.models.database import Account, AuditLog, Transaction
 from app.models.schemas import BatchCategoriseResponse
 from app.services.embedding_service import embed_transaction, find_similar_transactions
+from app.services.llm_client import (
+    LLMResult,
+    LLMUnavailableError,
+    Profile,
+    Route,
+    Status,
+    get_profile,
+    structured_call,
+)
 from app.xai.explainer import explain_categorisation
 from app.xai.fuzzy_engine import compute_fuzzy_inputs, compute_risk_score
 
 logger = logging.getLogger(__name__)
 
-# Primary (cheap, fast) model — pinned for eval reproducibility.
-LLM_MODEL = "claude-haiku-4-5-20251001"
-# Escalation (stronger, ~3× per-token cost: $3/$15 vs $1/$5 per MTok) model
-# — alias so quality patches flow in.
-LLM_MODEL_ESCALATION = "claude-sonnet-4-6"
-# Escalate when the primary can't auto-accept. Tied to the 0.85 auto-accept
-# threshold in `decide` — Sonnet gets a chance to push the decision into the
-# auto-accept band instead of leaving it as a "suggested" for human review.
-ESCALATION_THRESHOLD = 0.85
+# Models, max_tokens and the escalation / auto-accept / review thresholds come
+# from the LLM profile (app/services/llm_client.py). Escalation fires when the
+# primary can't auto-accept, so the second tier gets a chance to push the
+# decision into the auto-accept band instead of leaving it for human review.
 
 
 class CategoriserState(TypedDict):
@@ -43,6 +44,8 @@ class CategoriserState(TypedDict):
     prediction: Optional[dict]
     status: str
     audit_log_id: Optional[str]
+    # Set when every tier declined: {"category", "model", "route", "escalation_error"}
+    refusal: Optional[dict]
 
 
 class CategoryPrediction(BaseModel):
@@ -80,8 +83,40 @@ def _validate_prediction(prediction: dict, chart_of_accounts: list[dict]) -> dic
     }
 
 
-def build_categoriser_graph(db: AsyncSession):
+def build_categoriser_prompt(tx: dict, chart_of_accounts: list[dict], similar_examples: list[dict]) -> str:
+    """The categorisation prompt. Pinned by a snapshot test: changing it changes the eval baseline."""
+    accounts_text = "\n".join(
+        f"  - Code: {a['code'] or 'N/A'}, Name: {a['name']}, Type: {a['type']}"
+        for a in chart_of_accounts
+    )
+    examples_text = "\n".join(
+        f"  - '{e['description']}' (£{e['amount']}) → {e['category']}"
+        for e in similar_examples[:5]
+    ) or "  (none yet)"
+
+    amount = Decimal(str(tx["amount"]))
+    direction = "debit (expense)" if amount < 0 else "credit (income)"
+
+    return (
+        "You are an expert UK accountant using Xero.\n\n"
+        "Categorise this bank transaction into the correct account from the chart of accounts.\n\n"
+        f"Transaction:\n"
+        f"- Date: {tx['date']}\n"
+        f"- Amount: £{abs(amount):.2f} ({direction})\n"
+        f"- Description: {tx['description']}\n"
+        f"- Reference: {tx.get('reference') or 'N/A'}\n\n"
+        f"Chart of Accounts (pick ONE):\n{accounts_text}\n\n"
+        f"Similar transactions already categorised:\n{examples_text}\n\n"
+        "Return the exact account code and name from the chart, confidence (0.0-1.0), "
+        "and brief reasoning (1-2 sentences)."
+    )
+
+
+def build_categoriser_graph(db: AsyncSession, profile: Optional[Profile] = None):
     """Build and compile a LangGraph categorisation workflow with DB injected via closure."""
+    profile = profile or get_profile()
+    primary_model = profile.routes[Route.CATEGORISE_PRIMARY].model
+    escalation_model = profile.routes[Route.CATEGORISE_ESCALATION].model
 
     async def fetch_context(state: CategoriserState) -> dict:
         org_id = UUID(state["transaction_data"]["organisation_id"])
@@ -117,79 +152,74 @@ def build_categoriser_graph(db: AsyncSession):
                 "status": "classified",
             }
 
-        client = instructor.from_anthropic(
-            AsyncAnthropic(api_key=settings.anthropic_api_key)
+        prompt = build_categoriser_prompt(
+            state["transaction_data"], state["chart_of_accounts"], state["similar_examples"]
         )
 
-        tx = state["transaction_data"]
-        accounts_text = "\n".join(
-            f"  - Code: {a['code'] or 'N/A'}, Name: {a['name']}, Type: {a['type']}"
-            for a in state["chart_of_accounts"]
+        # Primary call: the cheap, fast tier, sufficient for the majority of
+        # transactions where the few-shot RAG context is strong. A failure
+        # other than a refusal raises, as before the gateway.
+        primary = await structured_call(
+            Route.CATEGORISE_PRIMARY, prompt, CategoryPrediction, profile
         )
-        examples_text = "\n".join(
-            f"  - '{e['description']}' (£{e['amount']}) → {e['category']}"
-            for e in state["similar_examples"][:5]
-        ) or "  (none yet)"
+        if primary.status is not Status.REFUSED:
+            primary.require()
 
-        amount = Decimal(str(tx["amount"]))
-        direction = "debit (expense)" if amount < 0 else "credit (income)"
-
-        prompt = (
-            "You are an expert UK accountant using Xero.\n\n"
-            "Categorise this bank transaction into the correct account from the chart of accounts.\n\n"
-            f"Transaction:\n"
-            f"- Date: {tx['date']}\n"
-            f"- Amount: £{abs(amount):.2f} ({direction})\n"
-            f"- Description: {tx['description']}\n"
-            f"- Reference: {tx.get('reference') or 'N/A'}\n\n"
-            f"Chart of Accounts (pick ONE):\n{accounts_text}\n\n"
-            f"Similar transactions already categorised:\n{examples_text}\n\n"
-            "Return the exact account code and name from the chart, confidence (0.0-1.0), "
-            "and brief reasoning (1-2 sentences)."
-        )
-
-        # Primary call: Haiku. Cheap, fast, sufficient for the majority
-        # of transactions where the few-shot RAG context is strong.
-        primary = await client.messages.create(
-            model=LLM_MODEL,
-            max_tokens=512,
-            messages=[{"role": "user", "content": prompt}],
-            response_model=CategoryPrediction,
-        )
-
-        chosen = primary
-        model_used = LLM_MODEL
+        chosen: Optional[LLMResult] = primary if primary.ok else None
         escalated = False
-        primary_confidence = float(primary.confidence)
+        escalation_error: Optional[str] = None
+        primary_confidence = float(primary.parsed.confidence) if primary.ok else None
 
-        # Tiered routing: if Haiku isn't confident enough to auto-accept,
-        # give Sonnet a chance before surfacing the result. On Sonnet
-        # failure, fall back to Haiku's answer — we never lose a prediction.
-        if primary_confidence < ESCALATION_THRESHOLD:
+        # Tiered routing: if the primary isn't confident enough to auto-accept,
+        # or declined, give the second tier a chance before surfacing the
+        # result. On failure there, keep the primary's answer (we never lose a
+        # prediction) and record why, so a broken escalation is not silent.
+        if primary_confidence is None or primary_confidence < profile.escalation_threshold:
             try:
-                chosen = await client.messages.create(
-                    model=LLM_MODEL_ESCALATION,
-                    max_tokens=512,
-                    messages=[{"role": "user", "content": prompt}],
-                    response_model=CategoryPrediction,
+                second = await structured_call(
+                    Route.CATEGORISE_ESCALATION, prompt, CategoryPrediction, profile
                 )
-                model_used = LLM_MODEL_ESCALATION
+                second.require()
+                chosen = second
                 escalated = True
-            except Exception:
+            except LLMUnavailableError as exc:
+                escalation_error = exc.result.status.value if exc.result else type(exc).__name__
+                logger.warning(
+                    "Escalation to %s gave no usable output (%s), keeping primary prediction",
+                    escalation_model, escalation_error,
+                )
+            except Exception as exc:
+                escalation_error = type(exc).__name__
                 logger.exception(
                     "Escalation to %s failed, keeping primary prediction",
-                    LLM_MODEL_ESCALATION,
+                    escalation_model,
                 )
+
+        if chosen is None:
+            # Every tier declined: no prediction, so the row goes to review.
+            return {
+                "prediction": None,
+                "refusal": {
+                    "category": primary.refusal_category,
+                    "model": primary_model,
+                    "route": Route.CATEGORISE_PRIMARY.value,
+                    "escalation_error": escalation_error,
+                },
+                "status": "classified",
+            }
 
         return {
             "prediction": {
-                "category_code": chosen.category_code,
-                "category_name": chosen.category_name,
-                "confidence": float(chosen.confidence),
-                "reasoning": chosen.reasoning,
-                "model_used": model_used,
+                "category_code": chosen.parsed.category_code,
+                "category_name": chosen.parsed.category_name,
+                "confidence": float(chosen.parsed.confidence),
+                "reasoning": chosen.parsed.reasoning,
+                "model_used": escalation_model if escalated else primary_model,
+                "served_model": chosen.served_model,
                 "escalated": escalated,
                 "primary_confidence": primary_confidence if escalated else None,
+                "primary_refusal": primary.refusal_category if not primary.ok else None,
+                "escalation_error": escalation_error,
             },
             "status": "classified",
         }
@@ -210,13 +240,14 @@ def build_categoriser_graph(db: AsyncSession):
         tx_id = UUID(state["transaction_id"])
         org_id = UUID(tx_data["organisation_id"])
 
+        refusal = state.get("refusal")
         confidence = prediction["confidence"] if prediction else 0.0
 
         if not prediction or confidence == 0.0:
             final_status = "needs_review"
-        elif confidence > 0.85:
+        elif confidence > profile.auto_accept_threshold:
             final_status = "auto_categorised"
-        elif confidence >= 0.5:
+        elif confidence >= profile.review_threshold:
             final_status = "suggested"
         else:
             final_status = "needs_review"
@@ -229,11 +260,14 @@ def build_categoriser_graph(db: AsyncSession):
             tx.category_confidence = Decimal(str(round(confidence, 4)))
             tx.categorisation_status = final_status
             tx.embedding = await embed_transaction(tx)
+        elif tx and refusal:
+            # A decline sends the row to review; the category stays as it was.
+            tx.categorisation_status = final_status
 
         # Record the model that actually produced the final prediction
         # (may be the escalation model if tiered routing fired).
         audit_model = (
-            prediction.get("model_used", LLM_MODEL) if prediction else LLM_MODEL
+            prediction.get("model_used", primary_model) if prediction else primary_model
         )
 
         audit = AuditLog(
@@ -247,16 +281,27 @@ def build_categoriser_graph(db: AsyncSession):
             },
             ai_model=audit_model,
             ai_confidence=Decimal(str(round(confidence, 4))) if prediction else None,
-            ai_explanation=prediction["reasoning"] if prediction else "No prediction generated",
+            ai_explanation=(
+                prediction["reasoning"] if prediction
+                else "Model declined to categorise; sent to review" if refusal
+                else "No prediction generated"
+            ),
             ai_decision_data={
                 "category_code": prediction["category_code"] if prediction else None,
                 "similar_examples_count": len(state.get("similar_examples", [])),
                 "escalated": prediction.get("escalated", False) if prediction else False,
-                "primary_model": LLM_MODEL,
+                "primary_model": primary_model,
                 "primary_confidence": (
                     prediction.get("primary_confidence") if prediction else None
                 ),
-                "escalation_threshold": ESCALATION_THRESHOLD,
+                "escalation_threshold": profile.escalation_threshold,
+                "llm_profile": profile.name,
+                "served_model": prediction.get("served_model") if prediction else None,
+                "escalation_error": (
+                    prediction.get("escalation_error") if prediction
+                    else refusal.get("escalation_error") if refusal else None
+                ),
+                "refusal": refusal,
             },
         )
         db.add(audit)
@@ -365,6 +410,7 @@ async def categorise_batch(org_id: UUID, db: AsyncSession) -> BatchCategoriseRes
                     "prediction": None,
                     "status": "pending",
                     "audit_log_id": None,
+                    "refusal": None,
                 }
                 final = await graph.ainvoke(initial_state)
                 status = final.get("status", "errors")

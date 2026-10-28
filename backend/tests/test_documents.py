@@ -323,3 +323,71 @@ def test_real_pdf_render_blocks_local_files():
     assert pdf.startswith(b"%PDF")
     assert "file:///etc/passwd" in checked
     assert "http://169.254.169.254/x.png" in checked
+
+
+# ── Narratives through the LLM gateway ───────────────────────────────────────
+
+def _narrative_figures():
+    return _calculate_figures([_FakeTx(1000.00, cat="Sales"), _FakeTx(-300.00, cat="Rent")], date(2026, 1, 1), date(2026, 3, 31))
+
+
+@pytest.mark.asyncio
+async def test_management_letter_narrative_goes_through_the_gateway():
+    from app.services import document_service
+    from app.services.llm_client import PROFILES, LLMResult, Route, Status
+
+    narrative = ManagementLetterNarrative(
+        executive_summary="a", income_analysis="b", expense_analysis="c",
+        cash_flow_observations="d", recommendations="e",
+    )
+    cfg = PROFILES["claude-4"].routes[Route.DOC_MANAGEMENT_LETTER]
+    result = LLMResult(route=Route.DOC_MANAGEMENT_LETTER, requested_model=cfg.model, mechanism=cfg.mechanism,
+                       status=Status.OK, parsed=narrative, served_model=cfg.model)
+    with patch.object(document_service, "structured_call", AsyncMock(return_value=result)) as call:
+        parsed, served = await document_service._generate_narrative(_narrative_figures(), "Test Ltd")
+
+    assert parsed == narrative and served == "claude-sonnet-4-6"
+    route, prompt, schema = call.await_args.args
+    assert route is Route.DOC_MANAGEMENT_LETTER and schema is ManagementLetterNarrative
+    assert prompt.startswith("You are a professional UK accountant preparing a management letter for Test Ltd.")
+
+
+@pytest.mark.asyncio
+async def test_refused_narrative_raises_a_readable_error():
+    from app.services import document_service
+    from app.services.llm_client import PROFILES, LLMResult, LLMUnavailableError, Route, Status
+
+    cfg = PROFILES["claude-5-5"].routes[Route.DOC_VAT_SUMMARY]
+    refused = LLMResult(route=Route.DOC_VAT_SUMMARY, requested_model=cfg.model, mechanism=cfg.mechanism,
+                        status=Status.REFUSED, stop_reason="refusal", refusal_category="general_harms")
+    figures = {"period_start": "2026-01-01", "period_end": "2026-03-31", "output_vat": 0.0, "input_vat": 0.0,
+               "net_vat": 0.0, "net_vat_label": "owed to HMRC", "rate_breakdown": []}
+    with patch.object(document_service, "structured_call", AsyncMock(return_value=refused)):
+        with pytest.raises(LLMUnavailableError, match="declined the request"):
+            await document_service._generate_vat_narrative(figures, "Test Ltd")
+
+
+@pytest.mark.asyncio
+async def test_generate_document_returns_the_llm_error_message():
+    """The existing 500 path carries the gateway's message to the client."""
+    from app.core.rate_limit import limiter
+    from app.services.llm_client import LLMUnavailableError
+
+    limiter.reset()  # the route allows 3 a minute and earlier tests used them
+    fake_org = MagicMock()
+    fake_org.id = uuid.uuid4()
+    app.dependency_overrides[get_current_org] = lambda: fake_org
+    try:
+        with patch(
+            "app.services.document_service.generate_profit_loss",
+            new=AsyncMock(side_effect=LLMUnavailableError("the model's output was cut off at the token limit")),
+        ):
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                response = await client.post(
+                    "/api/v1/documents/generate",
+                    json={"template": "profit_loss", "period_start": "2026-01-01", "period_end": "2026-03-31"},
+                )
+    finally:
+        app.dependency_overrides.pop(get_current_org, None)
+    assert response.status_code == 500
+    assert "cut off at the token limit" in response.json()["detail"]

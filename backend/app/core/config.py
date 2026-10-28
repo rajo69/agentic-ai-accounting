@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     xero_client_secret: str = ""
     xero_redirect_uri: str = "http://localhost:8000/auth/xero/callback"
     anthropic_api_key: str = ""
+    # Model set for every Claude call (app/services/llm_client.py PROFILES); set to claude-4 to roll back
+    llm_profile: str = "claude-4"
     frontend_url: str = "http://localhost:3000"
     xero_webhook_key: str = ""
     sentry_dsn: str = ""

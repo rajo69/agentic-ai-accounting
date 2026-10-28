@@ -19,10 +19,21 @@ from typing import Optional
 
 
 # ---------------------------------------------------------------------------
-# Pricing table: Anthropic list prices per million tokens, checked 2026-10-10.
-# https://www.anthropic.com/pricing
+# Pricing table: Anthropic list prices per million tokens, checked 2026-10-10
+# (4.x rows) and 2026-10-28 (5.5 rows).
+# https://platform.claude.com/docs/en/about-claude/pricing
+# Haiku 5.5 is the rate for prompts up to 100K tokens ($0.50 / $2.50 beyond).
+# The 5.5 models count about 30% more tokens than 4.x for the same text.
 # ---------------------------------------------------------------------------
 PRICING = {
+    "claude-haiku-5-5": {
+        "input_per_1m": 0.10,
+        "output_per_1m": 0.50,
+    },
+    "claude-sonnet-5-5": {
+        "input_per_1m": 2.00,
+        "output_per_1m": 10.00,
+    },
     "claude-haiku-4-5-20251001": {
         "input_per_1m": 1.00,
         "output_per_1m": 5.00,

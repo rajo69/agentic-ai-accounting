@@ -1,0 +1,206 @@
+{
+  "instructor_version": "1.17.0",
+  "requests": {
+    "CategoryPrediction": {
+      "max_tokens": 512,
+      "messages": [
+        {
+          "content": "PROMPT",
+          "role": "user"
+        }
+      ],
+      "model": "claude-haiku-4-5-20251001",
+      "tool_choice": {
+        "disable_parallel_tool_use": true,
+        "name": "CategoryPrediction",
+        "type": "tool"
+      },
+      "tools": [
+        {
+          "description": "Correctly extracted `CategoryPrediction` with all the required parameters with correct types",
+          "input_schema": {
+            "properties": {
+              "category_code": {
+                "title": "Category Code",
+                "type": "string"
+              },
+              "category_name": {
+                "title": "Category Name",
+                "type": "string"
+              },
+              "confidence": {
+                "title": "Confidence",
+                "type": "number"
+              },
+              "reasoning": {
+                "title": "Reasoning",
+                "type": "string"
+              }
+            },
+            "required": [
+              "category_code",
+              "category_name",
+              "confidence",
+              "reasoning"
+            ],
+            "title": "CategoryPrediction",
+            "type": "object"
+          },
+          "name": "CategoryPrediction"
+        }
+      ]
+    },
+    "ManagementLetterNarrative": {
+      "max_tokens": 1500,
+      "messages": [
+        {
+          "content": "PROMPT",
+          "role": "user"
+        }
+      ],
+      "model": "claude-sonnet-4-6",
+      "tool_choice": {
+        "disable_parallel_tool_use": true,
+        "name": "ManagementLetterNarrative",
+        "type": "tool"
+      },
+      "tools": [
+        {
+          "description": "Correctly extracted `ManagementLetterNarrative` with all the required parameters with correct types",
+          "input_schema": {
+            "properties": {
+              "cash_flow_observations": {
+                "title": "Cash Flow Observations",
+                "type": "string"
+              },
+              "executive_summary": {
+                "title": "Executive Summary",
+                "type": "string"
+              },
+              "expense_analysis": {
+                "title": "Expense Analysis",
+                "type": "string"
+              },
+              "income_analysis": {
+                "title": "Income Analysis",
+                "type": "string"
+              },
+              "recommendations": {
+                "title": "Recommendations",
+                "type": "string"
+              }
+            },
+            "required": [
+              "executive_summary",
+              "income_analysis",
+              "expense_analysis",
+              "cash_flow_observations",
+              "recommendations"
+            ],
+            "title": "ManagementLetterNarrative",
+            "type": "object"
+          },
+          "name": "ManagementLetterNarrative"
+        }
+      ]
+    },
+    "ProfitLossNarrative": {
+      "max_tokens": 1200,
+      "messages": [
+        {
+          "content": "PROMPT",
+          "role": "user"
+        }
+      ],
+      "model": "claude-sonnet-4-6",
+      "tool_choice": {
+        "disable_parallel_tool_use": true,
+        "name": "ProfitLossNarrative",
+        "type": "tool"
+      },
+      "tools": [
+        {
+          "description": "Correctly extracted `ProfitLossNarrative` with all the required parameters with correct types",
+          "input_schema": {
+            "properties": {
+              "expense_commentary": {
+                "title": "Expense Commentary",
+                "type": "string"
+              },
+              "income_commentary": {
+                "title": "Income Commentary",
+                "type": "string"
+              },
+              "outlook": {
+                "title": "Outlook",
+                "type": "string"
+              },
+              "overview": {
+                "title": "Overview",
+                "type": "string"
+              }
+            },
+            "required": [
+              "overview",
+              "income_commentary",
+              "expense_commentary",
+              "outlook"
+            ],
+            "title": "ProfitLossNarrative",
+            "type": "object"
+          },
+          "name": "ProfitLossNarrative"
+        }
+      ]
+    },
+    "VatSummaryNarrative": {
+      "max_tokens": 1200,
+      "messages": [
+        {
+          "content": "PROMPT",
+          "role": "user"
+        }
+      ],
+      "model": "claude-sonnet-4-6",
+      "tool_choice": {
+        "disable_parallel_tool_use": true,
+        "name": "VatSummaryNarrative",
+        "type": "tool"
+      },
+      "tools": [
+        {
+          "description": "Correctly extracted `VatSummaryNarrative` with all the required parameters with correct types",
+          "input_schema": {
+            "properties": {
+              "input_vat_commentary": {
+                "title": "Input Vat Commentary",
+                "type": "string"
+              },
+              "output_vat_commentary": {
+                "title": "Output Vat Commentary",
+                "type": "string"
+              },
+              "overview": {
+                "title": "Overview",
+                "type": "string"
+              },
+              "recommendations": {
+                "title": "Recommendations",
+                "type": "string"
+              }
+            },
+            "required": [
+              "overview",
+              "output_vat_commentary",
+              "input_vat_commentary",
+              "recommendations"
+            ],
+            "title": "VatSummaryNarrative",
+            "type": "object"
+          },
+          "name": "VatSummaryNarrative"
+        }
+      ]
+    }
+  }
+}

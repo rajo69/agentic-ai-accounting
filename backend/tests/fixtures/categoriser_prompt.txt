@@ -1,0 +1,23 @@
+You are an expert UK accountant using Xero.
+
+Categorise this bank transaction into the correct account from the chart of accounts.
+
+Transaction:
+- Date: 2026-01-15
+- Amount: £250.00 (debit (expense))
+- Description: OFFICE SUPPLIES LTD
+- Reference: N/A
+
+Chart of Accounts (pick ONE):
+  - Code: 400, Name: Advertising, Type: EXPENSE
+  - Code: N/A, Name: Office Expenses, Type: EXPENSE
+  - Code: 200, Name: Sales, Type: REVENUE
+
+Similar transactions already categorised:
+  - 'STAPLES 0' (£-12.50) → Office Expenses
+  - 'STAPLES 1' (£-12.50) → Office Expenses
+  - 'STAPLES 2' (£-12.50) → Office Expenses
+  - 'STAPLES 3' (£-12.50) → Office Expenses
+  - 'STAPLES 4' (£-12.50) → Office Expenses
+
+Return the exact account code and name from the chart, confidence (0.0-1.0), and brief reasoning (1-2 sentences).
