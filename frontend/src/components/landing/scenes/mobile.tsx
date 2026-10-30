@@ -22,7 +22,7 @@ import {
   type CategoriseRow,
 } from "./data";
 import { EXPLAIN_DURATION } from "./explain";
-import { CategoryLabel, ExplanationSections, FauxButton, JobChip, MiniBar, toneForScore, type JobState } from "./parts";
+import { CategoryLabel, ExplanationSections, FauxButton, FauxJobButton, JobChip, MiniBar, toneForScore, type JobState } from "./parts";
 import { RECONCILE_DURATION } from "./reconcile";
 import { REPORT_DURATION } from "./report";
 import { enterStyle, finalT, gbp, outroOpacity, pct, pressStyle, seg } from "./timeline";
@@ -117,10 +117,20 @@ export function CategoriseMobile({ t }: { t: number }) {
       <MobileShell
         title="Transactions"
         meta={ORG.period}
-        chip={<FauxButton size="sm" style={pressStyle(t, C_PRESS)}>Categorise</FauxButton>}
+        chip={
+          <FauxJobButton
+            running={job === "running"}
+            label="Categorise"
+            runningLabel="Categorising…"
+            style={pressStyle(t, C_PRESS)}
+          />
+        }
       >
         <div className="px-4 pb-2">
-          <JobChip state={job} label={job === "idle" ? "5 uncategorised" : job === "running" ? "Categorising 5" : "5 categorised, 1 to review"} />
+          <JobChip
+            state={job === "running" ? "idle" : job}
+            label={job === "completed" ? "5 categorised, 1 to review" : "5 uncategorised"}
+          />
         </div>
         <MobileCategoriseList t={t} selectedId={C_REVIEWED} />
         {open > 0 && (
@@ -259,9 +269,20 @@ export function ReconcileMobile({ t }: { t: number }) {
   const confirmed = t >= R_CONFIRMED;
   return (
     <div className="h-full" style={{ opacity: outroOpacity(t, RECONCILE_DURATION) }}>
-      <MobileShell title="Reconciliation" meta={ORG.period} chip={<FauxButton size="sm" style={pressStyle(t, R_PRESS)}>Reconcile</FauxButton>}>
+      <MobileShell title="Reconciliation" meta={ORG.period} chip={
+          <FauxJobButton
+            running={job === "running"}
+            label="Reconcile"
+            runningLabel="Reconciling…"
+            style={pressStyle(t, R_PRESS)}
+          />
+        }
+      >
         <div className="px-4 pb-2">
-          <JobChip state={job} label={job === "idle" ? "6 unmatched" : job === "running" ? "Matching 6" : "4 auto-matched, 2 to review"} />
+          <JobChip
+            state={job === "running" ? "idle" : job}
+            label={job === "completed" ? "4 auto-matched, 2 to review" : "6 unmatched"}
+          />
         </div>
         <ul className="flex flex-col">
           {R_LINES.map((line, i) => {
@@ -359,9 +380,6 @@ export function ReportMobile({ t }: { t: number }) {
                   <div className="text-base font-medium tracking-[-0.01em] text-foreground">{LETTER.title}</div>
                   <div className="font-mono text-[11px] text-muted-foreground">quarter to 5 Jul 2026</div>
                 </div>
-                <StatusChip tone="info" dot={false}>
-                  Indicative
-                </StatusChip>
               </div>
               <dl className="flex flex-col divide-y divide-border border-y border-border">
                 {LETTER.figures.map((f) => (

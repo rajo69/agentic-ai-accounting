@@ -57,7 +57,7 @@ export function Capabilities() {
 
         <CapabilityRow
           title="Reconcile, then draft the letter."
-          body="Unreconciled bank transactions are matched to invoice and payment records on amount, date and description, with scored candidates; ambiguous matches go to review. A management letter is drafted from the actual figures, with period summaries labelled indicative."
+          body="Unreconciled bank transactions are matched to invoice and payment records on amount, date and description, with scored candidates; ambiguous matches go to review. A management letter is drafted from the actual figures."
           fact="Three scores per candidate, letter figures taken from the ledger"
           mobile={<MobileCandidateCard />}
         >

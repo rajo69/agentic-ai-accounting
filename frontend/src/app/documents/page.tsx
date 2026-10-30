@@ -9,6 +9,7 @@ import { StatusChip } from "@/components/ui/status-chip";
 import { toast } from "sonner";
 import { FileText, Download, Loader2, Check } from "lucide-react";
 import { GeneratedDocument, generateDocument, listDocuments } from "@/lib/api";
+import { isDemo } from "@/demo/flag";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/app/page-header";
 import { EmptyState } from "@/components/app/empty-state";
@@ -134,7 +135,7 @@ export default function DocumentsPage() {
     if (periodStart > periodEnd) return toast.error("Start date must be before end date");
 
     setGenerating(true);
-    const tid = toast.loading(`Generating ${tmpl.label}… (15 to 30 seconds)`);
+    const tid = toast.loading(`Generating ${tmpl.label}… ${isDemo() ? "(under a second)" : "(15 to 30 seconds)"}`);
     try {
       const res = await generateDocument({ template: selectedTemplate, period_start: periodStart, period_end: periodEnd });
       if (!res.ok) { const text = await res.text(); throw new Error(text || `HTTP ${res.status}`); }
@@ -238,7 +239,7 @@ export default function DocumentsPage() {
               ? <><Loader2 className="animate-spin" /> Generating</>
               : <><Download /> Generate PDF</>}
           </Button>
-          <p className="font-mono text-xs text-muted-foreground">Figures come from the synced books; the commentary is drafted by the model and marked indicative.</p>
+          <p className="font-mono text-xs text-muted-foreground">Figures come from the synced books; the commentary is drafted by the model.</p>
         </div>
 
         {/* History */}

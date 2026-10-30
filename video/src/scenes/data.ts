@@ -183,6 +183,6 @@ export const LETTER = {
   ],
   paragraphs: [
     "Revenue for the quarter was GBP 48,700.00 across four client invoices, with Johnson & Co accounting for about half.",
-    "Expenses of GBP 31,245.60 were led by payroll and rent. Two transactions remain in review and are excluded from these indicative figures.",
+    "Expenses of GBP 31,245.60 were led by payroll and rent. Two transactions remain in review and are excluded from these figures.",
   ],
 };

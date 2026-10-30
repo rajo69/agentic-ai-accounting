@@ -6,7 +6,7 @@ import { EXISTING_DOCUMENTS, LETTER, NEW_DOCUMENT, ORG, type GeneratedDocument }
 
 /**
  * Documents: the generate form runs a job (queued, running, completed), the new letter joins the list,
- * and its first page previews with indicative figures counting up.
+ * and its first page previews with its figures counting up.
  */
 export interface ReportEvents {
   enter: number;
@@ -60,9 +60,6 @@ function LetterPreview({ t, start }: { t: number; start: number }) {
           <div style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.015em", color: colors.foreground }}>{LETTER.title}</div>
           <div style={{ marginTop: 4, fontFamily: fonts.mono, fontSize: 12, color: colors.mutedForeground }}>{LETTER.subtitle}</div>
         </div>
-        <Chip tone="info" dot={false}>
-          Indicative
-        </Chip>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
         {LETTER.figures.map((f) => (

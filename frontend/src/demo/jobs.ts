@@ -1,7 +1,7 @@
 // Background jobs, scripted. A job advances one step per `GET /jobs/{id}` (the UI polls), so
 // progress is visible at the dashboard's own polling rate and needs no timers.
 import type { JobRead } from "@/lib/api";
-import { ORG_ID, STATEMENT_COUNT } from "./seed";
+import { ORG_ID, STATEMENT_COUNT, planOrder, seedAccounts } from "./seed";
 import {
   applySync,
   categoriseRows,
@@ -30,7 +30,7 @@ interface Script {
   finish: (s: DemoState, job: JobRead, at: string) => Record<string, unknown>;
 }
 
-const SYNC_TOTAL = 70 + STATEMENT_COUNT; // 20 accounts + 50 transactions + statement lines
+const SYNC_TOTAL = seedAccounts().length + planOrder().length + STATEMENT_COUNT; // accounts + transactions + statement lines
 
 const emptyTiers = (): TierCounts => ({ auto_categorised: 0, suggested: 0, needs_review: 0 });
 const emptyMatches = (): MatchCounts => ({ auto_matched: 0, suggested: 0, needs_review: 0 });
@@ -43,12 +43,14 @@ function addCounts<T extends object>(a: T, b: T): T {
 
 const scripts: Record<JobKind, Script> = {
   sync: {
-    ticks: 5,
+    // Dashboard polls every 1.5 s: the first import completes on the second poll (about 1.5 s).
+    ticks: 2,
     total: () => SYNC_TOTAL,
     finish: (s, _job, at) => ({ status: "completed", ...applySync(s, at), message: null }),
   },
   categorise: {
-    ticks: 8,
+    // Polls at 0, 1.5 and 3 s: rows land in three batches, done at about 3 s.
+    ticks: 3,
     total: (s) => uncategorisedInPlanOrder(s).length,
     onTick: (s, job, step, at) => {
       const ids = uncategorisedInPlanOrder(s).slice(0, step);
@@ -62,7 +64,7 @@ const scripts: Record<JobKind, Script> = {
     },
   },
   reconcile: {
-    ticks: 6,
+    ticks: 3,
     total: (s) => unmatchedStatementIds(s).length,
     onTick: (s, job, step, at) => {
       const ids = unmatchedStatementIds(s).slice(0, step);

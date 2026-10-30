@@ -44,6 +44,8 @@ import {
   approveTransaction,
   rejectTransaction,
   correctTransaction,
+  getChartOfAccounts,
+  type ChartAccount,
   type Transaction,
   type TransactionDetail,
 } from "@/lib/api";
@@ -86,6 +88,10 @@ function escalationOf(detail: TransactionDetail): string | null {
   return typeof primary === "string" ? primary : null;
 }
 
+function accountLabel(a: ChartAccount) {
+  return a.code ? `${a.code} · ${a.name}` : a.name;
+}
+
 /** Fixed skeleton widths (percent) so the loading state is identical on every render. */
 const SKELETON_WIDTHS = [64, 88, 56, 72, 90, 60, 0];
 
@@ -103,6 +109,7 @@ export default function TransactionsPage() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [correctOpen, setCorrectOpen] = useState(false);
   const [correctCategory, setCorrectCategory] = useState("");
+  const [chart, setChart] = useState<ChartAccount[] | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
   const PAGE_SIZE = 20;
@@ -155,11 +162,26 @@ export default function TransactionsPage() {
     } catch (e) { toast.error(String(e)); } finally { setActionLoading(false); }
   };
 
+  const openCorrect = (current: string | null) => {
+    setCorrectCategory(current ?? "");
+    setCorrectOpen(true);
+    getChartOfAccounts().then(setChart, () => setChart(null));
+  };
+
+  /** With a chart loaded, only one of its accounts can be saved. */
+  const chosenAccount = chart?.find((a) => a.name === correctCategory) ?? null;
+  const canSaveCorrection = chart ? chosenAccount !== null : correctCategory.trim() !== "";
+
   const handleCorrect = async () => {
-    if (!selected || !correctCategory.trim()) return;
+    if (!selected || !canSaveCorrection) return;
     setActionLoading(true);
     try {
-      await correctTransaction(selected.id, { category: correctCategory });
+      await correctTransaction(
+        selected.id,
+        chosenAccount
+          ? { category: chosenAccount.name, category_code: chosenAccount.code ?? undefined }
+          : { category: correctCategory },
+      );
       toast.success("Category corrected");
       load();
       setCorrectOpen(false);
@@ -373,10 +395,7 @@ export default function TransactionsPage() {
                 )}
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    setCorrectCategory(selected.category ?? "");
-                    setCorrectOpen(true);
-                  }}
+                  onClick={() => openCorrect(selected.category)}
                 >
                   Correct
                 </Button>
@@ -404,19 +423,36 @@ export default function TransactionsPage() {
           </DialogHeader>
           <div className="flex flex-col gap-2">
             <label htmlFor="correct-category" className="text-small text-muted-foreground">Category</label>
-            <Input
-              id="correct-category"
-              placeholder="Account name, for example Office supplies"
-              value={correctCategory}
-              onChange={(e) => setCorrectCategory(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleCorrect()}
-            />
+            {chart ? (
+              <Select
+                value={chosenAccount ? chosenAccount.name : null}
+                onValueChange={(v) => setCorrectCategory(v ?? "")}
+                items={Object.fromEntries(chart.map((a) => [a.name, accountLabel(a)]))}
+              >
+                <SelectTrigger id="correct-category" className="w-full">
+                  <SelectValue placeholder="Choose an account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {chart.map((a) => (
+                    <SelectItem key={a.name} value={a.name}>{accountLabel(a)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                id="correct-category"
+                placeholder="Account name, for example Office supplies"
+                value={correctCategory}
+                onChange={(e) => setCorrectCategory(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCorrect()}
+              />
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCorrectOpen(false)}>Cancel</Button>
             <Button
               onClick={handleCorrect}
-              disabled={actionLoading || !correctCategory.trim()}
+              disabled={actionLoading || !canSaveCorrection}
             >
               Save
             </Button>

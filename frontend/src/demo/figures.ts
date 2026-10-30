@@ -5,7 +5,7 @@
 // does today (MASTER_PLAN Appendix A.1). `scripts/build-demo-pdfs.py` carries the same arithmetic;
 // keep the two in step.
 import type { GeneratedDocument, Transaction } from "@/lib/api";
-import { accountByName, seedRow } from "./seed";
+import { accountByName } from "./seed";
 
 export type DemoFigures = GeneratedDocument["figures"] & Record<string, unknown>;
 
@@ -13,9 +13,14 @@ const pence = (amount: string | number) => Math.round(Number(amount) * 100);
 const pounds = (p: number) => p / 100;
 const UNCATEGORISED = "Uncategorised";
 
-/** Rows dated within the period, inclusive (ISO dates compare as strings). */
+/** Balance-sheet accounts whose movements stay off the documents' figures: the loan account. */
+const BALANCE_SHEET_CODES = new Set(["900"]);
+
+/** Rows dated within the period, inclusive (ISO dates compare as strings), without balance-sheet movements. */
 export function inPeriod(rows: Transaction[], periodStart: string, periodEnd: string): Transaction[] {
-  return rows.filter((t) => t.date >= periodStart && t.date <= periodEnd);
+  return rows.filter(
+    (t) => t.date >= periodStart && t.date <= periodEnd && !BALANCE_SHEET_CODES.has(codeFor(t) ?? ""),
+  );
 }
 
 export function managementLetterFigures(rows: Transaction[], periodStart: string, periodEnd: string): DemoFigures {
@@ -78,20 +83,12 @@ export function profitLossFigures(rows: Transaction[], periodStart: string, peri
   };
 }
 
-/** Account codes whose rows carry no VAT in the demo: tax and statutory payments (incl. loans), grants, insurance, rates, wages, professional subscriptions. */
+/** Account codes whose rows carry no VAT in the demo: tax and statutory payments, grants, insurance, rates, wages, professional subscriptions. */
 const NO_VAT_CODES = new Set(["820", "260", "462", "469", "477", "461"]);
 
-/**
- * Account code behind a row's category. The categoriser's names do not always match the chart
- * (a known product quirk the seed reproduces, e.g. "Employer NIC Payable" for code 820), so fall
- * back to the seed's planned code while the row still carries the planned category.
- */
+/** Account code behind a row's category; every demo category is an account in the chart. */
 function codeFor(t: Transaction): string | undefined {
-  if (!t.category) return undefined;
-  const fromChart = accountByName(t.category)?.code;
-  if (fromChart) return fromChart;
-  const seed = seedRow(t.id);
-  return seed && seed.plan.category === t.category ? seed.plan.category_code : undefined;
+  return t.category ? accountByName(t.category)?.code : undefined;
 }
 
 function vatRateFor(t: Transaction): "20%" | "0%" {

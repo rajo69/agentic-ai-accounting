@@ -61,9 +61,9 @@ export interface GeneratedSeed {
 }
 
 export const SEED: GeneratedSeed = {
-  "version": "638959284537",
+  "version": "9caf2701d561",
   "primary_model": "claude-haiku-4-5-20251001",
-  "escalation_model": "claude-sonnet-4-5-20250929",
+  "escalation_model": "claude-sonnet-4-6",
   "escalation_threshold": 0.85,
   "max_date": "2024-03-05",
   "rules": [
@@ -196,6 +196,12 @@ export const SEED: GeneratedSeed = {
       "code": "820",
       "name": "Tax & Statutory Payments",
       "type": "LIABILITY"
+    },
+    {
+      "id": "49dd7103-64d4-4c64-acf0-cbbbfe009560",
+      "code": "900",
+      "name": "Loan",
+      "type": "LIABILITY"
     }
   ],
   "transactions": [
@@ -316,7 +322,7 @@ export const SEED: GeneratedSeed = {
       "difficulty": "easy",
       "plan": {
         "position": 3,
-        "category": "PAYE Payable",
+        "category": "Tax & Statutory Payments",
         "category_code": "820",
         "tier": "auto_categorised",
         "confidence": 0.9,
@@ -326,15 +332,15 @@ export const SEED: GeneratedSeed = {
           "tier": "auto_categorised"
         }
       },
-      "reasoning": "PAYE payment to HMRC, unambiguous. Coded to PAYE Payable (820) on the vendor and reference pattern; GBP 2,500.00 is in the usual range for this account.",
+      "reasoning": "PAYE payment to HMRC, unambiguous. Coded to Tax & Statutory Payments (820) on the vendor and reference pattern; GBP 2,500.00 is in the usual range for this account.",
       "risk": {
         "risk_score": 0.5,
         "risk_label": "medium",
         "fired_rules": [
-          "IF amount deviation IS high AND vendor frequency IS frequent THEN risk IS medium"
+          "IF amount deviation IS medium THEN risk IS medium"
         ],
         "input_values": {
-          "amount_deviation": 0.972,
+          "amount_deviation": 0.514,
           "vendor_frequency": 0.8,
           "time_pattern": 0.2
         }
@@ -387,7 +393,7 @@ export const SEED: GeneratedSeed = {
       "difficulty": "easy",
       "plan": {
         "position": 5,
-        "category": "Employer NIC Payable",
+        "category": "Tax & Statutory Payments",
         "category_code": "820",
         "tier": "auto_categorised",
         "confidence": 0.92,
@@ -397,7 +403,7 @@ export const SEED: GeneratedSeed = {
           "tier": "auto_categorised"
         }
       },
-      "reasoning": "Employer National Insurance Contributions. Coded to Employer NIC Payable (820) on the vendor and reference pattern; GBP 7,200.00 is in the usual range for this account.",
+      "reasoning": "Employer National Insurance Contributions. Coded to Tax & Statutory Payments (820) on the vendor and reference pattern; GBP 7,200.00 is in the usual range for this account.",
       "risk": {
         "risk_score": 0.15,
         "risk_label": "low",
@@ -405,7 +411,7 @@ export const SEED: GeneratedSeed = {
           "IF amount deviation IS low AND vendor frequency IS frequent THEN risk IS low"
         ],
         "input_values": {
-          "amount_deviation": 0.209,
+          "amount_deviation": 0.249,
           "vendor_frequency": 0.8,
           "time_pattern": 0.7
         }
@@ -563,7 +569,7 @@ export const SEED: GeneratedSeed = {
       "difficulty": "easy",
       "plan": {
         "position": 10,
-        "category": "VAT",
+        "category": "Tax & Statutory Payments",
         "category_code": "820",
         "tier": "auto_categorised",
         "confidence": 0.92,
@@ -573,15 +579,16 @@ export const SEED: GeneratedSeed = {
           "tier": "auto_categorised"
         }
       },
-      "reasoning": "Quarterly VAT payment to HMRC. Coded to VAT (820) on the vendor and reference pattern; GBP 5,600.00 is in the usual range for this account.",
+      "reasoning": "Quarterly VAT payment to HMRC. Coded to Tax & Statutory Payments (820) on the vendor and reference pattern; GBP 5,600.00 is in the usual range for this account.",
       "risk": {
-        "risk_score": 0.5,
-        "risk_label": "medium",
+        "risk_score": 0.15,
+        "risk_label": "low",
         "fired_rules": [
-          "IF amount deviation IS medium THEN risk IS medium"
+          "IF amount deviation IS low AND vendor frequency IS frequent THEN risk IS low",
+          "IF time pattern IS normal AND amount deviation IS low THEN risk IS low"
         ],
         "input_values": {
-          "amount_deviation": 0.39,
+          "amount_deviation": 0.067,
           "vendor_frequency": 0.8,
           "time_pattern": 0.2
         }
@@ -1024,7 +1031,7 @@ export const SEED: GeneratedSeed = {
       "difficulty": "easy",
       "plan": {
         "position": 23,
-        "category": "Accountancy & Audit Fees",
+        "category": "Legal & Accountancy Fees",
         "category_code": "420",
         "tier": "auto_categorised",
         "confidence": 0.97,
@@ -1034,7 +1041,7 @@ export const SEED: GeneratedSeed = {
           "tier": "auto_categorised"
         }
       },
-      "reasoning": "Audit fee from accounting firm. Coded to Accountancy & Audit Fees (420) on the vendor and reference pattern; GBP 4,200.00 is in the usual range for this account.",
+      "reasoning": "Audit fee from accounting firm. Coded to Legal & Accountancy Fees (420) on the vendor and reference pattern; GBP 4,200.00 is in the usual range for this account.",
       "risk": {
         "risk_score": 0.15,
         "risk_label": "low",
@@ -1131,7 +1138,7 @@ export const SEED: GeneratedSeed = {
       "difficulty": "easy",
       "plan": {
         "position": 26,
-        "category": "Legal Expenses",
+        "category": "Legal & Accountancy Fees",
         "category_code": "420",
         "tier": "auto_categorised",
         "confidence": 0.86,
@@ -1141,7 +1148,7 @@ export const SEED: GeneratedSeed = {
           "tier": "auto_categorised"
         }
       },
-      "reasoning": "Legal firm, legal expenses. Coded to Legal Expenses (420) on the vendor and reference pattern; GBP 6,500.00 is in the usual range for this account.",
+      "reasoning": "Legal firm, legal expenses. Coded to Legal & Accountancy Fees (420) on the vendor and reference pattern; GBP 6,500.00 is in the usual range for this account.",
       "risk": {
         "risk_score": 0.15,
         "risk_label": "low",
@@ -1277,10 +1284,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "401",
         "tier": "suggested",
         "confidence": 0.57,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.64,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Regus is a well-known serviced office provider. Coded to Rent (401) on the vendor and reference pattern; GBP 1,200.00 is in the usual range for this account.",
@@ -1309,11 +1319,11 @@ export const SEED: GeneratedSeed = {
       "difficulty": "medium",
       "plan": {
         "position": 31,
-        "category": "Loan Repayment",
-        "category_code": "820",
+        "category": "Loan",
+        "category_code": "900",
         "tier": "suggested",
         "confidence": 0.83,
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-sonnet-4-6",
         "decision": {
           "escalated": true,
           "tier": "suggested",
@@ -1322,15 +1332,15 @@ export const SEED: GeneratedSeed = {
           "escalation_threshold": 0.85
         }
       },
-      "reasoning": "Loan repayment, balance sheet, not P&L. Loan Repayment (820) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
+      "reasoning": "Loan repayment, balance sheet, not P&L. Loan (900) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
       "risk": {
         "risk_score": 0.5,
         "risk_label": "medium",
         "fired_rules": [
-          "IF amount deviation IS medium THEN risk IS medium"
+          "IF amount deviation IS high AND vendor frequency IS frequent THEN risk IS medium"
         ],
         "input_values": {
-          "amount_deviation": 0.502,
+          "amount_deviation": 0.886,
           "vendor_frequency": 0.8,
           "time_pattern": 0.2
         }
@@ -1351,10 +1361,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "461",
         "tier": "suggested",
         "confidence": 0.6,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.64,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Professional membership, could be subscriptions or professional fees. Subscriptions (461) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1386,10 +1399,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "463",
         "tier": "suggested",
         "confidence": 0.6,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.7,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Conference registration, training or subscriptions. Training & Development (463) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1422,10 +1438,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "445",
         "tier": "suggested",
         "confidence": 0.53,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.57,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Waste management, utilities or general overheads. Utilities (445) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1457,10 +1476,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "412",
         "tier": "suggested",
         "confidence": 0.62,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.66,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Design tool, marketing or software. Advertising & Marketing (412) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1492,7 +1514,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "461",
         "tier": "suggested",
         "confidence": 0.71,
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-sonnet-4-6",
         "decision": {
           "escalated": true,
           "tier": "suggested",
@@ -1530,10 +1552,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "429",
         "tier": "suggested",
         "confidence": 0.5,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.78,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Flowers on Valentine's Day, client gift or entertainment. Entertainment & Hospitality (429) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1565,10 +1590,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "411",
         "tier": "suggested",
         "confidence": 0.75,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.69,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Consulting invoice, amount suggests contractor, not supplies. Consultants & Contractors (411) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1601,10 +1629,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "462",
         "tier": "suggested",
         "confidence": 0.71,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.69,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Health insurance, could be insurance or staff benefits. Insurance (462) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1636,10 +1667,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "412",
         "tier": "suggested",
         "confidence": 0.81,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.8,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "LinkedIn Premium, marketing or subscriptions. Advertising & Marketing (412) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1672,10 +1706,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "404",
         "tier": "suggested",
         "confidence": 0.59,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.62,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Electronics retailer, likely equipment but could be office supplies. Computer Equipment & Software (404) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1707,10 +1744,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "493",
         "tier": "suggested",
         "confidence": 0.53,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "suggested"
+          "escalated": true,
+          "tier": "suggested",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.79,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Parking, motor expenses or travel. Travel (493) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1738,17 +1778,20 @@ export const SEED: GeneratedSeed = {
       "difficulty": "medium",
       "plan": {
         "position": 43,
-        "category": "Recruitment",
+        "category": "Wages & Salaries",
         "category_code": "477",
         "tier": "needs_review",
         "confidence": 0.35,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.62,
+          "escalation_threshold": 0.85
         }
       },
-      "reasoning": "Recruitment agency fee. Recruitment (477) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
+      "reasoning": "Recruitment agency fee. Wages & Salaries (477) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
       "risk": {
         "risk_score": 0.5,
         "risk_label": "medium",
@@ -1777,10 +1820,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "429",
         "tier": "needs_review",
         "confidence": 0.24,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.79,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Streaming subscription, entertainment or staff welfare. Entertainment & Hospitality (429) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
@@ -1809,17 +1855,20 @@ export const SEED: GeneratedSeed = {
       "difficulty": "medium",
       "plan": {
         "position": 45,
-        "category": "Payroll Processing",
+        "category": "Wages & Salaries",
         "category_code": "477",
         "tier": "needs_review",
         "confidence": 0.48,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.69,
+          "escalation_threshold": 0.85
         }
       },
-      "reasoning": "Payroll bureau, could be admin or staff costs. Payroll Processing (477) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
+      "reasoning": "Payroll bureau, could be admin or staff costs. Wages & Salaries (477) is the closest match, but the description leaves some doubt, so this is a suggestion rather than an automatic code.",
       "risk": {
         "risk_score": 0.5,
         "risk_label": "medium",
@@ -1848,7 +1897,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "416",
         "tier": "needs_review",
         "confidence": 0.3,
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-sonnet-4-6",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
@@ -1886,10 +1935,13 @@ export const SEED: GeneratedSeed = {
         "category_code": "260",
         "tier": "needs_review",
         "confidence": 0.47,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.65,
+          "escalation_threshold": 0.85
         }
       },
       "reasoning": "Grant income, not standard revenue. The description is too generic to code Other Revenue (260) with confidence, so this needs a human decision.",
@@ -1918,26 +1970,28 @@ export const SEED: GeneratedSeed = {
       "difficulty": "hard",
       "plan": {
         "position": 48,
-        "category": "Loan Receipt",
-        "category_code": "820",
+        "category": "Loan",
+        "category_code": "900",
         "tier": "needs_review",
         "confidence": 0.21,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-sonnet-4-6",
         "decision": {
-          "escalated": false,
-          "tier": "needs_review"
+          "escalated": true,
+          "tier": "needs_review",
+          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_confidence": 0.73,
+          "escalation_threshold": 0.85
         }
       },
-      "reasoning": "Credit facility drawdown, balance sheet, not P&L income. The description is too generic to code Loan Receipt (820) with confidence, so this needs a human decision.",
+      "reasoning": "Credit facility drawdown, balance sheet, not P&L income. The description is too generic to code Loan (900) with confidence, so this needs a human decision.",
       "risk": {
-        "risk_score": 0.675,
-        "risk_label": "high",
+        "risk_score": 0.5,
+        "risk_label": "medium",
         "fired_rules": [
-          "IF amount deviation IS high AND vendor frequency IS frequent THEN risk IS medium",
-          "IF amount deviation IS high AND time pattern IS unusual THEN risk IS high"
+          "IF amount deviation IS medium THEN risk IS medium"
         ],
         "input_values": {
-          "amount_deviation": 0.771,
+          "amount_deviation": 0.386,
           "vendor_frequency": 0.8,
           "time_pattern": 0.7
         }
@@ -1958,7 +2012,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "416",
         "tier": "needs_review",
         "confidence": 0.25,
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-sonnet-4-6",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
