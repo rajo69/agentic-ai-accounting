@@ -1,0 +1,44 @@
+{
+ "batches": {
+  "C": "msgbatch_01HBSo7VNS9zAGLnZ3JyH8Fe",
+  "D": "msgbatch_01V1J964uQHsrtVDT8FzeK4V"
+ },
+ "batch_meta": {
+  "C": {
+   "id": "msgbatch_01HBSo7VNS9zAGLnZ3JyH8Fe",
+   "archived_at": null,
+   "cancel_initiated_at": null,
+   "created_at": "2026-10-31T04:00:23.400262Z",
+   "ended_at": "2026-10-31T04:03:53.788638Z",
+   "expires_at": "2026-11-01T04:00:23.400262Z",
+   "processing_status": "ended",
+   "request_counts": {
+    "canceled": 0,
+    "errored": 0,
+    "expired": 0,
+    "processing": 0,
+    "succeeded": 900
+   },
+   "results_url": "https://api.anthropic.com/v1/messages/batches/msgbatch_01HBSo7VNS9zAGLnZ3JyH8Fe/results",
+   "type": "message_batch"
+  },
+  "D": {
+   "id": "msgbatch_01V1J964uQHsrtVDT8FzeK4V",
+   "archived_at": null,
+   "cancel_initiated_at": null,
+   "created_at": "2026-10-31T04:04:28.792175Z",
+   "ended_at": "2026-10-31T04:07:53.702296Z",
+   "expires_at": "2026-11-01T04:04:28.792175Z",
+   "processing_status": "ended",
+   "request_counts": {
+    "canceled": 0,
+    "errored": 0,
+    "expired": 0,
+    "processing": 0,
+    "succeeded": 900
+   },
+   "results_url": "https://api.anthropic.com/v1/messages/batches/msgbatch_01V1J964uQHsrtVDT8FzeK4V/results",
+   "type": "message_batch"
+  }
+ }
+}

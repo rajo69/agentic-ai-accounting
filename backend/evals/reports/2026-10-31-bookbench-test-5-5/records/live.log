@@ -1,0 +1,22 @@
+bookbench f57f0d4f731f862aba9d015784defdd966488864: 300 UK test items, arms ['C', 'D'], reps 3
+  C claude-haiku-5-5             in~ 3206.2 out~ 150 x900: batch $0.1780 (standard $0.3561, ceiling $0.6051)
+  D claude-sonnet-5-5            in~ 3206.2 out~ 150 x900: batch $3.5606 (standard $7.1212, ceiling $12.1016)
+  total: batch $3.7386, ceiling $12.7067
+arm C: submitted batch msgbatch_01HBSo7VNS9zAGLnZ3JyH8Fe (900 requests)
+arm C: in_progress, 900 processing
+arm C: in_progress, 900 processing
+arm C: in_progress, 900 processing
+arm C: in_progress, 900 processing
+arm C: done, spent so far $0.1755 of $5.00
+arm D: submitted batch msgbatch_01V1J964uQHsrtVDT8FzeK4V (900 requests)
+arm D: in_progress, 900 processing
+arm D: in_progress, 900 processing
+arm D: in_progress, 900 processing
+arm D: in_progress, 900 processing
+arm D: done, spent so far $3.5920 of $5.00
+  arm C: 900 calls, ok 900, refused 0, max_tokens 0, no_output 0, invalid 0, errored 0
+  arm D: 900 calls, ok 900, refused 0, max_tokens 0, no_output 0, invalid 0, errored 0
+  C                  acc 0.8608  auto 0.3942 prec 0.9822  esc 0.0  err 0 ref 0  $0.195/1k
+  D                  acc 0.9427  auto 0.483 prec 0.9855  esc 0.0  err 0 ref 0  $3.7961/1k
+  new_tiered         acc 0.9368  auto 0.4526 prec 0.9845  esc 0.4573  err 0 ref 0  $2.0016/1k
+wrote C:\Users\Rajo\Desktop\projects_2026\github_exp\Agentic_AI_Accounting\backend\evals\results\migration_ab\live-test

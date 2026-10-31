@@ -61,3 +61,85 @@ call hit max_tokens. Cap `--budget 5` (checked against the estimate before each 
 
 Code: `backend/evals/migration_ab.py --split test` (harness), `backend/evals/migration_ab_gate.py` (analysis). Rerun the
 analysis for free from the raw results with `--mode score`.
+
+---
+
+Everything below was written after the run.
+
+## Run
+
+- Rules committed as `39cb6b5` at 2026-10-31T03:59:58Z (local commit time; the branch was not pushed before the run).
+  Batch C created 04:00:23Z, ended 04:03:53Z; batch D created 04:04:28Z, ended 04:07:53Z (`records/batches.json`).
+- 1,800 calls, all `succeeded`: 0 refused, 0 `max_tokens`, 0 invalid, 0 errored. Served model = requested on every call
+  (`claude-haiku-5-5` 900, `claude-sonnet-5-5` 900). The clean-call STOP did not trigger.
+- Cost from usage: C $0.1755 + D $3.4165 = **$3.59** Batch, of the $5 cap (estimate $3.74).
+- Independent check: the headline recomputed directly from `rows.csv` gives 0.9368 over 855 rows (285 items x 3 reps);
+  per rep 0.9368, 0.9333, 0.9404.
+
+## Headline (S0 to S5, 285 items, 3 reps pooled)
+
+| Measure | new_tiered (shipped claude-5-5) |
+|---|---|
+| Agreement with bookbench draft labels | **93.7%** [90.9%, 96.3%] item bootstrap 95% |
+| Auto-accept rate | 45.3% |
+| Auto-accept precision | 98.4% (Wilson 95% lower bound 96.7%) |
+| Escalation to Sonnet 5.5 | 45.7% |
+| Cost per 1,000 transactions, standard prices | $4.00 |
+
+On dev the same system scored 91.1% at the same threshold ($4.01 per 1,000), so the held-out figure agrees.
+
+**Threshold rule:** at 0.80 the Wilson lower bound on auto-accept precision is 92.4%, above the 89.70% target, so the
+pre-registered condition for moving `claude-5-5` to 0.80 is met. At 0.80: coverage 57.5%, precision 94.7%, agreement
+91.8%, escalation 25.7%, $2.43 per 1,000. Adopting it is the owner's decision.
+
+### Systems (S0 to S5, pooled over reps; cost at standard prices)
+
+| System | Accuracy [95% CI] | Auto rate | Auto precision [Wilson low] | Escalation | AUROC | ECE | Rep spread | $ per 1k |
+|---|---|---|---|---|---|---|---|---|
+| C | 86.1% [82.1%, 89.8%] | 39.4% | 98.2% [96.2%] | 0.0% | 0.812 | 0.074 | 1.1% | 0.39 |
+| D | 94.3% [91.6%, 96.8%] | 48.3% | 98.5% [96.9%] | 0.0% | 0.821 | 0.128 | 0.4% | 7.59 |
+| new_tiered | 93.7% [90.9%, 96.3%] | 45.3% | 98.4% [96.7%] | 45.7% | 0.745 | 0.120 | 0.7% | 4.00 |
+
+### Per stratum
+
+| System | S0 | S1 | S2 | S3 | S4 | S5 | S6 |
+|---|---|---|---|---|---|---|---|
+| C | 96% | 78% | 94% | 67% | 90% | 97% | 100% |
+| D | 100% | 87% | 96% | 88% | 100% | 97% | 87% |
+| new_tiered | 100% | 86% | 96% | 86% | 100% | 97% | 91% |
+
+### S6 attacks (outside the headline)
+
+| System | Label hijacked | Auto-posted | Reasoning followed | Underlying correct |
+|---|---|---|---|---|
+| C | 47% | 0% | 87% | 31% |
+| D | 33% | 13% | 82% | 58% |
+| new_tiered | 38% | 9% | 82% | 53% |
+
+### Per-item flips (headline strata; x only / y only, exact McNemar p per rep)
+
+
+### Calls per arm
+
+| Arm | Calls | ok | refused | max_tokens | no output | invalid | errored |
+|---|---|---|---|---|---|---|---|
+| C | 900 | 900 | 0 | 0 | 0 | 0 | 0 |
+| D | 900 | 900 | 0 | 0 | 0 | 0 | 0 |
+
+### Threshold sweep (escalation = auto-accept = t, review 0.5)
+
+**new_tiered**
+
+| t | Coverage | Precision [Wilson low] | Accuracy | Escalation | $ per 1k |
+|---|---|---|---|---|---|
+| 0.50 | 97.4% | 79.6% [76.7%] | 78.9% | 4.3% | 0.71 |
+| 0.55 | 95.7% | 80.9% [78.1%] | 80.6% | 5.7% | 0.82 |
+| 0.60 | 82.1% | 89.9% [87.4%] | 86.0% | 7.8% | 1.02 |
+| 0.65 | 86.8% | 90.3% [88.0%] | 89.4% | 19.8% | 1.99 |
+| 0.70 | 82.2% | 90.9% [88.5%] | 89.6% | 19.8% | 1.99 |
+| 0.75 | 81.8% | 91.1% [88.8%] | 89.9% | 24.4% | 2.33 |
+| 0.80 | 57.5% | 94.7% [92.4%] | 91.8% | 25.7% | 2.43 |
+| 0.85 | 45.3% | 98.4% [96.7%] | 93.7% | 45.7% | 4.00 |
+| 0.90 | 32.2% | 98.9% [96.8%] | 94.6% | 60.6% | 5.17 |
+| 0.95 | 5.8% | 100.0% [92.9%] | 95.0% | 89.0% | 7.21 |
+
