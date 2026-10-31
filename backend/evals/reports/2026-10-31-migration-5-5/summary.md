@@ -285,3 +285,13 @@ Observations, not new criteria. The gate above is the decision input; everything
     substring match, so a mention counts.
 - **Calibration:** AUROC improves (0.654 to 0.759 tiered); ECE is similar (0.103 to 0.112).
 - **Reps:** spread between reps is small (1.1% new, 3.2% old). Every candidate's difference from old exceeds it.
+
+## Decision (owner, 2026-10-31, after the results)
+
+- Haiku 5.5 primary uses structured outputs (C), not the forced tool call (E): no per-item difference, E costs more.
+- `claude-5-5` keeps the 0.85 / 0.85 / 0.5 thresholds. 0.80 from the sweep is adopted only after bookbench test
+  confirms it.
+- Haiku 5.5 primary effort stays low: F gains nothing once tiered and uses more output.
+- Flip the default to `claude-5-5` (PR 4), since every gate passed. Rollback stays `LLM_PROFILE=claude-4`.
+- The raw responses and request bodies are archived privately outside the repo with a SHA-256 manifest. Publishing
+  them (next to bookbench, with its canary string) is a later decision.
