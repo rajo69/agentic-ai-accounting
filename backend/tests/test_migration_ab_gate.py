@@ -76,3 +76,22 @@ def test_lowest_threshold_uses_the_lower_bound():
               {"threshold": 0.8, "precision_wilson_lower": 0.90}]
     assert gate.lowest_threshold(points, 0.85) == 0.7
     assert gate.lowest_threshold(points, 0.95) is None
+
+
+def test_gate_without_the_old_baseline_reports_systems_only(data_dir):  # noqa: F811
+    bb = ab.load_bookbench(data_dir)
+    cases = ab.build_cases(bb, ab.uk_split(bb, "test"))
+    arms = ["C", "D"]
+    raw = ab.run_mock(arms, cases, reps=3)
+    rows = ab.score_rows(ab.systems_for(arms), cases, 3, raw, bb.review_equivalents, bb.scored_channels)
+    g = gate.gate(rows, cases, 3, raw, bb)
+    assert g["candidates"] == {}
+    assert set(g["systems"]) == {"C", "D", "new_tiered"} and g["sweep"]["new_tiered"]
+    assert gate.render(g).startswith("## Results")
+
+
+def test_accuracy_interval_brackets_the_item_mean():
+    rows = _rows("new_tiered", {rep: [1, 1, 0, 0, 1, 1, 1, 0, 1, 1] for rep in range(3)})
+    ci = gate.accuracy_interval(rows, "new_tiered")
+    assert ci["n_items"] == 10 and ci["ci_low"] < 0.7 < ci["ci_high"]
+    assert gate.accuracy_interval([r for r in rows if r["item_id"] == "none"], "new_tiered")["ci_low"] is None

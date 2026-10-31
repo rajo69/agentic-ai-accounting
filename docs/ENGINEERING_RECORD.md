@@ -83,7 +83,8 @@ looked weak on hard cases; Sonnet on everything costs about three times as much 
 when its confidence is below the auto-accept threshold (0.85) the same prompt goes to Sonnet and Sonnet's answer
 replaces Haiku's; if Sonnet fails, Haiku's answer stands; the audit row records both. **Outcome.** Shipped. Its
 measurement is the first live comparison in the evaluation plan: Haiku-only against Sonnet-only against tiered. The
-2026-10-31 migration A/B (below) made that comparison on bookbench's dev split; the test split is still to come.
+2026-10-31 migration A/B (below) made that comparison on bookbench's dev split, and the held-out test run (last entry)
+repeated it: tiered within a point of Sonnet only at about half its cost.
 
 ### A silent scope regression
 [62177dd](https://github.com/rajo69/agentic-ai-accounting/commit/62177dd) (2026-04-13). **Problem.** The
@@ -183,3 +184,23 @@ bootstrap interval +3.7 to +12.3 points), with auto-accept precision 98.7% again
 cost: Haiku 5.5 reports lower confidence, so fewer rows auto-accept (41.9% against 64.7%) and more go to a person.
 The [report](../backend/evals/reports/2026-10-31-migration-5-5/summary.md) keeps the pre-registration above the
 results. Rollback is one setting, `LLM_PROFILE=claude-4`.
+
+### The first accuracy figure could not be reproduced
+(2026-03-24 to 2026-10-31.) **Problem.** The README published 88% (44 of 50) from the first eval run in March 2026,
+and the landing page once said 94% from a source nobody could trace. The October review found that neither could be
+reproduced. The harness sent its own prompt, with no precedents, no validation, no routing and half the
+`max_tokens` production then used, so it measured a different system from the one users ran. No outputs or provenance were kept. 9 of the
+50 gold category names did not match the chart, and two loan transactions were labelled as tax because the chart had
+no loan account. The cost meter recorded one of two paid calls. The run had also missed its own easy-tier gate (93.5%
+against 95%), which the README marked as passed. **Decision.** Remove every accuracy figure until one could be
+reproduced, and rebuild the eval with Claude Code under my direction. bookbench, a synthetic benchmark built to the
+categoriser's input contract, was published as a draft. A harness scores the app's own requests offline: the
+production prompt builder and gateway, pinned by a parity test against the real graph. Every run follows the same
+order: count_tokens estimate and budget cap, rules committed before the first call, Message Batches, provenance and
+raw responses kept. The dev split was spent on the 5.5 migration (previous entry), and the test split was held back.
+**Outcome.** On the held-out UK test split, the shipped Haiku 5.5 and Sonnet 5.5 system agrees with bookbench's draft
+labels on 93.7% of 285 transactions (bootstrap interval 90.9% to 96.3%), auto-accepts 45.3% at 98.4% precision, and
+costs $4.00 per 1,000 transactions; the run cost $3.59 of a $5 cap. A lower threshold met its pre-registered condition
+and was declined, because precision fell to 94.7%. The figure is agreement with rule-generated, unreviewed labels on
+synthetic data, and the [report](../backend/evals/reports/2026-10-31-bookbench-test-5-5/summary.md) says so above
+the results. The old 88% is told as history and not republished.

@@ -172,9 +172,18 @@ def load_bookbench(data_dir: Path) -> Bookbench:
     )
 
 
+SPLITS = ("dev", "test")
+
+
+def uk_split(bb: Bookbench, split: str) -> list[dict]:
+    """UK items of one split in file order. The app's prompt is UK-only, so the US config is out."""
+    if split not in SPLITS:
+        raise ValueError(f"unknown split {split!r}")
+    return [i for i in bb.items if i["jurisdiction"] == "UK" and i["split"] == split]
+
+
 def uk_dev(bb: Bookbench) -> list[dict]:
-    """UK dev items in file order. The app's prompt is UK-only, so the US config is out."""
-    return [i for i in bb.items if i["jurisdiction"] == "UK" and i["split"] == "dev"]
+    return uk_split(bb, "dev")
 
 
 def firm_chart(chart: dict, firm: dict) -> list[dict]:
@@ -746,7 +755,8 @@ def _git(*args: str) -> Optional[str]:
 
 
 def provenance(bb: Bookbench, cases: list[Case], arms: list[str], reps: int, mode: str,
-               served: Optional[dict] = None, cost: Optional[dict] = None, calls: Optional[dict] = None) -> dict:
+               served: Optional[dict] = None, cost: Optional[dict] = None, calls: Optional[dict] = None,
+               split: str = "dev") -> dict:
     prompts = hashlib.sha256("\n\x00".join(c.prompt for c in cases).encode("utf-8")).hexdigest()
     return {
         "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -755,7 +765,7 @@ def provenance(bb: Bookbench, cases: list[Case], arms: list[str], reps: int, mod
         "app_tree_dirty": bool(_git("status", "--porcelain")),
         "environment": environment(),
         "bookbench": {**bb.source, "generator_version": bb.manifest.get("generator_version"),
-                      "sha256": bb.sha256, "split": "UK dev", "n_items": len(cases),
+                      "sha256": bb.sha256, "split": f"UK {split}", "n_items": len(cases),
                       "strata": {s: sum(c.item["stratum"] == s for c in cases)
                                  for s in sorted({c.item["stratum"] for c in cases})}},
         "prompt": {"builder_sha256": hashlib.sha256(inspect.getsource(build_categoriser_prompt).encode()).hexdigest(),
@@ -833,7 +843,9 @@ def main(argv: Optional[list[str]] = None) -> int:
                     help="score: rescore saved raw/<arm>.jsonl in --out-dir, free")
     ap.add_argument("--arms", default=",".join(DEFAULT_ARMS), help=f"comma list of {','.join(ARMS)}")
     ap.add_argument("--reps", type=int, default=3)
-    ap.add_argument("--limit", type=int, help="first N UK dev items only")
+    ap.add_argument("--split", choices=SPLITS, default="dev",
+                    help="bookbench UK split; results go to <mode>-test for test, so a dev run's state.json is never resumed")
+    ap.add_argument("--limit", type=int, help="first N items of the split only")
     ap.add_argument("--sample", type=int, default=10, help="prompts per arm counted in --mode estimate/live")
     ap.add_argument("--budget", type=float, help="USD cap; required for --mode live")
     ap.add_argument("--out-dir", type=Path)
@@ -853,10 +865,12 @@ def main(argv: Optional[list[str]] = None) -> int:
         ap.error("--budget is required for --mode live")
 
     bb = load_bookbench(args.data_dir)
-    items = uk_dev(bb)[: args.limit] if args.limit else uk_dev(bb)
+    items = uk_split(bb, args.split)
+    items = items[: args.limit] if args.limit else items
     cases = build_cases(bb, items)
-    out_dir = args.out_dir or RESULTS_DIR / args.mode
-    print(f"bookbench {bb.source.get('commit', '(commit unknown)')}: {len(cases)} UK dev items, arms {arms}, reps {args.reps}")
+    out_dir = args.out_dir or RESULTS_DIR / (args.mode if args.split == "dev" else f"{args.mode}-{args.split}")
+    print(f"bookbench {bb.source.get('commit', '(commit unknown)')}: {len(cases)} UK {args.split} items, "
+          f"arms {arms}, reps {args.reps}")
 
     if args.mode == "mock":
         raw = run_mock(arms, cases, args.reps)
@@ -888,7 +902,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     summary = quick_summary(rows, headline)
     cost = {k: arm_cost(k, raw[k]) for k in arms}
     calls = arm_stats(raw)
-    write_outputs(out_dir, rows, provenance(bb, cases, arms, args.reps, args.mode, served_models(raw), cost, calls), summary)
+    write_outputs(out_dir, rows, provenance(bb, cases, arms, args.reps, args.mode, served_models(raw), cost, calls,
+                                                  args.split), summary)
     for key, st in calls.items():
         print(f"  arm {key}: {st['calls']} calls, ok {st['ok']}, refused {st['refused']}, max_tokens {st['max_tokens']}, "
               f"no_output {st['no_output']}, invalid {st['invalid_output']}, errored {st['errored']}")

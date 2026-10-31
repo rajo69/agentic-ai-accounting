@@ -8,7 +8,11 @@ alone.
 The benchmark built for the production categoriser, with precedents, is
 [bookbench](https://github.com/rajo69/bookbench), published as a draft. The production categoriser's requests were scored on its UK dev split for the move from Claude
 4.x to 5.5 (`migration_ab.py`, report in [`reports/2026-10-31-migration-5-5/`](reports/2026-10-31-migration-5-5/summary.md)):
-a pre-registered relative comparison on unreviewed labels, not an accuracy figure. This runner still defaults to
+a pre-registered relative comparison on unreviewed labels, not an accuracy figure. The shipped `claude-5-5` system was
+then run once on the held-out UK test split (`migration_ab.py --split test`, report in
+[`reports/2026-10-31-bookbench-test-5-5/`](reports/2026-10-31-bookbench-test-5-5/summary.md)): 93.7% agreement with
+bookbench's draft labels at commit `f57f0d4` (285 items, 3 reps, interval 90.9% to 96.3%), auto-accept precision
+98.4% at 45.3% coverage, $4.00 per 1,000 transactions. This runner still defaults to
 Haiku 4.5 so its cached responses stay valid; pass `--model claude-haiku-5-5` to run the current primary.
 
 ## Quick start
