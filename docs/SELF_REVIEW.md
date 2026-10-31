@@ -12,7 +12,7 @@ accept and what to fix first. The pass produced 106 findings, 14 high and none c
 
 | Finding | Status |
 |---|---|
-| VAT summary arithmetic wrong by construction (rate applied to gross; unknown tax types default to 20%) | Open; the VAT figures are labelled indicative in the document |
+| VAT summary arithmetic wrong by construction (rate applied to gross; unknown tax types default to 20%) | Open; the document calls itself an estimated VAT summary and an AI-assisted draft |
 | `SPEND-TRANSFER`, `-OVERPAYMENT`, `-PREPAYMENT` stored positive (only exact `SPEND` is negated) | Fixed with tests on both sync paths (2026-10-11); rows already stored correct themselves on a full re-sync, except statement lines, which need a one-off update |
 | One `AsyncSession` shared by five concurrent graph tasks in both batch runners | Open; the fix is per-task sessions from `async_sessionmaker` |
 | Categoriser persists the model's category name string; validation passes on code or name | Fixed with tests (2026-10-11): a match on code or name now stores the chart's own code and name. A prediction that matches nothing goes to review with the model's text; the next step is chart-constrained structured outputs |

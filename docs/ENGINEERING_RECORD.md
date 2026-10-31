@@ -197,7 +197,8 @@ reproduced, and rebuild the eval with Claude Code under my direction. bookbench,
 categoriser's input contract, was published as a draft. A harness scores the app's own requests offline: the
 production prompt builder and gateway, pinned by a parity test against the real graph. Every run follows the same
 order: count_tokens estimate and budget cap, rules committed before the first call, Message Batches, provenance and
-raw responses kept. The dev split was spent on the 5.5 migration (previous entry), and the test split was held back.
+raw responses kept. The dev split was spent on the 5.5 migration (previous entry); no model was run on the test split until this run, though
+the dataset's construction audits had scored non-model baselines on it.
 **Outcome.** On the held-out UK test split, the shipped Haiku 5.5 and Sonnet 5.5 system agrees with bookbench's draft
 labels on 93.7% of 285 transactions (bootstrap interval 90.9% to 96.3%), auto-accepts 45.3% at 98.4% precision, and
 costs $4.00 per 1,000 transactions; the run cost $3.59 of a $5 cap. A lower threshold met its pre-registered condition
