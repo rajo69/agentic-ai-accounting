@@ -130,9 +130,9 @@ The eval harness has pass/fail gates, a calibration table and a budget guard, an
 
 The harness in [`backend/evals/`](backend/evals/) runs fifty labelled UK small-business bank transactions generated with Claude, none taken from Xero, against twenty chart-of-accounts codes, split 31 easy, 15 medium and 4 hard. It reports accuracy by tier, per-category precision, recall and F1, a calibration table (accuracy by confidence bucket) and cost. It exits non-zero when a gate is missed: overall at least 80%, easy tier at least 95%, auto-accept bucket at least 90%. Responses are cached by model and prompt so reruns are free, and `--budget` stops a live run as soon as its recorded spend passes the cap.
 
-The benchmark built to this categoriser's input contract (the Xero record fields it reads, the firm's chart and the top 5 retrieved precedents) is [bookbench](https://github.com/rajo69/bookbench): 1,000 UK and US small-business transactions with precedent history, `NEEDS_REVIEW` as a gold answer and a separately scored stratum of instruction-like text.
+The benchmark built to this categoriser's input contract (the Xero record fields it reads, the firm's chart and the top 5 retrieved precedents) is [bookbench](https://github.com/rajo69/bookbench): 1,000 UK and US small-business transactions with precedent history, `NEEDS_REVIEW` as a gold answer and a separately scored stratum of instruction-like text. It is public as a draft ([data on Hugging Face](https://huggingface.co/datasets/rajo0113/bookbench)), and no model has been scored on it yet.
 
-What the harness measures: its own prompt, isolated from precedent retrieval and routing, so a result belongs to the prompt alone; the four-item hard tier is read as a diagnostic split; the gates run in the runner. The measurement plan, in order: a baseline of the production graph replayed on the fixtures, then Haiku-only against Sonnet-only against tiered.
+What the harness measures: its own prompt, isolated from precedent retrieval and routing, so a result belongs to the prompt alone; the four-item hard tier is read as a diagnostic split; the gates run in the runner. The measurement plan, in order: a baseline of the production graph, retrieval and routing included, replayed on bookbench, then Haiku-only against Sonnet-only against tiered.
 
 ```bash
 cd backend && python -m evals.eval_runner --mode mock    # no API calls
@@ -233,7 +233,7 @@ docs/                ARCHITECTURE, ENGINEERING_RECORD, PRODUCTION_ROADMAP, SELF_
 
 ## About
 
-Designed, built and documented by **Rajarshi Nandi** · [GitHub](https://github.com/rajo69). Further reading: [architecture](docs/ARCHITECTURE.md) · [engineering record](docs/ENGINEERING_RECORD.md) · [self-review](docs/SELF_REVIEW.md) · [roadmap](docs/PRODUCTION_ROADMAP.md) · [eval harness](backend/evals/README.md) · [how the video was made](video/README.md) · [changelog](CHANGELOG.md).
+Designed, built and documented by **Rajarshi Nandi** · [GitHub](https://github.com/rajo69). Further reading: [architecture](docs/ARCHITECTURE.md) · [engineering record](docs/ENGINEERING_RECORD.md) · [self-review](docs/SELF_REVIEW.md) · [roadmap](docs/PRODUCTION_ROADMAP.md) · [eval harness](backend/evals/README.md) · [bookbench](https://github.com/rajo69/bookbench) · [how the video was made](video/README.md) · [changelog](CHANGELOG.md).
 
 **How it was built.** With Claude Code as the implementer: it wrote the code and drafted the documentation. My part was the product and its scope (the UK MTD and Xero framing, what to build and what to cut), the architecture and its trade-offs (the stack, the two LangGraph workflows, Haiku first with Sonnet on low confidence, the review-layer positioning), and the verification: I read the diffs, ran and tested the app, and decided which review findings and which claims in these docs to accept. The six self-review passes and the fact-checks of these docs ran as parallel Claude Code agents under one evidence standard: file, line and quoted code for every finding.
 
