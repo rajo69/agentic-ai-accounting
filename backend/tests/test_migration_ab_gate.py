@@ -76,3 +76,15 @@ def test_lowest_threshold_uses_the_lower_bound():
               {"threshold": 0.8, "precision_wilson_lower": 0.90}]
     assert gate.lowest_threshold(points, 0.85) == 0.7
     assert gate.lowest_threshold(points, 0.95) is None
+
+
+def test_gate_without_the_old_baseline_reports_systems_only(data_dir):  # noqa: F811
+    bb = ab.load_bookbench(data_dir)
+    cases = ab.build_cases(bb, ab.uk_split(bb, "test"))
+    arms = ["C", "D"]
+    raw = ab.run_mock(arms, cases, reps=3)
+    rows = ab.score_rows(ab.systems_for(arms), cases, 3, raw, bb.review_equivalents, bb.scored_channels)
+    g = gate.gate(rows, cases, 3, raw, bb)
+    assert g["candidates"] == {}
+    assert set(g["systems"]) == {"C", "D", "new_tiered"} and g["sweep"]["new_tiered"]
+    assert gate.render(g).startswith("## Results")

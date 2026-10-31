@@ -414,3 +414,21 @@ def test_provenance_records_the_environment(data_dir):
     cases = ab.build_cases(bb, ab.uk_dev(bb))
     env = ab.provenance(bb, cases, ["C"], 1, "mock")["environment"]
     assert env["packages"]["anthropic"] and env["api_version"] and env["python"]
+
+
+def test_test_split_is_selectable_and_recorded(data_dir):
+    bb = ab.load_bookbench(data_dir)
+    assert [i["item_id"] for i in ab.uk_split(bb, "test")] == ["bb-uk-0099"]
+    assert ab.uk_split(bb, "dev") == ab.uk_dev(bb)
+    with pytest.raises(ValueError):
+        ab.uk_split(bb, "train")
+    cases = ab.build_cases(bb, ab.uk_split(bb, "test"))
+    assert ab.provenance(bb, cases, ["C"], 1, "mock", split="test")["bookbench"]["split"] == "UK test"
+
+
+def test_cli_keeps_test_results_apart_from_dev(data_dir, tmp_path, monkeypatch):
+    monkeypatch.setattr(ab, "RESULTS_DIR", tmp_path / "results")
+    assert ab.main(["--data-dir", str(data_dir), "--split", "test", "--arms", "C,D", "--reps", "1"]) == 0
+    prov = json.loads((tmp_path / "results" / "mock-test" / "provenance.json").read_text(encoding="utf-8"))
+    assert prov["bookbench"]["split"] == "UK test" and prov["bookbench"]["n_items"] == 1
+    assert not (tmp_path / "results" / "mock").exists()

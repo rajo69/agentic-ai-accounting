@@ -224,9 +224,10 @@ def system_calls(stats: dict, system: str) -> dict:
 def gate(rows: list[dict], cases: list[ab.Case], reps: int, raw: dict, bb: ab.Bookbench) -> dict:
     systems = list(dict.fromkeys(r["system"] for r in rows))
     stats = ab.arm_stats(raw)
-    old_aa = auto_accept(rows, OLD)
-    old_cost = usd_per_1000(rows, OLD)
-    old_noise = noise_floor(rows, OLD)
+    has_old = OLD in systems
+    old_aa = auto_accept(rows, OLD) if has_old else None
+    old_cost = usd_per_1000(rows, OLD) if has_old else None
+    old_noise = noise_floor(rows, OLD) if has_old else None
     result: dict = {"candidates": {}, "systems": {}, "flips": {}, "arm_calls": stats, "sweep": {}}
     for system in systems:
         result["systems"][system] = {
@@ -240,7 +241,9 @@ def gate(rows: list[dict], cases: list[ab.Case], reps: int, raw: dict, bb: ab.Bo
             result["flips"][f"{x} vs {y}"] = flips(rows, x, y)
     for system in [s for s in systems if ab.SYSTEMS[s][1]]:
         result["sweep"][system] = sweep(cases, reps, raw, bb, system)
-    for new in [c for c in CANDIDATES if c in systems]:
+    # The gate compares against old_tiered; a run without it (e.g. claude-5-5 only on test)
+    # reports the systems and the sweep, no candidates.
+    for new in [c for c in CANDIDATES if c in systems and has_old]:
         boot = paired_bootstrap(rows, new, OLD)
         new_aa = auto_accept(rows, new)
         calls = system_calls(stats, new)
