@@ -611,6 +611,25 @@ def run_live(arms: list[str], cases: list[Case], reps: int, est: dict, budget: f
     return results
 
 
+def arm_stats(raw: dict[str, dict[str, dict]]) -> dict[str, dict]:
+    """Per arm, every call's outcome, whether or not a tiered system used it (G3 counts these)."""
+    out = {}
+    for key, results in raw.items():
+        stats = {"calls": 0, **{s.value: 0 for s in Status}, "errored": 0, "refusal_categories": {}}
+        for result in results.values():
+            stats["calls"] += 1
+            call = call_from_raw(result, ARMS[key])
+            if isinstance(call, CallError):
+                stats["errored"] += 1
+                continue
+            stats[call.status.value] += 1
+            if call.status is Status.REFUSED:
+                category = call.refusal_category or "unspecified"
+                stats["refusal_categories"][category] = stats["refusal_categories"].get(category, 0) + 1
+        out[key] = stats
+    return out
+
+
 def arm_cost(key: str, raw: dict[str, dict]) -> dict:
     model = ARMS[key].config.model
     tin = tout = 0
@@ -713,13 +732,13 @@ def _git(*args: str) -> Optional[str]:
 
 
 def provenance(bb: Bookbench, cases: list[Case], arms: list[str], reps: int, mode: str,
-               served: Optional[dict] = None, cost: Optional[dict] = None) -> dict:
+               served: Optional[dict] = None, cost: Optional[dict] = None, calls: Optional[dict] = None) -> dict:
     prompts = hashlib.sha256("\n\x00".join(c.prompt for c in cases).encode("utf-8")).hexdigest()
     return {
         "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "mode": mode,
         "app_commit": _git("rev-parse", "HEAD"),
-        "app_tree_dirty": bool(_git("status", "--porcelain", "--", ".")),
+        "app_tree_dirty": bool(_git("status", "--porcelain")),
         "bookbench": {**bb.source, "generator_version": bb.manifest.get("generator_version"),
                       "sha256": bb.sha256, "split": "UK dev", "n_items": len(cases),
                       "strata": {s: sum(c.item["stratum"] == s for c in cases)
@@ -739,6 +758,10 @@ def provenance(bb: Bookbench, cases: list[Case], arms: list[str], reps: int, mod
         "pricing_per_1m": {ARMS[k].config.model: PRICING[ARMS[k].config.model] for k in arms},
         "batch_discount": BATCH_DISCOUNT,
         "cost_from_usage": cost,
+        "calls_per_arm": calls,
+        # Batch rejects `fallbacks`, so the 5.5 Sonnet arm runs without the server-side
+        # refusal fallback production sends; a refusal there is counted, not rescued.
+        "batch_differences": "no server-side fallbacks on Sonnet 5.5 (Batch rejects them)",
         "labels": "rule-generated, unreviewed (bookbench draft); a relative comparison, not an accuracy figure",
     }
 
@@ -827,7 +850,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     headline = tuple(bb.manifest["scoring"]["headline_strata"])
     summary = quick_summary(rows, headline)
     cost = {k: arm_cost(k, raw[k]) for k in arms}
-    write_outputs(out_dir, rows, provenance(bb, cases, arms, args.reps, args.mode, served_models(raw), cost), summary)
+    calls = arm_stats(raw)
+    write_outputs(out_dir, rows, provenance(bb, cases, arms, args.reps, args.mode, served_models(raw), cost, calls), summary)
+    for key, st in calls.items():
+        print(f"  arm {key}: {st['calls']} calls, ok {st['ok']}, refused {st['refused']}, max_tokens {st['max_tokens']}, "
+              f"no_output {st['no_output']}, invalid {st['invalid_output']}, errored {st['errored']}")
     for system, s in summary.items():
         print(f"  {system:<18} acc {s['accuracy']}  auto {s['auto_accept_rate']} prec {s['auto_accept_precision']}  "
               f"esc {s['escalation_rate']}  err {s['errors']} ref {s['refusals']}  ${s['usd_per_1000']}/1k")

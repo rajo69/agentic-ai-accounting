@@ -376,3 +376,17 @@ def test_live_stops_before_an_arm_that_would_cross_the_budget(data_dir, tmp_path
     est["expected_batch_usd"] = budget - 1e-7
     raw = ab.run_live(["C", "D"], cases, 2, est, budget, client, tmp_path / "out", poll_seconds=0)
     assert list(raw) == ["C"] and len(client.created) == 1
+
+
+def test_arm_stats_count_every_call_for_g3():
+    """G3 counts refusals and truncations per arm, including calls the tiered system never used."""
+    refusal = {"type": "succeeded", "message": {
+        "id": "m", "type": "message", "role": "assistant", "model": "claude-haiku-5-5", "content": [],
+        "stop_reason": "refusal", "stop_sequence": None,
+        "stop_details": {"type": "refusal", "category": "cyber", "explanation": None},
+        "usage": {"input_tokens": 1, "output_tokens": 0}}}
+    truncated = {"type": "succeeded", "message": {**refusal["message"], "stop_reason": "max_tokens", "stop_details": None}}
+    raw = {"E": {"E-r1-a": _raw("claude-haiku-5-5", 0.9), "E-r1-b": refusal, "E-r1-c": truncated,
+                 "E-r1-d": {"type": "errored", "error": {"type": "api_error"}}}}
+    assert ab.arm_stats(raw)["E"] == {"calls": 4, "ok": 1, "refused": 1, "max_tokens": 1, "no_output": 0,
+                                      "invalid_output": 0, "errored": 1, "refusal_categories": {"cyber": 1}}
