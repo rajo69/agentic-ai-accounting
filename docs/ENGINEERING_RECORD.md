@@ -31,12 +31,6 @@ column. **Outcome.** LLM and embedding choices are independent; the migration is
 **Decision.** `build_categoriser_graph(db)` returns a compiled graph whose nodes close over the session.
 **Outcome.** Clean state, testable nodes.
 
-### Free-text parsing silently returned wrong categories
-**Problem.** The first classifier split the model's text; any preamble ("Sure, here is...") produced a wrong category
-without an error. **Decision.** `instructor[anthropic]`: tool use forces a `CategoryPrediction` Pydantic model and
-invalid output retries. **Outcome.** The model became the contract; since October a validated match stores the chart's own
-code and name.
-
 ### Xero's OAuth scope scheme changed under the build
 **Problem.** Apps created after 2 March 2026 must use granular scopes; the broad `accounting.transactions.read`
 returned `unauthorized_client: Invalid scope`. The colon form was wrong too. **Decision.** Test scope names against
