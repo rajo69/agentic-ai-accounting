@@ -12,7 +12,7 @@
 |---|---|
 | Backend, integration and delivery | A FastAPI service with 34 routes, async SQLAlchemy, Alembic migrations, a custom Xero OAuth2 adapter (token refresh, encryption, rate-limit backoff, incremental sync, HMAC webhooks), a Next.js 14 console, 244 tests in CI with a pgvector service container, and a production incident handled and written up. [Architecture](README.md#architecture) · [Engineering record](README.md#engineering-record) |
 | LLM pipeline | LangGraph workflows calling Claude through one gateway (structured output validated by Pydantic, a profile flag for the model set, moved from Claude 4.x to 5.5 behind a pre-registered A/B); Haiku-first routing with Sonnet escalation and a full audit row; pgvector precedent retrieval so corrections become few-shot examples; an eval harness with hard gates, caching and a budget guard, and a written statement of what the eval measures. [Design decisions](README.md#design-decisions-and-trade-offs) · [Evaluation](README.md#evaluation) |
-| Evaluation and risk scoring | Fixture design by difficulty tier, confidence calibration tables, acceptance gates, a provenance rule for every published number, a glass-box fuzzy risk engine with eight readable rules, and research questions on per-organisation calibration, explanation utility and active review selection. [Evaluation](README.md#evaluation) · [Explainability](README.md#explainability-and-risk-scoring) |
+| Evaluation and risk scoring | A pre-registered held-out run of the shipped categoriser on bookbench (93.7% agreement with its draft labels), fixture design by difficulty tier, confidence calibration tables, acceptance gates, a provenance rule for every published number, a glass-box fuzzy risk engine with eight readable rules, and research questions on per-organisation calibration, explanation utility and active review selection. [Evaluation](README.md#evaluation) · [Explainability](README.md#explainability-and-risk-scoring) |
 
 ## Facts you can check
 
@@ -24,7 +24,7 @@
 | One audit row per AI decision and per human action, with model, confidence and reasoning | `backend/app/models/database.py`, `agents/categoriser.py` |
 | Money is `NUMERIC(12,2)` and `Decimal` in the data layer | models and migrations |
 | Six-lens self-review: 106 findings, 14 high, 0 critical, top findings published with status and fixes | [Self-review](docs/SELF_REVIEW.md) |
-| No accuracy or cost figure without a committed provenance file | [Evaluation](README.md#evaluation) |
+| No accuracy or cost figure without a committed provenance file; the shipped categoriser agrees with bookbench's draft labels on 93.7% of 285 held-out test transactions at $4.00 per 1,000, with the rules committed before the run | [Evaluation](README.md#evaluation), [report](backend/evals/reports/2026-10-31-bookbench-test-5-5/summary.md) |
 
 ## What runs live
 

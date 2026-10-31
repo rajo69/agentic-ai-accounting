@@ -118,6 +118,7 @@ pre-registered condition for moving `claude-5-5` to 0.80 is met. At 0.80: covera
 
 ### Per-item flips (headline strata; x only / y only, exact McNemar p per rep)
 
+None: the analysis pairs each 5.5 system with a 4.x system, and this run has no 4.x arms.
 
 ### Calls per arm
 
@@ -143,3 +144,14 @@ pre-registered condition for moving `claude-5-5` to 0.80 is met. At 0.80: covera
 | 0.90 | 32.2% | 98.9% [96.8%] | 94.6% | 60.6% | 5.17 |
 | 0.95 | 5.8% | 100.0% [92.9%] | 95.0% | 89.0% | 7.21 |
 
+## Decision (owner, 2026-10-31, after the results)
+
+- `claude-5-5` keeps 0.85 for escalation and auto-accept (0.5 for suggest). The pre-registered condition for 0.80 was
+  met (Wilson lower bound 92.4% against the 89.70% target), but at 0.80 auto-accept precision falls from 98.4% to
+  94.7%: about one auto-posted line in nineteen would disagree with the label, against one in sixty. For a review
+  layer, more rows sent to a person is the cheaper error. The saving (about $1.57 per 1,000 transactions) does not
+  change that.
+- Publish the result, worded as agreement with bookbench's draft labels at `f57f0d4`, never as plain accuracy, with
+  this report linked beside every figure.
+- The raw responses and request bodies (`results/migration_ab/live-test/`, gitignored) are archived privately outside
+  the repo with a SHA-256 manifest, beside the dev run's archive. Publishing them is a later decision, as for dev.
