@@ -27,11 +27,13 @@ from __future__ import annotations
 import argparse
 import csv
 import dataclasses
+import gzip
 import hashlib
 import inspect
 import io
 import json
 import os
+import platform
 import random
 import subprocess
 import sys
@@ -39,6 +41,7 @@ import tarfile
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from importlib import metadata
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -569,7 +572,8 @@ def run_live(arms: list[str], cases: list[Case], reps: int, est: dict, budget: f
     """Submit one batch per arm, cheapest first; stop before an arm that would cross the budget.
 
     Batch ids are kept in state.json and raw results in raw/<arm>.jsonl, so a rerun resumes
-    instead of paying twice.
+    instead of paying twice. For the record, the exact request bodies go to requests/<arm>.jsonl.gz
+    before submitting, and each batch's metadata (times, counts) to state.json when it ends.
     """
     if est["expected_batch_usd"] > budget:
         raise SystemExit(f"estimate ${est['expected_batch_usd']:.2f} exceeds --budget ${budget:.2f}; nothing submitted")
@@ -595,6 +599,10 @@ def run_live(arms: list[str], cases: list[Case], reps: int, est: dict, budget: f
                     {"custom_id": custom_id(key, r, c.item["item_id"]), "params": arm_request(ARMS[key], c.prompt)}
                     for r in range(1, reps + 1) for c in cases
                 ]
+                (out_dir / "requests").mkdir(exist_ok=True)
+                with gzip.open(out_dir / "requests" / f"{key}.jsonl.gz", "wt", encoding="utf-8") as f:
+                    for request in requests:
+                        f.write(json.dumps(request, sort_keys=True) + "\n")
                 batch_id = client.messages.batches.create(requests=requests).id
                 state["batches"][key] = batch_id
                 state_path.write_text(json.dumps(state, indent=1), encoding="utf-8")
@@ -602,6 +610,10 @@ def run_live(arms: list[str], cases: list[Case], reps: int, est: dict, budget: f
             while (batch := client.messages.batches.retrieve(batch_id)).processing_status != "ended":
                 print(f"arm {key}: {batch.processing_status}, {batch.request_counts.processing} processing")
                 time.sleep(poll_seconds)
+            state.setdefault("batch_meta", {})[key] = (
+                json.loads(batch.to_json()) if hasattr(batch, "to_json") else {"id": batch_id, "processing_status": "ended"}
+            )
+            state_path.write_text(json.dumps(state, indent=1), encoding="utf-8")
             results[key] = {r.custom_id: _raw_from_batch_result(r) for r in client.messages.batches.results(batch_id)}
             with path.open("w", encoding="utf-8") as f:
                 for cid in sorted(results[key]):
@@ -741,6 +753,7 @@ def provenance(bb: Bookbench, cases: list[Case], arms: list[str], reps: int, mod
         "mode": mode,
         "app_commit": _git("rev-parse", "HEAD"),
         "app_tree_dirty": bool(_git("status", "--porcelain")),
+        "environment": environment(),
         "bookbench": {**bb.source, "generator_version": bb.manifest.get("generator_version"),
                       "sha256": bb.sha256, "split": "UK dev", "n_items": len(cases),
                       "strata": {s: sum(c.item["stratum"] == s for c in cases)
@@ -766,6 +779,19 @@ def provenance(bb: Bookbench, cases: list[Case], arms: list[str], reps: int, mod
         "batch_differences": "no server-side fallbacks on Sonnet 5.5 (Batch rejects them)",
         "labels": "rule-generated, unreviewed (bookbench draft); a relative comparison, not an accuracy figure",
     }
+
+
+def environment() -> dict:
+    import anthropic
+
+    packages = {}
+    for name in ("anthropic", "httpx2", "pydantic", "langgraph", "langchain-core"):
+        try:
+            packages[name] = metadata.version(name)
+        except metadata.PackageNotFoundError:
+            packages[name] = None
+    return {"python": sys.version.split()[0], "platform": platform.platform(), "packages": packages,
+            "api_version": anthropic.Anthropic(api_key="unused").default_headers.get("anthropic-version")}
 
 
 def served_models(raw: dict[str, dict[str, dict]]) -> dict[str, dict[str, int]]:

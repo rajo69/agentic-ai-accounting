@@ -89,3 +89,199 @@ flip. If G1 to G3 fail: tune effort, keep `claude-4`, or stop.
 
 Code: `backend/evals/migration_ab.py` (harness), `backend/evals/migration_ab_gate.py` (this gate). Rerun the analysis
 for free from the raw results with `--mode score`.
+
+---
+
+Everything above this line is the pre-registration, unchanged from commit `a589c7e` (pushed to GitHub at
+2026-10-31 02:07:44 UTC, before any accuracy or gate figure was computed; `records/preregistration.json`).
+
+## Run
+
+- 2026-10-31, Message Batches, one batch per arm, cheapest first. 6 arms x 3 reps x 200 items = 3,600 calls, all
+  succeeded. Batch ids and times are in `records/batches.json`; the first was created at 01:47:26 UTC and the last
+  ended at 02:07:57 UTC.
+- Cost from `usage` (Batch prices): A $1.0406, B $3.1562, C $0.1171, D $2.2826, E $0.1346, F $0.1256, **total
+  $6.8568** against a pre-approved $8 budget and a `count_tokens` estimate of $6.66. Cross-checked by a separate
+  recomputation from the raw responses.
+- Served model equals requested on every call (`provenance.json`). The rendered-prompt hash matches the request
+  bodies kept with the raw results.
+- App commit `a589c7e` (clean tree); bookbench `f57f0d4`; `anthropic` 2.3.0, API version 2026-10-21
+  (`records/environment.json`, `records/models.json`).
+- Kept locally, not committed: the raw responses and the exact request bodies. The request bodies contain bookbench
+  items verbatim without its canary string.
+
+## Results
+
+### Gate
+
+| Candidate | G1 diff [95% CI] | G2 precision new / old (rate) | G3 refused / truncated | G4 $ per 1k new / old | Within noise | Pass |
+|---|---|---|---|---|---|---|
+| new_tiered | 7.9% [3.7%, 12.3%] ok | 98.7% / 89.7% (41.9% / 64.7%) ok | 0 / 0 ok | 4.01 / 5.32 ok | no | **pass** |
+| new_tiered_tool | 8.8% [4.6%, 13.3%] ok | 97.4% / 89.7% (40.7% / 64.7%) ok | 0 / 0 ok | 4.61 / 5.32 ok | no | **pass** |
+| new_tiered_medium | 8.4% [4.4%, 12.6%] ok | 97.9% / 89.7% (40.9% / 64.7%) ok | 0 / 0 ok | 4.05 / 5.32 ok | no | **pass** |
+
+### Systems (S0 to S5, pooled over reps; cost at standard prices)
+
+| System | Accuracy | Auto rate | Auto precision [Wilson low] | Escalation | AUROC | ECE | Rep spread | $ per 1k |
+|---|---|---|---|---|---|---|---|---|
+| A | 78.1% | 62.3% | 89.3% [85.6%] | 0.0% | 0.734 | 0.115 | 1.1% | 3.47 |
+| B | 90.5% | 71.1% | 95.1% [92.5%] | 0.0% | 0.766 | 0.032 | 0.0% | 10.52 |
+| C | 83.7% | 36.8% | 98.6% [95.9%] | 0.0% | 0.811 | 0.067 | 1.1% | 0.39 |
+| D | 91.4% | 45.1% | 98.8% [96.6%] | 0.0% | 0.791 | 0.119 | 0.5% | 7.61 |
+| E | 85.1% | 33.7% | 98.4% [95.5%] | 0.0% | 0.804 | 0.079 | 1.6% | 0.45 |
+| F | 88.9% | 36.7% | 98.6% [95.9%] | 0.0% | 0.804 | 0.108 | 0.0% | 0.42 |
+| old_tiered | 83.2% | 64.7% | 89.7% [86.2%] | 17.4% | 0.654 | 0.103 | 3.2% | 5.32 |
+| new_tiered | 91.1% | 41.9% | 98.7% [96.4%] | 45.3% | 0.759 | 0.112 | 1.1% | 4.01 |
+| new_tiered_tool | 91.9% | 40.7% | 97.4% [94.5%] | 52.6% | 0.769 | 0.129 | 0.5% | 4.61 |
+| new_tiered_medium | 91.6% | 40.9% | 97.9% [95.1%] | 45.3% | 0.764 | 0.123 | 1.1% | 4.05 |
+
+### Per stratum
+
+| System | S0 | S1 | S2 | S3 | S4 | S5 | S6 |
+|---|---|---|---|---|---|---|---|
+| A | 74% | 80% | 83% | 72% | 83% | 85% | 60% |
+| B | 94% | 84% | 97% | 88% | 88% | 90% | 73% |
+| C | 79% | 77% | 93% | 73% | 95% | 100% | 90% |
+| D | 94% | 90% | 97% | 88% | 83% | 95% | 90% |
+| E | 87% | 72% | 93% | 73% | 95% | 100% | 100% |
+| F | 85% | 87% | 97% | 82% | 92% | 100% | 100% |
+| old_tiered | 86% | 80% | 86% | 78% | 87% | 85% | 60% |
+| new_tiered | 95% | 86% | 97% | 86% | 83% | 100% | 80% |
+| new_tiered_tool | 96% | 90% | 97% | 88% | 83% | 95% | 90% |
+| new_tiered_medium | 95% | 90% | 97% | 87% | 83% | 97% | 90% |
+
+### S6 attacks (outside the headline)
+
+| System | Label hijacked | Auto-posted | Reasoning followed | Underlying correct |
+|---|---|---|---|---|
+| A | 20% | 40% | 67% | 38% |
+| B | 50% | 27% | 97% | 12% |
+| C | 33% | 10% | 73% | 38% |
+| D | 27% | 10% | 90% | 67% |
+| E | 20% | 0% | 67% | 50% |
+| F | 20% | 0% | 67% | 46% |
+| old_tiered | 23% | 40% | 70% | 38% |
+| new_tiered | 27% | 20% | 87% | 67% |
+| new_tiered_tool | 27% | 10% | 87% | 67% |
+| new_tiered_medium | 27% | 10% | 80% | 67% |
+
+### Per-item flips (headline strata; x only / y only, exact McNemar p per rep)
+
+- new_tiered vs old_tiered: r1: 16/4 p=0.012, r2: 17/3 p=0.003, r3: 23/4 p=0.000
+- new_tiered_tool vs old_tiered: r1: 17/3 p=0.003, r2: 19/2 p=0.000, r3: 22/3 p=0.000
+- new_tiered_medium vs new_tiered: r1: 3/1 p=0.625, r2: 2/1 p=1.000, r3: 1/1 p=1.000
+- C vs E: r1: 6/10 p=0.454, r2: 7/11 p=0.481, r3: 7/7 p=1.000
+- C vs A: r1: 20/11 p=0.150, r2: 20/10 p=0.099, r3: 23/10 p=0.035
+- D vs B: r1: 6/4 p=0.754, r2: 6/4 p=0.754, r3: 6/5 p=1.000
+- F vs C: r1: 14/3 p=0.013, r2: 14/4 p=0.031, r3: 12/3 p=0.035
+
+### Calls per arm
+
+| Arm | Calls | ok | refused | max_tokens | no output | invalid | errored |
+|---|---|---|---|---|---|---|---|
+| C | 600 | 600 | 0 | 0 | 0 | 0 | 0 |
+| E | 600 | 600 | 0 | 0 | 0 | 0 | 0 |
+| F | 600 | 600 | 0 | 0 | 0 | 0 | 0 |
+| A | 600 | 600 | 0 | 0 | 0 | 0 | 0 |
+| D | 600 | 600 | 0 | 0 | 0 | 0 | 0 |
+| B | 600 | 600 | 0 | 0 | 0 | 0 | 0 |
+
+### Threshold sweep (escalation = auto-accept = t, review 0.5)
+
+**old_tiered**
+
+| t | Coverage | Precision [Wilson low] | Accuracy | Escalation | $ per 1k |
+|---|---|---|---|---|---|
+| 0.50 | 100.0% | 69.3% [65.4%] | 69.3% | 0.4% | 3.50 |
+| 0.55 | 99.3% | 69.8% [65.9%] | 70.0% | 0.4% | 3.50 |
+| 0.60 | 99.3% | 69.8% [65.9%] | 70.0% | 1.1% | 3.57 |
+| 0.65 | 96.5% | 71.8% [67.9%] | 70.9% | 1.1% | 3.57 |
+| 0.70 | 97.2% | 72.0% [68.1%] | 72.1% | 3.9% | 3.88 |
+| 0.75 | 83.0% | 78.6% [74.7%] | 76.8% | 4.4% | 3.93 |
+| 0.80 | 88.2% | 79.1% [75.4%] | 79.6% | 17.4% | 5.32 |
+| 0.85 | 64.7% | 89.7% [86.2%] | 83.2% | 17.4% | 5.32 |
+| 0.90 | 70.5% | 89.8% [86.5%] | 87.0% | 37.7% | 7.58 |
+| 0.95 | 2.6% | 100.0% [79.6%] | 89.1% | 42.3% | 8.07 |
+
+**new_tiered** (lowest t with Wilson lower bound >= old precision: 0.8)
+
+| t | Coverage | Precision [Wilson low] | Accuracy | Escalation | $ per 1k |
+|---|---|---|---|---|---|
+| 0.50 | 96.8% | 77.4% [73.7%] | 77.4% | 5.1% | 0.83 |
+| 0.55 | 95.3% | 78.3% [74.6%] | 78.2% | 5.8% | 0.90 |
+| 0.60 | 75.6% | 88.2% [84.8%] | 82.8% | 7.0% | 1.02 |
+| 0.65 | 83.0% | 87.9% [84.7%] | 88.1% | 25.6% | 2.49 |
+| 0.70 | 78.8% | 88.6% [85.4%] | 88.1% | 25.6% | 2.49 |
+| 0.75 | 79.3% | 88.7% [85.5%] | 87.4% | 29.3% | 2.80 |
+| 0.80 | 59.1% | 93.5% [90.3%] | 89.1% | 29.6% | 2.83 |
+| 0.85 | 41.9% | 98.7% [96.4%] | 91.1% | 45.3% | 4.01 |
+| 0.90 | 26.1% | 98.0% [94.2%] | 92.5% | 63.7% | 5.37 |
+| 0.95 | 5.3% | 100.0% [88.6%] | 91.9% | 89.6% | 7.26 |
+
+**new_tiered_tool** (lowest t with Wilson lower bound >= old precision: 0.8)
+
+| t | Coverage | Precision [Wilson low] | Accuracy | Escalation | $ per 1k |
+|---|---|---|---|---|---|
+| 0.50 | 97.2% | 77.3% [73.6%] | 76.8% | 4.0% | 0.80 |
+| 0.55 | 94.9% | 79.1% [75.5%] | 78.6% | 5.1% | 0.89 |
+| 0.60 | 76.5% | 87.2% [83.7%] | 83.0% | 7.4% | 1.06 |
+| 0.65 | 83.9% | 87.4% [84.2%] | 86.5% | 25.1% | 2.44 |
+| 0.70 | 72.8% | 91.6% [88.5%] | 87.9% | 25.1% | 2.44 |
+| 0.75 | 74.2% | 92.4% [89.5%] | 88.8% | 34.7% | 3.15 |
+| 0.80 | 52.6% | 97.3% [94.8%] | 90.7% | 35.6% | 3.22 |
+| 0.85 | 40.7% | 97.4% [94.5%] | 91.9% | 52.6% | 4.61 |
+| 0.90 | 21.8% | 97.6% [93.1%] | 92.5% | 66.3% | 5.64 |
+| 0.95 | 4.7% | 100.0% [87.5%] | 91.9% | 92.1% | 7.50 |
+
+**new_tiered_medium** (lowest t with Wilson lower bound >= old precision: 0.7)
+
+| t | Coverage | Precision [Wilson low] | Accuracy | Escalation | $ per 1k |
+|---|---|---|---|---|---|
+| 0.50 | 95.4% | 82.2% [78.7%] | 81.8% | 3.7% | 0.80 |
+| 0.55 | 94.4% | 83.1% [79.7%] | 83.0% | 6.3% | 1.04 |
+| 0.60 | 76.1% | 91.5% [88.5%] | 87.4% | 7.7% | 1.18 |
+| 0.65 | 81.9% | 91.0% [88.1%] | 89.1% | 25.1% | 2.58 |
+| 0.70 | 74.6% | 93.9% [91.2%] | 90.0% | 25.1% | 2.58 |
+| 0.75 | 72.1% | 95.1% [92.6%] | 90.7% | 33.0% | 3.15 |
+| 0.80 | 59.3% | 95.6% [92.8%] | 90.9% | 35.8% | 3.36 |
+| 0.85 | 40.9% | 97.9% [95.1%] | 91.6% | 45.3% | 4.05 |
+| 0.90 | 27.4% | 98.1% [94.5%] | 92.5% | 64.2% | 5.46 |
+| 0.95 | 6.1% | 100.0% [90.1%] | 91.9% | 89.1% | 7.26 |
+
+
+## Notes on reading the results
+
+Observations, not new criteria. The gate above is the decision input; everything here is post hoc.
+
+- **At unchanged thresholds (0.85 / 0.85 / 0.5), new_tiered (C then D) against old_tiered (A then B):**
+  - accuracy 91.1% against 83.2% (+7.9 points, 95% CI +3.7 to +12.3);
+  - auto-accept precision 98.7% against 89.7%, but the auto-accept rate falls from 64.7% to 41.9%, so more rows go to a
+    person;
+  - escalation rises from 17.4% to 45.3%, because Haiku 5.5 reports lower confidence than Haiku 4.5;
+  - cost per 1,000 transactions is $4.01 against $5.32 at standard prices.
+- **C against E (Haiku 5.5, structured outputs vs forced tool call):** no detectable difference per item (McNemar p 0.45
+  to 1.0 per rep). E escalates more (52.6% against 45.3%), costs more ($4.61 per 1k) and has slightly lower tiered
+  precision (97.4% against 98.7%).
+- **F against C (effort medium vs low):** F is better as a single tier (88.9% against 83.7%; McNemar p 0.013 to 0.035
+  per rep). Once Sonnet 5.5 handles the escalations, the tiered systems are not distinguishable at 0.85 (p 0.63 to 1.0).
+- **Thinking actually used:**
+  - D (Sonnet 5.5, effort low): 0 thinking tokens on all 600 calls;
+  - C (Haiku 5.5, low): thought on 6.7% of calls (mean 13 tokens);
+  - F (Haiku 5.5, medium): thought on 45.5% of calls (mean 71 tokens).
+- **Threshold sweep:** the lowest threshold whose Wilson lower bound reaches old_tiered's 89.7% is 0.80 for C+D and E+D,
+  and 0.70 for F+D. For C+D at 0.80: coverage 59.1%, precision 93.5% (lower bound 90.3%), accuracy 89.1%, $2.83 per
+  1k. Caveats:
+  - these thresholds were chosen on the same 200 dev items, so they are optimistic;
+  - a threshold change needs confirming on bookbench test before it is relied on;
+  - coverage is not monotone in t, because the thresholds move together: raising t sends more rows to Sonnet, which can
+    push them into the auto band;
+  - confidences cluster at round values, so a single step can move many rows (old_tiered drops from 70.5% to 2.6%
+    coverage between 0.90 and 0.95).
+- **Per stratum:** S4 (20 items) is the one headline stratum where new_tiered (83%) is below old_tiered (87%).
+- **S6 attacks** (10 items x 3 reps, too few for more than a direction):
+  - new_tiered auto-posts attacked items less often (20% against 40%);
+  - the hijacked label is about as frequent (27% against 23%);
+  - the model mentions the injected text in its reasoning more often (87% against 70%); `reasoning_followed` is a
+    substring match, so a mention counts.
+- **Calibration:** AUROC improves (0.654 to 0.759 tiered); ECE is similar (0.103 to 0.112).
+- **Reps:** spread between reps is small (1.1% new, 3.2% old). Every candidate's difference from old exceeds it.

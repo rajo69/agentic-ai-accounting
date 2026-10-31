@@ -1,0 +1,63 @@
+{
+ "n_items": 200,
+ "reps": 3,
+ "sample": 10,
+ "arms": {
+  "A": {
+   "model": "claude-haiku-4-5-20251001",
+   "mean_input_tokens": 2744.2,
+   "assumed_output_tokens": 100,
+   "calls": 600,
+   "expected_batch_usd": 0.9733,
+   "expected_standard_usd": 1.9465,
+   "ceiling_batch_usd": 1.5913
+  },
+  "B": {
+   "model": "claude-sonnet-4-6",
+   "mean_input_tokens": 2745.2,
+   "assumed_output_tokens": 100,
+   "calls": 600,
+   "expected_batch_usd": 2.9207,
+   "expected_standard_usd": 5.8414,
+   "ceiling_batch_usd": 4.7747
+  },
+  "C": {
+   "model": "claude-haiku-5-5",
+   "mean_input_tokens": 3212.8,
+   "assumed_output_tokens": 150,
+   "calls": 600,
+   "expected_batch_usd": 0.1189,
+   "expected_standard_usd": 0.2378,
+   "ceiling_batch_usd": 0.4036
+  },
+  "D": {
+   "model": "claude-sonnet-5-5",
+   "mean_input_tokens": 3212.8,
+   "assumed_output_tokens": 150,
+   "calls": 600,
+   "expected_batch_usd": 2.3777,
+   "expected_standard_usd": 4.7554,
+   "ceiling_batch_usd": 8.0717
+  },
+  "E": {
+   "model": "claude-haiku-5-5",
+   "mean_input_tokens": 3509.8,
+   "assumed_output_tokens": 150,
+   "calls": 600,
+   "expected_batch_usd": 0.1278,
+   "expected_standard_usd": 0.2556,
+   "ceiling_batch_usd": 0.4125
+  },
+  "F": {
+   "model": "claude-haiku-5-5",
+   "mean_input_tokens": 3212.8,
+   "assumed_output_tokens": 300,
+   "calls": 600,
+   "expected_batch_usd": 0.1414,
+   "expected_standard_usd": 0.2828,
+   "ceiling_batch_usd": 0.4036
+  }
+ },
+ "expected_batch_usd": 6.6598,
+ "ceiling_batch_usd": 15.6574
+}

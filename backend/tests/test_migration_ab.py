@@ -390,3 +390,27 @@ def test_arm_stats_count_every_call_for_g3():
                  "E-r1-d": {"type": "errored", "error": {"type": "api_error"}}}}
     assert ab.arm_stats(raw)["E"] == {"calls": 4, "ok": 1, "refused": 1, "max_tokens": 1, "no_output": 0,
                                       "invalid_output": 0, "errored": 1, "refusal_categories": {"cyber": 1}}
+
+
+def test_live_keeps_a_research_record(data_dir, tmp_path):
+    """Exact request bodies before submitting, batch metadata after, so a run can be audited later."""
+    import gzip
+
+    bb = ab.load_bookbench(data_dir)
+    cases = ab.build_cases(bb, ab.uk_dev(bb))
+    client = FakeClient(tokens=2000)
+    est = ab.estimate(["C"], cases, 2, 2, client)
+    out = tmp_path / "out"
+    ab.run_live(["C"], cases, 2, est, 1.0, client, out, poll_seconds=0)
+    with gzip.open(out / "requests" / "C.jsonl.gz", "rt", encoding="utf-8") as f:
+        sent = [json.loads(line) for line in f]
+    assert sent == [{"custom_id": r["custom_id"], "params": r["params"]} for r in client.created[0]]
+    state = json.loads((out / "state.json").read_text(encoding="utf-8"))
+    assert state["batch_meta"]["C"]["processing_status"] == "ended"
+
+
+def test_provenance_records_the_environment(data_dir):
+    bb = ab.load_bookbench(data_dir)
+    cases = ab.build_cases(bb, ab.uk_dev(bb))
+    env = ab.provenance(bb, cases, ["C"], 1, "mock")["environment"]
+    assert env["packages"]["anthropic"] and env["api_version"] and env["python"]
