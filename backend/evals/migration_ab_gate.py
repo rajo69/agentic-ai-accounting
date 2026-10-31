@@ -119,6 +119,19 @@ def paired_bootstrap(rows: list[dict], new: str, old: str) -> dict:
             "ci_high": stats[int(0.975 * BOOTSTRAP_RESAMPLES) - 1], "n_items": n}
 
 
+def accuracy_interval(rows: list[dict], system: str) -> dict:
+    """95% item bootstrap of one system's accuracy (S9 test run): resample items, each item's
+    correctness averaged over reps, same resamples and seed as the paired bootstrap."""
+    means = list(_item_means(rows, system).values())
+    n = len(means)
+    if not n:
+        return {"ci_low": None, "ci_high": None, "n_items": 0}
+    rng = random.Random(BOOTSTRAP_SEED)
+    stats = sorted(sum(means[rng.randrange(n)] for _ in range(n)) / n for _ in range(BOOTSTRAP_RESAMPLES))
+    return {"ci_low": stats[int(0.025 * BOOTSTRAP_RESAMPLES)],
+            "ci_high": stats[int(0.975 * BOOTSTRAP_RESAMPLES) - 1], "n_items": n}
+
+
 def per_rep(rows: list[dict], system: str) -> dict[int, dict[str, bool]]:
     out: dict[int, dict[str, bool]] = {}
     for r in _by(rows, system):
@@ -231,7 +244,8 @@ def gate(rows: list[dict], cases: list[ab.Case], reps: int, raw: dict, bb: ab.Bo
     result: dict = {"candidates": {}, "systems": {}, "flips": {}, "arm_calls": stats, "sweep": {}}
     for system in systems:
         result["systems"][system] = {
-            "accuracy": accuracy(rows, system), "per_stratum": per_stratum(rows, system),
+            "accuracy": accuracy(rows, system), "accuracy_ci": accuracy_interval(rows, system),
+            "per_stratum": per_stratum(rows, system),
             "auto_accept": auto_accept(rows, system), "escalation_rate": escalation_rate(rows, system),
             "usd_per_1000_standard": usd_per_1000(rows, system), "attack": attack_metrics(rows, system),
             "noise_floor": noise_floor(rows, system), "confidence": confidence_quality(rows, system),
@@ -288,11 +302,12 @@ def render(g: dict) -> str:
             f"| {_num(g4['new_usd_per_1000'], 2)} / {_num(g4['old_usd_per_1000'], 2)} {'ok' if g4['pass'] else 'FAIL'} "
             f"| {'yes' if c['difference_within_noise'] else 'no'} | {'**pass**' if passed else '**fail**'} |")
     out += ["", "### Systems (S0 to S5, pooled over reps; cost at standard prices)", "",
-            "| System | Accuracy | Auto rate | Auto precision [Wilson low] | Escalation | AUROC | ECE | Rep spread | $ per 1k |",
+            "| System | Accuracy [95% CI] | Auto rate | Auto precision [Wilson low] | Escalation | AUROC | ECE | Rep spread | $ per 1k |",
             "|---|---|---|---|---|---|---|---|---|"]
     for name, s in g["systems"].items():
         aa = s["auto_accept"]
-        out.append(f"| {name} | {_pct(s['accuracy'])} | {_pct(aa['rate'])} | {_pct(aa['precision'])} "
+        ci = s["accuracy_ci"]
+        out.append(f"| {name} | {_pct(s['accuracy'])} [{_pct(ci['ci_low'])}, {_pct(ci['ci_high'])}] | {_pct(aa['rate'])} | {_pct(aa['precision'])} "
                    f"[{_pct(aa['precision_wilson_lower'])}] | {_pct(s['escalation_rate'])} | {_num(s['confidence']['auroc'])} "
                    f"| {_num(s['confidence']['ece'])} | {_pct(s['noise_floor']['accuracy_spread'])} "
                    f"| {_num(s['usd_per_1000_standard'], 2)} |")

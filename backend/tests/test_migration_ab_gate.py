@@ -88,3 +88,10 @@ def test_gate_without_the_old_baseline_reports_systems_only(data_dir):  # noqa: 
     assert g["candidates"] == {}
     assert set(g["systems"]) == {"C", "D", "new_tiered"} and g["sweep"]["new_tiered"]
     assert gate.render(g).startswith("## Results")
+
+
+def test_accuracy_interval_brackets_the_item_mean():
+    rows = _rows("new_tiered", {rep: [1, 1, 0, 0, 1, 1, 1, 0, 1, 1] for rep in range(3)})
+    ci = gate.accuracy_interval(rows, "new_tiered")
+    assert ci["n_items"] == 10 and ci["ci_low"] < 0.7 < ci["ci_high"]
+    assert gate.accuracy_interval([r for r in rows if r["item_id"] == "none"], "new_tiered")["ci_low"] is None
