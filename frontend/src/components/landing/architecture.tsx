@@ -30,9 +30,9 @@ const EDGES = [
 
 const FACTS = [
   "34 FastAPI endpoints behind one OpenAPI contract",
-  "117 pytest tests run on every push",
+  "244 pytest tests run on every push",
   "A fast model first, a stronger one when it is unsure",
-  "Instructor outputs validated by Pydantic before they are stored",
+  "Structured outputs validated by Pydantic before they are stored",
   "pgvector precedents, scoped to the organisation",
   "Eight fuzzy risk rules and an audit row for every decision",
 ];
@@ -90,7 +90,7 @@ export function Architecture() {
         <SectionHeader
           eyebrow="How it is built"
           title="One API, two graphs, every answer validated."
-          lead="A Next.js app on Vercel talks to a FastAPI service on Railway. Categorisation and reconciliation are LangGraph graphs that call Claude through Instructor, so each answer is validated before it is stored. Postgres holds the books, the pgvector precedents and the audit log."
+          lead="A Next.js app on Vercel talks to a FastAPI service on Railway. Categorisation and reconciliation are LangGraph graphs that call Claude through one gateway with structured outputs, so each answer is validated before it is stored. Postgres holds the books, the pgvector precedents and the audit log."
         />
         <div className="mt-14 grid gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="self-start lg:col-span-8">
