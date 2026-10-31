@@ -657,9 +657,11 @@ def _call_cost(arm: Arm, raw: Optional[dict]) -> float:
 
 
 def score_rows(systems: list[str], cases: list[Case], reps: int, raw: dict[str, dict[str, dict]],
-               review_equivalents: set[str], scored_channels: set[str]) -> list[dict]:
+               review_equivalents: set[str], scored_channels: set[str],
+               thresholds: Optional[dict[str, Profile]] = None) -> list[dict]:
     """One row per (system, rep, item). A tiered row's cost is the primary call plus the
-    escalation call only when the app would have made it."""
+    escalation call only when the app would have made it. `thresholds` replaces a system's
+    profile for the escalation and decide thresholds (the sweep)."""
     rows = []
     for system in systems:
         primary_key, escalation_key = SYSTEMS[system]
@@ -674,7 +676,7 @@ def score_rows(systems: list[str], cases: list[Case], reps: int, raw: dict[str, 
                     call_from_raw(p_raw, primary_arm),
                     call_from_raw(e_raw, escalation_arm) if escalation_arm else None,
                     case.chart,
-                    primary_arm.profile,
+                    (thresholds or {}).get(system, primary_arm.profile),
                     primary_arm.config.model,
                     escalation_arm.config.model if escalation_arm else None,
                 )
@@ -801,7 +803,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--data-dir", type=Path, required=True, help="where bookbench was (or is to be) extracted")
     ap.add_argument("--extract", metavar="REF", help="git archive bookbench from REF into --data-dir, then exit")
-    ap.add_argument("--mode", choices=("mock", "estimate", "live"), default="mock")
+    ap.add_argument("--mode", choices=("mock", "estimate", "live", "score"), default="mock",
+                    help="score: rescore saved raw/<arm>.jsonl in --out-dir, free")
     ap.add_argument("--arms", default=",".join(DEFAULT_ARMS), help=f"comma list of {','.join(ARMS)}")
     ap.add_argument("--reps", type=int, default=3)
     ap.add_argument("--limit", type=int, help="first N UK dev items only")
@@ -831,6 +834,14 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     if args.mode == "mock":
         raw = run_mock(arms, cases, args.reps)
+    elif args.mode == "score":
+        raw = {}
+        for key in arms:
+            path = out_dir / "raw" / f"{key}.jsonl"
+            if path.exists():
+                raw[key] = {row["custom_id"]: row["result"]
+                            for row in map(json.loads, path.read_text(encoding="utf-8").splitlines())}
+        arms = list(raw)
     else:
         client = _client()
         est = estimate(arms, cases, args.reps, args.sample, client)
@@ -858,6 +869,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     for system, s in summary.items():
         print(f"  {system:<18} acc {s['accuracy']}  auto {s['auto_accept_rate']} prec {s['auto_accept_precision']}  "
               f"esc {s['escalation_rate']}  err {s['errors']} ref {s['refusals']}  ${s['usd_per_1000']}/1k")
+    from evals import migration_ab_gate
+
+    result = migration_ab_gate.gate(rows, cases, args.reps, raw, bb)
+    (out_dir / "gate.json").write_text(json.dumps(result, indent=1), encoding="utf-8")
+    (out_dir / "results.md").write_text(migration_ab_gate.render(result) + "\n", encoding="utf-8")
+    for name, c in result["candidates"].items():
+        print(f"  gate {name}: " + ", ".join(f"{k} {'pass' if c[k]['pass'] else 'FAIL'}" for k in ("G1", "G2", "G3", "G4")))
     print(f"wrote {out_dir}")
     return 0
 
