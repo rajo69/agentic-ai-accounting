@@ -11,7 +11,7 @@
 | Area | Evidence in the repository |
 |---|---|
 | Backend, integration and delivery | A FastAPI service with 34 routes, async SQLAlchemy, Alembic migrations, a custom Xero OAuth2 adapter (token refresh, encryption, rate-limit backoff, incremental sync, HMAC webhooks), a Next.js 14 console, 117 tests in CI with a pgvector service container, and a production incident handled and written up. [Architecture](README.md#architecture) · [Engineering record](README.md#engineering-record) |
-| LLM pipeline | LangGraph workflows calling Claude through one gateway (structured output validated by Pydantic, a profile flag for the model set); Haiku-first routing with Sonnet escalation and a full audit row; pgvector precedent retrieval so corrections become few-shot examples; an eval harness with hard gates, caching and a budget guard, and a written statement of what the eval measures. [Design decisions](README.md#design-decisions-and-trade-offs) · [Evaluation](README.md#evaluation) |
+| LLM pipeline | LangGraph workflows calling Claude through one gateway (structured output validated by Pydantic, a profile flag for the model set, moved from Claude 4.x to 5.5 behind a pre-registered A/B); Haiku-first routing with Sonnet escalation and a full audit row; pgvector precedent retrieval so corrections become few-shot examples; an eval harness with hard gates, caching and a budget guard, and a written statement of what the eval measures. [Design decisions](README.md#design-decisions-and-trade-offs) · [Evaluation](README.md#evaluation) |
 | Evaluation and risk scoring | Fixture design by difficulty tier, confidence calibration tables, acceptance gates, a provenance rule for every published number, a glass-box fuzzy risk engine with eight readable rules, and research questions on per-organisation calibration, explanation utility and active review selection. [Evaluation](README.md#evaluation) · [Explainability](README.md#explainability-and-risk-scoring) |
 
 ## Facts you can check
@@ -32,4 +32,4 @@ The live pipeline runs against a connected Xero organisation with real Claude ca
 
 ## Stack in one line
 
-Python 3.12 · FastAPI · SQLAlchemy 2.0 async · PostgreSQL 16 + pgvector · Redis · Alembic · LangGraph · Anthropic SDK · Claude Haiku 4.5 and Sonnet 4.6 · sentence-transformers · WeasyPrint · Next.js 14 · TypeScript · Tailwind · Vercel · Railway · GitHub Actions · Sentry.
+Python 3.12 · FastAPI · SQLAlchemy 2.0 async · PostgreSQL 16 + pgvector · Redis · Alembic · LangGraph · Anthropic SDK · Claude Haiku 5.5 and Sonnet 5.5 · sentence-transformers · WeasyPrint · Next.js 14 · TypeScript · Tailwind · Vercel · Railway · GitHub Actions · Sentry.

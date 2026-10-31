@@ -5,6 +5,7 @@ import type { AuditLog, BankStatement, GeneratedDocument, JobRead, TeamMember, T
 import { FIGURES_FOR, inPeriod } from "./figures";
 import { decide, explainMatch, inWindow, scoreCandidates, type ScoredCandidate } from "./match";
 import {
+  DOCUMENT_MODEL,
   ORG_ID,
   SEED_VERSION,
   planOrder,
@@ -20,8 +21,8 @@ export const STORAGE_KEY = "demo_state_v3";
 /** Earlier shapes; cleared on exit so nothing lingers. */
 export const STALE_STORAGE_KEYS = ["demo_state_v2"];
 
-/** The model the backend records on generated documents (`document_service.LLM_MODEL`). */
-export const DOCUMENT_MODEL = "claude-sonnet-4-6";
+/** The model the backend records on generated documents (the default profile's narrative route). */
+export { DOCUMENT_MODEL };
 export const DOCUMENT_TEMPLATES = ["management_letter", "profit_loss", "vat_summary"] as const;
 export type DocumentTemplate = (typeof DOCUMENT_TEMPLATES)[number];
 

@@ -6,7 +6,10 @@ prompt: it sends its own prompt with no precedent retrieval and no model routing
 alone.
 
 The benchmark built for the production categoriser, with precedents, is
-[bookbench](https://github.com/rajo69/bookbench), published as a draft; no model has been scored on it yet.
+[bookbench](https://github.com/rajo69/bookbench), published as a draft. The production categoriser's requests were scored on its UK dev split for the move from Claude
+4.x to 5.5 (`migration_ab.py`, report in [`reports/2026-10-31-migration-5-5/`](reports/2026-10-31-migration-5-5/summary.md)):
+a pre-registered relative comparison on unreviewed labels, not an accuracy figure. This runner still defaults to
+Haiku 4.5 so its cached responses stay valid; pass `--model claude-haiku-5-5` to run the current primary.
 
 ## Quick start
 
@@ -19,9 +22,10 @@ python -m evals.eval_runner --mode mock
 # Live run with a budget cap (USD). Responses are cached to disk, so reruns are free.
 python -m evals.eval_runner --mode live --budget 0.10
 
-# Compare models
+# Compare models (any model a profile in app/services/llm_client.py routes to)
 python -m evals.eval_runner --mode live --model claude-haiku-4-5-20251001 --budget 0.10
 python -m evals.eval_runner --mode live --model claude-sonnet-4-6 --budget 0.50
+python -m evals.eval_runner --mode live --model claude-haiku-5-5 --budget 0.05
 
 # Smoke test on 10 fixtures
 python -m evals.eval_runner --mode live --limit 10 --budget 0.02
@@ -56,8 +60,9 @@ The tier split is diagnostic: the hard tier has four items, so its rate is read 
 
 ## Cost
 
-`cost_tracker.py` holds Anthropic list prices per million tokens (checked 2026-10-10): Haiku 4.5 at 1.00 in / 5.00
-out, Sonnet 4.6 at 3.00 / 15.00, Opus 4.6 at 5.00 / 25.00. Sonnet is therefore 3x Haiku per token. Before a live run
+`cost_tracker.py` holds Anthropic list prices per million tokens: Haiku 5.5 at 0.10 in / 0.50 out and Sonnet 5.5 at
+2.00 / 10.00 (checked 2026-10-28), Haiku 4.5 at 1.00 / 5.00, Sonnet 4.6 at 3.00 / 15.00 and Opus 4.6 at 5.00 / 25.00
+(checked 2026-10-10). Sonnet is 20x Haiku per token on 5.5 and 3x on 4.x. Before a live run
 the tracker prints an estimate from assumed token counts (800 in, 150 out per fixture, about USD 0.08 for 50 fixtures
 on Haiku). During the run it adds up the cost of every recorded call and stops the run as soon as the total passes
 `--budget`.

@@ -82,7 +82,8 @@ a frontend error boundary ([3ab7adb](https://github.com/rajo69/agentic-ai-accoun
 looked weak on hard cases; Sonnet on everything costs about three times as much per token. **Decision.** Haiku first;
 when its confidence is below the auto-accept threshold (0.85) the same prompt goes to Sonnet and Sonnet's answer
 replaces Haiku's; if Sonnet fails, Haiku's answer stands; the audit row records both. **Outcome.** Shipped. Its
-measurement is the first live comparison in the evaluation plan: Haiku-only against Sonnet-only against tiered.
+measurement is the first live comparison in the evaluation plan: Haiku-only against Sonnet-only against tiered. The
+2026-10-31 migration A/B (below) made that comparison on bookbench's dev split; the test split is still to come.
 
 ### A silent scope regression
 [62177dd](https://github.com/rajo69/agentic-ai-accounting/commit/62177dd) (2026-04-13). **Problem.** The
@@ -164,3 +165,21 @@ rendering in a Linux container against WeasyPrint 70 (what an unpinned rebuild n
 an attribute off the fetcher and crashes the whole PDF the moment one resource is refused, so it became a
 `URLFetcher` subclass, with the plain function kept for older releases (both checked end to end, on 70 and 66). **Outcome.** 24 new
 tests, no API change.
+
+### Moving to Claude 5.5 behind a gate
+(2026-10-27 to 10-31.) **Problem.** Moving from Haiku 4.5 and Sonnet 4.6 to the 5.5 pair looked like a change of
+model id. Read against the code, the migration guide said otherwise: Sonnet 5.5 rejects the forced tool call that
+Instructor sent with a 400. The categoriser caught any escalation error and kept Haiku's answer, so tiered routing
+would have quietly become Haiku-only, and the three document narratives would have failed outright. **Decision.** Four pull requests, with
+production changing model only in the last. First, pin the LLM stack to what production had already drifted to.
+Second, one gateway (`backend/app/services/llm_client.py`) with an `LLM_PROFILE` setting: the `claude-4` profile
+reproduces the requests Instructor sent, checked against a captured fixture, and `claude-5-5` uses structured outputs.
+Escalation errors and refusals are now recorded on the audit row instead of dropped. Third, an A/B on bookbench's
+UK dev split: the app's own requests, six arms, three reps, Message Batches. The gate and analyses were committed before any
+result was computed, and pushed before the run finished. Fourth, the flip. **Outcome.** All three tiered 5.5 candidates passed the gate, at
+$6.86 of API calls. On the 190 headline dev items (the 10 attack items are scored apart), the 5.5 tiered system scored 91.1% against 83.2% for 4.x (paired
+bootstrap interval +3.7 to +12.3 points), with auto-accept precision 98.7% against 89.7% and $4.01 against $5.32 per
+1,000 transactions. These are relative figures on rule-generated, unreviewed labels, not accuracy claims. The
+cost: Haiku 5.5 reports lower confidence, so fewer rows auto-accept (41.9% against 64.7%) and more go to a person.
+The [report](../backend/evals/reports/2026-10-31-migration-5-5/summary.md) keeps the pre-registration above the
+results. Rollback is one setting, `LLM_PROFILE=claude-4`.

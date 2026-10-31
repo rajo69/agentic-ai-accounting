@@ -6,7 +6,8 @@
 //   ../backend/evals/fixtures/transactions.json   50 labelled UK transactions
 //   ../backend/evals/fixtures/accounts.json       20 chart-of-accounts rows
 //   ../backend/app/xai/fuzzy_engine.py            the eight risk rules (copied verbatim)
-//   ../backend/app/agents/categoriser.py          the primary and escalation model ids and threshold
+//   ../backend/app/core/config.py                 the default LLM_PROFILE
+//   ../backend/app/services/llm_client.py         that profile's model ids and escalation threshold
 //
 // Everything derived here is deterministic: the same inputs always produce the same file,
 // so SEED_VERSION (a hash of the inputs and of this script) only changes when something real changed.
@@ -20,15 +21,17 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..");
 const fixtures = resolve(root, "backend", "evals", "fixtures");
 const fuzzyPath = resolve(root, "backend", "app", "xai", "fuzzy_engine.py");
-const categoriserPath = resolve(root, "backend", "app", "agents", "categoriser.py");
+const configPath = resolve(root, "backend", "app", "core", "config.py");
+const llmClientPath = resolve(root, "backend", "app", "services", "llm_client.py");
 const outPath = resolve(here, "..", "src", "demo", "seed.generated.ts");
 
-const SCRIPT_VERSION = "8";
+const SCRIPT_VERSION = "9";
 
 const txRaw = readFileSync(resolve(fixtures, "transactions.json"), "utf8");
 const accRaw = readFileSync(resolve(fixtures, "accounts.json"), "utf8");
 const fuzzyRaw = readFileSync(fuzzyPath, "utf8");
-const categoriserRaw = readFileSync(categoriserPath, "utf8");
+const configRaw = readFileSync(configPath, "utf8");
+const llmClientRaw = readFileSync(llmClientPath, "utf8");
 
 // The demo chart is the fixture chart plus a balance-sheet loan account, so loan movements have
 // an account of their own and stay off the profit and loss.
@@ -179,16 +182,25 @@ function reasoningFor(t) {
 // 60% auto_categorised (0.86-0.98), 25% suggested (0.50-0.85), 15% needs_review (< 0.50).
 // Order: easy, then medium, then hard (hard fixtures last), shuffled within each class.
 
-/** A module-level constant from categoriser.py, so the demo names the models the backend calls. */
-function categoriserConstant(name) {
-  const m = categoriserRaw.match(new RegExp(`^${name} = (?:"([^"]+)"|([0-9.]+))\\s*$`, "m"));
-  if (!m) throw new Error(`${name} not found in categoriser.py`);
-  return m[1] ?? Number(m[2]);
+// The default profile in llm_client.py, so the demo names the models the backend calls.
+const DEFAULT_PROFILE = configRaw.match(/^\s*llm_profile: Literal\[[^\]]*\] = "([^"]+)"/m)?.[1];
+if (!DEFAULT_PROFILE) throw new Error("default llm_profile not found in config.py");
+const profileBlock = llmClientRaw.split(`    "${DEFAULT_PROFILE}": Profile(`)[1]?.split("\n    ),\n")[0];
+if (!profileBlock) throw new Error(`profile ${DEFAULT_PROFILE} not found in llm_client.py`);
+
+/** The model id a route uses in the default profile, resolved through its module-level constant. */
+function routeModel(route) {
+  const ref = profileBlock.match(new RegExp(`Route\\.${route}: RouteConfig\\(\\s*(\\w+),`))?.[1];
+  const id = ref && llmClientRaw.match(new RegExp(`^${ref} = "([^"]+)"`, "m"))?.[1];
+  if (!id) throw new Error(`${route} model not found in profile ${DEFAULT_PROFILE}`);
+  return id;
 }
 
-const PRIMARY_MODEL = categoriserConstant("LLM_MODEL");
-const ESCALATION_MODEL = categoriserConstant("LLM_MODEL_ESCALATION");
-const ESCALATION_THRESHOLD = categoriserConstant("ESCALATION_THRESHOLD");
+const PRIMARY_MODEL = routeModel("CATEGORISE_PRIMARY");
+const ESCALATION_MODEL = routeModel("CATEGORISE_ESCALATION");
+const DOCUMENT_MODEL = routeModel("DOC_MANAGEMENT_LETTER");
+const ESCALATION_THRESHOLD = Number(profileBlock.match(/escalation_threshold=([0-9.]+)/)?.[1]);
+if (!(ESCALATION_THRESHOLD > 0)) throw new Error(`escalation_threshold not found in profile ${DEFAULT_PROFILE}`);
 
 const order = ["easy", "medium", "hard"].flatMap((difficulty) => {
   const rows = transactions.filter((t) => t.difficulty === difficulty);
@@ -267,7 +279,7 @@ const SEED_VERSION = createHash("sha1")
   .update(txRaw)
   .update(accRaw)
   .update(ruleTexts.join("\n"))
-  .update([PRIMARY_MODEL, ESCALATION_MODEL, ESCALATION_THRESHOLD].join("\n"))
+  .update([PRIMARY_MODEL, ESCALATION_MODEL, DOCUMENT_MODEL, ESCALATION_THRESHOLD].join("\n"))
   .digest("hex")
   .slice(0, 12);
 
@@ -327,6 +339,7 @@ export interface GeneratedSeed {
   version: string;
   primary_model: string;
   escalation_model: string;
+  document_model: string;
   escalation_threshold: number;
   /** Most recent fixture date; seed.ts shifts every date so this lands within the last week. */
   max_date: string;
@@ -341,6 +354,7 @@ const seed = {
   version: SEED_VERSION,
   primary_model: PRIMARY_MODEL,
   escalation_model: ESCALATION_MODEL,
+  document_model: DOCUMENT_MODEL,
   escalation_threshold: ESCALATION_THRESHOLD,
   max_date: maxDate,
   rules: ruleTexts,

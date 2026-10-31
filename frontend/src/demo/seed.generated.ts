@@ -52,6 +52,7 @@ export interface GeneratedSeed {
   version: string;
   primary_model: string;
   escalation_model: string;
+  document_model: string;
   escalation_threshold: number;
   /** Most recent fixture date; seed.ts shifts every date so this lands within the last week. */
   max_date: string;
@@ -61,9 +62,10 @@ export interface GeneratedSeed {
 }
 
 export const SEED: GeneratedSeed = {
-  "version": "9caf2701d561",
-  "primary_model": "claude-haiku-4-5-20251001",
-  "escalation_model": "claude-sonnet-4-6",
+  "version": "f70d4a0030d5",
+  "primary_model": "claude-haiku-5-5",
+  "escalation_model": "claude-sonnet-5-5",
+  "document_model": "claude-sonnet-5-5",
   "escalation_threshold": 0.85,
   "max_date": "2024-03-05",
   "rules": [
@@ -220,7 +222,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "489",
         "tier": "auto_categorised",
         "confidence": 0.92,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -255,7 +257,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "200",
         "tier": "auto_categorised",
         "confidence": 0.89,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -291,7 +293,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "489",
         "tier": "auto_categorised",
         "confidence": 0.86,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -326,7 +328,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "820",
         "tier": "auto_categorised",
         "confidence": 0.9,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -361,7 +363,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "462",
         "tier": "auto_categorised",
         "confidence": 0.86,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -397,7 +399,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "820",
         "tier": "auto_categorised",
         "confidence": 0.92,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -432,7 +434,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "429",
         "tier": "auto_categorised",
         "confidence": 0.94,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -468,7 +470,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "404",
         "tier": "auto_categorised",
         "confidence": 0.98,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -503,7 +505,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "445",
         "tier": "auto_categorised",
         "confidence": 0.9,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -538,7 +540,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "429",
         "tier": "auto_categorised",
         "confidence": 0.94,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -573,7 +575,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "820",
         "tier": "auto_categorised",
         "confidence": 0.92,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -609,7 +611,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "445",
         "tier": "auto_categorised",
         "confidence": 0.93,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -645,7 +647,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "404",
         "tier": "auto_categorised",
         "confidence": 0.86,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -680,7 +682,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "489",
         "tier": "auto_categorised",
         "confidence": 0.94,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -715,7 +717,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "404",
         "tier": "auto_categorised",
         "confidence": 0.89,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -750,7 +752,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "493",
         "tier": "auto_categorised",
         "confidence": 0.94,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -786,7 +788,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "460",
         "tier": "auto_categorised",
         "confidence": 0.91,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -822,7 +824,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "404",
         "tier": "auto_categorised",
         "confidence": 0.96,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -857,7 +859,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "404",
         "tier": "auto_categorised",
         "confidence": 0.92,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -892,7 +894,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "469",
         "tier": "auto_categorised",
         "confidence": 0.92,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -928,7 +930,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "461",
         "tier": "auto_categorised",
         "confidence": 0.86,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -964,7 +966,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "429",
         "tier": "auto_categorised",
         "confidence": 0.92,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -1000,7 +1002,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "462",
         "tier": "auto_categorised",
         "confidence": 0.98,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -1035,7 +1037,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "420",
         "tier": "auto_categorised",
         "confidence": 0.97,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -1071,7 +1073,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "480",
         "tier": "auto_categorised",
         "confidence": 0.87,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -1107,7 +1109,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "477",
         "tier": "auto_categorised",
         "confidence": 0.88,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -1142,7 +1144,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "420",
         "tier": "auto_categorised",
         "confidence": 0.86,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -1178,7 +1180,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "412",
         "tier": "auto_categorised",
         "confidence": 0.92,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -1213,7 +1215,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "493",
         "tier": "auto_categorised",
         "confidence": 0.89,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -1248,7 +1250,7 @@ export const SEED: GeneratedSeed = {
         "category_code": "404",
         "tier": "auto_categorised",
         "confidence": 0.87,
-        "model": "claude-haiku-4-5-20251001",
+        "model": "claude-haiku-5-5",
         "decision": {
           "escalated": false,
           "tier": "auto_categorised"
@@ -1284,11 +1286,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "401",
         "tier": "suggested",
         "confidence": 0.57,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.64,
           "escalation_threshold": 0.85
         }
@@ -1323,11 +1325,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "900",
         "tier": "suggested",
         "confidence": 0.83,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.57,
           "escalation_threshold": 0.85
         }
@@ -1361,11 +1363,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "461",
         "tier": "suggested",
         "confidence": 0.6,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.64,
           "escalation_threshold": 0.85
         }
@@ -1399,11 +1401,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "463",
         "tier": "suggested",
         "confidence": 0.6,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.7,
           "escalation_threshold": 0.85
         }
@@ -1438,11 +1440,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "445",
         "tier": "suggested",
         "confidence": 0.53,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.57,
           "escalation_threshold": 0.85
         }
@@ -1476,11 +1478,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "412",
         "tier": "suggested",
         "confidence": 0.62,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.66,
           "escalation_threshold": 0.85
         }
@@ -1514,11 +1516,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "461",
         "tier": "suggested",
         "confidence": 0.71,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.72,
           "escalation_threshold": 0.85
         }
@@ -1552,11 +1554,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "429",
         "tier": "suggested",
         "confidence": 0.5,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.78,
           "escalation_threshold": 0.85
         }
@@ -1590,11 +1592,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "411",
         "tier": "suggested",
         "confidence": 0.75,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.69,
           "escalation_threshold": 0.85
         }
@@ -1629,11 +1631,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "462",
         "tier": "suggested",
         "confidence": 0.71,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.69,
           "escalation_threshold": 0.85
         }
@@ -1667,11 +1669,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "412",
         "tier": "suggested",
         "confidence": 0.81,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.8,
           "escalation_threshold": 0.85
         }
@@ -1706,11 +1708,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "404",
         "tier": "suggested",
         "confidence": 0.59,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.62,
           "escalation_threshold": 0.85
         }
@@ -1744,11 +1746,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "493",
         "tier": "suggested",
         "confidence": 0.53,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "suggested",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.79,
           "escalation_threshold": 0.85
         }
@@ -1782,11 +1784,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "477",
         "tier": "needs_review",
         "confidence": 0.35,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.62,
           "escalation_threshold": 0.85
         }
@@ -1820,11 +1822,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "429",
         "tier": "needs_review",
         "confidence": 0.24,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.79,
           "escalation_threshold": 0.85
         }
@@ -1859,11 +1861,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "477",
         "tier": "needs_review",
         "confidence": 0.48,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.69,
           "escalation_threshold": 0.85
         }
@@ -1897,11 +1899,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "416",
         "tier": "needs_review",
         "confidence": 0.3,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.57,
           "escalation_threshold": 0.85
         }
@@ -1935,11 +1937,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "260",
         "tier": "needs_review",
         "confidence": 0.47,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.65,
           "escalation_threshold": 0.85
         }
@@ -1974,11 +1976,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "900",
         "tier": "needs_review",
         "confidence": 0.21,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.73,
           "escalation_threshold": 0.85
         }
@@ -2012,11 +2014,11 @@ export const SEED: GeneratedSeed = {
         "category_code": "416",
         "tier": "needs_review",
         "confidence": 0.25,
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5-5",
         "decision": {
           "escalated": true,
           "tier": "needs_review",
-          "primary_model": "claude-haiku-4-5-20251001",
+          "primary_model": "claude-haiku-5-5",
           "primary_confidence": 0.71,
           "escalation_threshold": 0.85
         }

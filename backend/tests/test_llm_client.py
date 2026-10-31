@@ -127,11 +127,15 @@ def test_profile_comes_from_settings(monkeypatch):
         get_profile("gpt")
 
 
-def test_default_profile_is_claude_4_with_the_old_thresholds(monkeypatch):
+def test_default_profile_is_claude_5_5_with_the_old_thresholds(monkeypatch):
+    """The 2026-10-31 A/B decision: claude-5-5 by default, thresholds unchanged; claude-4 kept for rollback."""
     from app.core.config import Settings
     monkeypatch.delenv("LLM_PROFILE", raising=False)
-    assert Settings(_env_file=None).llm_profile == "claude-4"
-    assert (CLAUDE_4.escalation_threshold, CLAUDE_4.auto_accept_threshold, CLAUDE_4.review_threshold) == (0.85, 0.85, 0.5)
+    assert Settings(_env_file=None).llm_profile == "claude-5-5"
+    for profile in (CLAUDE_5_5, CLAUDE_4):
+        assert (profile.escalation_threshold, profile.auto_accept_threshold, profile.review_threshold) == (0.85, 0.85, 0.5)
+    primary = CLAUDE_5_5.routes[Route.CATEGORISE_PRIMARY]
+    assert (primary.model, primary.mechanism, primary.effort) == ("claude-haiku-5-5", Mechanism.FORMAT, "low")
 
 
 # ── Responses ────────────────────────────────────────────────────────────────

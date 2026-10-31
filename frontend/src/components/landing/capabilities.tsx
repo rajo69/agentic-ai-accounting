@@ -39,7 +39,7 @@ export function Capabilities() {
 
         <CapabilityRow
           title="Every decision, explained."
-          body="The reasoning, which model made the call (Haiku 4.5, escalated to Sonnet 4.6 when uncertain) and a risk flag from eight plain-language rules: unusual amount, unseen vendor, odd timing. Approve, correct or reject; corrections become future precedents."
+          body="The reasoning, which model made the call (Haiku 5.5, escalated to Sonnet 5.5 when uncertain) and a risk flag from eight plain-language rules: unusual amount, unseen vendor, odd timing. Approve, correct or reject; corrections become future precedents."
           fact="Eight risk rules and one audit row for every decision"
           flip
           mobile={

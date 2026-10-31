@@ -127,6 +127,24 @@ async def test_escalation_fires_below_the_threshold():
 
 
 @pytest.mark.asyncio
+async def test_audit_model_is_the_model_that_served_after_a_server_side_fallback():
+    final, tx, audit, calls = await _run({
+        Route.CATEGORISE_PRIMARY: _ok(Route.CATEGORISE_PRIMARY, 0.84),
+        Route.CATEGORISE_ESCALATION: _ok(Route.CATEGORISE_ESCALATION, 0.92, served="fallback-model-id"),
+    })
+    assert audit.ai_model == "fallback-model-id"
+    assert audit.ai_decision_data["served_model"] == "fallback-model-id"
+
+
+@pytest.mark.asyncio
+async def test_audit_model_is_the_requested_model_when_the_response_names_none():
+    primary = _ok(Route.CATEGORISE_PRIMARY, 0.95)
+    primary.served_model = None
+    final, tx, audit, calls = await _run({Route.CATEGORISE_PRIMARY: primary})
+    assert audit.ai_model == "claude-haiku-4-5-20251001"
+
+
+@pytest.mark.asyncio
 async def test_escalation_400_keeps_the_primary_answer_and_records_the_error():
     """The failure mode Sonnet 5.5 + a forced tool call would cause: no longer silent."""
     final, tx, audit, _ = await _run({

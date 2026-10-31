@@ -98,7 +98,7 @@ def _calculate_figures(transactions: list, period_start: date, period_end: date)
 # ── LLM narrative generation ──────────────────────────────────────────────────
 
 def _route_model(route: Route) -> str:
-    """The model id recorded on documents and audit rows for a narrative route."""
+    """The requested model for a narrative route; recorded only when the response names none."""
     return get_profile().routes[route].model
 
 
@@ -261,7 +261,7 @@ async def generate_management_letter(
 
     # 2. Generate narrative (LLM)
     narrative, served_model = await _generate_narrative(figures, org.name)
-    ai_model = _route_model(Route.DOC_MANAGEMENT_LETTER)
+    ai_model = served_model or _route_model(Route.DOC_MANAGEMENT_LETTER)
 
     # 3. Render HTML
     html = _render_html(figures, narrative, org.name, period_start, period_end)
@@ -401,7 +401,7 @@ async def generate_profit_loss(
 
     figures = _calculate_pnl_figures(transactions, period_start, period_end)
     narrative, served_model = await _generate_pnl_narrative(figures, org.name)
-    ai_model = _route_model(Route.DOC_PROFIT_LOSS)
+    ai_model = served_model or _route_model(Route.DOC_PROFIT_LOSS)
 
     template = _template_env().get_template("profit_loss.html")
     html = template.render(
@@ -559,7 +559,7 @@ async def generate_vat_summary(
 
     figures = _calculate_vat_figures(transactions, accounts, period_start, period_end)
     narrative, served_model = await _generate_vat_narrative(figures, org.name)
-    ai_model = _route_model(Route.DOC_VAT_SUMMARY)
+    ai_model = served_model or _route_model(Route.DOC_VAT_SUMMARY)
 
     template = _template_env().get_template("vat_summary.html")
     html = template.render(

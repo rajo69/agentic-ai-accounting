@@ -403,8 +403,10 @@ _GENERATORS = [
 @pytest.mark.asyncio
 @pytest.mark.parametrize("profile_name", ["claude-4", "claude-5-5"])
 @pytest.mark.parametrize("generator,route_name,queries", _GENERATORS)
-async def test_generators_record_the_profile_model_and_the_served_model(monkeypatch, profile_name, generator, route_name, queries):
-    """Each generator calls its own route under LLM_PROFILE and writes the model on the document and audit rows."""
+@pytest.mark.parametrize("served", ["served-model-id", None])
+async def test_generators_record_the_profile_model_and_the_served_model(monkeypatch, profile_name, generator, route_name, queries, served):
+    """Each generator calls its own route under LLM_PROFILE and records the model that served it
+    (a server-side fallback can differ from the requested one), or the requested model when none is named."""
     from types import SimpleNamespace
 
     from app.models.database import AuditLog, GeneratedDocument
@@ -419,7 +421,7 @@ async def test_generators_record_the_profile_model_and_the_served_model(monkeypa
         assert route_arg is route
         parsed = schema(**{name: "text" for name in schema.model_fields})
         return LLMResult(route=route_arg, requested_model=cfg.model, mechanism=cfg.mechanism,
-                         status=Status.OK, parsed=parsed, served_model="served-model-id")
+                         status=Status.OK, parsed=parsed, served_model=served)
 
     org = SimpleNamespace(id=uuid.uuid4(), name="Test Ltd")
     txs = [SimpleNamespace(amount=Decimal(a), description="d", category=c, date=date(2026, 1, 15),
@@ -442,7 +444,7 @@ async def test_generators_record_the_profile_model_and_the_served_model(monkeypa
     added = [c.args[0] for c in db.add.call_args_list]
     doc = next(a for a in added if isinstance(a, GeneratedDocument))
     audit = next(a for a in added if isinstance(a, AuditLog))
-    assert doc.ai_model == cfg.model
-    assert audit.ai_model == cfg.model
-    assert audit.ai_decision_data["served_model"] == "served-model-id"
+    assert doc.ai_model == (served or cfg.model)
+    assert audit.ai_model == (served or cfg.model)
+    assert audit.ai_decision_data["served_model"] == served
     db.commit.assert_awaited()
