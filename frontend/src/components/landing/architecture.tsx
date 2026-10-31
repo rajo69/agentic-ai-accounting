@@ -14,7 +14,7 @@ const NODES = [
   { id: "next", x: 20, y: 132, label: "Next.js", sub: "Vercel · app, demo" },
   { id: "api", x: 252, y: 132, label: "FastAPI", sub: "Railway · 34 routes" },
   { id: "graph", x: 484, y: 40, label: "LangGraph", sub: "categorise · reconcile" },
-  { id: "claude", x: 688, y: 40, label: "Claude", sub: "Haiku 4.5 → Sonnet 4.6" },
+  { id: "claude", x: 688, y: 40, label: "Claude", sub: "Haiku 5.5 → Sonnet 5.5" },
   { id: "db", x: 484, y: 132, label: "Postgres", sub: "pgvector · audit log" },
   { id: "xero", x: 484, y: 224, label: "Xero API", sub: "OAuth2 · sync" },
 ];

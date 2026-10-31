@@ -209,7 +209,7 @@ export default function Kit() {
                   <div>ACC-4010</div>
                   <div>2026-04-06T09:14Z</div>
                   <div>txn_7f3a9c</div>
-                  <div className="text-subtle-foreground">haiku-4-5 → sonnet-4-6</div>
+                  <div className="text-subtle-foreground">haiku-5-5 → sonnet-5-5</div>
                 </div>
               </div>
             </div>
@@ -330,14 +330,14 @@ export default function Kit() {
               <StatusChip status="auto_categorised" dot={false} />
               <StatusChip tone="info">Escalated to Sonnet</StatusChip>
               <StatusChip tone="primary" dot={false}>
-                haiku-4-5
+                haiku-5-5
               </StatusChip>
             </div>
           </Group>
           <Group label="badge (neutral labels)">
             <div className="flex flex-wrap gap-2">
               <Badge>34 endpoints</Badge>
-              <Badge variant="primary">Haiku 4.5</Badge>
+              <Badge variant="primary">Haiku 5.5</Badge>
               <Badge variant="secondary">v0.2.8</Badge>
               <Badge variant="outline">ebm</Badge>
               <Badge variant="destructive">Failed</Badge>
@@ -497,7 +497,7 @@ export default function Kit() {
                     <div className="flex items-center gap-2">
                       <StatusChip status="auto_categorised" />
                       <StatusChip tone="primary" dot={false}>
-                        haiku-4-5
+                        haiku-5-5
                       </StatusChip>
                     </div>
                   </div>

@@ -5,6 +5,7 @@ import { SEED, type SeedAccount, type SeedTransaction } from "./seed.generated";
 export const SEED_VERSION = SEED.version;
 export const PRIMARY_MODEL = SEED.primary_model;
 export const ESCALATION_MODEL = SEED.escalation_model;
+export const DOCUMENT_MODEL = SEED.document_model;
 export const ESCALATION_THRESHOLD = SEED.escalation_threshold;
 export const RULE_COUNT = SEED.rules.length;
 

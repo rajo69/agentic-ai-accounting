@@ -1,5 +1,7 @@
 # Changelog
 
+- **2026-10-31** Every Claude call moves to Haiku 5.5 and Sonnet 5.5: `LLM_PROFILE` now defaults to `claude-5-5` (structured outputs, effort low, thresholds unchanged), and `LLM_PROFILE=claude-4` rolls back. Audit and document rows record the model that served each call. The demo and landing page name the new models.
+- **2026-10-31** Migration A/B ([report](backend/evals/reports/2026-10-31-migration-5-5/summary.md)): the app's own categorisation requests on bookbench UK dev, Claude 4.x against 5.5, with the gate committed before the results; every 5.5 configuration passed, at $6.86 of Batch API calls.
 - **2026-10-31** One gateway for every Claude call (`backend/app/services/llm_client.py`): Instructor and langchain-anthropic removed, `anthropic` 2.3.0, and an `LLM_PROFILE` setting (`claude-4`, the default, keeps today's models and requests; `claude-5-5` is ready behind it). A primary refusal now escalates, and escalation errors are recorded on the audit row instead of being dropped.
 - **2026-10-27** Backend pin: `anthropic`, `instructor` and `langchain-anthropic` pinned to the versions production resolved on 2026-10-27 (0.93.0, 1.17.0, 1.4.0), so a rebuild no longer picks up new releases of the LLM stack.
 - **2026-10-16** bookbench, the synthetic categorisation benchmark built for the production categoriser, is linked from the README, the roadmap and the eval harness README. It is public as a draft (0.2.0-draft) with no model scores yet.

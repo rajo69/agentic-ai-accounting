@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/431b5bd4-40b8-466a-8d86-a41dfa1e11d9
 |---|---|
 | Built for | UK sole traders, small businesses and the bookkeepers who sign off their books on Xero, now quarterly under Making Tax Digital. |
 | What it does | proposes and explains a category for every transaction, matches bank transactions to invoices and payments, drafts the quarter's management letter, and keeps an audit trail of every AI proposal and every human decision. |
-| AI | Claude Haiku 4.5, escalating to Sonnet 4.6 when unsure · structured output validated by Pydantic, through one gateway on the Anthropic SDK · LangGraph workflows · pgvector retrieval of the firm's own past decisions · risk flags from eight readable fuzzy-logic rules. |
+| AI | Claude Haiku 5.5, escalating to Sonnet 5.5 when unsure · structured output validated by Pydantic, through one gateway on the Anthropic SDK · LangGraph workflows · pgvector retrieval of the firm's own past decisions · risk flags from eight readable fuzzy-logic rules. |
 | Stack | Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL 16 with pgvector, Redis, Alembic · Next.js 14, TypeScript, Tailwind · Docker, GitHub Actions, Vercel, Railway. |
 | Size | 34 API routes, 8 tables, 6 migrations, 117 backend tests run in CI. |
 | Status | deployed and open source (MIT); designed and built by Rajarshi Nandi, March to October 2026. |
@@ -80,7 +80,7 @@ A Next.js console talks to a FastAPI service; a LangGraph categoriser and the do
 | Frontend | Next.js 14 (App Router), TypeScript, Tailwind, Base UI primitives, on Vercel. Landing page, review console and the browser-only demo, all calling the API through one `apiFetch` function (plus one direct call that downloads generated PDFs) |
 | API | FastAPI, Pydantic v2, SQLAlchemy 2.0 async, Alembic, on Railway (Docker). 34 routes: 31 under `/api/v1`, two OAuth, one health |
 | Workflows | Two LangGraph state machines in `backend/app/agents/`: the categoriser and the reconciler |
-| Models | Claude Haiku 4.5 (pinned snapshot) first, Claude Sonnet 4.6 on low confidence and for document narratives, all through one gateway (`llm_client.py`) on the Anthropic SDK |
+| Models | Claude Haiku 5.5 first, Claude Sonnet 5.5 on low confidence and for document narratives, all through one gateway (`llm_client.py`) on the Anthropic SDK; one setting (`LLM_PROFILE=claude-4`) rolls back to Haiku 4.5 and Sonnet 4.6 |
 | Retrieval | pgvector in the same Postgres; `all-MiniLM-L6-v2` embeddings (384 dimensions) computed in-process |
 | Data | PostgreSQL 16, eight tables, six migrations, `NUMERIC(12,2)` and `Decimal` for money; Redis for cache and webhook debounce, optional |
 | Documents | Figures in Python, narrative from Claude as structured output, Jinja2 templates rendered to PDF by WeasyPrint |
@@ -97,8 +97,8 @@ The model proposes, code validates and a person decides. One fixed workflow call
 One categorisation run (`POST /api/v1/categorise/async`):
 
 1. **Context.** Load the chart of accounts and the five nearest previously categorised transactions of the same organisation (cosine distance on pgvector).
-2. **Classify.** Send the transaction, chart and precedents to Haiku as a forced tool call; receive a `CategoryPrediction` (code, name, confidence, reasoning) validated by Pydantic. Invalid or cut-off output raises, and the transaction stays uncategorised for the next run.
-3. **Escalate.** Below 0.85 confidence, the same prompt goes to Sonnet; if Sonnet fails, Haiku's answer stands. The audit row records both models and both confidences.
+2. **Classify.** Send the transaction, chart and precedents to Haiku with a JSON schema as the required output format (structured outputs, effort low); receive a `CategoryPrediction` (code, name, confidence, reasoning) validated by Pydantic. Invalid or cut-off output raises, and the transaction stays uncategorised for the next run.
+3. **Escalate.** Below 0.85 confidence, or if Haiku declines, the same prompt goes to Sonnet; if Sonnet fails, Haiku's answer stands and the error is recorded. The audit row records both models, the model that actually served the answer, and both confidences.
 4. **Validate.** The proposed category must exist in the chart and the confidence must be in range; a failure zeroes the confidence so the row goes to a person.
 5. **Decide.** Auto-accept above 0.85, suggested from 0.5, needs review below.
 6. **Explain and record.** The fuzzy risk rules run, and the payload is attached to the audit row.
@@ -113,7 +113,8 @@ Each row is a choice, the alternative it was chosen over, and the trade-off acce
 |---|---|---|---|
 | Fixed LangGraph workflows | An autonomous agent with tools | Known task shape; each node is a typed async function, testable alone, and a run ends in one audit row | Less flexible on odd cases; agentic review is a later [roadmap](docs/PRODUCTION_ROADMAP.md) phase with its own evals |
 | Structured output validated by Pydantic, through one gateway | Parsing model text, the first version | Parsing silently returned wrong categories when the model added preamble | The gateway is code to keep current as the API changes per model |
-| Haiku first, Sonnet below 0.85 confidence | Haiku only, or Sonnet only | The stronger model runs only where a person would otherwise look, at about 3× Haiku's list price | A low-confidence transaction makes two model calls |
+| Haiku first, Sonnet below 0.85 confidence | Haiku only, or Sonnet only | The stronger model runs only where a person would otherwise look, at 20× Haiku's list price per token (Sonnet 5.5 $2 / $10 against Haiku 5.5 $0.10 / $0.50 per million input / output tokens, checked 2026-10-28) | A low-confidence transaction makes two model calls |
+| A pre-registered A/B before changing models, with a one-setting rollback | Upgrading on the release notes | Read against the code, the migration guide showed Sonnet 5.5 rejects the forced tool call the app sent, which would have quietly turned escalation off; the gate was committed before any result existed | $6.86 of API calls, and a verdict that holds only on a draft benchmark |
 | The firm's own past decisions as few-shot precedents | Fine-tuning, or a global classifier | Corrections apply on the next similar transaction; categorisation trains no model on client data | Precedents come only from the same organisation |
 | Local MiniLM embeddings in the same Postgres | An embeddings API and a vector database | Anthropic has no embeddings endpoint; no extra vendor or database | PyTorch makes the backend image large |
 | Risk flags from eight readable fuzzy rules | Learned per-feature contributions | An accountant can read and challenge "amount deviation is high AND vendor is rare" | Coarser than a learned model |
@@ -130,9 +131,9 @@ The eval harness has pass/fail gates, a calibration table and a budget guard, an
 
 The harness in [`backend/evals/`](backend/evals/) runs fifty labelled UK small-business bank transactions generated with Claude, none taken from Xero, against twenty chart-of-accounts codes, split 31 easy, 15 medium and 4 hard. It reports accuracy by tier, per-category precision, recall and F1, a calibration table (accuracy by confidence bucket) and cost. It exits non-zero when a gate is missed: overall at least 80%, easy tier at least 95%, auto-accept bucket at least 90%. Responses are cached by model and prompt so reruns are free, and `--budget` stops a live run as soon as its recorded spend passes the cap.
 
-The benchmark built to this categoriser's input contract (the Xero record fields it reads, the firm's chart and the top 5 retrieved precedents) is [bookbench](https://github.com/rajo69/bookbench): 1,000 UK and US small-business transactions with precedent history, `NEEDS_REVIEW` as a gold answer and a separately scored stratum of instruction-like text. It is public as a draft ([data on Hugging Face](https://huggingface.co/datasets/rajo0113/bookbench)), and no model has been scored on it yet.
+The benchmark built to this categoriser's input contract (the Xero record fields it reads, the firm's chart and the top 5 retrieved precedents) is [bookbench](https://github.com/rajo69/bookbench): 1,000 UK and US small-business transactions with precedent history, `NEEDS_REVIEW` as a gold answer and a separately scored stratum of instruction-like text. It is public as a draft ([data on Hugging Face](https://huggingface.co/datasets/rajo0113/bookbench)). The move from Claude 4.x to 5.5 was gated on it: a [pre-registered A/B](backend/evals/reports/2026-10-31-migration-5-5/summary.md) of the app's own requests on its 200-item UK dev split, which every 5.5 configuration passed. That is an internal comparison between model sets on rule-generated, unreviewed labels, not an accuracy figure.
 
-What the harness measures: its own prompt, isolated from precedent retrieval and routing, so a result belongs to the prompt alone; the four-item hard tier is read as a diagnostic split; the gates run in the runner. The measurement plan, in order: a baseline of the production graph, retrieval and routing included, replayed on bookbench, then Haiku-only against Sonnet-only against tiered.
+What the harness measures: its own prompt, isolated from precedent retrieval and routing, so a result belongs to the prompt alone; the four-item hard tier is read as a diagnostic split; the gates run in the runner. Still to measure: the test split, held out so far, which is also where any threshold change suggested by the A/B's dev-set sweep has to be confirmed.
 
 ```bash
 cd backend && python -m evals.eval_runner --mode mock    # no API calls

@@ -20,7 +20,7 @@
   <g><rect class="node" x="20" y="132" width="172" height="56" rx="8"/><text class="label" x="36" y="156">Next.js 14</text><text class="sub" x="36" y="174">Vercel · app, landing, demo</text></g>
   <g><rect class="node" x="252" y="132" width="172" height="56" rx="8"/><text class="label" x="268" y="156">FastAPI</text><text class="sub" x="268" y="174">Railway · 34 routes · JWT</text></g>
   <g><rect class="node" x="484" y="40" width="172" height="56" rx="8"/><text class="label" x="500" y="64">LangGraph</text><text class="sub" x="500" y="82">categorise · reconcile</text></g>
-  <g><rect class="node" x="688" y="40" width="172" height="56" rx="8"/><text class="label" x="704" y="64">Claude via gateway</text><text class="sub" x="704" y="82">Haiku 4.5 → Sonnet 4.6</text></g>
+  <g><rect class="node" x="688" y="40" width="172" height="56" rx="8"/><text class="label" x="704" y="64">Claude via gateway</text><text class="sub" x="704" y="82">Haiku 5.5 → Sonnet 5.5</text></g>
   <g><rect class="node" x="484" y="132" width="172" height="56" rx="8"/><text class="label" x="500" y="156">Postgres 16</text><text class="sub" x="500" y="174">pgvector · audit log · jobs</text></g>
   <g><rect class="node" x="484" y="224" width="172" height="56" rx="8"/><text class="label" x="500" y="248">Xero API</text><text class="sub" x="500" y="266">OAuth2 · incremental sync · webhooks</text></g>
   <text class="sub" x="688" y="156">Redis (cache, debounce)</text>

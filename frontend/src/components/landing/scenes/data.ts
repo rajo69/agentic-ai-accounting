@@ -49,8 +49,8 @@ export interface Explanation {
   category: string;
   confidence: number;
   status: CategorisationStatus;
-  model: "Haiku 4.5" | "Sonnet 4.6";
-  escalatedFrom?: "Haiku 4.5";
+  model: "Haiku 5.5" | "Sonnet 5.5";
+  escalatedFrom?: "Haiku 5.5";
   reasoning: [string, string];
   risk: { score: number; label: "high" | "medium" | "low"; rules: RiskRule[] };
 }
@@ -61,8 +61,8 @@ export const SCAFFOLD_EXPLANATION: Explanation = {
   category: "General Expenses",
   confidence: 0.62,
   status: "needs_review",
-  model: "Sonnet 4.6",
-  escalatedFrom: "Haiku 4.5",
+  model: "Sonnet 5.5",
+  escalatedFrom: "Haiku 5.5",
   reasoning: [
     "Barker Scaffold Hire has no confirmed precedent for this organisation, and scaffold hire can be a direct project cost or a general expense depending on the trade.",
     "The nearest confirmed precedent is Travis Perkins, coded to 416 General Expenses, so 416 is proposed at reduced confidence and the amount is flagged.",
@@ -91,7 +91,7 @@ export const ACME_EXPLANATION: Explanation = {
   category: "Consultants & Contractors",
   confidence: 0.74,
   status: "suggested",
-  model: "Haiku 4.5",
+  model: "Haiku 5.5",
   reasoning: [
     "The description names an invoice from a consulting company, and two earlier payments to ACME Consulting were confirmed to 411 Consultants & Contractors.",
     "Confidence stays below the auto-accept threshold because the invoice number is new and the amount is 14% above the two earlier payments.",
@@ -114,7 +114,7 @@ export interface HistoryItem {
 }
 
 export const ACME_HISTORY: HistoryItem[] = [
-  { action: "ai_categorise", title: "AI proposed 411 Consultants & Contractors", detail: "Haiku 4.5 · confidence 0.74 · risk low", at: "06 May · 09:14" },
+  { action: "ai_categorise", title: "AI proposed 411 Consultants & Contractors", detail: "Haiku 5.5 · confidence 0.74 · risk low", at: "06 May · 09:14" },
   { action: "human_approve", title: "Approved by the reviewer", detail: "Recorded in the audit log · now a precedent", at: "14 May · 10:42" },
 ];
 

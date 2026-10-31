@@ -8,7 +8,7 @@ accept and what to fix first. The pass produced 106 findings, 14 high and none c
 66-row claim ledger graded every public statement TRUE, PARTLY, FALSE or UNVERIFIABLE; the README rewrite of
 2026-10-10 resolved every FALSE and PARTLY row.
 
-## Top findings and where they stand (updated 2026-10-11)
+## Top findings and where they stand (updated 2026-10-31)
 
 | Finding | Status |
 |---|---|
@@ -22,6 +22,8 @@ accept and what to fix first. The pass produced 106 findings, 14 high and none c
 | Public numbers unverifiable and mutually inconsistent; privacy notice denied a data flow that happens | Fixed in the README, PORTFOLIO.md, the evals README and the privacy page (2026-10-10) |
 | PDF templates render untrusted text without autoescaping, and WeasyPrint may fetch any URL | Fixed with tests (2026-10-11): autoescaping on, and a URL fetcher that serves only `data:` URIs and the templates folder |
 | The consent screen requests three write scopes the app never uses | Fixed (2026-10-11): read-only scopes, guarded by a test |
+| Confidence thresholds hard-coded in the categoriser | Fixed (2026-10-31): the thresholds belong to the model profile in the gateway and switch with `LLM_PROFILE`; a per-organisation setting is still open |
+| A failed escalation call was swallowed, so tiered routing could silently become Haiku-only | Fixed with tests (2026-10-31): the error is recorded on the audit row, a Haiku refusal escalates, and a refusal followed by a failed escalation is retried instead of parked |
 
 ## Reading the findings as a whole
 
