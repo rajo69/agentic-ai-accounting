@@ -224,7 +224,8 @@ def build_categoriser_graph(db: AsyncSession, profile: Optional[Profile] = None)
                 "category_name": chosen.parsed.category_name,
                 "confidence": float(chosen.parsed.confidence),
                 "reasoning": chosen.parsed.reasoning,
-                "model_used": escalation_model if escalated else primary_model,
+                # A server-side fallback can serve a different model than requested.
+                "model_used": chosen.served_model or (escalation_model if escalated else primary_model),
                 "served_model": chosen.served_model,
                 "escalated": escalated,
                 "primary_confidence": primary_confidence if escalated else None,

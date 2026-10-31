@@ -87,7 +87,7 @@ _HAIKU_5_5 = "claude-haiku-5-5"
 _SONNET_5_5 = "claude-sonnet-5-5"
 
 PROFILES: dict[str, Profile] = {
-    # Exactly what production ran before the gateway.
+    # Exactly what production ran before the gateway; the rollback profile.
     "claude-4": Profile(
         name="claude-4",
         routes={
@@ -101,8 +101,10 @@ PROFILES: dict[str, Profile] = {
         auto_accept_threshold=0.85,
         review_threshold=0.5,
     ),
-    # Thinking counts toward max_tokens, so the caps are higher. The primary
-    # route's mechanism (format vs a forced tool call) is settled by the A/B.
+    # The default since the 2026-10-31 A/B (evals/reports/2026-10-31-migration-5-5):
+    # structured outputs on the primary (no per-item difference from a forced
+    # tool call, which cost more), effort low, thresholds unchanged. Thinking
+    # counts toward max_tokens, so the caps are higher.
     "claude-5-5": Profile(
         name="claude-5-5",
         routes={
