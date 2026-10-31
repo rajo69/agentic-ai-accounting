@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/431b5bd4-40b8-466a-8d86-a41dfa1e11d9
 |---|---|
 | Built for | UK sole traders, small businesses and the bookkeepers who sign off their books on Xero, now quarterly under Making Tax Digital. |
 | What it does | proposes and explains a category for every transaction, matches bank transactions to invoices and payments, drafts the quarter's management letter, and keeps an audit trail of every AI proposal and every human decision. |
-| AI | Claude Haiku 4.5, escalating to Sonnet 4.6 when unsure · structured output through Instructor and Pydantic · LangGraph workflows · pgvector retrieval of the firm's own past decisions · risk flags from eight readable fuzzy-logic rules. |
+| AI | Claude Haiku 4.5, escalating to Sonnet 4.6 when unsure · structured output validated by Pydantic, through one gateway on the Anthropic SDK · LangGraph workflows · pgvector retrieval of the firm's own past decisions · risk flags from eight readable fuzzy-logic rules. |
 | Stack | Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL 16 with pgvector, Redis, Alembic · Next.js 14, TypeScript, Tailwind · Docker, GitHub Actions, Vercel, Railway. |
 | Size | 34 API routes, 8 tables, 6 migrations, 117 backend tests run in CI. |
 | Status | deployed and open source (MIT); designed and built by Rajarshi Nandi, March to October 2026. |
@@ -73,17 +73,17 @@ Also: a small team per practice with owner and member roles, and GDPR export and
 
 A Next.js console talks to a FastAPI service; a LangGraph categoriser and the document service call Claude through one structured-output path, and a second LangGraph workflow reconciles without a model; Postgres holds the books, the vector precedents and the audit log; Xero sits behind a single adapter that only reads.
 
-![System diagram: Next.js on Vercel, FastAPI on Railway, LangGraph workflows calling Claude via Instructor, Postgres with pgvector and the audit log, Xero through OAuth2](docs/media/architecture.svg)
+![System diagram: Next.js on Vercel, FastAPI on Railway, LangGraph workflows calling Claude through one gateway, Postgres with pgvector and the audit log, Xero through OAuth2](docs/media/architecture.svg)
 
 | Layer | What runs there |
 |---|---|
 | Frontend | Next.js 14 (App Router), TypeScript, Tailwind, Base UI primitives, on Vercel. Landing page, review console and the browser-only demo, all calling the API through one `apiFetch` function (plus one direct call that downloads generated PDFs) |
 | API | FastAPI, Pydantic v2, SQLAlchemy 2.0 async, Alembic, on Railway (Docker). 34 routes: 31 under `/api/v1`, two OAuth, one health |
 | Workflows | Two LangGraph state machines in `backend/app/agents/`: the categoriser and the reconciler |
-| Models | Claude Haiku 4.5 (pinned snapshot) first, Claude Sonnet 4.6 on low confidence and for document narratives, all through Instructor |
+| Models | Claude Haiku 4.5 (pinned snapshot) first, Claude Sonnet 4.6 on low confidence and for document narratives, all through one gateway (`llm_client.py`) on the Anthropic SDK |
 | Retrieval | pgvector in the same Postgres; `all-MiniLM-L6-v2` embeddings (384 dimensions) computed in-process |
 | Data | PostgreSQL 16, eight tables, six migrations, `NUMERIC(12,2)` and `Decimal` for money; Redis for cache and webhook debounce, optional |
-| Documents | Figures in Python, narrative via Instructor, Jinja2 templates rendered to PDF by WeasyPrint |
+| Documents | Figures in Python, narrative from Claude as structured output, Jinja2 templates rendered to PDF by WeasyPrint |
 | Operations | GitHub Actions (pgvector service container, migrations, 117 tests, type check, lint), per-organisation rate limits, background jobs tracked in Postgres, optional Sentry |
 
 **Boundaries the code keeps.** Model calls live in `services/` and `agents/`; no route makes one. The single path to Xero is `integrations/xero_adapter.py`, and it only reads. Every AI decision and every human review decision (approve, correct, reject, confirm, match, unmatch) writes an audit row. Model output arrives as a schema, so nothing is parsed from free text, and the organisation comes from the session rather than from anything the model returns.
@@ -97,7 +97,7 @@ The model proposes, code validates and a person decides. One fixed workflow call
 One categorisation run (`POST /api/v1/categorise/async`):
 
 1. **Context.** Load the chart of accounts and the five nearest previously categorised transactions of the same organisation (cosine distance on pgvector).
-2. **Classify.** Send the transaction, chart and precedents to Haiku through Instructor; receive a `CategoryPrediction` (code, name, confidence, reasoning) or retry on a validation failure.
+2. **Classify.** Send the transaction, chart and precedents to Haiku as a forced tool call; receive a `CategoryPrediction` (code, name, confidence, reasoning) validated by Pydantic. Invalid or cut-off output raises, and the transaction stays uncategorised for the next run.
 3. **Escalate.** Below 0.85 confidence, the same prompt goes to Sonnet; if Sonnet fails, Haiku's answer stands. The audit row records both models and both confidences.
 4. **Validate.** The proposed category must exist in the chart and the confidence must be in range; a failure zeroes the confidence so the row goes to a person.
 5. **Decide.** Auto-accept above 0.85, suggested from 0.5, needs review below.
@@ -112,7 +112,7 @@ Each row is a choice, the alternative it was chosen over, and the trade-off acce
 | Decision | Instead of | Why | Trade-off accepted |
 |---|---|---|---|
 | Fixed LangGraph workflows | An autonomous agent with tools | Known task shape; each node is a typed async function, testable alone, and a run ends in one audit row | Less flexible on odd cases; agentic review is a later [roadmap](docs/PRODUCTION_ROADMAP.md) phase with its own evals |
-| Structured output (Instructor, Pydantic), retried on validation failure | Parsing model text, the first version | Parsing silently returned wrong categories when the model added preamble | A library in the path |
+| Structured output validated by Pydantic, through one gateway | Parsing model text, the first version | Parsing silently returned wrong categories when the model added preamble | The gateway is code to keep current as the API changes per model |
 | Haiku first, Sonnet below 0.85 confidence | Haiku only, or Sonnet only | The stronger model runs only where a person would otherwise look, at about 3× Haiku's list price | A low-confidence transaction makes two model calls |
 | The firm's own past decisions as few-shot precedents | Fine-tuning, or a global classifier | Corrections apply on the next similar transaction; categorisation trains no model on client data | Precedents come only from the same organisation |
 | Local MiniLM embeddings in the same Postgres | An embeddings API and a vector database | Anthropic has no embeddings endpoint; no extra vendor or database | PyTorch makes the backend image large |
@@ -168,7 +168,7 @@ Problems that needed judgement, in brief. The long form, with commit links, is i
 - Xero changed its OAuth scope scheme mid-build. Apps created after 2 March 2026 must use granular scopes, and the broad ones returned `unauthorized_client`. I found the working names by testing against the token endpoint, then caught a later commit that silently reintroduced a broad scope by cross-checking git history against Xero's scope table.
 - A CORS "improvement" took the production dashboard down in a loop. Every `fetch` threw a `TypeError` with no status, which the dashboard read as "Xero not connected", while OAuth (a redirect, immune to CORS) kept working. Diagnosed by telling a browser-level CORS failure apart from a 401.
 - Anthropic has no embeddings endpoint. Split the concerns: local MiniLM embeddings off the event loop with `asyncio.to_thread`, and a migration shrinking the vector column from the OpenAI size.
-- Parsing model text produced wrong categories without raising. Replaced with Instructor, so a Pydantic model is the contract and invalid output retries instead of persisting.
+- Parsing model text produced wrong categories without raising. Replaced with structured output (Instructor at first, now one gateway on the Anthropic SDK), so a Pydantic model is the contract and invalid output fails instead of persisting.
 - Xero's Demo Company bank lines are invisible to the API. Added a Payments source with deduplication against invoices, so on live data the reconciler matches bank transactions to invoices and payments.
 - A dependency release took the API down for an afternoon. SQLAlchemy 2.1 shipped, the unpinned range resolved to it, and `postgresql://` now defaulted to a driver the image lacked. Pinned, redeployed and verified within the afternoon.
 - I reviewed my own code. Six parallel review passes, run as Claude Code agents under one evidence standard (file, line, quoted code, severity), produced 106 findings, 14 high, none critical; the numerical ones were reproduced before being recorded. Method and top findings: [`docs/SELF_REVIEW.md`](docs/SELF_REVIEW.md).

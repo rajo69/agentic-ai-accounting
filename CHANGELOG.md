@@ -1,5 +1,6 @@
 # Changelog
 
+- **2026-10-31** One gateway for every Claude call (`backend/app/services/llm_client.py`): Instructor and langchain-anthropic removed, `anthropic` 2.3.0, and an `LLM_PROFILE` setting (`claude-4`, the default, keeps today's models and requests; `claude-5-5` is ready behind it). A primary refusal now escalates, and escalation errors are recorded on the audit row instead of being dropped.
 - **2026-10-27** Backend pin: `anthropic`, `instructor` and `langchain-anthropic` pinned to the versions production resolved on 2026-10-27 (0.93.0, 1.17.0, 1.4.0), so a rebuild no longer picks up new releases of the LLM stack.
 - **2026-10-16** bookbench, the synthetic categorisation benchmark built for the production categoriser, is linked from the README, the roadmap and the eval harness README. It is public as a draft (0.2.0-draft) with no model scores yet.
 - **2026-10-13** README and docs: the eval fixtures are described as generated with Claude, none taken from Xero; the budget guard and precedent wording match the code; the design table names the trade-off accepted for each decision; the roadmap reads as a forward plan; the March 2026 design document leaves the tree (it stays in git history). Invitation email and landing copy describe the review layer; the landing footer links GitHub, README and Privacy.

@@ -34,11 +34,8 @@ xero = [
 ]
 ai = [
     "langgraph>=0.2.0",
-    "langchain>=0.3.0",
-    # Exact pins: the versions production resolved on 2026-10-27; ranges let every rebuild pick new releases
-    "langchain-anthropic==1.4.0",
-    "instructor[anthropic]==1.17.0",
-    "anthropic==0.93.0",
+    # Exact pin: every Claude call goes through app/services/llm_client.py; a range lets a rebuild pick a new major
+    "anthropic==2.3.0",
     "sentence-transformers>=3.0.0",
     "interpret>=0.6.0",
     "rapidfuzz>=3.9.0",
