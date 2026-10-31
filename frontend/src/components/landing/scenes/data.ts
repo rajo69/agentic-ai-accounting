@@ -29,7 +29,7 @@ export const CATEGORISE_ROWS: CategoriseRow[] = [
   { id: "t1", date: "14 Apr", description: "ADOBE SYSTEMS INC", reference: "INV-2026-0414", amount: -999, code: "404", category: "Computer Equipment & Software", confidence: 0.97, status: "auto_categorised" },
   { id: "t2", date: "16 Apr", description: "REGUS FLEET STREET", reference: "DD", amount: -1200, code: "401", category: "Rent", confidence: 0.96, status: "auto_categorised" },
   { id: "t3", date: "21 Apr", description: "PREMIER INN MANCHESTER", reference: "BOOKING-78123", amount: -85, code: "493", category: "Travel", confidence: 0.91, status: "auto_categorised" },
-  { id: "t4", date: "28 Apr", description: "BARKER SCAFFOLD HIRE LTD", reference: "SCAFFOLD-INV-112", amount: -3450, code: "416", category: "General Expenses", confidence: 0.62, status: "needs_review" },
+  { id: "t4", date: "28 Apr", description: "BARKER SCAFFOLD HIRE LTD", reference: "SCAFFOLD-INV-112", amount: -3450, code: "416", category: "General Expenses", confidence: 0.46, status: "needs_review" },
   { id: "t5", date: "02 May", description: "COSTA COFFEE CANARY WHARF", reference: "CARD/0502", amount: -34.5, code: "429", category: "Entertainment & Hospitality", confidence: 0.88, status: "auto_categorised" },
   { id: "t6", date: "06 May", description: "ACME CONSULTING LTD INV 1045", reference: "INV-1045", amount: -3200, code: "411", category: "Consultants & Contractors", confidence: 0.74, status: "suggested" },
   { id: "t7", date: "09 May", description: "HMRC PAYE", reference: "REF123456789", amount: -2500, code: "820", category: "Tax & Statutory Payments", confidence: 0.99, status: "auto_categorised" },
@@ -59,7 +59,7 @@ export interface Explanation {
 export const SCAFFOLD_EXPLANATION: Explanation = {
   code: "416",
   category: "General Expenses",
-  confidence: 0.62,
+  confidence: 0.46,
   status: "needs_review",
   model: "Sonnet 5.5",
   escalatedFrom: "Haiku 5.5",
@@ -91,7 +91,8 @@ export const ACME_EXPLANATION: Explanation = {
   category: "Consultants & Contractors",
   confidence: 0.74,
   status: "suggested",
-  model: "Haiku 5.5",
+  model: "Sonnet 5.5",
+  escalatedFrom: "Haiku 5.5",
   reasoning: [
     "The description names an invoice from a consulting company, and two earlier payments to ACME Consulting were confirmed to 411 Consultants & Contractors.",
     "Confidence stays below the auto-accept threshold because the invoice number is new and the amount is 14% above the two earlier payments.",
@@ -114,7 +115,7 @@ export interface HistoryItem {
 }
 
 export const ACME_HISTORY: HistoryItem[] = [
-  { action: "ai_categorise", title: "AI proposed 411 Consultants & Contractors", detail: "Haiku 5.5 · confidence 0.74 · risk low", at: "06 May · 09:14" },
+  { action: "ai_categorise", title: "AI proposed 411 Consultants & Contractors", detail: "Sonnet 5.5, escalated from Haiku 5.5 · confidence 0.74 · risk low", at: "06 May · 09:14" },
   { action: "human_approve", title: "Approved by the reviewer", detail: "Recorded in the audit log · now a precedent", at: "14 May · 10:42" },
 ];
 
