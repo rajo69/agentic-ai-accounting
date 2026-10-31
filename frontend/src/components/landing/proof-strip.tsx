@@ -1,19 +1,20 @@
 import { Container } from "./section";
 
 /**
- * Verified in the repository on 2026-10-10 (test count re-checked 2026-10-24): 34 route decorators under backend/app, 117
- * tests collected under backend/tests (run by CI), one AuditLog row per AI and human decision,
- * confirmed and corrected categorisations stored as precedents, pgvector and instructor in
- * pyproject. No accuracy, no hours saved (DESIGN.md section 9). Sits above "How it is built";
+ * Verified in the repository on 2026-10-10 (re-checked 2026-10-31): 34 route decorators under backend/app, 244
+ * tests collected under backend/tests (244 passed in CI on 2d0599b), one AuditLog row per AI and human decision,
+ * confirmed and corrected categorisations stored as precedents, pgvector in pyproject,
+ * structured outputs parsed with Pydantic in backend/app/services/llm_client.py. No accuracy, no
+ * hours saved (DESIGN.md section 9). Sits above "How it is built";
  * the model names live in the Explain row and the architecture diagram only.
  */
 const FACTS = [
   "Audit row per decision",
   "Corrections become precedents",
   "34 endpoints",
-  "117 tests in CI",
+  "244 tests in CI",
   "pgvector precedent retrieval",
-  "Structured outputs via Instructor",
+  "Pydantic-validated outputs",
 ];
 
 export function ProofStrip() {

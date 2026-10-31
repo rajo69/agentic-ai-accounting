@@ -10,7 +10,7 @@
 
 | Area | Evidence in the repository |
 |---|---|
-| Backend, integration and delivery | A FastAPI service with 34 routes, async SQLAlchemy, Alembic migrations, a custom Xero OAuth2 adapter (token refresh, encryption, rate-limit backoff, incremental sync, HMAC webhooks), a Next.js 14 console, 117 tests in CI with a pgvector service container, and a production incident handled and written up. [Architecture](README.md#architecture) · [Engineering record](README.md#engineering-record) |
+| Backend, integration and delivery | A FastAPI service with 34 routes, async SQLAlchemy, Alembic migrations, a custom Xero OAuth2 adapter (token refresh, encryption, rate-limit backoff, incremental sync, HMAC webhooks), a Next.js 14 console, 244 tests in CI with a pgvector service container, and a production incident handled and written up. [Architecture](README.md#architecture) · [Engineering record](README.md#engineering-record) |
 | LLM pipeline | LangGraph workflows calling Claude through one gateway (structured output validated by Pydantic, a profile flag for the model set, moved from Claude 4.x to 5.5 behind a pre-registered A/B); Haiku-first routing with Sonnet escalation and a full audit row; pgvector precedent retrieval so corrections become few-shot examples; an eval harness with hard gates, caching and a budget guard, and a written statement of what the eval measures. [Design decisions](README.md#design-decisions-and-trade-offs) · [Evaluation](README.md#evaluation) |
 | Evaluation and risk scoring | Fixture design by difficulty tier, confidence calibration tables, acceptance gates, a provenance rule for every published number, a glass-box fuzzy risk engine with eight readable rules, and research questions on per-organisation calibration, explanation utility and active review selection. [Evaluation](README.md#evaluation) · [Explainability](README.md#explainability-and-risk-scoring) |
 
@@ -19,7 +19,7 @@
 | Fact | Where |
 |---|---|
 | 34 API routes, matching the live OpenAPI document | `backend/app/api/v1/`, `/openapi.json` on the deployed API |
-| 117 tests in 12 files, run on every push with migrations against Postgres | `backend/tests/`, `.github/workflows/ci.yml` |
+| 244 tests in 17 files, run on every push with migrations against Postgres | `backend/tests/`, `.github/workflows/ci.yml` |
 | 50 labelled eval fixtures generated with Claude, none taken from Xero (31 easy, 15 medium, 4 hard), 20 chart codes, gates enforced by the runner | `backend/evals/` |
 | One audit row per AI decision and per human action, with model, confidence and reasoning | `backend/app/models/database.py`, `agents/categoriser.py` |
 | Money is `NUMERIC(12,2)` and `Decimal` in the data layer | models and migrations |

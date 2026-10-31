@@ -20,7 +20,7 @@ https://github.com/user-attachments/assets/431b5bd4-40b8-466a-8d86-a41dfa1e11d9
 | What it does | proposes and explains a category for every transaction, matches bank transactions to invoices and payments, drafts the quarter's management letter, and keeps an audit trail of every AI proposal and every human decision. |
 | AI | Claude Haiku 5.5, escalating to Sonnet 5.5 when unsure · structured output validated by Pydantic, through one gateway on the Anthropic SDK · LangGraph workflows · pgvector retrieval of the firm's own past decisions · risk flags from eight readable fuzzy-logic rules. |
 | Stack | Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL 16 with pgvector, Redis, Alembic · Next.js 14, TypeScript, Tailwind · Docker, GitHub Actions, Vercel, Railway. |
-| Size | 34 API routes, 8 tables, 6 migrations, 117 backend tests run in CI. |
+| Size | 34 API routes, 8 tables, 6 migrations, 244 backend tests run in CI. |
 | Status | deployed and open source (MIT); designed and built by Rajarshi Nandi, March to October 2026. |
 
 ## Who it is for and why it exists
@@ -84,7 +84,7 @@ A Next.js console talks to a FastAPI service; a LangGraph categoriser and the do
 | Retrieval | pgvector in the same Postgres; `all-MiniLM-L6-v2` embeddings (384 dimensions) computed in-process |
 | Data | PostgreSQL 16, eight tables, six migrations, `NUMERIC(12,2)` and `Decimal` for money; Redis for cache and webhook debounce, optional |
 | Documents | Figures in Python, narrative from Claude as structured output, Jinja2 templates rendered to PDF by WeasyPrint |
-| Operations | GitHub Actions (pgvector service container, migrations, 117 tests, type check, lint), per-organisation rate limits, background jobs tracked in Postgres, optional Sentry |
+| Operations | GitHub Actions (pgvector service container, migrations, 244 tests, type check, lint), per-organisation rate limits, background jobs tracked in Postgres, optional Sentry |
 
 **Boundaries the code keeps.** Model calls live in `services/` and `agents/`; no route makes one. The single path to Xero is `integrations/xero_adapter.py`, and it only reads. Every AI decision and every human review decision (approve, correct, reject, confirm, match, unmatch) writes an audit row. Model output arrives as a schema, so nothing is parsed from free text, and the organisation comes from the session rather than from anything the model returns.
 
@@ -202,7 +202,7 @@ npm run dev                               # http://localhost:3000, with NEXT_PUB
 
 The Xero app needs the redirect URI `http://localhost:8000/auth/xero/callback`. WeasyPrint needs Cairo and Pango for PDFs. Everything in `backend/.env.example` is the complete set; Sentry, Resend and the webhook key are optional.
 
-**Tests.** `cd backend && pytest -q` runs 117 tests in 12 files offline, with Xero, Anthropic and the database session mocked; `cd frontend && npx tsc --noEmit && npm run lint && npm run build` checks the frontend. CI starts a pgvector Postgres service, applies the migrations, runs the backend suite, then the frontend type check and lint.
+**Tests.** `cd backend && pytest -q` runs 244 tests in 17 files offline, with Xero, Anthropic and the database session mocked; `cd frontend && npx tsc --noEmit && npm run lint && npm run build` checks the frontend. CI starts a pgvector Postgres service, applies the migrations, runs the backend suite, then the frontend type check and lint.
 
 <details>
 <summary><strong>Repository map</strong></summary>
@@ -212,15 +212,15 @@ backend/
   app/
     api/v1/          auth, sync, dashboard, categorise, reconcile, documents, explanations, gdpr, webhooks, jobs
     agents/          categoriser.py, reconciler.py (LangGraph)
-    services/        embedding_service.py, document_service.py
+    services/        llm_client.py (the one gateway for Claude calls), embedding_service.py, document_service.py
     integrations/    xero_adapter.py
     xai/             fuzzy_engine.py, explainer.py
     core/            config, database, session (JWT), encryption, cache, jobs, rate_limit, observability, email
     models/          SQLAlchemy models, Pydantic schemas
     templates/       management_letter.html, profit_loss.html, vat_summary.html
   alembic/           six migrations
-  tests/             twelve files, 117 tests
-  evals/             harness, fixtures (50 transactions, 20 accounts), cost tracker, cache
+  tests/             seventeen files, 244 tests
+  evals/             harness, fixtures (50 transactions, 20 accounts), cost tracker, cache, migration A/B harness and gate
 frontend/src/
   app/               landing, dashboard, transactions, reconciliation, documents, team, settings, demo, privacy, auth/callback
   components/        app shell, sidebar, explanation panel, landing/*, app/*, ui/*

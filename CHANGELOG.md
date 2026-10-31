@@ -1,5 +1,6 @@
 # Changelog
 
+- **2026-10-31** Docs: test count 117 -> 244 (17 files, as run in CI) in the README, PORTFOLIO and landing; the landing's architecture and proof strip name the LLM gateway and structured outputs instead of Instructor.
 - **2026-10-31** Every Claude call moves to Haiku 5.5 and Sonnet 5.5: `LLM_PROFILE` now defaults to `claude-5-5` (structured outputs, effort low, thresholds unchanged), and `LLM_PROFILE=claude-4` rolls back. Audit and document rows record the model that served each call. The demo and landing page name the new models.
 - **2026-10-31** Migration A/B ([report](backend/evals/reports/2026-10-31-migration-5-5/summary.md)): the app's own categorisation requests on bookbench UK dev, Claude 4.x against 5.5, with the gate committed before the results; all three tiered 5.5 candidates passed, at $6.86 of Batch API calls.
 - **2026-10-31** One gateway for every Claude call (`backend/app/services/llm_client.py`): Instructor and langchain-anthropic removed, `anthropic` 2.3.0, and an `LLM_PROFILE` setting (`claude-4`, the default, keeps today's models and requests; `claude-5-5` is ready behind it). A primary refusal now escalates, and escalation errors are recorded on the audit row instead of being dropped.
