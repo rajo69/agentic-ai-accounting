@@ -153,32 +153,34 @@ async def _live_categorise(
     categoriser route that uses `model` (llm_client.PROFILES), and its cost
     comes from that call's own usage.
     """
-    try:
-        from pydantic import BaseModel
+    # Imports are outside any try: a live run that cannot reach the gateway
+    # must fail, not quietly score mock predictions at $0.
+    from pydantic import BaseModel
 
-        from app.services.llm_client import PROFILES, Route, structured_call
+    from app.services import llm_client
+    from app.services.llm_client import PROFILES, Route, build_request
 
-        class CategoryPrediction(BaseModel):
-            category_code: str
-            category_name: str
-            confidence: float
-            reasoning: str
+    class CategoryPrediction(BaseModel):
+        category_code: str
+        category_name: str
+        confidence: float
+        reasoning: str
 
-        route_profile = next(
-            (
-                (route, profile)
-                for profile in PROFILES.values()
-                for route in (Route.CATEGORISE_PRIMARY, Route.CATEGORISE_ESCALATION)
-                if profile.routes[route].model == model
-            ),
-            None,
-        )
-        if route_profile is None:
-            raise ValueError(f"no categoriser route uses {model}; add it to a profile in app/services/llm_client.py")
-        route, profile = route_profile
+    route_profile = next(
+        (
+            (route, profile)
+            for profile in PROFILES.values()
+            for route in (Route.CATEGORISE_PRIMARY, Route.CATEGORISE_ESCALATION)
+            if profile.routes[route].model == model
+        ),
+        None,
+    )
+    if route_profile is None:
+        raise ValueError(f"no categoriser route uses {model}; add it to a profile in app/services/llm_client.py")
+    route, profile = route_profile
 
-        accounts_text = "\n".join(f"  {a['code']}: {a['name']} ({a['type']})" for a in accounts)
-        prompt = f"""You are a UK accounting assistant. Categorise this bank transaction.
+    accounts_text = "\n".join(f"  {a['code']}: {a['name']} ({a['type']})" for a in accounts)
+    prompt = f"""You are a UK accounting assistant. Categorise this bank transaction.
 
 Transaction:
   Date: {tx.date}
@@ -191,28 +193,29 @@ Chart of Accounts:
 
 Return the most appropriate account code and name, your confidence (0.0-1.0), and a brief reasoning."""
 
-        cached = cache.get(model, prompt)
-        if cached:
-            return cached, True
+    # Key on every request param except the prompt (model, mechanism, effort,
+    # max_tokens, schema), so two configs of one model never share answers.
+    request = build_request(route, prompt, CategoryPrediction, profile)
+    cache_key = json.dumps({k: v for k, v in request.items() if k != "messages"}, sort_keys=True, default=str)
+    cached = cache.get(cache_key, prompt)
+    if cached:
+        return cached, True
 
-        t0 = time.monotonic()
-        call = await structured_call(route, prompt, CategoryPrediction, profile)
-        elapsed_ms = (time.monotonic() - t0) * 1000
-        tracker.record(call.usage, label=tx.id, duration_ms=elapsed_ms)
-        pred = call.require()
+    t0 = time.monotonic()
+    call = await llm_client.structured_call(route, prompt, CategoryPrediction, profile)
+    elapsed_ms = (time.monotonic() - t0) * 1000
+    tracker.record(call.usage, label=tx.id, duration_ms=elapsed_ms)
+    pred = call.require()
 
-        result = {
-            "category_code": pred.category_code,
-            "category_name": pred.category_name,
-            "confidence": pred.confidence,
-            "reasoning": pred.reasoning,
-        }
-        cache.set(model, prompt, result)
-        return result, False
+    result = {
+        "category_code": pred.category_code,
+        "category_name": pred.category_name,
+        "confidence": pred.confidence,
+        "reasoning": pred.reasoning,
+    }
+    cache.set(cache_key, prompt, result)
+    return result, False
 
-    except ImportError:
-        # anthropic not installed (the `ai` extra)
-        return _mock_categorise(tx, accounts), False
 
 
 # ---------------------------------------------------------------------------

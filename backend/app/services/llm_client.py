@@ -12,8 +12,8 @@ Two mechanisms produce structured output:
 - `format`: structured outputs (`output_config.format`). Required on
   Claude Sonnet 5.5, which rejects a forced `tool_choice` with a 400.
 
-`build_request` is pure and is the single source of request params for live
-calls and for the Batch eval harness.
+`build_request` is pure and is the single source of request params, for live
+calls and for Message Batches requests (`for_batch=True`).
 """
 import json
 import logging

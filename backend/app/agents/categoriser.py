@@ -168,6 +168,7 @@ def build_categoriser_graph(db: AsyncSession, profile: Optional[Profile] = None)
         chosen: Optional[LLMResult] = primary if primary.ok else None
         escalated = False
         escalation_error: Optional[str] = None
+        escalation_exc: Optional[Exception] = None
         primary_confidence = float(primary.parsed.confidence) if primary.ok else None
 
         # Tiered routing: if the primary isn't confident enough to auto-accept,
@@ -183,12 +184,14 @@ def build_categoriser_graph(db: AsyncSession, profile: Optional[Profile] = None)
                 chosen = second
                 escalated = True
             except LLMUnavailableError as exc:
+                escalation_exc = exc
                 escalation_error = exc.result.status.value if exc.result else type(exc).__name__
                 logger.warning(
                     "Escalation to %s gave no usable output (%s), keeping primary prediction",
                     escalation_model, escalation_error,
                 )
             except Exception as exc:
+                escalation_exc = exc
                 escalation_error = type(exc).__name__
                 logger.exception(
                     "Escalation to %s failed, keeping primary prediction",
@@ -196,6 +199,12 @@ def build_categoriser_graph(db: AsyncSession, profile: Optional[Profile] = None)
                 )
 
         if chosen is None:
+            escalation_result = getattr(escalation_exc, "result", None)
+            if escalation_result is None or escalation_result.status is not Status.REFUSED:
+                # The primary declined and the escalation failed for another
+                # reason (API error, truncation, bad output): raise, so the row
+                # stays uncategorised and the next batch retries it.
+                raise escalation_exc
             # Every tier declined: no prediction, so the row goes to review.
             return {
                 "prediction": None,
@@ -203,6 +212,7 @@ def build_categoriser_graph(db: AsyncSession, profile: Optional[Profile] = None)
                     "category": primary.refusal_category,
                     "model": primary_model,
                     "route": Route.CATEGORISE_PRIMARY.value,
+                    "escalation_category": escalation_result.refusal_category,
                     "escalation_error": escalation_error,
                 },
                 "status": "classified",

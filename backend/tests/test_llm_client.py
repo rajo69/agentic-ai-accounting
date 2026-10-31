@@ -247,3 +247,20 @@ class _Narrow(BaseModel):
 def test_require_on_ok_result_returns_parsed():
     result = parse_response(_message([{"type": "text", "text": '{"value": 3}'}]), Route.DOC_VAT_SUMMARY, _Narrow, CLAUDE_5_5)
     assert result.require() == _Narrow(value=3)
+
+
+def test_settings_reject_an_unknown_llm_profile_at_startup(monkeypatch):
+    """A typo in LLM_PROFILE fails when Settings loads (boot), not on the first Claude call."""
+    from pydantic import ValidationError
+
+    from app.core.config import Settings
+    monkeypatch.setenv("LLM_PROFILE", "claude-5.5")
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
+
+
+def test_settings_accept_exactly_the_gateway_profiles(monkeypatch):
+    from app.core.config import Settings
+    for name in PROFILES:
+        monkeypatch.setenv("LLM_PROFILE", name)
+        assert Settings(_env_file=None).llm_profile == name

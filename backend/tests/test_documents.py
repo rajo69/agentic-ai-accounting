@@ -391,3 +391,58 @@ async def test_generate_document_returns_the_llm_error_message():
         app.dependency_overrides.pop(get_current_org, None)
     assert response.status_code == 500
     assert "cut off at the token limit" in response.json()["detail"]
+
+
+_GENERATORS = [
+    ("generate_management_letter", "DOC_MANAGEMENT_LETTER", 2),
+    ("generate_profit_loss", "DOC_PROFIT_LOSS", 2),
+    ("generate_vat_summary", "DOC_VAT_SUMMARY", 3),
+]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("profile_name", ["claude-4", "claude-5-5"])
+@pytest.mark.parametrize("generator,route_name,queries", _GENERATORS)
+async def test_generators_record_the_profile_model_and_the_served_model(monkeypatch, profile_name, generator, route_name, queries):
+    """Each generator calls its own route under LLM_PROFILE and writes the model on the document and audit rows."""
+    from types import SimpleNamespace
+
+    from app.models.database import AuditLog, GeneratedDocument
+    from app.services import document_service, llm_client
+    from app.services.llm_client import PROFILES, LLMResult, Route, Status
+
+    monkeypatch.setattr(llm_client.settings, "llm_profile", profile_name)
+    route = Route[route_name]
+    cfg = PROFILES[profile_name].routes[route]
+
+    async def fake_call(route_arg, prompt, schema):
+        assert route_arg is route
+        parsed = schema(**{name: "text" for name in schema.model_fields})
+        return LLMResult(route=route_arg, requested_model=cfg.model, mechanism=cfg.mechanism,
+                         status=Status.OK, parsed=parsed, served_model="served-model-id")
+
+    org = SimpleNamespace(id=uuid.uuid4(), name="Test Ltd")
+    txs = [SimpleNamespace(amount=Decimal(a), description="d", category=c, date=date(2026, 1, 15),
+                           reference=None, account_id=None)
+           for a, c in (("1000.00", "Sales"), ("-300.00", "Rent"))]
+    org_result, tx_result, account_result = MagicMock(), MagicMock(), MagicMock()
+    org_result.scalar_one_or_none.return_value = org
+    tx_result.scalars.return_value.all.return_value = txs
+    account_result.scalars.return_value.all.return_value = []  # VAT only: no tax types, standard rate
+    db = AsyncMock()
+    db.execute = AsyncMock(side_effect=[org_result, tx_result, account_result][:queries])
+    db.add = MagicMock()
+
+    with patch.object(document_service, "structured_call", side_effect=fake_call), \
+         patch.object(document_service, "_html_to_pdf_sync", return_value=b"%PDF"):
+        pdf, meta = await getattr(document_service, generator)(
+            org_id=org.id, period_start=date(2026, 1, 1), period_end=date(2026, 3, 31), db=db)
+
+    assert pdf == b"%PDF" and meta["transaction_count"] == 2
+    added = [c.args[0] for c in db.add.call_args_list]
+    doc = next(a for a in added if isinstance(a, GeneratedDocument))
+    audit = next(a for a in added if isinstance(a, AuditLog))
+    assert doc.ai_model == cfg.model
+    assert audit.ai_model == cfg.model
+    assert audit.ai_decision_data["served_model"] == "served-model-id"
+    db.commit.assert_awaited()

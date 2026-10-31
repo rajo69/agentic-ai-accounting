@@ -195,3 +195,58 @@ async def test_decide_bands_match_the_old_constants(confidence, status):
     }
     final, *_ = await _run(responses)
     assert final["status"] == status
+
+
+@pytest.mark.asyncio
+async def test_no_escalation_at_exactly_the_threshold():
+    """Escalation is strictly below 0.85: at 0.85 the primary answer stands and only one call is made."""
+    final, tx, audit, calls = await _run({
+        Route.CATEGORISE_PRIMARY: _ok(Route.CATEGORISE_PRIMARY, 0.85),
+        Route.CATEGORISE_ESCALATION: _ok(Route.CATEGORISE_ESCALATION, 0.99, code="200", name="Sales"),
+    })
+    assert calls == [Route.CATEGORISE_PRIMARY]
+    assert final["status"] == "suggested"
+    assert tx.category == "Advertising"
+    assert audit.ai_decision_data["escalated"] is False
+
+
+@pytest.mark.asyncio
+async def test_primary_api_error_propagates_without_escalating():
+    """An API error on the primary raises (the batch counts it as an error), as before the gateway."""
+    with pytest.raises(BadRequestError):
+        await _run({
+            Route.CATEGORISE_PRIMARY: _bad_request(),
+            Route.CATEGORISE_ESCALATION: _ok(Route.CATEGORISE_ESCALATION, 0.9),
+        })
+
+
+@pytest.mark.asyncio
+async def test_primary_refusal_then_escalation_api_error_raises_so_the_row_is_retried():
+    """A transient escalation failure must not park the row in review with a 'declined' note."""
+    with pytest.raises(BadRequestError):
+        await _run({
+            Route.CATEGORISE_PRIMARY: _refused(Route.CATEGORISE_PRIMARY, "cyber"),
+            Route.CATEGORISE_ESCALATION: _bad_request(),
+        })
+
+
+@pytest.mark.asyncio
+async def test_primary_refusal_then_truncated_escalation_raises():
+    truncated = LLMResult(route=Route.CATEGORISE_ESCALATION, requested_model="m",
+                          mechanism=CLAUDE_4.routes[Route.CATEGORISE_ESCALATION].mechanism,
+                          status=Status.TRUNCATED, stop_reason="max_tokens")
+    with pytest.raises(Exception, match="token limit"):
+        await _run({
+            Route.CATEGORISE_PRIMARY: _refused(Route.CATEGORISE_PRIMARY, "cyber"),
+            Route.CATEGORISE_ESCALATION: truncated,
+        })
+
+
+@pytest.mark.asyncio
+async def test_refusal_on_every_tier_records_both_categories():
+    _, _, audit, _ = await _run({
+        Route.CATEGORISE_PRIMARY: _refused(Route.CATEGORISE_PRIMARY, "cyber"),
+        Route.CATEGORISE_ESCALATION: _refused(Route.CATEGORISE_ESCALATION, "general_harms"),
+    })
+    assert audit.ai_decision_data["refusal"]["category"] == "cyber"
+    assert audit.ai_decision_data["refusal"]["escalation_category"] == "general_harms"
