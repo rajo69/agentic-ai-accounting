@@ -1,5 +1,9 @@
 # The shipped categoriser (claude-5-5) on bookbench UK test
 
+> **Note added 2026-10-31, after publication.** "Accuracy" in this report's tables means agreement with bookbench's
+> draft labels at the dataset commit in `provenance.json`, not accuracy against reviewed labels. Nothing below this note
+> was changed.
+
 Measures the categoriser the app runs today (`LLM_PROFILE=claude-5-5`: Haiku 5.5, escalating to Sonnet 5.5 below
 0.85) on the bookbench UK test split (plan S9 task 1). The S10 A/B
 (`../2026-10-31-migration-5-5/`) chose this profile on the dev split; this run is the held-out check.

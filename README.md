@@ -35,7 +35,7 @@ AI Accountant sits after Xero's AI and before the sign-off, and makes the review
 
 - Confidence tiers say where to look, so attention goes to the uncertain cases.
 - Every proposal arrives with its reasoning, and the reviewer's question becomes "do I agree?".
-- A correction comes back as an example on the next similar transaction; the firm's own decisions are retrieved, and no model is trained on them.
+- A correction is stored as a precedent: each new transaction retrieves the five most similar decided transactions from the same firm as examples, and no model is trained on them.
 - Before anyone asks for it, the audit row (model, confidence, reasoning, human decision) already exists.
 
 ## What it does
@@ -44,7 +44,7 @@ A quarter's review, start to finish. Everything here runs against a connected Xe
 
 1. **Sync.** Connects to Xero with OAuth2 and pulls the chart of accounts, bank transactions, invoices and payments, incrementally after the first pull.
 2. **Categorise.** Proposes a category for every uncategorised transaction, using the firm's own previously categorised transactions as precedents, with a confidence score, written reasoning and a tier: auto-accept, suggested or needs review.
-3. **Review.** Each proposal shows its reasoning, which model made the call, and a risk flag from eight plain-language rules such as unusual amount, unseen vendor and odd timing. Approve, correct or reject; a correction becomes a precedent for the next similar transaction.
+3. **Review.** Each proposal shows its reasoning, which model made the call, and a risk flag from eight plain-language rules such as unusual amount, unseen vendor and odd timing. Approve, correct or reject; a correction becomes a precedent that later similar transactions can retrieve.
 
    ![A transaction opened in the review console: the proposed category, confidence, reasoning, the risk rules that fired and the audit trail](docs/media/explanation-panel.png)
 
@@ -112,10 +112,10 @@ Each row is a choice, the alternative it was chosen over, and the trade-off acce
 | Decision | Instead of | Why | Trade-off accepted |
 |---|---|---|---|
 | Fixed LangGraph workflows | An autonomous agent with tools | Known task shape; each node is a typed async function, testable alone, and a run ends in one audit row | Less flexible on odd cases; agentic review is a later [roadmap](docs/PRODUCTION_ROADMAP.md) phase with its own evals |
-| Structured output validated by Pydantic, through one gateway | Parsing model text, the first version | Parsing silently returned wrong categories when the model added preamble | The gateway is code to keep current as the API changes per model |
+| Structured output validated by Pydantic, through one gateway | Parsing model text | A rule in the first commit, before any model call existed: parsed text can yield a wrong category without an error, while a schema makes invalid output fail | The gateway is code to keep current as the API changes per model |
 | Haiku first, Sonnet below 0.85 confidence | Haiku only, or Sonnet only | The stronger model runs only where a person would otherwise look, at 20× Haiku's list price per token (Sonnet 5.5 $2 / $10 against Haiku 5.5 $0.10 / $0.50 per million input / output tokens, checked 2026-10-28). Measured on bookbench's held-out test split: agreement with its draft labels 93.7% at $4.00 per 1,000 transactions, against 86.1% ($0.39) for Haiku only and 94.3% ($7.59) for Sonnet only ([report](backend/evals/reports/2026-10-31-bookbench-test-5-5/summary.md)) | Within a point of Sonnet only at about half its cost, but 46% of transactions escalate, so they make two model calls |
 | A pre-registered A/B before changing models, with a one-setting rollback | Upgrading on the release notes | Read against the code, the migration guide showed Sonnet 5.5 rejects the forced tool call the app sent, which would have quietly turned escalation off; the gate was committed before any result existed | $6.86 of API calls, and a verdict that holds only on a draft benchmark |
-| The firm's own past decisions as few-shot precedents | Fine-tuning, or a global classifier | Corrections apply on the next similar transaction; categorisation trains no model on client data | Precedents come only from the same organisation |
+| The firm's own past decisions as few-shot precedents | Fine-tuning, or a global classifier | A correction is re-embedded and joins the precedents that later similar transactions retrieve (the five nearest by embedding); categorisation trains no model on client data | Precedents come only from the same organisation |
 | Local MiniLM embeddings in the same Postgres | An embeddings API and a vector database | Anthropic has no embeddings endpoint; no extra vendor or database | PyTorch makes the backend image large |
 | Risk flags from eight readable fuzzy rules | Learned per-feature contributions | An accountant can read and challenge "amount deviation is high AND vendor is rare" | Coarser than a learned model |
 | `Decimal` money, figures computed in code | Floats; model-written figures | Penny errors are trust failures; the model never touches a number | The model writes only the narrative around the figures |
@@ -171,7 +171,6 @@ Problems that needed judgement, in brief. The long form, with commit links, is i
 - Xero changed its OAuth scope scheme mid-build. Apps created after 2 March 2026 must use granular scopes, and the broad ones returned `unauthorized_client`. I found the working names by testing against the token endpoint, then caught a later commit that silently reintroduced a broad scope by cross-checking git history against Xero's scope table.
 - A CORS "improvement" took the production dashboard down in a loop. Every `fetch` threw a `TypeError` with no status, which the dashboard read as "Xero not connected", while OAuth (a redirect, immune to CORS) kept working. Diagnosed by telling a browser-level CORS failure apart from a 401.
 - Anthropic has no embeddings endpoint. Split the concerns: local MiniLM embeddings off the event loop with `asyncio.to_thread`, and a migration shrinking the vector column from the OpenAI size.
-- Parsing model text produced wrong categories without raising. Replaced with structured output (Instructor at first, now one gateway on the Anthropic SDK), so a Pydantic model is the contract and invalid output fails instead of persisting.
 - Xero's Demo Company bank lines are invisible to the API. Added a Payments source with deduplication against invoices, so on live data the reconciler matches bank transactions to invoices and payments.
 - A dependency release took the API down for an afternoon. SQLAlchemy 2.1 shipped, the unpinned range resolved to it, and `postgresql://` now defaulted to a driver the image lacked. Pinned, redeployed and verified within the afternoon.
 - I reviewed my own code. Six parallel review passes, run as Claude Code agents under one evidence standard (file, line, quoted code, severity), produced 106 findings, 14 high, none critical; the numerical ones were reproduced before being recorded. Method and top findings: [`docs/SELF_REVIEW.md`](docs/SELF_REVIEW.md).

@@ -1,5 +1,9 @@
 # Claude 4.x against Claude 5.5 on bookbench UK dev: the migration gate
 
+> **Note added 2026-10-31, after publication.** "Accuracy" in this report's tables means agreement with bookbench's
+> draft labels at the dataset commit in `provenance.json`, not accuracy against reviewed labels. Nothing below this note
+> was changed.
+
 Internal decision record for moving the app's categoriser from Haiku 4.5 / Sonnet 4.6 to Haiku 5.5 / Sonnet 5.5
 (plan S10, PR 3). It decides whether the `claude-5-5` profile becomes the default. **It is not an accuracy figure**:
 bookbench is a draft (0.2.0-draft) with rule-generated, unreviewed labels, so only the comparison between arms on the

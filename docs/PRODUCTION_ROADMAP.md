@@ -15,7 +15,9 @@ after the October 2026 [self-review](SELF_REVIEW.md).
   with per-phase caps, Message Batches by default and replayed responses in CI.
 - **Safety of change.** Every behaviour change ships behind a flag that is off in production; AI changes go shadow,
   then canary, then default; migrations are expand, migrate, contract, each with a tested downgrade; existing API
-  paths and schemas never change.
+  paths and schemas never change. The October 2026 move to the 5.5 models departed from the shadow and canary steps:
+  with no live traffic to shadow, it shipped as the default after a pre-registered offline A/B, with a one-setting
+  rollback (`LLM_PROFILE=claude-4`). The rule stands for real users.
 
 ## Phases
 
