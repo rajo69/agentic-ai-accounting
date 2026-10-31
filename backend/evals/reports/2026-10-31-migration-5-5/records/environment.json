@@ -1,0 +1,18 @@
+{
+ "python": "3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]",
+ "platform": "Windows-11-10.0.26200-SP0",
+ "packages": {
+  "anthropic": "2.3.0",
+  "httpx2": "2.16.0",
+  "pydantic": "2.12.5",
+  "langgraph": "1.1.3",
+  "langchain-core": "1.2.20",
+  "sqlalchemy": "2.0.48"
+ },
+ "api_version_sent_by_sdk": "2026-10-21",
+ "app_commit_at_launch": "a589c7ed38e20118565e4c4c548c43ccb2713692",
+ "branch": "eval/migration-ab",
+ "tree_dirty_at_capture": false,
+ "command": "py -3.13 -u -m evals.migration_ab --data-dir <scratch>/bookbench --mode live --arms A,B,C,D,E,F --reps 3 --budget 8",
+ "note": "full pip freeze kept locally, not committed"
+}

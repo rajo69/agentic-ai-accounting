@@ -1,0 +1,485 @@
+{
+ "date": "2026-10-31T02:08:51+00:00",
+ "mode": "live",
+ "app_commit": "a589c7ed38e20118565e4c4c548c43ccb2713692",
+ "app_tree_dirty": false,
+ "bookbench": {
+  "ref": "eval/phase-2-data",
+  "commit": "f57f0d4f731f862aba9d015784defdd966488864",
+  "path": "backend/evals/datasets/bookbench/draft",
+  "generator_version": "0.2.0-draft",
+  "sha256": {
+   "full_dryrun/items.jsonl": "b6c53e95932d1f52bca1676c1d51281d8a007b486aae63ef96a144f1f6091daf",
+   "full_dryrun/history.jsonl": "2ccb52c79c728d6d2223a8fcf2df4614edc37a83f726e2d4639ca0bab7f0fd6f",
+   "full_dryrun/stats.json": "22872b63c54f950c67234604b6773b8406488b0ba90ff653557f458bc1ce2323",
+   "chart_uk.json": "9fe248674701fb1ffbec9d6e8e5c8e281d3b9949ab5a257f7de37b9130eb55c1",
+   "full_dryrun/manifest.json": "3a004eb1d5ea4d2c1f1027074c62fae776a7ab7eb9570fd276831d2c140edec9"
+  },
+  "split": "UK dev",
+  "n_items": 200,
+  "strata": {
+   "S0": 50,
+   "S1": 30,
+   "S2": 30,
+   "S3": 40,
+   "S4": 20,
+   "S5": 20,
+   "S6": 10
+  }
+ },
+ "prompt": {
+  "builder_sha256": "ec3f523ed5c036fc1d05685686a8152be1a21aa21d6280f4c08e09acd57f0db1",
+  "rendered_sha256": "e96ab03539cd9e1a2fac3ef0a63448aa06435a2b83b70e8300155118a5737aa8"
+ },
+ "reps": 3,
+ "arms": {
+  "A": {
+   "description": "Haiku 4.5, tool (today's primary)",
+   "profile": "claude-4",
+   "route": "categorise_primary",
+   "request": {
+    "model": "claude-haiku-4-5-20251001",
+    "max_tokens": 512,
+    "tools": [
+     {
+      "name": "CategoryPrediction",
+      "description": "Correctly extracted `CategoryPrediction` with all the required parameters with correct types",
+      "input_schema": {
+       "properties": {
+        "category_code": {
+         "title": "Category Code",
+         "type": "string"
+        },
+        "category_name": {
+         "title": "Category Name",
+         "type": "string"
+        },
+        "confidence": {
+         "title": "Confidence",
+         "type": "number"
+        },
+        "reasoning": {
+         "title": "Reasoning",
+         "type": "string"
+        }
+       },
+       "required": [
+        "category_code",
+        "category_name",
+        "confidence",
+        "reasoning"
+       ],
+       "title": "CategoryPrediction",
+       "type": "object"
+      }
+     }
+    ],
+    "tool_choice": {
+     "type": "tool",
+     "name": "CategoryPrediction",
+     "disable_parallel_tool_use": true
+    }
+   },
+   "thresholds": {
+    "escalation": 0.85,
+    "auto_accept": 0.85,
+    "review": 0.5
+   },
+   "served_models": {
+    "claude-haiku-4-5-20251001": 600
+   }
+  },
+  "B": {
+   "description": "Sonnet 4.6, tool, all items",
+   "profile": "claude-4",
+   "route": "categorise_escalation",
+   "request": {
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 512,
+    "tools": [
+     {
+      "name": "CategoryPrediction",
+      "description": "Correctly extracted `CategoryPrediction` with all the required parameters with correct types",
+      "input_schema": {
+       "properties": {
+        "category_code": {
+         "title": "Category Code",
+         "type": "string"
+        },
+        "category_name": {
+         "title": "Category Name",
+         "type": "string"
+        },
+        "confidence": {
+         "title": "Confidence",
+         "type": "number"
+        },
+        "reasoning": {
+         "title": "Reasoning",
+         "type": "string"
+        }
+       },
+       "required": [
+        "category_code",
+        "category_name",
+        "confidence",
+        "reasoning"
+       ],
+       "title": "CategoryPrediction",
+       "type": "object"
+      }
+     }
+    ],
+    "tool_choice": {
+     "type": "tool",
+     "name": "CategoryPrediction",
+     "disable_parallel_tool_use": true
+    }
+   },
+   "thresholds": {
+    "escalation": 0.85,
+    "auto_accept": 0.85,
+    "review": 0.5
+   },
+   "served_models": {
+    "claude-sonnet-4-6": 600
+   }
+  },
+  "C": {
+   "description": "Haiku 5.5, format, effort low",
+   "profile": "claude-5-5",
+   "route": "categorise_primary",
+   "request": {
+    "model": "claude-haiku-5-5",
+    "max_tokens": 2048,
+    "output_config": {
+     "format": {
+      "type": "json_schema",
+      "schema": {
+       "type": "object",
+       "title": "CategoryPrediction",
+       "properties": {
+        "category_code": {
+         "type": "string",
+         "title": "Category Code"
+        },
+        "category_name": {
+         "type": "string",
+         "title": "Category Name"
+        },
+        "confidence": {
+         "type": "number",
+         "title": "Confidence"
+        },
+        "reasoning": {
+         "type": "string",
+         "title": "Reasoning"
+        }
+       },
+       "additionalProperties": false,
+       "required": [
+        "category_code",
+        "category_name",
+        "confidence",
+        "reasoning"
+       ]
+      }
+     },
+     "effort": "low"
+    }
+   },
+   "thresholds": {
+    "escalation": 0.85,
+    "auto_accept": 0.85,
+    "review": 0.5
+   },
+   "served_models": {
+    "claude-haiku-5-5": 600
+   }
+  },
+  "D": {
+   "description": "Sonnet 5.5, format, effort low, all items",
+   "profile": "claude-5-5",
+   "route": "categorise_escalation",
+   "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 2048,
+    "output_config": {
+     "format": {
+      "type": "json_schema",
+      "schema": {
+       "type": "object",
+       "title": "CategoryPrediction",
+       "properties": {
+        "category_code": {
+         "type": "string",
+         "title": "Category Code"
+        },
+        "category_name": {
+         "type": "string",
+         "title": "Category Name"
+        },
+        "confidence": {
+         "type": "number",
+         "title": "Confidence"
+        },
+        "reasoning": {
+         "type": "string",
+         "title": "Reasoning"
+        }
+       },
+       "additionalProperties": false,
+       "required": [
+        "category_code",
+        "category_name",
+        "confidence",
+        "reasoning"
+       ]
+      }
+     },
+     "effort": "low"
+    }
+   },
+   "thresholds": {
+    "escalation": 0.85,
+    "auto_accept": 0.85,
+    "review": 0.5
+   },
+   "served_models": {
+    "claude-sonnet-5-5": 600
+   }
+  },
+  "E": {
+   "description": "Haiku 5.5, tool, effort low",
+   "profile": "claude-5-5+haiku-tool",
+   "route": "categorise_primary",
+   "request": {
+    "model": "claude-haiku-5-5",
+    "max_tokens": 2048,
+    "tools": [
+     {
+      "name": "CategoryPrediction",
+      "description": "Correctly extracted `CategoryPrediction` with all the required parameters with correct types",
+      "input_schema": {
+       "properties": {
+        "category_code": {
+         "title": "Category Code",
+         "type": "string"
+        },
+        "category_name": {
+         "title": "Category Name",
+         "type": "string"
+        },
+        "confidence": {
+         "title": "Confidence",
+         "type": "number"
+        },
+        "reasoning": {
+         "title": "Reasoning",
+         "type": "string"
+        }
+       },
+       "required": [
+        "category_code",
+        "category_name",
+        "confidence",
+        "reasoning"
+       ],
+       "title": "CategoryPrediction",
+       "type": "object"
+      }
+     }
+    ],
+    "tool_choice": {
+     "type": "tool",
+     "name": "CategoryPrediction",
+     "disable_parallel_tool_use": true
+    },
+    "output_config": {
+     "effort": "low"
+    }
+   },
+   "thresholds": {
+    "escalation": 0.85,
+    "auto_accept": 0.85,
+    "review": 0.5
+   },
+   "served_models": {
+    "claude-haiku-5-5": 600
+   }
+  },
+  "F": {
+   "description": "Haiku 5.5, format, effort medium",
+   "profile": "claude-5-5+haiku-medium",
+   "route": "categorise_primary",
+   "request": {
+    "model": "claude-haiku-5-5",
+    "max_tokens": 2048,
+    "output_config": {
+     "format": {
+      "type": "json_schema",
+      "schema": {
+       "type": "object",
+       "title": "CategoryPrediction",
+       "properties": {
+        "category_code": {
+         "type": "string",
+         "title": "Category Code"
+        },
+        "category_name": {
+         "type": "string",
+         "title": "Category Name"
+        },
+        "confidence": {
+         "type": "number",
+         "title": "Confidence"
+        },
+        "reasoning": {
+         "type": "string",
+         "title": "Reasoning"
+        }
+       },
+       "additionalProperties": false,
+       "required": [
+        "category_code",
+        "category_name",
+        "confidence",
+        "reasoning"
+       ]
+      }
+     },
+     "effort": "medium"
+    }
+   },
+   "thresholds": {
+    "escalation": 0.85,
+    "auto_accept": 0.85,
+    "review": 0.5
+   },
+   "served_models": {
+    "claude-haiku-5-5": 600
+   }
+  }
+ },
+ "pricing_per_1m": {
+  "claude-haiku-4-5-20251001": {
+   "input_per_1m": 1.0,
+   "output_per_1m": 5.0
+  },
+  "claude-sonnet-4-6": {
+   "input_per_1m": 3.0,
+   "output_per_1m": 15.0
+  },
+  "claude-haiku-5-5": {
+   "input_per_1m": 0.1,
+   "output_per_1m": 0.5
+  },
+  "claude-sonnet-5-5": {
+   "input_per_1m": 2.0,
+   "output_per_1m": 10.0
+  }
+ },
+ "batch_discount": 0.5,
+ "cost_from_usage": {
+  "A": {
+   "model": "claude-haiku-4-5-20251001",
+   "input_tokens": 1649211,
+   "output_tokens": 86397,
+   "usd": 1.040598
+  },
+  "B": {
+   "model": "claude-sonnet-4-6",
+   "input_tokens": 1649811,
+   "output_tokens": 90860,
+   "usd": 3.1561665
+  },
+  "C": {
+   "model": "claude-haiku-5-5",
+   "input_tokens": 1929900,
+   "output_tokens": 82598,
+   "usd": 0.1171445
+  },
+  "D": {
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1929900,
+   "output_tokens": 70549,
+   "usd": 2.282645
+  },
+  "E": {
+   "model": "claude-haiku-5-5",
+   "input_tokens": 2108100,
+   "output_tokens": 116761,
+   "usd": 0.13459525
+  },
+  "F": {
+   "model": "claude-haiku-5-5",
+   "input_tokens": 1929900,
+   "output_tokens": 116495,
+   "usd": 0.12561875
+  }
+ },
+ "calls_per_arm": {
+  "C": {
+   "calls": 600,
+   "ok": 600,
+   "refused": 0,
+   "max_tokens": 0,
+   "no_output": 0,
+   "invalid_output": 0,
+   "errored": 0,
+   "refusal_categories": {}
+  },
+  "E": {
+   "calls": 600,
+   "ok": 600,
+   "refused": 0,
+   "max_tokens": 0,
+   "no_output": 0,
+   "invalid_output": 0,
+   "errored": 0,
+   "refusal_categories": {}
+  },
+  "F": {
+   "calls": 600,
+   "ok": 600,
+   "refused": 0,
+   "max_tokens": 0,
+   "no_output": 0,
+   "invalid_output": 0,
+   "errored": 0,
+   "refusal_categories": {}
+  },
+  "A": {
+   "calls": 600,
+   "ok": 600,
+   "refused": 0,
+   "max_tokens": 0,
+   "no_output": 0,
+   "invalid_output": 0,
+   "errored": 0,
+   "refusal_categories": {}
+  },
+  "D": {
+   "calls": 600,
+   "ok": 600,
+   "refused": 0,
+   "max_tokens": 0,
+   "no_output": 0,
+   "invalid_output": 0,
+   "errored": 0,
+   "refusal_categories": {}
+  },
+  "B": {
+   "calls": 600,
+   "ok": 600,
+   "refused": 0,
+   "max_tokens": 0,
+   "no_output": 0,
+   "invalid_output": 0,
+   "errored": 0,
+   "refusal_categories": {}
+  }
+ },
+ "batch_differences": "no server-side fallbacks on Sonnet 5.5 (Batch rejects them)",
+ "labels": "rule-generated, unreviewed (bookbench draft); a relative comparison, not an accuracy figure"
+}

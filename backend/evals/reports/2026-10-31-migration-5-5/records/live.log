@@ -1,0 +1,61 @@
+bookbench f57f0d4f731f862aba9d015784defdd966488864: 200 UK dev items, arms ['A', 'B', 'C', 'D', 'E', 'F'], reps 3
+  A claude-haiku-4-5-20251001    in~ 2744.2 out~ 100 x600: batch $0.9733 (standard $1.9465, ceiling $1.5913)
+  B claude-sonnet-4-6            in~ 2745.2 out~ 100 x600: batch $2.9207 (standard $5.8414, ceiling $4.7747)
+  C claude-haiku-5-5             in~ 3212.8 out~ 150 x600: batch $0.1189 (standard $0.2378, ceiling $0.4036)
+  D claude-sonnet-5-5            in~ 3212.8 out~ 150 x600: batch $2.3777 (standard $4.7554, ceiling $8.0717)
+  E claude-haiku-5-5             in~ 3509.8 out~ 150 x600: batch $0.1278 (standard $0.2556, ceiling $0.4125)
+  F claude-haiku-5-5             in~ 3212.8 out~ 300 x600: batch $0.1414 (standard $0.2828, ceiling $0.4036)
+  total: batch $6.6598, ceiling $15.6574
+arm C: submitted batch msgbatch_014KNrPofifEfUKJpMGoQi44 (600 requests)
+arm C: in_progress, 600 processing
+arm C: in_progress, 600 processing
+arm C: in_progress, 600 processing
+arm C: in_progress, 600 processing
+arm C: done, spent so far $0.1171 of $8.00
+arm E: submitted batch msgbatch_01NTQdUZAuyPHdSdjCZ2Qtj7 (600 requests)
+arm E: in_progress, 600 processing
+arm E: in_progress, 600 processing
+arm E: in_progress, 600 processing
+arm E: done, spent so far $0.2517 of $8.00
+arm F: submitted batch msgbatch_012tGbHWDKWuDgSDWr626Ymo (600 requests)
+arm F: in_progress, 600 processing
+arm F: in_progress, 600 processing
+arm F: in_progress, 600 processing
+arm F: in_progress, 600 processing
+arm F: done, spent so far $0.3774 of $8.00
+arm A: submitted batch msgbatch_017k8HYky7JPYez2KR4ZzFT1 (600 requests)
+arm A: in_progress, 600 processing
+arm A: in_progress, 600 processing
+arm A: in_progress, 600 processing
+arm A: done, spent so far $1.4180 of $8.00
+arm D: submitted batch msgbatch_018mPjYCobLZVuNWcTLquFgG (600 requests)
+arm D: in_progress, 600 processing
+arm D: in_progress, 600 processing
+arm D: in_progress, 600 processing
+arm D: in_progress, 600 processing
+arm D: done, spent so far $3.7006 of $8.00
+arm B: submitted batch msgbatch_015jvy2MqHM8upjEXw3XAjyR (600 requests)
+arm B: in_progress, 600 processing
+arm B: in_progress, 600 processing
+arm B: in_progress, 600 processing
+arm B: done, spent so far $6.8568 of $8.00
+  arm C: 600 calls, ok 600, refused 0, max_tokens 0, no_output 0, invalid 0, errored 0
+  arm E: 600 calls, ok 600, refused 0, max_tokens 0, no_output 0, invalid 0, errored 0
+  arm F: 600 calls, ok 600, refused 0, max_tokens 0, no_output 0, invalid 0, errored 0
+  arm A: 600 calls, ok 600, refused 0, max_tokens 0, no_output 0, invalid 0, errored 0
+  arm D: 600 calls, ok 600, refused 0, max_tokens 0, no_output 0, invalid 0, errored 0
+  arm B: 600 calls, ok 600, refused 0, max_tokens 0, no_output 0, invalid 0, errored 0
+  A                  acc 0.7807  auto 0.6228 prec 0.893  esc 0.0  err 0 ref 0  $1.7343/1k
+  B                  acc 0.9053  auto 0.7105 prec 0.9506  esc 0.0  err 0 ref 0  $5.2603/1k
+  C                  acc 0.8368  auto 0.3684 prec 0.9857  esc 0.0  err 0 ref 0  $0.1953/1k
+  D                  acc 0.914  auto 0.4509 prec 0.9883  esc 0.0  err 0 ref 0  $3.8044/1k
+  E                  acc 0.8509  auto 0.3368 prec 0.9844  esc 0.0  err 0 ref 0  $0.2243/1k
+  F                  acc 0.8895  auto 0.3667 prec 0.9856  esc 0.0  err 0 ref 0  $0.2094/1k
+  old_tiered         acc 0.8316  auto 0.6474 prec 0.897  esc 0.1737  err 0 ref 0  $2.6603/1k
+  new_tiered         acc 0.9105  auto 0.4193 prec 0.9874  esc 0.4526  err 0 ref 0  $2.0065/1k
+  new_tiered_tool    acc 0.9193  auto 0.407 prec 0.9741  esc 0.5263  err 0 ref 0  $2.3067/1k
+  new_tiered_medium  acc 0.9158  auto 0.4088 prec 0.9785  esc 0.4526  err 0 ref 0  $2.0261/1k
+  gate new_tiered: G1 pass, G2 pass, G3 pass, G4 pass
+  gate new_tiered_tool: G1 pass, G2 pass, G3 pass, G4 pass
+  gate new_tiered_medium: G1 pass, G2 pass, G3 pass, G4 pass
+wrote backend/evals/results/migration_ab/live (local path removed)

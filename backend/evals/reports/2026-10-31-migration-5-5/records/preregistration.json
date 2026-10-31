@@ -1,0 +1,8 @@
+{
+ "commit": "a589c7ed38e20118565e4c4c548c43ccb2713692",
+ "file": "backend/evals/reports/2026-10-31-migration-5-5/summary.md",
+ "github_branch_creation": "2026-10-31T02:07:44Z",
+ "source": "GET repos/rajo69/agentic-ai-accounting/activity?ref=refs/heads/eval/migration-ab",
+ "state_at_push": "arms C, E, F, A, D returned; arm B in progress; no accuracy or gate computed by anyone; only arm C call counts (refusals, truncations, tokens) inspected",
+ "batch_submissions_began": "2026-10-31 about 01:47 UTC (see batches.json after the run)"
+}
