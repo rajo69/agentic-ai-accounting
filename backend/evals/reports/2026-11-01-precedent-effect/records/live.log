@@ -19,7 +19,7 @@ arm D: done, spent so far $3.4570 of $5.00
   C                  acc 0.6912  auto 0.2234 prec 0.8429  esc 0.0  err 0 ref 0  $0.1937/1k
   D                  acc 0.7778  auto 0.2889 prec 0.9433  esc 0.0  err 0 ref 0  $3.6474/1k
   new_tiered         acc 0.7696  auto 0.2749 prec 0.8723  esc 0.6444  err 0 ref 0  $2.5858/1k
-wrote C:\Users\Rajo\Desktop\projects_2026\github_exp\Agentic_AI_Accounting\.claude\worktrees\precedent-effect\backend\evals\results\migration_ab\live-test-noprec
+wrote <repo>\backend\evals\results\migration_ab\live-test-noprec
 bookbench f57f0d4f731f862aba9d015784defdd966488864: 300 UK test items, arms ['C'], reps 1, precedents top5
   C claude-haiku-5-5             in~ 3206.2 out~ 150 x300: batch $0.0593 (standard $0.1187, ceiling $0.2017)
   total: batch $0.0593, ceiling $0.2017
