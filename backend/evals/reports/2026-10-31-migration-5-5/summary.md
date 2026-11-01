@@ -299,3 +299,4 @@ Observations, not new criteria. The gate above is the decision input; everything
 - Flip the default to `claude-5-5` (PR 4), since every gate passed. Rollback stays `LLM_PROFILE=claude-4`.
 - The raw responses and request bodies are archived privately outside the repo with a SHA-256 manifest. Publishing
   them (next to bookbench, with its canary string) is a later decision.
+- Published 2026-11-01 (owner's decision): the raw responses and request bodies are on Hugging Face as [bookbench-runs](https://huggingface.co/datasets/rajo0113/bookbench-runs) (`2026-10-31-migration-ab-uk-dev/`), byte-identical to the private archive apart from the console log, with a SHA256SUMS file and bookbench's canary string in the card; `--mode score` re-scores them offline.
