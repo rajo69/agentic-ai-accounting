@@ -232,7 +232,14 @@ class Case:
     prompt: str
 
 
-def build_cases(bb: Bookbench, items: list[dict]) -> list[Case]:
+PRECEDENTS = ("top5", "none")
+
+
+def build_cases(bb: Bookbench, items: list[dict], precedents_mode: str = "top5") -> list[Case]:
+    """`precedents_mode="none"` sends no similar examples, so the prompt reads "(none yet)" as it
+    does for a firm with no categorised history (S12, the precedent-effect eval)."""
+    if precedents_mode not in PRECEDENTS:
+        raise ValueError(f"unknown precedents mode {precedents_mode!r}")
     cases = []
     for item in items:
         chart = firm_chart(bb.chart, item["firm_profile"])
@@ -240,7 +247,8 @@ def build_cases(bb: Bookbench, items: list[dict]) -> list[Case]:
         missing = [c for c in item["acceptable_labels"] if c not in codes]
         if missing:
             raise ValueError(f"{item['item_id']}: acceptable labels {missing} are not in the firm chart")
-        prompt = build_categoriser_prompt(transaction_data(item), chart, precedents(item, bb.history))
+        examples = precedents(item, bb.history) if precedents_mode == "top5" else []
+        prompt = build_categoriser_prompt(transaction_data(item), chart, examples)
         cases.append(Case(item=item, chart=chart, prompt=prompt))
     return cases
 
@@ -756,7 +764,7 @@ def _git(*args: str) -> Optional[str]:
 
 def provenance(bb: Bookbench, cases: list[Case], arms: list[str], reps: int, mode: str,
                served: Optional[dict] = None, cost: Optional[dict] = None, calls: Optional[dict] = None,
-               split: str = "dev") -> dict:
+               split: str = "dev", precedents_mode: str = "top5") -> dict:
     prompts = hashlib.sha256("\n\x00".join(c.prompt for c in cases).encode("utf-8")).hexdigest()
     return {
         "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -767,7 +775,8 @@ def provenance(bb: Bookbench, cases: list[Case], arms: list[str], reps: int, mod
         "bookbench": {**bb.source, "generator_version": bb.manifest.get("generator_version"),
                       "sha256": bb.sha256, "split": f"UK {split}", "n_items": len(cases),
                       "strata": {s: sum(c.item["stratum"] == s for c in cases)
-                                 for s in sorted({c.item["stratum"] for c in cases})}},
+                                 for s in sorted({c.item["stratum"] for c in cases})},
+                      "precedents": precedents_mode},
         "prompt": {"builder_sha256": hashlib.sha256(inspect.getsource(build_categoriser_prompt).encode()).hexdigest(),
                    "rendered_sha256": prompts},
         "reps": reps,
@@ -845,6 +854,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--reps", type=int, default=3)
     ap.add_argument("--split", choices=SPLITS, default="dev",
                     help="bookbench UK split; results go to <mode>-test for test, so a dev run's state.json is never resumed")
+    ap.add_argument("--precedents", choices=PRECEDENTS, default="top5",
+                    help="none: no similar examples in the prompt; results go to <dir>-noprec")
     ap.add_argument("--limit", type=int, help="first N items of the split only")
     ap.add_argument("--sample", type=int, default=10, help="prompts per arm counted in --mode estimate/live")
     ap.add_argument("--budget", type=float, help="USD cap; required for --mode live")
@@ -867,10 +878,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     bb = load_bookbench(args.data_dir)
     items = uk_split(bb, args.split)
     items = items[: args.limit] if args.limit else items
-    cases = build_cases(bb, items)
-    out_dir = args.out_dir or RESULTS_DIR / (args.mode if args.split == "dev" else f"{args.mode}-{args.split}")
+    cases = build_cases(bb, items, args.precedents)
+    default_dir = args.mode if args.split == "dev" else f"{args.mode}-{args.split}"
+    if args.precedents == "none":
+        default_dir += "-noprec"
+    out_dir = args.out_dir or RESULTS_DIR / default_dir
     print(f"bookbench {bb.source.get('commit', '(commit unknown)')}: {len(cases)} UK {args.split} items, "
-          f"arms {arms}, reps {args.reps}")
+          f"arms {arms}, reps {args.reps}, precedents {args.precedents}")
 
     if args.mode == "mock":
         raw = run_mock(arms, cases, args.reps)
@@ -903,7 +917,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     cost = {k: arm_cost(k, raw[k]) for k in arms}
     calls = arm_stats(raw)
     write_outputs(out_dir, rows, provenance(bb, cases, arms, args.reps, args.mode, served_models(raw), cost, calls,
-                                                  args.split), summary)
+                                                  args.split, args.precedents), summary)
     for key, st in calls.items():
         print(f"  arm {key}: {st['calls']} calls, ok {st['ok']}, refused {st['refused']}, max_tokens {st['max_tokens']}, "
               f"no_output {st['no_output']}, invalid {st['invalid_output']}, errored {st['errored']}")
