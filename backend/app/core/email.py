@@ -68,7 +68,6 @@ def render_invite_email(
     invite_link: str,
 ) -> tuple[str, str]:
     """Return (html, text) for a team invitation email."""
-    subject_line = f"You've been invited to join {org_name} on AI Accountant"
     html = f"""
 <!DOCTYPE html>
 <html>

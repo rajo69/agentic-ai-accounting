@@ -39,11 +39,11 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(SA_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    organisation_id: Mapped[uuid.UUID] = mapped_column(SA_UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False)
+    organisation_id: Mapped[uuid.UUID] = mapped_column(SA_UUID(as_uuid=True), ForeignKey("organisations.id"), nullable=False, index=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(50), default="owner", nullable=False)  # owner | member
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
     organisation: Mapped["Organisation"] = relationship("Organisation", back_populates="users")
 
@@ -153,8 +153,8 @@ class Job(Base):
     result: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     params: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=True, onupdate=func.now())
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     __table_args__ = (
@@ -173,7 +173,7 @@ class GeneratedDocument(Base):
     period_end: Mapped[date] = mapped_column(Date, nullable=False)
     ai_model: Mapped[str] = mapped_column(String(100), nullable=False)
     figures: Mapped[dict] = mapped_column(JSONB, nullable=False)
-    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
     organisation: Mapped["Organisation"] = relationship("Organisation", back_populates="generated_documents")
 

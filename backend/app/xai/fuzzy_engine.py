@@ -209,7 +209,6 @@ async def compute_fuzzy_inputs(
     db,
 ) -> dict[str, float]:
     """Compute normalised fuzzy input values from a transaction and its DB context."""
-    from decimal import Decimal, InvalidOperation
     from datetime import date as date_type
     from sqlalchemy import select, func as sql_func
     from app.models.database import Transaction

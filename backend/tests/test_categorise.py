@@ -172,7 +172,7 @@ async def test_approve_transaction_updates_status():
 
     from app.api.v1.categorise import approve_transaction
 
-    result = await approve_transaction(transaction_id=tx.id, org=org, db=mock_db)
+    await approve_transaction(transaction_id=tx.id, org=org, db=mock_db)
     assert tx.categorisation_status == "confirmed"
     mock_db.commit.assert_called_once()
 
