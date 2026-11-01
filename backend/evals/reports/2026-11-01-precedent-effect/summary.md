@@ -74,3 +74,61 @@ network). Reruns of the analysis are free from the raw results.
 ---
 
 Everything below was written after the run.
+
+## Run
+
+- Rules committed as `3f1485e` at 2026-11-01T11:24:23Z (local commit time; the branch was pushed after the run). The
+  harness recorded that commit with a clean tree (`records/provenance-noprec.json`).
+- Without precedents: batch C created 11:24:53Z, ended 11:28:42Z; batch D created 11:28:59Z, ended 11:32:37Z. Drift rep:
+  created 11:33:18Z, ended 11:36:17Z (`records/batches.json`).
+- 2,100 calls, all `succeeded`: 0 refused, 0 `max_tokens`, 0 invalid, 0 errored. Served model = requested on every call.
+  The clean-call STOP did not trigger.
+- Cost from usage: C $0.1743 + D $3.2827 + drift $0.0587 = **$3.52** Batch, within the $5 and $0.25 caps (estimate $3.65).
+  Project Anthropic spend after this run: $14.06 of $60.
+- The `gate` lines in `records/live.log` are the migration harness's S10 gate, printed by habit; they compare 5.5 with
+  4.x arms that this run does not have and mean nothing here.
+- Analysis: `py -3.13 -m evals.precedent_effect` over the S9 raw results and this run's, output in `results.md`,
+  `effect.json` and `rows.csv` (one row per system, rep, item and arm set: `@with` is S9, `@without` is this run).
+
+## Result
+
+**Drift rule: not flagged.** Arm C with precedents, run today: 86.0% on the headline, against 85.6% to 86.7% in S9's three
+reps; flip rate against the S9 reps 4.8%, against S9's own rep-to-rep 3.3% (limit 6.6%). The S9 run stands as the
+with-precedents arm.
+
+**Primary: the claim rule is met.** On the 93 line+history items, the shipped `new_tiered` system agreed with the draft
+labels on **98.9%** of rows with precedents and **50.2%** without: **+48.7 points [+38.4, +58.8]** (paired item bootstrap
+95%). In every rep about 45 items were right only with precedents and none only without (exact McNemar p far below 0.001
+in each rep).
+
+| `new_tiered`, agreement with draft labels | n | With | Without | Difference [95% CI] |
+|---|---|---|---|---|
+| line+history (only a precedent settles it) | 93 | 98.9% | 50.2% | +48.7 [+38.4, +58.8] |
+| line (the bank line settles it) | 160 | 90.6% | 88.8% | +1.9 [-1.5, +5.4] |
+| S5 (send to review) | 30 | 96.7% | 98.9% | -2.2 [-10.0, +3.3] |
+| S0 to S5 headline | 285 | 93.7% | 77.0% | +16.7 [+12.2, +21.4] |
+
+**Reported, no decision attached.**
+- Items the bank line settles: no measurable change (the interval spans 0). Precedents neither help nor hurt there.
+- The headline difference (+16.7) is a property of bookbench's mix, 93 of 285 items depending on history; it is not
+  the effect to quote.
+- Cold start (no history), line+history items: 19.0% of rows were auto-posted, and 9.3% of all rows were auto-posted to
+  a category that disagrees with the label (0.0% with precedents). Most rows (72%) came back as suggestions and 9% as
+  needs review. On the headline, auto-accept precision falls from 98.4% to 87.2% and the auto-accept rate from 45.3%
+  to 27.5%. A firm's first categorisations, before it has any history, are where the app most often auto-posts a wrong
+  category on this data.
+- Escalation to Sonnet 5.5 rises from 45.7% to 64.4% without precedents, so cost per 1,000 rows at standard prices rises
+  from $3.88 to $5.13: precedents make the shipped system cheaper as well.
+- By `description_in_history` on the headline: the same description in history 100% with, 50% without (n 63); a
+  varied form 95% / 78% (n 84); none 90% / 88% (n 138).
+- C and D on their own show the same pattern: line+history +49.5 points for Haiku 5.5 and +48.0 for Sonnet 5.5.
+- S6 attacks (15 items): label taken 38% with, 47% without; auto-posted 9% / 13%. Too few items to read anything into.
+
+Full tables: `results.md`.
+
+## Decision
+
+The owner chose to publish (2026-11-01, "Recommended: I write up the report ... then push eval/precedent-effect and open
+a PR"). The README states the line+history result with its interval and the cold-start auto-post rate, worded as
+agreement with draft labels at `f57f0d4`. No threshold, prompt or model changes. The headline difference is not quoted
+on its own, because it depends on the dataset's mix.

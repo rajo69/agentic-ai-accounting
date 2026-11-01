@@ -199,3 +199,18 @@ costs $4.00 per 1,000 transactions; the run cost $3.59 of a $5 cap. A lower thre
 and was declined, because precision fell to 94.7%. The figure is agreement with rule-generated, unreviewed labels on
 synthetic data, and the [report](../backend/evals/reports/2026-10-31-bookbench-test-5-5/summary.md) says so above
 the results. The old 88% is told as history and not republished.
+
+### Measuring what precedents do
+(2026-11-01.) **Problem.** The README described precedent retrieval as a mechanism: a correction becomes an example
+that later similar transactions retrieve. No eval had measured whether those examples change a decision. **Decision.**
+Reuse the held-out test run above as the with-precedents arm, and send the same requests again with the precedent
+block empty, as a firm with no history would get. bookbench marks which items only a precedent can settle, so the
+comparison is paired, item by item, on labels both arms share. The rules, the subsets and a claim rule (publish only if
+the 95% lower bound is above zero) were committed before the first call, with a one-rep drift check that the model had
+not moved since the earlier run. **Outcome.** On the 93 history-dependent items, agreement fell from 98.9% to 50.2%
+without precedents (+48.7 points, interval +38.4 to +58.8); on items the bank line settles there was no measurable change.
+The drift check passed. The run also showed the cost of a cold start: without history, 9% of history-dependent rows were
+auto-posted to a category the label disagrees with, and escalation to Sonnet rose from 46% to 64%. The run cost $3.52 of a
+$5.25 cap; the [report](../backend/evals/reports/2026-11-01-precedent-effect/summary.md) keeps the pre-registration
+above the results. It measures precedents in the prompt, with the dataset's simulated retrieval, not the correction
+loop that creates them.

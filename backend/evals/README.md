@@ -12,7 +12,11 @@ a pre-registered relative comparison on unreviewed labels, not an accuracy figur
 then run once on the held-out UK test split (`migration_ab.py --split test`, report in
 [`reports/2026-10-31-bookbench-test-5-5/`](reports/2026-10-31-bookbench-test-5-5/summary.md)): 93.7% agreement with
 bookbench's draft labels at commit `f57f0d4` (285 items, 3 reps, interval 90.9% to 96.3%), auto-accept precision
-98.4% at 45.3% coverage, $4.00 per 1,000 transactions. This runner still defaults to
+98.4% at 45.3% coverage, $4.00 per 1,000 transactions. The same test requests were then sent with no precedents
+(`migration_ab.py --split test --precedents none`, paired by `precedent_effect.py`, report in
+[`reports/2026-11-01-precedent-effect/`](reports/2026-11-01-precedent-effect/summary.md)): on the 93 items only
+history can settle, agreement fell from 98.9% to 50.2% (+48.7 points, interval +38.4 to +58.8), with no measurable
+change on items the bank line settles. This runner still defaults to
 Haiku 4.5 so its cached responses stay valid; pass `--model claude-haiku-5-5` to run the current primary.
 
 ## Quick start
