@@ -35,7 +35,7 @@ function currentQuarter(): { start: string; end: string } {
 const TEMPLATES = [
   { value: "management_letter", label: "Management letter", description: "Summary, income and expense analysis, cash position, recommendations." },
   { value: "profit_loss", label: "Profit and loss", description: "Income and expenses by category with commentary and outlook." },
-  { value: "vat_summary", label: "VAT return summary", description: "Output and input VAT by rate with MTD notes." },
+  { value: "vat_summary", label: "VAT summary (indicative)", description: "Output and input VAT by rate with MTD notes." },
 ] as const;
 
 // ── Document row ──────────────────────────────────────────────────────────────

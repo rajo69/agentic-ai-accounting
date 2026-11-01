@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -10,6 +12,8 @@ from app.core.session import get_current_org
 from app.integrations.xero_adapter import XeroAdapter
 from app.models.database import Organisation, Account, Transaction, BankStatement
 from app.models.schemas import SyncResponse, SyncStatus
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["sync"])
 
@@ -26,8 +30,12 @@ async def trigger_sync(
     try:
         result = await adapter.full_sync(db)
     except Exception as exc:
+        # The exception text can carry Xero or database detail; it stays in the server log (DR-117).
+        logger.exception("Xero sync failed: org=%s", org.id)
         capture_exception(exc, org_id=str(org.id), endpoint="sync")
-        raise HTTPException(status_code=502, detail=f"Xero sync failed: {exc}") from exc
+        raise HTTPException(
+            status_code=502, detail="Xero sync failed. The error has been logged; please try again."
+        ) from exc
     await cache_delete_pattern(dashboard_key(org.id))
     return result
 
