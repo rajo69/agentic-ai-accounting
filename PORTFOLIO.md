@@ -20,7 +20,7 @@
 |---|---|
 | 34 API routes, matching the live OpenAPI document | `backend/app/api/v1/`, `/openapi.json` on the deployed API |
 | 244 tests in 17 files, run on every push with migrations against Postgres | `backend/tests/`, `.github/workflows/ci.yml` |
-| 50 labelled eval fixtures generated with Claude, none taken from Xero (31 easy, 15 medium, 4 hard), 20 chart codes, gates enforced by the runner | `backend/evals/` |
+| 50 labelled eval fixtures generated with Claude, none taken from Xero (31 easy, 15 medium, 4 hard), 20 chart codes, gates enforced by the runner. Known label defects: 9 of the 50 expected names differ from the chart's name for their code, and the loan repayment and loan receipt (t032, t041) are coded 820, the chart's tax account. No published figure comes from these fixtures; bookbench replaced them | `backend/evals/` |
 | One audit row per AI decision and per human action, with model, confidence and reasoning | `backend/app/models/database.py`, `agents/categoriser.py` |
 | Money is `NUMERIC(12,2)` and `Decimal` in the data layer | models and migrations |
 | Six-lens self-review: 106 findings, 14 high, 0 critical, top findings published with status and fixes | [Self-review](docs/SELF_REVIEW.md) |

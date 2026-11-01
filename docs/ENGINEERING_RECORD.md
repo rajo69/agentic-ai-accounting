@@ -171,7 +171,7 @@ Second, one gateway (`backend/app/services/llm_client.py`) with an `LLM_PROFILE`
 reproduces the requests Instructor sent, checked against a captured fixture, and `claude-5-5` uses structured outputs.
 Escalation errors and refusals are now recorded on the audit row instead of dropped. Third, an A/B on bookbench's
 UK dev split: the app's own requests, six arms, three reps, Message Batches. The gate and analyses were committed before any
-result was computed, and pushed before the run finished. Fourth, the flip. **Outcome.** All three tiered 5.5 candidates passed the gate, at
+result was computed (27 s before the first batch was created), and pushed before the last batch ended. Fourth, the flip. **Outcome.** All three tiered 5.5 candidates passed the gate, at
 $6.86 of API calls. On the 190 headline dev items (the 10 attack items are scored apart), the 5.5 tiered system scored 91.1% against 83.2% for 4.x (paired
 bootstrap interval +3.7 to +12.3 points), with auto-accept precision 98.7% against 89.7% and $4.01 against $5.32 per
 1,000 transactions. These are relative figures on rule-generated, unreviewed labels, not accuracy claims. The
