@@ -16,12 +16,11 @@ with a clear error message so clients can see what happened.
 """
 import asyncio
 import logging
-import uuid
 from datetime import datetime, timezone
 from typing import Awaitable, Callable, Optional
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import async_session

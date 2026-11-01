@@ -7,7 +7,6 @@ with a `job_id`; clients poll `GET /api/v1/jobs/{id}` for status.
 The existing synchronous endpoints (POST /api/v1/categorise, etc.) are
 kept for backwards compatibility — the async variants are opt-in.
 """
-from typing import Callable
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request

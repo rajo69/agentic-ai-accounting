@@ -1,6 +1,5 @@
 """Embedding service using sentence-transformers (all-MiniLM-L6-v2, 384 dims)."""
 import asyncio
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import select

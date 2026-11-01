@@ -34,7 +34,7 @@ import json
 import os
 import sys
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -130,7 +130,7 @@ def _mock_categorise(tx: EvalTransaction, accounts: list[dict]) -> dict:
 
     for keywords, code, name, conf in rules:
         if any(kw in desc for kw in keywords):
-            return {"category_code": code, "category_name": name, "confidence": conf, "reasoning": f"Matched keyword in description"}
+            return {"category_code": code, "category_name": name, "confidence": conf, "reasoning": "Matched keyword in description"}
 
     # Fallback
     return {"category_code": "416", "category_name": "General Expenses", "confidence": 0.40, "reasoning": "No strong signal found"}

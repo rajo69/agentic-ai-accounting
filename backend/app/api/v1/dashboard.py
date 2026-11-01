@@ -5,7 +5,7 @@ from sqlalchemy import select, func
 from app.core.cache import cache_get, cache_set, dashboard_key
 from app.core.database import get_db
 from app.core.session import get_current_org
-from app.models.database import Organisation, Account, Transaction, BankStatement
+from app.models.database import Organisation, Account, Transaction
 from app.models.schemas import DashboardSummary
 
 router = APIRouter(prefix="/api/v1", tags=["dashboard"])

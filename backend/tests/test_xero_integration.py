@@ -5,12 +5,10 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from httpx import AsyncClient, Response
 from fastapi.testclient import TestClient
 
 from app.main import app
 from app.integrations.xero_adapter import XeroAdapter, _parse_xero_date
-from app.core.config import settings
 
 
 # ---------------------------------------------------------------------------
