@@ -159,3 +159,4 @@ None: the analysis pairs each 5.5 system with a 4.x system, and this run has no 
   this report linked beside every figure.
 - The raw responses and request bodies (`results/migration_ab/live-test/`, gitignored) are archived privately outside
   the repo with a SHA-256 manifest, beside the dev run's archive. Publishing them is a later decision, as for dev.
+- Published 2026-11-01 (owner's decision): the raw responses and request bodies are on Hugging Face as [bookbench-runs](https://huggingface.co/datasets/rajo0113/bookbench-runs) (`2026-10-31-uk-test-claude-5-5/`), byte-identical to the private archive apart from the console log, with a SHA256SUMS file and bookbench's canary string in the card; `--mode score` re-scores them offline.

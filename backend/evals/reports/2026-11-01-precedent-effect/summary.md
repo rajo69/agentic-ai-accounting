@@ -132,3 +132,5 @@ The owner chose to publish (2026-11-01, "Recommended: I write up the report ... 
 a PR"). The README states the line+history result with its interval and the cold-start auto-post rate, worded as
 agreement with draft labels at `f57f0d4`. No threshold, prompt or model changes. The headline difference is not quoted
 on its own, because it depends on the dataset's mix.
+
+Raw results (2026-11-01, owner's decision): the no-precedent and drift runs' raw responses and request bodies are on Hugging Face as [bookbench-runs](https://huggingface.co/datasets/rajo0113/bookbench-runs) (`2026-11-01-precedent-effect-uk-test/`), next to the S9 run they pair with, byte-identical to the private archive apart from the console log, with a SHA256SUMS file and bookbench's canary string in the card.
