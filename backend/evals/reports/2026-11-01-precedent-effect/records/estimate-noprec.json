@@ -1,0 +1,27 @@
+{
+ "n_items": 300,
+ "reps": 3,
+ "sample": 30,
+ "arms": {
+  "C": {
+   "model": "claude-haiku-5-5",
+   "mean_input_tokens": 3049.1,
+   "assumed_output_tokens": 150,
+   "calls": 900,
+   "expected_batch_usd": 0.171,
+   "expected_standard_usd": 0.3419,
+   "ceiling_batch_usd": 0.598
+  },
+  "D": {
+   "model": "claude-sonnet-5-5",
+   "mean_input_tokens": 3049.1,
+   "assumed_output_tokens": 150,
+   "calls": 900,
+   "expected_batch_usd": 3.4192,
+   "expected_standard_usd": 6.8383,
+   "ceiling_batch_usd": 11.9602
+  }
+ },
+ "expected_batch_usd": 3.5902,
+ "ceiling_batch_usd": 12.5582
+}

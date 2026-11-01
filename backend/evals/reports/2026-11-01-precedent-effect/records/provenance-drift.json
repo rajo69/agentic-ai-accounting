@@ -1,0 +1,131 @@
+{
+ "date": "2026-11-01T11:36:20+00:00",
+ "mode": "live",
+ "app_commit": "3f1485e72f1584e385f1e85241aa3acc7b65bb9f",
+ "app_tree_dirty": false,
+ "environment": {
+  "python": "3.13.7",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+   "anthropic": "2.3.0",
+   "httpx2": "2.16.0",
+   "pydantic": "2.12.5",
+   "langgraph": "1.1.3",
+   "langchain-core": "1.2.20"
+  },
+  "api_version": "2026-10-21"
+ },
+ "bookbench": {
+  "ref": "f57f0d4",
+  "commit": "f57f0d4f731f862aba9d015784defdd966488864",
+  "path": "backend/evals/datasets/bookbench/draft",
+  "generator_version": "0.2.0-draft",
+  "sha256": {
+   "full_dryrun/items.jsonl": "b6c53e95932d1f52bca1676c1d51281d8a007b486aae63ef96a144f1f6091daf",
+   "full_dryrun/history.jsonl": "2ccb52c79c728d6d2223a8fcf2df4614edc37a83f726e2d4639ca0bab7f0fd6f",
+   "full_dryrun/stats.json": "22872b63c54f950c67234604b6773b8406488b0ba90ff653557f458bc1ce2323",
+   "chart_uk.json": "9fe248674701fb1ffbec9d6e8e5c8e281d3b9949ab5a257f7de37b9130eb55c1",
+   "full_dryrun/manifest.json": "3a004eb1d5ea4d2c1f1027074c62fae776a7ab7eb9570fd276831d2c140edec9"
+  },
+  "split": "UK test",
+  "n_items": 300,
+  "strata": {
+   "S0": 75,
+   "S1": 45,
+   "S2": 45,
+   "S3": 60,
+   "S4": 30,
+   "S5": 30,
+   "S6": 15
+  },
+  "precedents": "top5"
+ },
+ "prompt": {
+  "builder_sha256": "ec3f523ed5c036fc1d05685686a8152be1a21aa21d6280f4c08e09acd57f0db1",
+  "rendered_sha256": "e715321af8bb3f3ee9ec8b40b9ab2e2828d0b4b2a7f5ea2149538b8fce063424"
+ },
+ "reps": 1,
+ "arms": {
+  "C": {
+   "description": "Haiku 5.5, format, effort low",
+   "profile": "claude-5-5",
+   "route": "categorise_primary",
+   "request": {
+    "model": "claude-haiku-5-5",
+    "max_tokens": 2048,
+    "output_config": {
+     "format": {
+      "type": "json_schema",
+      "schema": {
+       "type": "object",
+       "title": "CategoryPrediction",
+       "properties": {
+        "category_code": {
+         "type": "string",
+         "title": "Category Code"
+        },
+        "category_name": {
+         "type": "string",
+         "title": "Category Name"
+        },
+        "confidence": {
+         "type": "number",
+         "title": "Confidence"
+        },
+        "reasoning": {
+         "type": "string",
+         "title": "Reasoning"
+        }
+       },
+       "additionalProperties": false,
+       "required": [
+        "category_code",
+        "category_name",
+        "confidence",
+        "reasoning"
+       ]
+      }
+     },
+     "effort": "low"
+    }
+   },
+   "thresholds": {
+    "escalation": 0.85,
+    "auto_accept": 0.85,
+    "review": 0.5
+   },
+   "served_models": {
+    "claude-haiku-5-5": 300
+   }
+  }
+ },
+ "pricing_per_1m": {
+  "claude-haiku-5-5": {
+   "input_per_1m": 0.1,
+   "output_per_1m": 0.5
+  }
+ },
+ "batch_discount": 0.5,
+ "cost_from_usage": {
+  "C": {
+   "model": "claude-haiku-5-5",
+   "input_tokens": 963121,
+   "output_tokens": 42228,
+   "usd": 0.05871305
+  }
+ },
+ "calls_per_arm": {
+  "C": {
+   "calls": 300,
+   "ok": 300,
+   "refused": 0,
+   "max_tokens": 0,
+   "no_output": 0,
+   "invalid_output": 0,
+   "errored": 0,
+   "refusal_categories": {}
+  }
+ },
+ "batch_differences": "no server-side fallbacks on Sonnet 5.5 (Batch rejects them)",
+ "labels": "rule-generated, unreviewed (bookbench draft); a relative comparison, not an accuracy figure"
+}

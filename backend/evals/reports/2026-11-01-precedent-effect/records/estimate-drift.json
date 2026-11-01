@@ -1,0 +1,18 @@
+{
+ "n_items": 300,
+ "reps": 1,
+ "sample": 30,
+ "arms": {
+  "C": {
+   "model": "claude-haiku-5-5",
+   "mean_input_tokens": 3206.2,
+   "assumed_output_tokens": 150,
+   "calls": 300,
+   "expected_batch_usd": 0.0593,
+   "expected_standard_usd": 0.1187,
+   "ceiling_batch_usd": 0.2017
+  }
+ },
+ "expected_batch_usd": 0.0593,
+ "ceiling_batch_usd": 0.2017
+}
